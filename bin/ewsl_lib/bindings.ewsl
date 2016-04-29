@@ -22,9 +22,9 @@ function bind(f,...)
 			if(false){}
 			else if(km[i]===_1) km[i]=zm[0];
 			else if(km[i]===_2) km[i]=zm[1];
-			else if(km[i]===_3) km[i]=zm[2];			
-			else if(km[i]===_4) km[i]=zm[3];	
-			else if(km[i]===_5) km[i]=zm[4];			
+			else if(km[i]===_3) km[i]=zm[2];
+			else if(km[i]===_4) km[i]=zm[3];
+			else if(km[i]===_5) km[i]=zm[4];
 		}
 		return fn(unpack(km));	
 	}

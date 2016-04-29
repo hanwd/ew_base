@@ -242,7 +242,7 @@ bool PluginEwslEditor::OnAttach()
 
 	ec.gp_beg("OtherWindow");
 		ec.gp_add(new EvtCommandExtraWindow("Wnd.Variable","bookbase"));
-		ec.gp_add(new EvtCommandShowModel("Ewsl.Script",pmdl));
+		ec.gp_add(new EvtCommandShowModel("Ewsl.ScriptEditor",pmdl));
 	ec.gp_end();
 
 	ec["Wnd.Variable"].flags.add(EvtBase::FLAG_CHECKED);

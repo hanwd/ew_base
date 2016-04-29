@@ -32,6 +32,20 @@ public:
 };
 
 template<unsigned N>
+class lkt_is_number08
+{
+public:
+	static const int value=(N>='0'&&N<='7');
+};
+
+template<unsigned N>
+class lkt_is_number02
+{
+public:
+	static const int value=(N>='0'&&N<='1');
+};
+
+template<unsigned N>
 class lkt_is_number16
 {
 public:
@@ -110,37 +124,76 @@ void Scanner::read_name()
 	add_item();
 }
 
+template<template<unsigned> class X,int N>
+void Scanner::read_number_t()
+{
+	mychar_ptr p1=stok.pcur;
+	skip<X>(stok);
+	mychar_ptr p2=stok.pcur;
+
+	uint64_t v(0);
+	lookup_table<lkt_hex_val> lkt;
+
+	for (mychar_ptr p = p1 ; p != p2; p++)
+	{
+		unsigned val = lkt[*p];
+		if (val >=N)
+		{
+			kerror("invalid ch");
+		}
+		v = (v*N)+val;
+	}
+
+
+	tokitem.type=TOK_INTEGER;
+	tokitem.word = "";
+	tokitem.word << v;
+
+	if(stok.pcur[0]=='i'||stok.pcur[0]=='j')
+	{
+		tokitem.type=TOK_IMAGPART;
+		stok.inc();
+	}
+
+	if(lookup_table<lkt_is_name>::test(*stok.pcur))
+	{
+		kerror("invalid number_end");
+	}
+
+	add_item();
+	return;
+}
+
 void Scanner::read_number()
 {
 	mychar_ptr p1=stok.pcur;
 
-	if(stok.pcur[0]=='0'&&(stok.pcur[1]=='x'||stok.pcur[1]=='X'))
+	if(stok.pcur[0]=='0' && stok.pcur[1]!='.')
 	{
-		stok.inc();
-		stok.inc();
-		skip<lkt_is_number16>(stok);
-		mychar_ptr p2=stok.pcur;
-
-		uint64_t v(0);
-		lookup_table<lkt_hex_val> lkt;
-
-		for (mychar_ptr p = p1 + 2; p != p2; p++)
+		if(stok.pcur[1]=='x'||stok.pcur[1]=='X')
 		{
-			unsigned val = lkt[*p];
-			if (val >15)
-			{
-				kerror("invalid ch");
-			}
-			v = (v<<4)+val;
+			stok.inc();
+			stok.inc();
+			read_number_t<lkt_is_number16,16>();
+			return;
 		}
 
-		tokitem.type=TOK_INTEGER;
-		tokitem.word = "";
-		tokitem.word << v;
+		if(stok.pcur[1]=='b'||stok.pcur[1]=='b')
+		{
+			stok.inc();
+			stok.inc();
+			read_number_t<lkt_is_number02,2>();
+			return;
+		}	
 
-		add_item();
-		return;
+		if(stok.pcur[1]>='1'||stok.pcur[1]<'8')
+		{
+			stok.inc();
+			read_number_t<lkt_is_number08,8>();
+			return;
+		}
 	}
+
 
 	skip<lkt_is_number10>(stok);
 	if (stok.pcur[0] == '.'&&stok.pcur[1] >='0'&& stok.pcur[1] <='9')
@@ -251,6 +304,15 @@ void Scanner::read_string(char br)
 					break;
 				case 'r':
 					sb.append('\r');
+					break;
+				case 's':
+					sb.append(' ');
+					break;
+				case 'f':
+					sb.append(0x0C);
+					break;
+				case 'b':
+					sb.append(0x08);
 					break;
 				case 'u':
 					{
@@ -431,6 +493,7 @@ void Scanner::read_dot()
 	switch(stok.pcur[0])
 	{
 	case '*':
+		if(stok.pcur[1]=='*') stok.inc();
 	case '/':
 	case '\\':
 		stok.inc();
@@ -503,10 +566,13 @@ indexer_map<String, tokType>& scanner_keywords()
 		aKeyword["class"] = TOK_KEY;
 		aKeyword["judge"] = TOK_KEY;
 		aKeyword["function"] = TOK_KEY;
+		aKeyword["def"] = TOK_KEY;
+
 
 		aKeyword["true"] = TOK_KEY;
 		aKeyword["false"] = TOK_KEY;
 		aKeyword["nil"] = TOK_KEY;
+
 
 	}
 	return aKeyword;
@@ -540,6 +606,7 @@ public:
 	static const unsigned N3=N2>0?N2:((N>0&&N<5)?3:0);
 	static const unsigned value=N3>0?N3:N;
 };
+
 
 bool Scanner::parse(const String& s)
 {
@@ -592,11 +659,11 @@ bool Scanner::parse(const String& s)
 				break;
 			}
 		case '\\':
-		case '*':
 		case '%':
-		case '>':
-		case '<':
 		case '!':
+		//case '>':
+		//case '<':
+		//case '*':
 			read_op2_a();
 			break;
 		case '=':
@@ -638,6 +705,9 @@ bool Scanner::parse(const String& s)
 		case '|':
 		case '&':
 		case '^':
+		case '*':
+		case '>':
+		case '<':
 			read_op2_c();
 			break;
 		case '?':

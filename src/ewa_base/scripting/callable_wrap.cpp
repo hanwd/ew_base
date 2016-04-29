@@ -118,6 +118,85 @@ bool CallableWrapT<String>::__test_dims(arr_xt_dims& dm, int op)
 }
 
 
+int CallableWrapT<TimePoint>::__getindex(Executor& ewsl,const String& index)
+{
+	TimeDetail td(value);
+
+	if(index=="year")
+	{
+		(*ewsl.ci1.nsp).reset(td.GetYear());
+	}
+	else if(index=="month")
+	{
+		(*ewsl.ci1.nsp).reset(td.GetMonth());		
+	}
+	else if(index=="day")
+	{
+		(*ewsl.ci1.nsp).reset(td.GetDay());
+	}
+	else if(index=="hour")
+	{
+		(*ewsl.ci1.nsp).reset(td.GetHour());		
+	}
+	else if(index=="minute")
+	{
+		(*ewsl.ci1.nsp).reset(td.GetMinute());		
+	}
+	else if(index=="second")
+	{
+		(*ewsl.ci1.nsp).reset(td.GetSecond());		
+	}
+	else if(index=="millisecond")
+	{
+		(*ewsl.ci1.nsp).reset(td.GetMilliSecond());		
+	}
+	else
+	{
+		return basetype::__getindex(ewsl,index);
+	}
+
+	return CallableData::STACK_BALANCED;
+}
+
+int CallableWrapT<dcomplex>::__getindex(Executor& ewsl,const String& index)
+{
+	if(index=="real")
+	{
+		(*ewsl.ci1.nsp).reset(value.real());
+	}
+	else if(index=="imag")
+	{
+		(*ewsl.ci1.nsp).reset(value.imag());
+	}
+	else
+	{
+		return basetype::__getindex(ewsl,index);
+	}
+
+	return CallableData::STACK_BALANCED;
+}
+
+int CallableWrapT<dcomplex>::__setindex(Executor& ewsl,const String& index)
+{
+	if(index=="real")
+	{
+		value.real(variant_cast<double>(ewsl.ci1.nsp[-1]));
+		ewsl.ci1.nsp-=2;
+	}
+	else if(index=="imag")
+	{
+		value.imag(variant_cast<double>(ewsl.ci1.nsp[-1]));
+		ewsl.ci1.nsp-=2;
+	}
+	else
+	{
+		return basetype::__setindex(ewsl,index);
+	}
+
+	return CallableData::STACK_BALANCED;
+}
+
+
 IMPLEMENT_OBJECT_INFO(CallableWrapT<bool>,ObjectInfo);
 IMPLEMENT_OBJECT_INFO(CallableWrapT<int64_t>,ObjectInfo);
 IMPLEMENT_OBJECT_INFO(CallableWrapT<double>,ObjectInfo);

@@ -48,6 +48,9 @@ public:
 	virtual bool __ne(Variant&, Variant&, Variant&){ return false; }
 	virtual bool __eq(Variant&, Variant&, Variant&){ return false; }
 
+	virtual bool __shl(Variant&, Variant&, Variant&){ return false; }
+	virtual bool __shr(Variant&, Variant&, Variant&){ return false; }
+
 	virtual CallableMetatable* ToMetatable(){return this;}
 
 	virtual HelpData* __get_helpdata();

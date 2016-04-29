@@ -1,4 +1,5 @@
 #include "ewa_base/scripting.h"
+#include "ewa_base/util/json.h"
 
 EW_ENTER
 
@@ -526,6 +527,41 @@ public:
 
 IMPLEMENT_OBJECT_INFO(CallableFunctionSaveTxt, ObjectInfo);
 
+
+
+class CallableFunctionLoadJson : public CallableFunction
+{
+public:
+
+	CallableFunctionLoadJson():CallableFunction("io.load_json"){}
+
+	virtual int __fun_call(Executor& ewsl,int pm)
+	{
+		ewsl.check_pmc(this,pm,1);
+		String *p=ewsl.ci0.nbx[1].ptr<String>();
+		if(!p)
+		{
+			ewsl.kerror("invalid param");
+			return 0;
+		}
+
+		StringBuffer<char> sb;
+		if(!sb.load(*p,FILE_TEXT))
+		{
+			ewsl.kerror("invalid jsonfile");
+			return 0;
+		}
+
+		ewsl.ci0.nbx[1]=parse_json(sb);		
+
+		return 1;
+	
+	}
+	DECLARE_OBJECT_CACHED_INFO(CallableFunctionLoadJson, ObjectInfo);
+
+};
+IMPLEMENT_OBJECT_INFO(CallableFunctionLoadJson, ObjectInfo);
+
 void init_module_io()
 {
 	CG_GGVar& gi(CG_GGVar::current());
@@ -534,6 +570,7 @@ void init_module_io()
 	gi.add_inner<CallableFunctionPrintEx>();
 	gi.add_inner<CallableFunctionShowTemp>();
 	gi.add_inner<CallableFunctionSaveTxt>();
+	gi.add_inner<CallableFunctionLoadJson>();
 
 }
 

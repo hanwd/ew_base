@@ -650,6 +650,27 @@ struct DLLIMPEXP_EWA_BASE pl_bw_xor : public pl_base2_bw
 	static const op_info& info();
 };
 
+struct DLLIMPEXP_EWA_BASE pl_bw_shl : public pl_base2_bw
+{
+	static int64_t g(int64_t x,int64_t y){return x<<y;}
+	static const op_info& info();
+
+	static inline bool metatable_call(CallableMetatable* mt, Variant& r, Variant& v1, Variant& v2)
+	{
+		return mt->__shl(r, v1, v2);;
+	}
+};
+
+struct DLLIMPEXP_EWA_BASE pl_bw_shr : public pl_base2_bw
+{
+	static int64_t g(int64_t x,int64_t y){return x>>y;}
+	static const op_info& info();
+
+	static inline bool metatable_call(CallableMetatable* mt, Variant& r, Variant& v1, Variant& v2)
+	{
+		return mt->__shr(r, v1, v2);;
+	}
+};
 
 
 EW_LEAVE

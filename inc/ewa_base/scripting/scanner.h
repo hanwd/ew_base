@@ -129,6 +129,9 @@ protected:
 
 	void read_number();
 
+	template<template<unsigned> class X,int N>
+	void read_number_t();
+
 	void read_string_raw(char br);
 	void read_string(char br);
 

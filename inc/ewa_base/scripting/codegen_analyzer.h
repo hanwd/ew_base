@@ -83,11 +83,13 @@ public:
 
 	virtual VisReturnType visit(TNode_statement_loop* node,VisExtraParam);
 
+	virtual VisReturnType visit(TNode_expression_op1*, VisExtraParam);
 	virtual VisReturnType visit(TNode_expression_op2*, VisExtraParam);
+	virtual VisReturnType visit(TNode_expression_opn*, VisExtraParam);
 
-	VisReturnType visit(TNode_statement_assignment* node,VisExtraParam);
+	virtual VisReturnType visit(TNode_statement_assignment* node,VisExtraParam);
 
-	VisReturnType visit(TNode_statement_macro* node, VisExtraParam visp);
+	virtual VisReturnType visit(TNode_statement_macro* node, VisExtraParam visp);
 
 
 };

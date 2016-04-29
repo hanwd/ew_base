@@ -105,6 +105,8 @@ const op_info& pl_bw_and::info(){static op_info sm_info("bitwise.and",0);return 
 const op_info& pl_bw_or::info(){static op_info sm_info("bitwise.or",0);return sm_info;}
 const op_info& pl_bw_xor::info(){static op_info sm_info("bitwise.xor",0);return sm_info;}
 
+const op_info& pl_bw_shl::info(){static op_info sm_info("bitwise.shl",0);return sm_info;}
+const op_info& pl_bw_shr::info(){static op_info sm_info("bitwise.shr",0);return sm_info;}
 
 EW_LEAVE
 

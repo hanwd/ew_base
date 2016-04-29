@@ -407,6 +407,14 @@ void Executor::_vm_run2(int k)
 			pl2_call<pl_bw_xor>::k(ci1.nsp[-1],ci1.nsp[-1],ci1.nsp[0]);
 			--ci1.nsp;
 			break;
+		case XOP2_SHIFT_L:
+			pl2_call<pl_bw_shl>::k(ci1.nsp[-1],ci1.nsp[-1],ci1.nsp[0]);
+			--ci1.nsp;
+			break;
+		case XOP2_SHIFT_R:
+			pl2_call<pl_bw_shr>::k(ci1.nsp[-1],ci1.nsp[-1],ci1.nsp[0]);
+			--ci1.nsp;
+			break;
 		case XOP2_AND:
 			ci1.nsp[-1].reset<bool>(pl_cast<bool>::k(ci1.nsp[-1])&&pl_cast<bool>::k(ci1.nsp[0]));
 			--ci1.nsp;

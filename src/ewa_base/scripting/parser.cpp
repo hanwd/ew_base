@@ -14,7 +14,10 @@ indexer_map<String, int>& get_op_table_instance()
 		m["~"] = 16;
 		m["!"] = 16;
 
-		m["^"] = 14;
+
+		m["**"] = 14;
+		m[".**"] = 14;
+
 		m[".*"] = 13;
 		m["./"] = 13;
 		m[".\\"] = 13;
@@ -27,7 +30,11 @@ indexer_map<String, int>& get_op_table_instance()
 		m["-"] = 10;
 
 		m["&"] = 9;
+		m["^"] = 8;
 		m["|"] = 7;
+
+		m["<<"] = 7;
+		m[">>"] = 7;
 
 		// 6 is reserved for colon a:b
 
@@ -44,12 +51,13 @@ indexer_map<String, int>& get_op_table_instance()
 		m["||"] = 2;
 		m[".."] = 2;
 
-		m["1"] = 15;
+		//m["1"] = 15;
 		// 1 is reserved for comma, a,b,c
 		m["="] = 0;
 		m["+="] = 0;
 		m["-="] = 0;
 		m["*="] = 0;
+
 		m["/="] = 0;
 		m["\\="] = 0;
 		m["+="] = 0;
@@ -58,6 +66,11 @@ indexer_map<String, int>& get_op_table_instance()
 		m["^="] = 0;
 
 		m["=>"] = 0;
+
+		m["**="] = 0;
+		m[">>="] = 0;
+		m["<<="] = 0;
+
 	}
 	return m;
 }
@@ -195,7 +208,7 @@ DataPtrT<TNode_item> read_node_handler<TNode_item>::g(Parser& parser)
 	{
 		node.reset(new TNode_var(parser.pcur[-1]));
 	}
-	else if(parser.pcur[0].type==TOK_KEY && parser.pcur[0].word=="function")
+	else if(parser.pcur[0].type==TOK_KEY && (parser.pcur[0].word=="function"||parser.pcur[0].word=="def"))
 	{
 		node=read_node_handler<TNode_val_function>::g(parser);
 	}
@@ -457,7 +470,7 @@ DataPtrT<TNode_expression> read_expr_handler<12>::g(Parser& parser)
 	const int N =12;
 
 	typedef arr_1t<tokItem> astr_array;
-	//DataPtrT<TNode_expression> node;
+
 	astr_array aOp;
 	while(parser.pcur[0].type==TOK_OP)
 	{
@@ -497,15 +510,6 @@ DataPtrT<TNode_expression> read_expr_handler<12>::g(Parser& parser)
 		n->param[0]=node;
 		node.reset(n);
 	}
-
-	//while(parser.pcur[0].type==TOK_OP && (parser.pcur[0].word=="++"||parser.pcur[0].word=="--"))
-	//{
-	//	TNode_expression_op1 *n=new TNode_expression_op1(parser.pcur[0]);
-	//	n->param[0]=node;
-	//	n->flags.add(TNode_expression_op1::FLAG_POST);
-	//	node.reset(n);
-	//	++parser.pcur;
-	//}
 
 
 	return node;

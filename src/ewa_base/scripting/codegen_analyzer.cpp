@@ -399,7 +399,7 @@ VisReturnType TNodeVisitorCG_AnalyzerUnit::visit(TNode_expression_call* node,Vis
 
 	if(node->cls)
 	{
-		node->cls->accept(rvis,visp);
+		visit_it<TNode_expression>(node->cls,visp);
 	}
 
 
@@ -536,10 +536,11 @@ VisReturnType TNodeVisitorCG_AnalyzerLValue::visit(TNode_var* node,VisExtraParam
 
 }
 
-VisReturnType TNodeVisitorCG_AnalyzerRValue::visit(TNode_expression_op2* node, VisExtraParam pm)
-{
-	return basetype::visit(node, pm);
-}
+
+//VisReturnType TNodeVisitorCG_AnalyzerRValue::visit(TNode_expression_op2* node, VisExtraParam pm)
+//{
+//	return basetype::visit(node, pm);
+//}
 
 VisReturnType TNodeVisitorCG_AnalyzerRValue::visit(TNode* node,VisExtraParam)
 {
@@ -547,6 +548,29 @@ VisReturnType TNodeVisitorCG_AnalyzerRValue::visit(TNode* node,VisExtraParam)
 
 	return def_value();
 }
+
+VisReturnType TNodeVisitorCG_AnalyzerRValue::visit(TNode_expression_op1* node,VisExtraParam p)
+{
+	if(node->param[0]) visit_it<TNode_expression>(node->param[0],p);
+	return def_value();
+}
+
+VisReturnType TNodeVisitorCG_AnalyzerRValue::visit(TNode_expression_op2* node,VisExtraParam p)
+{
+	if(node->param[1]) visit_it<TNode_expression>(node->param[1],p);
+	if(node->param[0]) visit_it<TNode_expression>(node->param[0],p);
+	return def_value();
+}
+
+VisReturnType TNodeVisitorCG_AnalyzerRValue::visit(TNode_expression_opn* node,VisExtraParam p)
+{
+	for (size_t i = 0; i < node->param.size(); i++)
+	{
+		if(node->param[i]) visit_it<TNode_expression>(node->param[i],p);
+	}
+	return def_value();
+}
+
 
 
 VisReturnType TNodeVisitorCG_AnalyzerRValue::visit(TNode_statement_try* node,VisExtraParam)
@@ -774,7 +798,7 @@ VisReturnType TNodeVisitorCG_AnalyzerRValue::visit(TNode_expression_op_assign* n
 
 	if(node->param[1])
 	{
-		node->param[1]->accept(rvis,0);
+		visit_it<TNode_expression>(node->param[1],0);
 	}
 
 	if(node->param[0])

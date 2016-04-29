@@ -82,6 +82,9 @@ public:
 	CallableWrapT(){}
 	CallableWrapT(const dcomplex& v):basetype(v){}
 
+	virtual int __getindex(Executor&,const String&);
+	virtual int __setindex(Executor&,const String&);
+
 	virtual CallableData* DoClone(ObjectCloneState&){return new CallableWrapT(value);}
 
 	DECLARE_OBJECT_INFO(CallableWrapT,ObjectInfo);
@@ -128,6 +131,8 @@ public:
 	virtual bool ToValue(String& v,int) const;
 	virtual bool ToValue(int64_t& v) const;
 	virtual bool ToValue(double& v) const;
+
+	virtual int __getindex(Executor&,const String&);
 
 	virtual CallableData* DoClone(ObjectCloneState&){return new CallableWrapT(value);}
 

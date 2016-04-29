@@ -1,0 +1,634 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="DLLRelease|Win32">
+      <Configuration>DLLRelease</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="DLLRelease|x64">
+      <Configuration>DLLRelease</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\inc\ewa_base\basic.h" />
+    <ClInclude Include="..\..\inc\ewa_base\basic\atomic.h" />
+    <ClInclude Include="..\..\inc\ewa_base\basic\bitflags.h" />
+    <ClInclude Include="..\..\inc\ewa_base\basic\clock.h" />
+    <ClInclude Include="..\..\inc\ewa_base\basic\cmdline.h" />
+    <ClInclude Include="..\..\inc\ewa_base\basic\codecvt.h" />
+    <ClInclude Include="..\..\inc\ewa_base\basic\console.h" />
+    <ClInclude Include="..\..\inc\ewa_base\basic\exception.h" />
+    <ClInclude Include="..\..\inc\ewa_base\basic\file.h" />
+    <ClInclude Include="..\..\inc\ewa_base\basic\functor.h" />
+    <ClInclude Include="..\..\inc\ewa_base\basic\functor_detail.h" />
+    <ClInclude Include="..\..\inc\ewa_base\basic\hashing.h" />
+    <ClInclude Include="..\..\inc\ewa_base\basic\language.h" />
+    <ClInclude Include="..\..\inc\ewa_base\basic\lockguard.h" />
+    <ClInclude Include="..\..\inc\ewa_base\basic\object.h" />
+    <ClInclude Include="..\..\inc\ewa_base\basic\object_ex.h" />
+    <ClInclude Include="..\..\inc\ewa_base\basic\platform.h" />
+    <ClInclude Include="..\..\inc\ewa_base\basic\pointer.h" />
+    <ClInclude Include="..\..\inc\ewa_base\basic\pointer_detail.h" />
+    <ClInclude Include="..\..\inc\ewa_base\basic\string.h" />
+    <ClInclude Include="..\..\inc\ewa_base\basic\stringbuffer.h" />
+    <ClInclude Include="..\..\inc\ewa_base\basic\string_detail.h" />
+    <ClInclude Include="..\..\inc\ewa_base\basic\system.h" />
+    <ClInclude Include="..\..\inc\ewa_base\collection.h" />
+    <ClInclude Include="..\..\inc\ewa_base\collection\arr_1t.h" />
+    <ClInclude Include="..\..\inc\ewa_base\collection\arr_xt.h" />
+    <ClInclude Include="..\..\inc\ewa_base\collection\bst_map.h" />
+    <ClInclude Include="..\..\inc\ewa_base\collection\bst_set.h" />
+    <ClInclude Include="..\..\inc\ewa_base\collection\detail\arr_container.h" />
+    <ClInclude Include="..\..\inc\ewa_base\collection\detail\avl_tree_policy.h" />
+    <ClInclude Include="..\..\inc\ewa_base\collection\detail\bst_container.h" />
+    <ClInclude Include="..\..\inc\ewa_base\collection\detail\bst_tree.h" />
+    <ClInclude Include="..\..\inc\ewa_base\collection\detail\bst_tree_iterator.h" />
+    <ClInclude Include="..\..\inc\ewa_base\collection\detail\bst_tree_node.h" />
+    <ClInclude Include="..\..\inc\ewa_base\collection\detail\collection_base.h" />
+    <ClInclude Include="..\..\inc\ewa_base\collection\detail\indexer_base.h" />
+    <ClInclude Include="..\..\inc\ewa_base\collection\detail\indexer_container.h" />
+    <ClInclude Include="..\..\inc\ewa_base\collection\detail\kv_trait.h" />
+    <ClInclude Include="..\..\inc\ewa_base\collection\detail\rbt_tree_policy.h" />
+    <ClInclude Include="..\..\inc\ewa_base\collection\indexer_map.h" />
+    <ClInclude Include="..\..\inc\ewa_base\collection\indexer_set.h" />
+    <ClInclude Include="..\..\inc\ewa_base\collection\intrusive_list.h" />
+    <ClInclude Include="..\..\inc\ewa_base\collection\linear_buffer.h" />
+    <ClInclude Include="..\..\inc\ewa_base\collection\lockfree_queue.h" />
+    <ClInclude Include="..\..\inc\ewa_base\collection\ring_buffer.h" />
+    <ClInclude Include="..\..\inc\ewa_base\collection\tmp_xt.h" />
+    <ClInclude Include="..\..\inc\ewa_base\config.h" />
+    <ClInclude Include="..\..\inc\ewa_base\ipc.h" />
+    <ClInclude Include="..\..\inc\ewa_base\ipc\pipe.h" />
+    <ClInclude Include="..\..\inc\ewa_base\ipc\shm.h" />
+    <ClInclude Include="..\..\inc\ewa_base\logging.h" />
+    <ClInclude Include="..\..\inc\ewa_base\logging\logger.h" />
+    <ClInclude Include="..\..\inc\ewa_base\logging\logrecord.h" />
+    <ClInclude Include="..\..\inc\ewa_base\logging\logtarget.h" />
+    <ClInclude Include="..\..\inc\ewa_base\math\math_def.h" />
+    <ClInclude Include="..\..\inc\ewa_base\math\math_op.h" />
+    <ClInclude Include="..\..\inc\ewa_base\math\math_promote.h" />
+    <ClInclude Include="..\..\inc\ewa_base\math\tiny_box.h" />
+    <ClInclude Include="..\..\inc\ewa_base\math\tiny_cpx.h" />
+    <ClInclude Include="..\..\inc\ewa_base\math\tiny_mat.h" />
+    <ClInclude Include="..\..\inc\ewa_base\math\tiny_vec.h" />
+    <ClInclude Include="..\..\inc\ewa_base\memory.h" />
+    <ClInclude Include="..\..\inc\ewa_base\memory\allocator.h" />
+    <ClInclude Include="..\..\inc\ewa_base\memory\gc_ptr.h" />
+    <ClInclude Include="..\..\inc\ewa_base\memory\mempool.h" />
+    <ClInclude Include="..\..\inc\ewa_base\net.h" />
+    <ClInclude Include="..\..\inc\ewa_base\net\http.h" />
+    <ClInclude Include="..\..\inc\ewa_base\net\iocp1.h" />
+    <ClInclude Include="..\..\inc\ewa_base\net\ipaddress.h" />
+    <ClInclude Include="..\..\inc\ewa_base\net\overlapped.h" />
+    <ClInclude Include="..\..\inc\ewa_base\net\q2packet.h" />
+    <ClInclude Include="..\..\inc\ewa_base\net\session.h" />
+    <ClInclude Include="..\..\inc\ewa_base\net\socket.h" />
+    <ClInclude Include="..\..\inc\ewa_base\scripting.h" />
+    <ClInclude Include="..\..\inc\ewa_base\scripting\bytecode_inst.h" />
+    <ClInclude Include="..\..\inc\ewa_base\scripting\callable_data.h" />
+    <ClInclude Include="..\..\inc\ewa_base\scripting\callable_wrap.h" />
+    <ClInclude Include="..\..\inc\ewa_base\scripting\codegen.h" />
+    <ClInclude Include="..\..\inc\ewa_base\scripting\codegen_analyzer.h" />
+    <ClInclude Include="..\..\inc\ewa_base\scripting\codegen_generator.h" />
+    <ClInclude Include="..\..\inc\ewa_base\scripting\codegen_visitor.h" />
+    <ClInclude Include="..\..\inc\ewa_base\scripting\detail\colondata.h" />
+    <ClInclude Include="..\..\inc\ewa_base\scripting\detail\idx_1t.h" />
+    <ClInclude Include="..\..\inc\ewa_base\scripting\executor.h" />
+    <ClInclude Include="..\..\inc\ewa_base\scripting\executor_proxy.h" />
+    <ClInclude Include="..\..\inc\ewa_base\scripting\helpdata.h" />
+    <ClInclude Include="..\..\inc\ewa_base\scripting\parser.h" />
+    <ClInclude Include="..\..\inc\ewa_base\scripting\parser_nodes.h" />
+    <ClInclude Include="..\..\inc\ewa_base\scripting\parser_visitor.h" />
+    <ClInclude Include="..\..\inc\ewa_base\scripting\scanner.h" />
+    <ClInclude Include="..\..\inc\ewa_base\scripting\stackstate.h" />
+    <ClInclude Include="..\..\inc\ewa_base\scripting\variant.h" />
+    <ClInclude Include="..\..\inc\ewa_base\scripting\callable_array.h" />
+    <ClInclude Include="..\..\inc\ewa_base\scripting\callable_code.h" />
+    <ClInclude Include="..\..\inc\ewa_base\scripting\callable_coroutine.h" />
+    <ClInclude Include="..\..\inc\ewa_base\scripting\callable_function.h" />
+    <ClInclude Include="..\..\inc\ewa_base\scripting\variant_ggvar.h" />
+    <ClInclude Include="..\..\inc\ewa_base\scripting\callable_iterator.h" />
+    <ClInclude Include="..\..\inc\ewa_base\scripting\callable_memfunc.h" />
+    <ClInclude Include="..\..\inc\ewa_base\scripting\variant_op.h" />
+    <ClInclude Include="..\..\inc\ewa_base\scripting\callable_class.h" />
+    <ClInclude Include="..\..\inc\ewa_base\scripting\callable_table.h" />
+    <ClInclude Include="..\..\inc\ewa_base\serialization.h" />
+    <ClInclude Include="..\..\inc\ewa_base\serialization\serializer.h" />
+    <ClInclude Include="..\..\inc\ewa_base\serialization\serializer_buffer.h" />
+    <ClInclude Include="..\..\inc\ewa_base\serialization\serializer_socket.h" />
+    <ClInclude Include="..\..\inc\ewa_base\serialization\serializer_stream.h" />
+    <ClInclude Include="..\..\inc\ewa_base\testing\test.h" />
+    <ClInclude Include="..\..\inc\ewa_base\threading.h" />
+    <ClInclude Include="..\..\inc\ewa_base\threading\coroutine.h" />
+    <ClInclude Include="..\..\inc\ewa_base\threading\thread.h" />
+    <ClInclude Include="..\..\inc\ewa_base\threading\thread_cond.h" />
+    <ClInclude Include="..\..\inc\ewa_base\threading\thread_event.h" />
+    <ClInclude Include="..\..\inc\ewa_base\threading\thread_manager.h" />
+    <ClInclude Include="..\..\inc\ewa_base\threading\thread_mutex.h" />
+    <ClInclude Include="..\..\inc\ewa_base\threading\thread_pool.h" />
+    <ClInclude Include="..\..\inc\ewa_base\threading\thread_rwlock.h" />
+    <ClInclude Include="..\..\inc\ewa_base\threading\thread_sem.h" />
+    <ClInclude Include="..\..\inc\ewa_base\threading\thread_spin.h" />
+    <ClInclude Include="..\..\inc\ewa_base\threading\timer_queue.h" />
+    <ClInclude Include="..\..\inc\ewa_base\util\json.h" />
+    <ClInclude Include="..\..\inc\ewa_base\util\strlib.h" />
+    <ClInclude Include="..\..\inc\ewa_base\util\symm.h" />
+    <ClInclude Include="..\..\inc\ewa_base\xml.h" />
+    <ClInclude Include="..\..\inc\ewa_base\xml\xml_attribute.h" />
+    <ClInclude Include="..\..\inc\ewa_base\xml\xml_base.h" />
+    <ClInclude Include="..\..\inc\ewa_base\xml\xml_document.h" />
+    <ClInclude Include="..\..\inc\ewa_base\xml\xml_node.h" />
+    <ClInclude Include="..\..\src\ewa_base\memory\mempool_impl.h" />
+    <ClInclude Include="..\..\src\ewa_base\net\socket_impl_detail.h" />
+    <ClInclude Include="..\..\src\ewa_base\net\socket_impl_linux.h" />
+    <ClInclude Include="..\..\src\ewa_base\net\socket_impl_windows.h" />
+    <ClInclude Include="..\..\src\ewa_base\threading\thread_impl.h" />
+    <ClInclude Include="..\..\src\ewa_base\threading\thread_impl_detail.h" />
+    <ClInclude Include="..\..\src\ewa_base\threading\thread_impl_pthread.h" />
+    <ClInclude Include="..\..\src\ewa_base\threading\thread_impl_windows.h" />
+    <ClInclude Include="..\..\src\ewa_base\xml\xml_parser.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\src\ewa_base\basic\atomic.cpp" />
+    <ClCompile Include="..\..\src\ewa_base\basic\basic.cpp" />
+    <ClCompile Include="..\..\src\ewa_base\basic\bitlfags.cpp" />
+    <ClCompile Include="..\..\src\ewa_base\basic\clock.cpp" />
+    <ClCompile Include="..\..\src\ewa_base\basic\cmdline.cpp" />
+    <ClCompile Include="..\..\src\ewa_base\basic\codecvt.cpp" />
+    <ClCompile Include="..\..\src\ewa_base\basic\codecvt_gbktable.cpp" />
+    <ClCompile Include="..\..\src\ewa_base\basic\console.cpp" />
+    <ClCompile Include="..\..\src\ewa_base\basic\exception.cpp" />
+    <ClCompile Include="..\..\src\ewa_base\basic\file.cpp" />
+    <ClCompile Include="..\..\src\ewa_base\basic\hashing.cpp" />
+    <ClCompile Include="..\..\src\ewa_base\basic\language.cpp" />
+    <ClCompile Include="..\..\src\ewa_base\basic\object.cpp" />
+    <ClCompile Include="..\..\src\ewa_base\basic\object_data.cpp" />
+    <ClCompile Include="..\..\src\ewa_base\basic\object_info.cpp" />
+    <ClCompile Include="..\..\src\ewa_base\basic\string.cpp" />
+    <ClCompile Include="..\..\src\ewa_base\basic\stringbuffer.cpp" />
+    <ClCompile Include="..\..\src\ewa_base\basic\string_impl.cpp" />
+    <ClCompile Include="..\..\src\ewa_base\basic\system.cpp" />
+    <ClCompile Include="..\..\src\ewa_base\collection\collection.cpp" />
+    <ClCompile Include="..\..\src\ewa_base\ewa_base.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='DLLRelease|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='DLLRelease|x64'">Create</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewa_base\ipc\pipe.cpp" />
+    <ClCompile Include="..\..\src\ewa_base\ipc\shm.cpp" />
+    <ClCompile Include="..\..\src\ewa_base\logging\logger.cpp" />
+    <ClCompile Include="..\..\src\ewa_base\logging\log_console.cpp" />
+    <ClCompile Include="..\..\src\ewa_base\logging\log_target.cpp" />
+    <ClCompile Include="..\..\src\ewa_base\math\math_op.cpp" />
+    <ClCompile Include="..\..\src\ewa_base\memory\allocator.cpp" />
+    <ClCompile Include="..\..\src\ewa_base\memory\gc_ptr.cpp" />
+    <ClCompile Include="..\..\src\ewa_base\memory\mempool.cpp" />
+    <ClCompile Include="..\..\src\ewa_base\memory\mempool_cached.cpp" />
+    <ClCompile Include="..\..\src\ewa_base\memory\mempool_malloc.cpp" />
+    <ClCompile Include="..\..\src\ewa_base\memory\mempool_paging.cpp" />
+    <ClCompile Include="..\..\src\ewa_base\memory\mempool_pgmap.cpp" />
+    <ClCompile Include="..\..\src\ewa_base\memory\mempool_slot.cpp" />
+    <ClCompile Include="..\..\src\ewa_base\net\http.cpp" />
+    <ClCompile Include="..\..\src\ewa_base\net\iocp1.cpp" />
+    <ClCompile Include="..\..\src\ewa_base\net\ipaddress.cpp" />
+    <ClCompile Include="..\..\src\ewa_base\net\overlapped.cpp" />
+    <ClCompile Include="..\..\src\ewa_base\net\session.cpp" />
+    <ClCompile Include="..\..\src\ewa_base\net\session_client.cpp" />
+    <ClCompile Include="..\..\src\ewa_base\net\session_server.cpp" />
+    <ClCompile Include="..\..\src\ewa_base\net\session_tcp.cpp" />
+    <ClCompile Include="..\..\src\ewa_base\net\session_udp.cpp" />
+    <ClCompile Include="..\..\src\ewa_base\net\socket.cpp" />
+    <ClCompile Include="..\..\src\ewa_base\scripting\callable_wrap.cpp" />
+    <ClCompile Include="..\..\src\ewa_base\scripting\codegen.cpp" />
+    <ClCompile Include="..\..\src\ewa_base\scripting\codegen_analyzer.cpp" />
+    <ClCompile Include="..\..\src\ewa_base\scripting\codegen_generator.cpp" />
+    <ClCompile Include="..\..\src\ewa_base\scripting\codegen_generator_lvalue.cpp" />
+    <ClCompile Include="..\..\src\ewa_base\scripting\codegen_generator_rvalue.cpp" />
+    <ClCompile Include="..\..\src\ewa_base\scripting\executor.cpp" />
+    <ClCompile Include="..\..\src\ewa_base\scripting\executor_proxy.cpp" />
+    <ClCompile Include="..\..\src\ewa_base\scripting\helpdata.cpp" />
+    <ClCompile Include="..\..\src\ewa_base\scripting\modules.cpp" />
+    <ClCompile Include="..\..\src\ewa_base\scripting\module_array.cpp" />
+    <ClCompile Include="..\..\src\ewa_base\scripting\module_coroutine.cpp" />
+    <ClCompile Include="..\..\src\ewa_base\scripting\module_io.cpp" />
+    <ClCompile Include="..\..\src\ewa_base\scripting\module_logger.cpp" />
+    <ClCompile Include="..\..\src\ewa_base\scripting\module_math.cpp" />
+    <ClCompile Include="..\..\src\ewa_base\scripting\module_number.cpp" />
+    <ClCompile Include="..\..\src\ewa_base\scripting\module_os.cpp" />
+    <ClCompile Include="..\..\src\ewa_base\scripting\module_string.cpp" />
+    <ClCompile Include="..\..\src\ewa_base\scripting\module_table.cpp" />
+    <ClCompile Include="..\..\src\ewa_base\scripting\parser.cpp" />
+    <ClCompile Include="..\..\src\ewa_base\scripting\parser_nodes.cpp" />
+    <ClCompile Include="..\..\src\ewa_base\scripting\parser_visitor.cpp" />
+    <ClCompile Include="..\..\src\ewa_base\scripting\parser_visitor_formater.cpp" />
+    <ClCompile Include="..\..\src\ewa_base\scripting\scanner.cpp" />
+    <ClCompile Include="..\..\src\ewa_base\scripting\statckstate.cpp" />
+    <ClCompile Include="..\..\src\ewa_base\scripting\variant.cpp" />
+    <ClCompile Include="..\..\src\ewa_base\scripting\callable_array.cpp" />
+    <ClCompile Include="..\..\src\ewa_base\scripting\callable_code.cpp" />
+    <ClCompile Include="..\..\src\ewa_base\scripting\callable_data.cpp" />
+    <ClCompile Include="..\..\src\ewa_base\scripting\callable_function.cpp" />
+    <ClCompile Include="..\..\src\ewa_base\scripting\callable_class.cpp" />
+    <ClCompile Include="..\..\src\ewa_base\scripting\callable_table.cpp" />
+    <ClCompile Include="..\..\src\ewa_base\serialization\serializer.cpp" />
+    <ClCompile Include="..\..\src\ewa_base\serialization\serializer_buffer.cpp" />
+    <ClCompile Include="..\..\src\ewa_base\serialization\serializer_socket.cpp" />
+    <ClCompile Include="..\..\src\ewa_base\serialization\serializer_stream.cpp" />
+    <ClCompile Include="..\..\src\ewa_base\testing\test.cpp" />
+    <ClCompile Include="..\..\src\ewa_base\testing\test_mgr.cpp" />
+    <ClCompile Include="..\..\src\ewa_base\threading\coroutine.cpp" />
+    <ClCompile Include="..\..\src\ewa_base\threading\thread.cpp" />
+    <ClCompile Include="..\..\src\ewa_base\threading\thread_impl.cpp" />
+    <ClCompile Include="..\..\src\ewa_base\threading\thread_manager.cpp" />
+    <ClCompile Include="..\..\src\ewa_base\threading\thread_mutex.cpp" />
+    <ClCompile Include="..\..\src\ewa_base\threading\thread_pool.cpp" />
+    <ClCompile Include="..\..\src\ewa_base\threading\timer_queue.cpp" />
+    <ClCompile Include="..\..\src\ewa_base\util\dstate.cpp" />
+    <ClCompile Include="..\..\src\ewa_base\util\json.cpp" />
+    <ClCompile Include="..\..\src\ewa_base\util\strlib.cpp" />
+    <ClCompile Include="..\..\src\ewa_base\util\symm.cpp" />
+    <ClCompile Include="..\..\src\ewa_base\util\table_serializer.cpp" />
+    <ClCompile Include="..\..\src\ewa_base\xml\xml_attribute.cpp" />
+    <ClCompile Include="..\..\src\ewa_base\xml\xml_document.cpp" />
+    <ClCompile Include="..\..\src\ewa_base\xml\xml_node.cpp" />
+    <ClCompile Include="..\..\src\ewa_base\xml\xml_parser.cpp" />
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{0E618B92-A4A3-4EDF-BB12-BE5AA323E76B}</ProjectGuid>
+    <RootNamespace>ewa_base</RootNamespace>
+    <Keyword>MFCProj</Keyword>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>v120</PlatformToolset>
+    <UseOfMfc>false</UseOfMfc>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DLLRelease|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <PlatformToolset>v120</PlatformToolset>
+    <UseOfMfc>false</UseOfMfc>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>v120</PlatformToolset>
+    <UseOfMfc>false</UseOfMfc>
+    <CharacterSet>NotSet</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DLLRelease|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>v120</PlatformToolset>
+    <UseOfMfc>false</UseOfMfc>
+    <CharacterSet>NotSet</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>v120</PlatformToolset>
+    <UseOfMfc>false</UseOfMfc>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>v120</PlatformToolset>
+    <UseOfMfc>false</UseOfMfc>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(VCTargetsPath)Microsoft.CPP.UpgradeFromVC60.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='DLLRelease|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(VCTargetsPath)Microsoft.CPP.UpgradeFromVC60.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(VCTargetsPath)Microsoft.CPP.UpgradeFromVC60.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='DLLRelease|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(VCTargetsPath)Microsoft.CPP.UpgradeFromVC60.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(VCTargetsPath)Microsoft.CPP.UpgradeFromVC60.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(VCTargetsPath)Microsoft.CPP.UpgradeFromVC60.props" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>11.0.50727.1</_ProjectFileVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <OutDir>..\..\lib\$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>..\..\tmp\$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
+    <EnableManagedIncrementalBuild>true</EnableManagedIncrementalBuild>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <OutDir>..\..\lib\$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>..\..\tmp\$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
+    <EnableManagedIncrementalBuild>true</EnableManagedIncrementalBuild>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <OutDir>..\..\lib\$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>..\..\tmp\$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DLLRelease|Win32'">
+    <OutDir>..\..\lib\$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>..\..\tmp\$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <OutDir>..\..\lib\$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>..\..\tmp\$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DLLRelease|x64'">
+    <OutDir>..\..\lib\$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>..\..\tmp\$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Midl>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MkTypLibCompatible>true</MkTypLibCompatible>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <TargetEnvironment>Win32</TargetEnvironment>
+      <TypeLibraryName>.\Debug/$(ProjectName).tlb</TypeLibraryName>
+      <HeaderFileName />
+    </Midl>
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>..\..\inc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);EWA_BASE_BUILDING;</PreprocessorDefinitions>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>$(ProjectName).h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(OutDir)$(ProjectName).pch</PrecompiledHeaderOutputFile>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <ProgramDataBaseFileName>$(IntDir)</ProgramDataBaseFileName>
+      <XMLDocumentationFileName>$(IntDir)</XMLDocumentationFileName>
+      <BrowseInformation>false</BrowseInformation>
+      <WarningLevel>Level3</WarningLevel>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <MinimalRebuild>true</MinimalRebuild>
+      <ForcedIncludeFiles>$(ProjectName).h</ForcedIncludeFiles>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x041d</Culture>
+    </ResourceCompile>
+    <Lib>
+      <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>
+      </AdditionalDependencies>
+    </Lib>
+    <Bscmake>
+      <SuppressStartupBanner>false</SuppressStartupBanner>
+    </Bscmake>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Midl>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MkTypLibCompatible>true</MkTypLibCompatible>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <TypeLibraryName>.\Debug/$(ProjectName).tlb</TypeLibraryName>
+      <HeaderFileName>
+      </HeaderFileName>
+    </Midl>
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>..\..\inc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);EWA_BASE_BUILDING;</PreprocessorDefinitions>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>$(ProjectName).h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(OutDir)$(ProjectName).pch</PrecompiledHeaderOutputFile>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <ProgramDataBaseFileName>$(IntDir)</ProgramDataBaseFileName>
+      <XMLDocumentationFileName>$(IntDir)</XMLDocumentationFileName>
+      <BrowseInformation>false</BrowseInformation>
+      <WarningLevel>Level3</WarningLevel>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <ForcedIncludeFiles>$(ProjectName).h</ForcedIncludeFiles>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x041d</Culture>
+    </ResourceCompile>
+    <Lib>
+      <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Lib>
+    <Bscmake>
+      <SuppressStartupBanner>false</SuppressStartupBanner>
+    </Bscmake>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Midl>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MkTypLibCompatible>true</MkTypLibCompatible>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <TargetEnvironment>Win32</TargetEnvironment>
+      <TypeLibraryName>.\Release/$(ProjectName).tlb</TypeLibraryName>
+      <HeaderFileName />
+    </Midl>
+    <ClCompile>
+      <Optimization>MaxSpeed</Optimization>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <AdditionalIncludeDirectories>..\..\inc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);EWA_BASE_BUILDING;NDEBUG</PreprocessorDefinitions>
+      <StringPooling>true</StringPooling>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>$(ProjectName).h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(OutDir)$(ProjectName).pch</PrecompiledHeaderOutputFile>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <ProgramDataBaseFileName>$(IntDir)</ProgramDataBaseFileName>
+      <XMLDocumentationFileName>$(IntDir)</XMLDocumentationFileName>
+      <BrowseInformation>false</BrowseInformation>
+      <WarningLevel>Level3</WarningLevel>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <ForcedIncludeFiles>$(ProjectName).h</ForcedIncludeFiles>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x041d</Culture>
+    </ResourceCompile>
+    <Lib>
+      <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Lib>
+    <Bscmake>
+      <SuppressStartupBanner>false</SuppressStartupBanner>
+    </Bscmake>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='DLLRelease|Win32'">
+    <Midl>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MkTypLibCompatible>true</MkTypLibCompatible>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <TargetEnvironment>Win32</TargetEnvironment>
+      <TypeLibraryName>.\Release/$(ProjectName).tlb</TypeLibraryName>
+      <HeaderFileName>
+      </HeaderFileName>
+    </Midl>
+    <ClCompile>
+      <AdditionalIncludeDirectories>..\..\inc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);EWA_BASE_BUILDING;EWA_BASE_DLL;NDEBUG</PreprocessorDefinitions>
+      <StringPooling>true</StringPooling>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>$(ProjectName).h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(OutDir)$(ProjectName).pch</PrecompiledHeaderOutputFile>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <ProgramDataBaseFileName>$(IntDir)</ProgramDataBaseFileName>
+      <XMLDocumentationFileName>$(IntDir)</XMLDocumentationFileName>
+      <BrowseInformation>false</BrowseInformation>
+      <WarningLevel>Level3</WarningLevel>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <ForcedIncludeFiles>$(ProjectName).h</ForcedIncludeFiles>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <Optimization>Full</Optimization>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x041d</Culture>
+    </ResourceCompile>
+    <Lib>
+      <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Lib>
+    <Bscmake>
+      <SuppressStartupBanner>false</SuppressStartupBanner>
+    </Bscmake>
+    <PostBuildEvent>
+      <Command>copy "$(TargetPath)"  "..\..\bin\"</Command>
+    </PostBuildEvent>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Midl>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MkTypLibCompatible>true</MkTypLibCompatible>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <TypeLibraryName>.\Release/$(ProjectName).tlb</TypeLibraryName>
+      <HeaderFileName>
+      </HeaderFileName>
+    </Midl>
+    <ClCompile>
+      <Optimization>MaxSpeed</Optimization>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <AdditionalIncludeDirectories>..\..\inc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);EWA_BASE_BUILDING;NDEBUG</PreprocessorDefinitions>
+      <StringPooling>true</StringPooling>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>$(ProjectName).h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(OutDir)$(ProjectName).pch</PrecompiledHeaderOutputFile>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <ProgramDataBaseFileName>$(IntDir)</ProgramDataBaseFileName>
+      <XMLDocumentationFileName>$(IntDir)</XMLDocumentationFileName>
+      <BrowseInformation>false</BrowseInformation>
+      <WarningLevel>Level3</WarningLevel>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <ForcedIncludeFiles>$(ProjectName).h</ForcedIncludeFiles>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x041d</Culture>
+    </ResourceCompile>
+    <Lib>
+      <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Lib>
+    <Bscmake>
+      <SuppressStartupBanner>false</SuppressStartupBanner>
+    </Bscmake>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='DLLRelease|x64'">
+    <Midl>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MkTypLibCompatible>true</MkTypLibCompatible>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <TypeLibraryName>.\Release/$(ProjectName).tlb</TypeLibraryName>
+      <HeaderFileName>
+      </HeaderFileName>
+    </Midl>
+    <ClCompile>
+      <Optimization>MaxSpeed</Optimization>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <AdditionalIncludeDirectories>..\..\inc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);EWA_BASE_BUILDING;NDEBUG</PreprocessorDefinitions>
+      <StringPooling>true</StringPooling>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>$(ProjectName).h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(OutDir)$(ProjectName).pch</PrecompiledHeaderOutputFile>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <ProgramDataBaseFileName>$(IntDir)</ProgramDataBaseFileName>
+      <XMLDocumentationFileName>$(IntDir)</XMLDocumentationFileName>
+      <BrowseInformation>false</BrowseInformation>
+      <WarningLevel>Level3</WarningLevel>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <ForcedIncludeFiles>$(ProjectName).h</ForcedIncludeFiles>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x041d</Culture>
+    </ResourceCompile>
+    <Lib>
+      <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Lib>
+    <Bscmake>
+      <SuppressStartupBanner>false</SuppressStartupBanner>
+    </Bscmake>
+  </ItemDefinitionGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

@@ -1,0 +1,546 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="include">
+      <UniqueIdentifier>{43c3ce64-df9d-4326-84e7-fa93d66ead61}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="source">
+      <UniqueIdentifier>{a388aad5-6384-461c-a2bd-a6ad1bc84e4b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include\mvc">
+      <UniqueIdentifier>{ffe9535f-3e3b-4af6-abfb-8fdc0866ee16}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include\wnd">
+      <UniqueIdentifier>{acfc4816-a1ff-4879-a60d-4c3ae67b02d6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include\app">
+      <UniqueIdentifier>{36626803-be5e-4b06-8540-65262f12384b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include\plugin">
+      <UniqueIdentifier>{f4b16629-03b2-4740-8d62-3702639d6c7e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="source\mvc">
+      <UniqueIdentifier>{fc70c5dd-9a39-457c-8293-2e9ee5850a2c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="source\app">
+      <UniqueIdentifier>{a9611e75-f96c-4c6e-a3af-4cb16f167cdd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="source\plugin">
+      <UniqueIdentifier>{0f5ec711-a84e-4a16-8402-98d58e0ee7ae}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="source\wnd">
+      <UniqueIdentifier>{5305dce8-89d4-474d-8fa2-f7e29980076b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include\editor">
+      <UniqueIdentifier>{81dfce2b-03ef-4fc9-baea-2db0372f3ccd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="source\editor">
+      <UniqueIdentifier>{7ac2fb0b-949e-4e9d-86a8-ca57743521d9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include\wnd\impl_wx">
+      <UniqueIdentifier>{92fd424a-af12-4730-b5cc-e1555c0c8bdf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="source\wnd\impl_wx">
+      <UniqueIdentifier>{1fc0c8ab-0de3-459d-896f-1e7360d6678c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="source\evt">
+      <UniqueIdentifier>{2cb59778-90a8-4d90-8bf9-55e5e78e7e65}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include\evt">
+      <UniqueIdentifier>{26e7cf8c-af06-47f4-9054-e960927474a4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include\data">
+      <UniqueIdentifier>{14407446-d3f1-4aea-9e5d-772385355208}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="source\data">
+      <UniqueIdentifier>{67fa44db-7b49-45dc-a88d-e08b390ce422}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\inc\ewc_base\editor\plugin_flashviewer.h">
+      <Filter>include\editor</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewc_base\plugin\plugin.h">
+      <Filter>include\plugin</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewc_base\plugin\plugin_basic.h">
+      <Filter>include\plugin</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewc_base\plugin\plugin_common.h">
+      <Filter>include\plugin</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewc_base\plugin\plugin_editorplugin.h">
+      <Filter>include\plugin</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewc_base\plugin\plugin_mainwindow.h">
+      <Filter>include\plugin</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewc_base\plugin\plugin_manager.h">
+      <Filter>include\plugin</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewc_base\plugin\plugin_message.h">
+      <Filter>include\plugin</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewc_base\plugin\plugin_plugineditor.h">
+      <Filter>include\plugin</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewc_base\plugin\plugin_statusbar.h">
+      <Filter>include\plugin</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewc_base\plugin\plugin_workspace.h">
+      <Filter>include\plugin</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewc_base\wnd\impl_wx\impl_wx.h">
+      <Filter>include\wnd\impl_wx</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewc_base\wnd\impl_wx\iwnd_bookbase.h">
+      <Filter>include\wnd\impl_wx</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewc_base\wnd\impl_wx\iwnd_breaker.h">
+      <Filter>include\wnd\impl_wx</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewc_base\wnd\impl_wx\iwnd_button.h">
+      <Filter>include\wnd\impl_wx</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewc_base\wnd\impl_wx\iwnd_checkbox.h">
+      <Filter>include\wnd\impl_wx</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewc_base\wnd\impl_wx\iwnd_combo.h">
+      <Filter>include\wnd\impl_wx</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewc_base\wnd\impl_wx\iwnd_container.h">
+      <Filter>include\wnd\impl_wx</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewc_base\wnd\impl_wx\iwnd_dataview.h">
+      <Filter>include\wnd\impl_wx</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewc_base\wnd\impl_wx\iwnd_datectrl.h">
+      <Filter>include\wnd\impl_wx</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewc_base\wnd\impl_wx\iwnd_dialog.h">
+      <Filter>include\wnd\impl_wx</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewc_base\wnd\impl_wx\iwnd_flash.h">
+      <Filter>include\wnd\impl_wx</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewc_base\wnd\impl_wx\iwnd_frame.h">
+      <Filter>include\wnd\impl_wx</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewc_base\wnd\impl_wx\iwnd_gauge.h">
+      <Filter>include\wnd\impl_wx</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewc_base\wnd\impl_wx\iwnd_hyperlink.h">
+      <Filter>include\wnd\impl_wx</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewc_base\wnd\impl_wx\iwnd_info.h">
+      <Filter>include\wnd\impl_wx</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewc_base\wnd\impl_wx\iwnd_label.h">
+      <Filter>include\wnd\impl_wx</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewc_base\wnd\impl_wx\iwnd_notebook.h">
+      <Filter>include\wnd\impl_wx</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewc_base\wnd\impl_wx\iwnd_slider.h">
+      <Filter>include\wnd\impl_wx</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewc_base\wnd\impl_wx\iwnd_spinctrl.h">
+      <Filter>include\wnd\impl_wx</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewc_base\wnd\impl_wx\iwnd_staticbmp.h">
+      <Filter>include\wnd\impl_wx</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewc_base\wnd\impl_wx\iwnd_stc.h">
+      <Filter>include\wnd\impl_wx</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewc_base\wnd\impl_wx\iwnd_textctrl.h">
+      <Filter>include\wnd\impl_wx</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewc_base\wnd\impl_wx\iwnd_timectrl.h">
+      <Filter>include\wnd\impl_wx</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewc_base\wnd\impl_wx\iwnd_treectrl.h">
+      <Filter>include\wnd\impl_wx</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewc_base\wnd\impl_wx\topwindow.h">
+      <Filter>include\wnd\impl_wx</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewc_base\wnd\impl_wx\window.h">
+      <Filter>include\wnd\impl_wx</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewc_base\config.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewc_base\editor\plugin_webview.h">
+      <Filter>include\editor</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewc_base\plugin\plugin_historyfiles.h">
+      <Filter>include\plugin</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewc_base\evt\evt_command.h">
+      <Filter>include\evt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewc_base\evt\evt_array.h">
+      <Filter>include\evt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewc_base\evt\evt_element.h">
+      <Filter>include\evt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewc_base\evt\evt_base.h">
+      <Filter>include\evt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewc_base\evt\evt_listener.h">
+      <Filter>include\evt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewc_base\evt\evt_group.h">
+      <Filter>include\evt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewc_base\evt\validator.h">
+      <Filter>include\evt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewc_base\evt\validator_group.h">
+      <Filter>include\evt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewc_base\evt\validator_top.h">
+      <Filter>include\evt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewc_base\app\app.h">
+      <Filter>include\app</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewc_base\app\cmdproc.h">
+      <Filter>include\app</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewc_base\app\data_defs.h">
+      <Filter>include\app</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewc_base\app\res_bitmap.h">
+      <Filter>include\app</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewc_base\app\wrapper.h">
+      <Filter>include\app</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewc_base\app\cmdproc_stk.h">
+      <Filter>include\app</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\ewc_base\evt\evt_impl.h">
+      <Filter>source\evt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewc_base\mvc\mvc_book.h">
+      <Filter>include\mvc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewc_base\mvc\mvc_model.h">
+      <Filter>include\mvc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewc_base\mvc\mvc_view.h">
+      <Filter>include\mvc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewc_base\wnd\wnd_info.h">
+      <Filter>include\wnd</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewc_base\wnd\wnd_maker.h">
+      <Filter>include\wnd</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewc_base\wnd\wnd_manager.h">
+      <Filter>include\wnd</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewc_base\wnd\wnd_model.h">
+      <Filter>include\wnd</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewc_base\wnd\wnd_property.h">
+      <Filter>include\wnd</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewc_base\wnd\wnd_updator.h">
+      <Filter>include\wnd</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewc_base\evt\evt_manager.h">
+      <Filter>include\evt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewc_base\plugin\plugin_option.h">
+      <Filter>include\plugin</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewc_base\plugin\plugin_search.h">
+      <Filter>include\plugin</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewc_base\evt\evt_cmdproc.h">
+      <Filter>include\evt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewc_base\app\app_config.h">
+      <Filter>include\app</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewc_base\evt\evt_option.h">
+      <Filter>include\evt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewc_base\app\res_manager.h">
+      <Filter>include\app</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewc_base.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewc_base\editor\plugin_wndeditor.h">
+      <Filter>include\editor</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewc_base\data\data_array.h">
+      <Filter>include\data</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewc_base\data\data_column.h">
+      <Filter>include\data</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewc_base\data\data_model.h">
+      <Filter>include\data</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewc_base\data\data_node.h">
+      <Filter>include\data</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewc_base\wnd\impl_wx\iwnd_webview.h">
+      <Filter>include\wnd\impl_wx</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewc_base\editor\plugin_ewsl_editor.h">
+      <Filter>include\editor</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewc_base\editor\plugin_text_editor.h">
+      <Filter>include\editor</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\ewc_base\editor\plugin_ewsl_caret.h">
+      <Filter>source\editor</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\ewc_base\editor\plugin_ewsl_iface.h">
+      <Filter>source\editor</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\ewc_base\editor\plugin_ewsl_vartable.h">
+      <Filter>source\editor</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\src\ewc_base\wnd\impl_wx\impl_wx.cpp">
+      <Filter>source\wnd\impl_wx</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewc_base\wnd\impl_wx\iwnd_bookbase.cpp">
+      <Filter>source\wnd\impl_wx</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewc_base\wnd\impl_wx\iwnd_breaker.cpp">
+      <Filter>source\wnd\impl_wx</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewc_base\wnd\impl_wx\iwnd_button.cpp">
+      <Filter>source\wnd\impl_wx</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewc_base\wnd\impl_wx\iwnd_checkbox.cpp">
+      <Filter>source\wnd\impl_wx</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewc_base\wnd\impl_wx\iwnd_combo.cpp">
+      <Filter>source\wnd\impl_wx</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewc_base\wnd\impl_wx\iwnd_container.cpp">
+      <Filter>source\wnd\impl_wx</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewc_base\wnd\impl_wx\iwnd_dataview.cpp">
+      <Filter>source\wnd\impl_wx</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewc_base\wnd\impl_wx\iwnd_datectrl.cpp">
+      <Filter>source\wnd\impl_wx</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewc_base\wnd\impl_wx\iwnd_dialog.cpp">
+      <Filter>source\wnd\impl_wx</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewc_base\wnd\impl_wx\iwnd_frame.cpp">
+      <Filter>source\wnd\impl_wx</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewc_base\wnd\impl_wx\iwnd_gauge.cpp">
+      <Filter>source\wnd\impl_wx</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewc_base\wnd\impl_wx\iwnd_hyperlink.cpp">
+      <Filter>source\wnd\impl_wx</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewc_base\wnd\impl_wx\iwnd_label.cpp">
+      <Filter>source\wnd\impl_wx</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewc_base\wnd\impl_wx\iwnd_notebook.cpp">
+      <Filter>source\wnd\impl_wx</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewc_base\wnd\impl_wx\iwnd_slider.cpp">
+      <Filter>source\wnd\impl_wx</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewc_base\wnd\impl_wx\iwnd_spinctrl.cpp">
+      <Filter>source\wnd\impl_wx</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewc_base\wnd\impl_wx\iwnd_staicbmp.cpp">
+      <Filter>source\wnd\impl_wx</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewc_base\wnd\impl_wx\iwnd_stc.cpp">
+      <Filter>source\wnd\impl_wx</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewc_base\wnd\impl_wx\iwnd_textctrl.cpp">
+      <Filter>source\wnd\impl_wx</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewc_base\wnd\impl_wx\iwnd_timectrl.cpp">
+      <Filter>source\wnd\impl_wx</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewc_base\wnd\impl_wx\iwnd_treectrl.cpp">
+      <Filter>source\wnd\impl_wx</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewc_base\wnd\impl_wx\iwnd_window.cpp">
+      <Filter>source\wnd\impl_wx</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewc_base\plugin\plugin.cpp">
+      <Filter>source\plugin</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewc_base\plugin\plugin_basic.cpp">
+      <Filter>source\plugin</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewc_base\plugin\plugin_common.cpp">
+      <Filter>source\plugin</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewc_base\plugin\plugin_editorplugin.cpp">
+      <Filter>source\plugin</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewc_base\plugin\plugin_mainwindow.cpp">
+      <Filter>source\plugin</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewc_base\plugin\plugin_manager.cpp">
+      <Filter>source\plugin</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewc_base\plugin\plugin_message.cpp">
+      <Filter>source\plugin</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewc_base\plugin\plugin_plugineditor.cpp">
+      <Filter>source\plugin</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewc_base\plugin\plugin_statusbar.cpp">
+      <Filter>source\plugin</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewc_base\plugin\plugin_workspace.cpp">
+      <Filter>source\plugin</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewc_base\editor\plugin_webview.cpp">
+      <Filter>source\editor</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewc_base\plugin\plugin_historyfiles.cpp">
+      <Filter>source\plugin</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewc_base\app\app.cpp">
+      <Filter>source\app</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewc_base\app\cmdproc.cpp">
+      <Filter>source\app</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewc_base\app\cmdproc_stk.cpp">
+      <Filter>source\app</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewc_base\app\data_defs.cpp">
+      <Filter>source\app</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewc_base\app\res_bitmap.cpp">
+      <Filter>source\app</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewc_base\app\wrapper.cpp">
+      <Filter>source\app</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewc_base\evt\evt_array.cpp">
+      <Filter>source\evt</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewc_base\evt\evt_command.cpp">
+      <Filter>source\evt</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewc_base\evt\evt_element.cpp">
+      <Filter>source\evt</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewc_base\evt\evt_group.cpp">
+      <Filter>source\evt</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewc_base\evt\evt_listener.cpp">
+      <Filter>source\evt</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewc_base\evt\validator.cpp">
+      <Filter>source\evt</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewc_base\evt\validator_group.cpp">
+      <Filter>source\evt</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewc_base\evt\validator_top.cpp">
+      <Filter>source\evt</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewc_base\mvc\mvc_book.cpp">
+      <Filter>source\mvc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewc_base\mvc\mvc_model.cpp">
+      <Filter>source\mvc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewc_base\mvc\mvc_view.cpp">
+      <Filter>source\mvc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewc_base\wnd\wnd_info.cpp">
+      <Filter>source\wnd</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewc_base\wnd\wnd_maker.cpp">
+      <Filter>source\wnd</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewc_base\wnd\wnd_manager.cpp">
+      <Filter>source\wnd</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewc_base\wnd\wnd_model.cpp">
+      <Filter>source\wnd</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewc_base\wnd\wnd_updator.cpp">
+      <Filter>source\wnd</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewc_base\evt\evt_base.cpp">
+      <Filter>source\evt</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewc_base\evt\evt_manager.cpp">
+      <Filter>source\evt</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewc_base\plugin\plugin_option.cpp">
+      <Filter>source\plugin</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewc_base\plugin\plugin_search.cpp">
+      <Filter>source\plugin</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewc_base\evt\evt_cmdproc.cpp">
+      <Filter>source\evt</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewc_base\app\app_config.cpp">
+      <Filter>source\app</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewc_base\ewc_base.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewc_base\evt\evt_option.cpp">
+      <Filter>source\evt</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewc_base\app\res_manager.cpp">
+      <Filter>source\app</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewc_base\data\data_array.cpp">
+      <Filter>source\data</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewc_base\data\data_column.cpp">
+      <Filter>source\data</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewc_base\data\data_model.cpp">
+      <Filter>source\data</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewc_base\data\data_node.cpp">
+      <Filter>source\data</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewc_base\wnd\impl_wx\iwnd_webview.cpp">
+      <Filter>source\wnd\impl_wx</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewc_base\wnd\impl_wx\iwnd_webview_msw.cpp">
+      <Filter>source\wnd\impl_wx</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewc_base\editor\plugin_ewsl_editor.cpp">
+      <Filter>source\editor</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewc_base\editor\plugin_ewsl_caret.cpp">
+      <Filter>source\editor</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewc_base\editor\plugin_ewsl_iface.cpp">
+      <Filter>source\editor</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewc_base\editor\plugin_ewsl_vartable.cpp">
+      <Filter>source\editor</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewc_base\editor\plugin_text_editor.cpp">
+      <Filter>source\editor</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>

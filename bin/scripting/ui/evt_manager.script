@@ -1,0 +1,102 @@
+#import ui;
+
+local ec=ui.evt;
+
+ec.gp_new("File");
+	ec.gp_add("Open");
+	ec.gp_add("New");
+	ec.gp_add("");
+	ec.gp_add("Save");
+	ec.gp_add("SaveAs");
+	ec.gp_add("SaveAll");
+	ec.gp_add("");
+	ec.gp_add("Close");
+	ec.gp_add("CloseAll");
+	ec.gp_add("");
+	ec.gp_add("HistoryFiles");
+	ec.gp_add("");
+	ec.gp_add("Exit");
+ec.gp_end();
+
+ec.gp_new("Edit");
+	ec.gp_add("Undo");
+	ec.gp_add("Redo");
+	ec.gp_add("");
+	ec.gp_add("Cut");
+	ec.gp_add("Copy");
+	ec.gp_add("Paste");
+	ec.gp_add("Delete");
+	ec.gp_add("");
+	ec.gp_add("SelectAll");
+	ec.gp_add("");
+	ec.gp_add("Find");
+	ec.gp_add("Replace");
+ec.gp_end();
+
+ec.gp_new("View");
+	ec.gp_add("MainWindow",1);
+	ec.gp_add("");
+	ec.gp_add("ToolBars");
+	ec.gp_add("OtherWindow");
+	ec.gp_add("");
+	ec.gp_add("Layout");
+	ec.gp_add("");
+	ec.gp_add("Languages");
+	ec.gp_add("");
+	ec.gp_add("Option");
+ec.gp_end();
+
+ec.gp_new("Help");
+	ec.gp_add("Website");
+	ec.gp_add("Document");
+	ec.gp_add("About");
+ec.gp_end();
+
+ec.gp_new("tb.Standard");
+	ec.gp_add("Open");
+	ec.gp_add("New");
+	ec.gp_add("");
+	ec.gp_add("Save");
+	ec.gp_add("SaveAs");
+	ec.gp_add("");
+	ec.gp_add("Cut");
+	ec.gp_add("Copy");
+	ec.gp_add("Paste");
+	ec.gp_add("Delete");
+	ec.gp_add("");
+	ec.gp_add("Undo");
+	ec.gp_add("Redo");
+ec.gp_end();
+
+ec.gp_new("tb.Search");
+	ec.gp_add("Find");
+	ec.gp_add("Replace");
+ec.gp_end();
+
+
+ec.gp_new("MenuBar.default");
+	ec.gp_add("File");
+	ec.gp_add("Edit");
+	ec.gp_add("View");
+
+	//后面的参数1，表明"Menu.Extra"是个组，在生成"MenuBar.default"时，把这个组动态展开就插入到该位置
+	ec.gp_add("Menu.Extra",1);	
+	ec.gp_add("Help");
+ec.gp_end();
+
+// 设置快捷键
+ec.set_accel("Exit","Alt+F4");
+ec.set_accel("Open","Ctrl+O");
+ec.set_accel("Cut","Ctrl+X");
+ec.set_accel("Copy","Ctrl+C");
+ec.set_accel("Paste","Ctrl+V");
+ec.set_accel("SelectAll","Ctrl+A");
+ec.set_accel("Save","Ctrl+S");
+ec.set_accel("Undo","Ctrl+Z");
+ec.set_accel("Redo","Ctrl+Y");
+
+ec.set_accel("Find","Ctrl+F");
+ec.set_accel("Replace","Ctrl+H");
+
+
+

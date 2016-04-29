@@ -1,0 +1,51 @@
+#import ui;
+
+local kr=ui.res;
+
+// 由资源文件载入
+//return kr.load("myres.dat");
+
+// 使用wxART的内部资源
+kr.gp_set("Redo","wxART_REDO");
+kr.gp_set("Undo","wxART_UNDO");
+kr.gp_set("Cut","wxART_CUT");
+kr.gp_set("Copy","wxART_COPY");
+kr.gp_set("Paste","wxART_PASTE");
+kr.gp_set("Delete","wxART_DELETE");
+kr.gp_set("Open","wxART_FILE_OPEN");
+kr.gp_set("Save","wxART_FILE_SAVE");
+kr.gp_set("SaveAs","wxART_FILE_SAVE_AS");
+kr.gp_set("New","wxART_NEW");
+kr.gp_set("Exit","wxART_QUIT");
+kr.gp_set("Close","wxART_CLOSE");
+kr.gp_set("Message","wxART_INFORMATION");
+kr.gp_set("Warning","wxART_WARNING");
+kr.gp_set("Error","wxART_ERROR");
+
+kr.gp_set("Find","wxART_FIND");
+kr.gp_set("Replace","wxART_FIND_AND_REPLACE");
+
+// 使用@指引用另一资源
+kr.gp_set("Wksp.Remove","@Delete");
+
+kr.gp_set("WebView.Go","@Find");
+
+
+
+kr.gp_set("About","wxART_FIND");
+kr.gp_set("File","wxART_NORMAL_FILE");
+kr.gp_set("Folder","wxART_FOLDER");
+kr.gp_set("Folder_Open","wxART_FOLDER_OPEN");
+
+kr.gp_set("AppIcon","@File");
+
+// 使用png格式的图标文件，注意可以多个，即可以分别定义不同大小的图标
+kr.gp_beg("Website");
+	kr.gp_add("res/icon/camera_48.png");
+kr.gp_end();
+
+// 保存资源文件，供下次载入
+//kr.save("myres.dat");
+	
+
+

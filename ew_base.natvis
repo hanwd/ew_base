@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<AutoVisualizer xmlns="http://schemas.microsoft.com/vstudio/debugger/natvis/2010">
+
+<Type Name="ew::String">
+    <DisplayString>{m_ptr,s}</DisplayString>
+</Type>
+
+<Type Name="ew::LitePtrT&lt;*&gt;">
+    <AlternativeType Name="ew::DataPtrT&lt;*&gt;" />
+    <AlternativeType Name="ew::AutoPtrT&lt;*&gt;" />
+    <DisplayString Condition="m_ptr == 0">null</DisplayString>
+    <DisplayString Condition="m_ptr != 0">{*m_ptr}</DisplayString>
+    <DisplayString>[ptr] {m_ptr}</DisplayString>
+    <Expand>
+        <Item Name="[ptr]">m_ptr</Item>
+    </Expand>
+</Type>
+
+
+
+<Type Name="ew::rac_iterator&lt;*&gt;">
+    <DisplayString>{*m_ptr}</DisplayString>
+    <Expand>
+        <Item Name="[ptr]">m_ptr</Item>
+    </Expand>
+</Type>
+
+<Type Name="ew::bst_iterator&lt;*&gt;">
+    <DisplayString>{m_pNode-&gt;value}</DisplayString>
+    <Expand>
+        <Item Name="[ptr]">m_pNode</Item>
+        <Item Name="[root]">*m_ppRoot</Item>
+    </Expand>
+</Type>
+
+
+<Type Name="ew::arr_1t&lt;*&gt;">
+    <DisplayString>{{ size={impl.m_end1-impl.m_base} }}</DisplayString>
+    <Expand>
+        <Item Name="[size]">impl.m_end1-impl.m_base</Item>
+        <Item Name="[capacity]">impl.m_end2-impl.m_base</Item>
+        <ArrayItems>
+            <Size>impl.m_end1-impl.m_base</Size>
+            <ValuePointer>impl.m_base</ValuePointer>
+        </ArrayItems>
+    </Expand>
+</Type>
+
+<Type Name="ew::arr_xt&lt;*&gt;">
+    <DisplayString>{{ size={impl.m_end1-impl.m_base} }}</DisplayString>
+    <Expand>
+        <Item Name="[size]">impl.m_end1-impl.m_base</Item>
+        <Item Name="[dims]">dims.dim</Item>
+        <ArrayItems>
+            <Size>impl.m_end1-impl.m_base</Size>
+            <ValuePointer>impl.m_base</ValuePointer>
+        </ArrayItems>
+    </Expand>
+</Type>
+
+
+<Type Name="ew::bst_map&lt;*&gt;">
+    <AlternativeType Name="ew::bst_multimap&lt;*&gt;" />
+    <AlternativeType Name="ew::bst_set&lt;*&gt;" />
+    <AlternativeType Name="ew::bst_multiset&lt;*&gt;" />
+    <DisplayString>{{ size={impl.m_nSize} }}</DisplayString>
+    <Expand>
+        <TreeItems>
+            <Size>impl.m_nSize</Size>
+            <HeadPointer>impl.m_pRoot</HeadPointer>
+            <LeftPointer>child1</LeftPointer>
+            <RightPointer>child2</RightPointer>
+            <ValueNode>value</ValueNode>
+        </TreeItems>
+    </Expand>
+</Type>
+
+<Type Name="ew::indexer_map&lt;*&gt;">
+    <AlternativeType Name="ew::indexer_set&lt;*&gt;" />
+    <DisplayString>{{ size={impl.values.impl.m_end1-impl.values.impl.m_base} }}</DisplayString>
+    <Expand>
+        <Item Name="[size]">impl.values.impl.m_end1-impl.values.impl.m_base</Item>
+        <ArrayItems>
+            <Size>impl.values.impl.m_end1-impl.values.impl.m_base</Size>
+            <ValuePointer>impl.values.impl.m_base</ValuePointer>
+        </ArrayItems>
+    </Expand>
+</Type>
+
+<Type Name="ew::LockFreeQueue&lt;*&gt;">
+    <DisplayString>{{ size={(pHeader-&gt;rear.val-pHeader-&gt;head.val) &amp; pHeader-&gt;mask} }}</DisplayString>
+    <Expand>
+        <IndexListItems>
+            <Size>(pHeader-&gt;rear.val-pHeader-&gt;head.val) &amp; pHeader-&gt;mask</Size>
+            <ValueNode>pBuffer[(pHeader-&gt;head.val+$i) &amp; pHeader-&gt;mask]</ValueNode>
+        </IndexListItems>
+    </Expand>
+
+</Type>
+
+</AutoVisualizer>

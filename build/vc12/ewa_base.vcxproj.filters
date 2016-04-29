@@ -1,0 +1,807 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="include">
+      <UniqueIdentifier>{18ef19e3-6ce3-461b-a65e-557dfe802a9d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include\basic">
+      <UniqueIdentifier>{6ec6a130-235c-4fa4-a73d-35318cefd6a0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include\net">
+      <UniqueIdentifier>{639f8a87-c44f-44d6-ac01-1cfb45f85152}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include\ipc">
+      <UniqueIdentifier>{cba9c0a5-c069-4691-a23f-88520f2597b6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include\xml">
+      <UniqueIdentifier>{5ed8d887-ac72-4093-98d5-1294cffb013d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include\scripting">
+      <UniqueIdentifier>{2eabbd8c-006e-4eb4-b289-c8f473b9f028}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include\collection">
+      <UniqueIdentifier>{862f9e8d-7bfb-4da2-bb7f-70b3692c189d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include\memory">
+      <UniqueIdentifier>{97e4b56a-ce4a-4a53-afd9-045f82383bdc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include\math">
+      <UniqueIdentifier>{1cf3bc47-1bc1-4891-ae91-7c9374d6037e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include\collection\detail">
+      <UniqueIdentifier>{3f4b507d-c030-4ae2-bed0-b617ca94012b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include\logging">
+      <UniqueIdentifier>{897ccf4f-f48d-41d9-8319-872b2b5f79a2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include\scripting\detail">
+      <UniqueIdentifier>{c0fa8b41-fa50-4c33-a575-0e1f40e18ea5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include\threading">
+      <UniqueIdentifier>{05bbfc50-4f8f-4bd5-b800-a17875cdb86f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include\serialization">
+      <UniqueIdentifier>{cf35e26a-a183-4bfa-9325-175c0049f4dd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="source">
+      <UniqueIdentifier>{db69fdd1-8388-42f4-a7cc-f6586029cf91}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="source\basic">
+      <UniqueIdentifier>{7949cd77-fdb3-42f4-a716-c9297009d950}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="source\net">
+      <UniqueIdentifier>{4e9722e3-763a-4b1c-a0b6-30f0c9d2eac2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="source\ipc">
+      <UniqueIdentifier>{af7846fb-624e-4287-b1ec-2a963f2fe89d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="source\collection">
+      <UniqueIdentifier>{659edd3e-5437-4f56-a71a-4be999bda0fa}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="source\memory">
+      <UniqueIdentifier>{7e6e99d3-ae95-46d3-b094-92e5dd00413b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="source\math">
+      <UniqueIdentifier>{40eaa5f4-e896-407b-985b-fe852403ac96}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="source\logging">
+      <UniqueIdentifier>{d1816388-3e3c-4123-8943-52aa9e3abec1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="source\serialization">
+      <UniqueIdentifier>{04a2af15-e7f1-4a0d-93b7-7b1cc0a870d0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="source\threading">
+      <UniqueIdentifier>{da13a2d0-69c6-4f0c-acec-2329e7c7983a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="source\scripting">
+      <UniqueIdentifier>{ffacae5e-8f9c-4466-a532-6c338a435489}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="source\xml">
+      <UniqueIdentifier>{ee5475a1-adaa-4b31-981e-355026e34be8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include\testing">
+      <UniqueIdentifier>{294818b8-e090-4570-8fb9-243f92a2f860}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="source\testing">
+      <UniqueIdentifier>{1cef5530-6a35-436e-ac7c-9a67758915f9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include\util">
+      <UniqueIdentifier>{56d6dcf1-734b-42a9-90f9-4963c7c895b7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="source\util">
+      <UniqueIdentifier>{7960ec57-bf19-48d2-83a1-405a00c881ae}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\inc\ewa_base\basic\atomic.h">
+      <Filter>include\basic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewa_base\basic\bitflags.h">
+      <Filter>include\basic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewa_base\basic\clock.h">
+      <Filter>include\basic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewa_base\basic\codecvt.h">
+      <Filter>include\basic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewa_base\basic\console.h">
+      <Filter>include\basic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewa_base\basic\exception.h">
+      <Filter>include\basic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewa_base\basic\file.h">
+      <Filter>include\basic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewa_base\basic\functor.h">
+      <Filter>include\basic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewa_base\basic\functor_detail.h">
+      <Filter>include\basic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewa_base\basic\hashing.h">
+      <Filter>include\basic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewa_base\basic\language.h">
+      <Filter>include\basic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewa_base\basic\lockguard.h">
+      <Filter>include\basic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewa_base\basic\object.h">
+      <Filter>include\basic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewa_base\basic\object_ex.h">
+      <Filter>include\basic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewa_base\basic\platform.h">
+      <Filter>include\basic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewa_base\basic\pointer.h">
+      <Filter>include\basic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewa_base\basic\pointer_detail.h">
+      <Filter>include\basic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewa_base\basic\string.h">
+      <Filter>include\basic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewa_base\basic\string_detail.h">
+      <Filter>include\basic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewa_base\basic\stringbuffer.h">
+      <Filter>include\basic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewa_base\basic\system.h">
+      <Filter>include\basic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewa_base\net\iocp1.h">
+      <Filter>include\net</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewa_base\net\ipaddress.h">
+      <Filter>include\net</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewa_base\net\overlapped.h">
+      <Filter>include\net</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewa_base\net\q2packet.h">
+      <Filter>include\net</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewa_base\net\session.h">
+      <Filter>include\net</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewa_base\net\socket.h">
+      <Filter>include\net</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewa_base\ipc\pipe.h">
+      <Filter>include\ipc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewa_base\ipc\shm.h">
+      <Filter>include\ipc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewa_base\collection\arr_1t.h">
+      <Filter>include\collection</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewa_base\collection\arr_xt.h">
+      <Filter>include\collection</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewa_base\collection\bst_map.h">
+      <Filter>include\collection</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewa_base\collection\bst_set.h">
+      <Filter>include\collection</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewa_base\collection\indexer_map.h">
+      <Filter>include\collection</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewa_base\collection\indexer_set.h">
+      <Filter>include\collection</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewa_base\collection\intrusive_list.h">
+      <Filter>include\collection</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewa_base\collection\linear_buffer.h">
+      <Filter>include\collection</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewa_base\collection\lockfree_queue.h">
+      <Filter>include\collection</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewa_base\collection\ring_buffer.h">
+      <Filter>include\collection</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewa_base\collection\detail\arr_container.h">
+      <Filter>include\collection\detail</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewa_base\collection\detail\avl_tree_policy.h">
+      <Filter>include\collection\detail</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewa_base\collection\detail\bst_tree.h">
+      <Filter>include\collection\detail</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewa_base\collection\detail\bst_tree_iterator.h">
+      <Filter>include\collection\detail</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewa_base\collection\detail\bst_tree_node.h">
+      <Filter>include\collection\detail</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewa_base\collection\detail\collection_base.h">
+      <Filter>include\collection\detail</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewa_base\collection\detail\indexer_base.h">
+      <Filter>include\collection\detail</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewa_base\collection\detail\indexer_container.h">
+      <Filter>include\collection\detail</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewa_base\collection\detail\kv_trait.h">
+      <Filter>include\collection\detail</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewa_base\collection\detail\rbt_tree_policy.h">
+      <Filter>include\collection\detail</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewa_base\memory\allocator.h">
+      <Filter>include\memory</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewa_base\memory\gc_ptr.h">
+      <Filter>include\memory</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewa_base\memory\mempool.h">
+      <Filter>include\memory</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewa_base\logging\logger.h">
+      <Filter>include\logging</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewa_base\logging\logrecord.h">
+      <Filter>include\logging</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewa_base\logging\logtarget.h">
+      <Filter>include\logging</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewa_base\scripting\codegen.h">
+      <Filter>include\scripting</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewa_base\scripting\codegen_analyzer.h">
+      <Filter>include\scripting</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewa_base\scripting\codegen_generator.h">
+      <Filter>include\scripting</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewa_base\scripting\codegen_visitor.h">
+      <Filter>include\scripting</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewa_base\scripting\executor.h">
+      <Filter>include\scripting</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewa_base\scripting\parser.h">
+      <Filter>include\scripting</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewa_base\scripting\parser_nodes.h">
+      <Filter>include\scripting</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewa_base\scripting\parser_visitor.h">
+      <Filter>include\scripting</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewa_base\scripting\scanner.h">
+      <Filter>include\scripting</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewa_base\scripting\stackstate.h">
+      <Filter>include\scripting</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewa_base\scripting\variant.h">
+      <Filter>include\scripting</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewa_base\scripting\detail\colondata.h">
+      <Filter>include\scripting\detail</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewa_base\scripting\detail\idx_1t.h">
+      <Filter>include\scripting\detail</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewa_base\math\math_op.h">
+      <Filter>include\math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewa_base\math\math_promote.h">
+      <Filter>include\math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewa_base\math\tiny_cpx.h">
+      <Filter>include\math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewa_base\math\tiny_mat.h">
+      <Filter>include\math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewa_base\math\tiny_vec.h">
+      <Filter>include\math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewa_base\xml\xml_attribute.h">
+      <Filter>include\xml</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewa_base\xml\xml_base.h">
+      <Filter>include\xml</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewa_base\xml\xml_document.h">
+      <Filter>include\xml</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewa_base\xml\xml_node.h">
+      <Filter>include\xml</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewa_base\threading\coroutine.h">
+      <Filter>include\threading</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewa_base\threading\thread.h">
+      <Filter>include\threading</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewa_base\threading\thread_cond.h">
+      <Filter>include\threading</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewa_base\threading\thread_event.h">
+      <Filter>include\threading</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewa_base\threading\thread_manager.h">
+      <Filter>include\threading</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewa_base\threading\thread_mutex.h">
+      <Filter>include\threading</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewa_base\threading\thread_pool.h">
+      <Filter>include\threading</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewa_base\threading\thread_rwlock.h">
+      <Filter>include\threading</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewa_base\threading\thread_sem.h">
+      <Filter>include\threading</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewa_base\threading\thread_spin.h">
+      <Filter>include\threading</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewa_base\serialization\serializer.h">
+      <Filter>include\serialization</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewa_base\serialization\serializer_buffer.h">
+      <Filter>include\serialization</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewa_base\serialization\serializer_socket.h">
+      <Filter>include\serialization</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewa_base\serialization\serializer_stream.h">
+      <Filter>include\serialization</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\ewa_base\net\socket_impl_detail.h">
+      <Filter>source\net</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\ewa_base\net\socket_impl_linux.h">
+      <Filter>source\net</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\ewa_base\net\socket_impl_windows.h">
+      <Filter>source\net</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\ewa_base\memory\mempool_impl.h">
+      <Filter>source\memory</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\ewa_base\xml\xml_parser.h">
+      <Filter>source\xml</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\ewa_base\threading\thread_impl.h">
+      <Filter>source\threading</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\ewa_base\threading\thread_impl_detail.h">
+      <Filter>source\threading</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\ewa_base\threading\thread_impl_pthread.h">
+      <Filter>source\threading</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\ewa_base\threading\thread_impl_windows.h">
+      <Filter>source\threading</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewa_base\basic.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewa_base\collection.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewa_base\config.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewa_base\ipc.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewa_base\logging.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewa_base\memory.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewa_base\net.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewa_base\scripting.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewa_base\serialization.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewa_base\threading.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewa_base\xml.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewa_base\testing\test.h">
+      <Filter>include\testing</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewa_base\collection\detail\bst_container.h">
+      <Filter>include\collection\detail</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewa_base\basic\cmdline.h">
+      <Filter>include\basic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewa_base\scripting\executor_proxy.h">
+      <Filter>include\scripting</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewa_base\net\http.h">
+      <Filter>include\net</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewa_base\collection\tmp_xt.h">
+      <Filter>include\collection</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewa_base\util\strlib.h">
+      <Filter>include\util</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewa_base\util\symm.h">
+      <Filter>include\util</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewa_base\threading\timer_queue.h">
+      <Filter>include\threading</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewa_base\math\tiny_box.h">
+      <Filter>include\math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewa_base\math\math_def.h">
+      <Filter>include\math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewa_base\util\json.h">
+      <Filter>include\util</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewa_base\scripting\callable_array.h">
+      <Filter>include\scripting</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewa_base\scripting\callable_class.h">
+      <Filter>include\scripting</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewa_base\scripting\callable_code.h">
+      <Filter>include\scripting</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewa_base\scripting\callable_coroutine.h">
+      <Filter>include\scripting</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewa_base\scripting\callable_function.h">
+      <Filter>include\scripting</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewa_base\scripting\callable_iterator.h">
+      <Filter>include\scripting</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewa_base\scripting\callable_memfunc.h">
+      <Filter>include\scripting</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewa_base\scripting\callable_table.h">
+      <Filter>include\scripting</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewa_base\scripting\variant_op.h">
+      <Filter>include\scripting</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewa_base\scripting\variant_ggvar.h">
+      <Filter>include\scripting</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewa_base\scripting\callable_data.h">
+      <Filter>include\scripting</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewa_base\scripting\bytecode_inst.h">
+      <Filter>include\scripting</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewa_base\scripting\helpdata.h">
+      <Filter>include\scripting</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewa_base\scripting\callable_wrap.h">
+      <Filter>include\scripting</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\src\ewa_base\basic\atomic.cpp">
+      <Filter>source\basic</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewa_base\basic\basic.cpp">
+      <Filter>source\basic</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewa_base\basic\bitlfags.cpp">
+      <Filter>source\basic</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewa_base\basic\clock.cpp">
+      <Filter>source\basic</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewa_base\basic\codecvt.cpp">
+      <Filter>source\basic</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewa_base\basic\codecvt_gbktable.cpp">
+      <Filter>source\basic</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewa_base\basic\console.cpp">
+      <Filter>source\basic</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewa_base\basic\exception.cpp">
+      <Filter>source\basic</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewa_base\basic\file.cpp">
+      <Filter>source\basic</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewa_base\basic\hashing.cpp">
+      <Filter>source\basic</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewa_base\basic\language.cpp">
+      <Filter>source\basic</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewa_base\basic\object.cpp">
+      <Filter>source\basic</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewa_base\basic\object_data.cpp">
+      <Filter>source\basic</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewa_base\basic\object_info.cpp">
+      <Filter>source\basic</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewa_base\basic\string.cpp">
+      <Filter>source\basic</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewa_base\basic\string_impl.cpp">
+      <Filter>source\basic</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewa_base\basic\stringbuffer.cpp">
+      <Filter>source\basic</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewa_base\basic\system.cpp">
+      <Filter>source\basic</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewa_base\net\iocp1.cpp">
+      <Filter>source\net</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewa_base\net\ipaddress.cpp">
+      <Filter>source\net</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewa_base\net\overlapped.cpp">
+      <Filter>source\net</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewa_base\net\session.cpp">
+      <Filter>source\net</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewa_base\net\session_client.cpp">
+      <Filter>source\net</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewa_base\net\session_server.cpp">
+      <Filter>source\net</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewa_base\net\session_tcp.cpp">
+      <Filter>source\net</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewa_base\net\session_udp.cpp">
+      <Filter>source\net</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewa_base\net\socket.cpp">
+      <Filter>source\net</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewa_base\ipc\pipe.cpp">
+      <Filter>source\ipc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewa_base\ipc\shm.cpp">
+      <Filter>source\ipc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewa_base\collection\collection.cpp">
+      <Filter>source\collection</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewa_base\memory\allocator.cpp">
+      <Filter>source\memory</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewa_base\memory\gc_ptr.cpp">
+      <Filter>source\memory</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewa_base\memory\mempool.cpp">
+      <Filter>source\memory</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewa_base\memory\mempool_cached.cpp">
+      <Filter>source\memory</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewa_base\memory\mempool_malloc.cpp">
+      <Filter>source\memory</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewa_base\memory\mempool_paging.cpp">
+      <Filter>source\memory</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewa_base\memory\mempool_pgmap.cpp">
+      <Filter>source\memory</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewa_base\memory\mempool_slot.cpp">
+      <Filter>source\memory</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewa_base\math\math_op.cpp">
+      <Filter>source\math</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewa_base\logging\log_console.cpp">
+      <Filter>source\logging</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewa_base\logging\log_target.cpp">
+      <Filter>source\logging</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewa_base\logging\logger.cpp">
+      <Filter>source\logging</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewa_base\xml\xml_attribute.cpp">
+      <Filter>source\xml</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewa_base\xml\xml_document.cpp">
+      <Filter>source\xml</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewa_base\xml\xml_node.cpp">
+      <Filter>source\xml</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewa_base\xml\xml_parser.cpp">
+      <Filter>source\xml</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewa_base\scripting\codegen.cpp">
+      <Filter>source\scripting</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewa_base\scripting\codegen_analyzer.cpp">
+      <Filter>source\scripting</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewa_base\scripting\codegen_generator.cpp">
+      <Filter>source\scripting</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewa_base\scripting\codegen_generator_lvalue.cpp">
+      <Filter>source\scripting</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewa_base\scripting\codegen_generator_rvalue.cpp">
+      <Filter>source\scripting</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewa_base\scripting\executor.cpp">
+      <Filter>source\scripting</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewa_base\scripting\module_array.cpp">
+      <Filter>source\scripting</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewa_base\scripting\module_coroutine.cpp">
+      <Filter>source\scripting</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewa_base\scripting\module_io.cpp">
+      <Filter>source\scripting</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewa_base\scripting\module_logger.cpp">
+      <Filter>source\scripting</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewa_base\scripting\module_math.cpp">
+      <Filter>source\scripting</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewa_base\scripting\module_number.cpp">
+      <Filter>source\scripting</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewa_base\scripting\module_os.cpp">
+      <Filter>source\scripting</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewa_base\scripting\module_string.cpp">
+      <Filter>source\scripting</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewa_base\scripting\module_table.cpp">
+      <Filter>source\scripting</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewa_base\scripting\modules.cpp">
+      <Filter>source\scripting</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewa_base\scripting\parser.cpp">
+      <Filter>source\scripting</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewa_base\scripting\parser_nodes.cpp">
+      <Filter>source\scripting</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewa_base\scripting\parser_visitor.cpp">
+      <Filter>source\scripting</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewa_base\scripting\parser_visitor_formater.cpp">
+      <Filter>source\scripting</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewa_base\scripting\scanner.cpp">
+      <Filter>source\scripting</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewa_base\scripting\statckstate.cpp">
+      <Filter>source\scripting</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewa_base\scripting\variant.cpp">
+      <Filter>source\scripting</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewa_base\threading\coroutine.cpp">
+      <Filter>source\threading</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewa_base\threading\thread.cpp">
+      <Filter>source\threading</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewa_base\threading\thread_impl.cpp">
+      <Filter>source\threading</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewa_base\threading\thread_manager.cpp">
+      <Filter>source\threading</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewa_base\threading\thread_mutex.cpp">
+      <Filter>source\threading</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewa_base\threading\thread_pool.cpp">
+      <Filter>source\threading</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewa_base\serialization\serializer.cpp">
+      <Filter>source\serialization</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewa_base\serialization\serializer_buffer.cpp">
+      <Filter>source\serialization</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewa_base\serialization\serializer_socket.cpp">
+      <Filter>source\serialization</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewa_base\serialization\serializer_stream.cpp">
+      <Filter>source\serialization</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewa_base\testing\test.cpp">
+      <Filter>source\testing</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewa_base\testing\test_mgr.cpp">
+      <Filter>source\testing</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewa_base\basic\cmdline.cpp">
+      <Filter>source\basic</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewa_base\ewa_base.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewa_base\scripting\executor_proxy.cpp">
+      <Filter>source\scripting</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewa_base\net\http.cpp">
+      <Filter>source\net</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewa_base\util\dstate.cpp">
+      <Filter>source\util</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewa_base\util\symm.cpp">
+      <Filter>source\util</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewa_base\util\table_serializer.cpp">
+      <Filter>source\util</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewa_base\util\strlib.cpp">
+      <Filter>source\util</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewa_base\threading\timer_queue.cpp">
+      <Filter>source\threading</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewa_base\util\json.cpp">
+      <Filter>source\util</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewa_base\scripting\callable_array.cpp">
+      <Filter>source\scripting</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewa_base\scripting\callable_class.cpp">
+      <Filter>source\scripting</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewa_base\scripting\callable_code.cpp">
+      <Filter>source\scripting</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewa_base\scripting\callable_data.cpp">
+      <Filter>source\scripting</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewa_base\scripting\callable_function.cpp">
+      <Filter>source\scripting</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewa_base\scripting\callable_table.cpp">
+      <Filter>source\scripting</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewa_base\scripting\helpdata.cpp">
+      <Filter>source\scripting</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewa_base\scripting\callable_wrap.cpp">
+      <Filter>source\scripting</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>

@@ -1,0 +1,11 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="..\..\src\ewx_test\iwnd\appmain.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="script">
+      <UniqueIdentifier>{c83bc5d9-de81-4499-b3e1-f40808a2b897}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

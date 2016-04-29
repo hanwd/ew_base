@@ -1,0 +1,132 @@
+#ifndef __H_EW_SCRIPTING_BYTECODE_INST__
+#define __H_EW_SCRIPTING_BYTECODE_INST__
+
+#include "ewa_base/basic/object.h"
+
+EW_ENTER
+
+
+enum
+{
+	XOP_NOOP,
+
+	XOP_INC,
+	XOP_DEC,
+
+	XOP2_ADD,
+	XOP2_SUB,
+	XOP2_MUL,
+	XOP2_DIV,
+	XOP2_MOD,
+	XOP2_POW,
+	XOP2_DOT_MUL,
+	XOP2_DOT_DIV,
+
+	XOP2_AND,
+	XOP2_OR,
+	XOP2_XOR,
+
+	XOP2_BITWISE_AND,
+	XOP2_BITWISE_OR,
+	XOP2_BITWISE_XOR,
+
+	XOP2_GT,
+	XOP2_GE,
+	XOP2_LT,
+	XOP2_LE,
+	XOP2_EQ,
+	XOP2_NE,
+
+	XOP2_SAME,
+
+	XOP2_CAT,
+
+	XOP1_NEG,
+	XOP1_SIN,
+	XOP1_COS,
+	XOP1_TAN,
+	XOP1_LOG,
+	XOP1_LOG10,
+
+	XOP1_NOT,
+	XOP1_BITWISE_NOT,
+
+	XOP_PUSH_NIL,
+	XOP_PUSH_BOOL,
+	XOP_PUSH_INT,
+
+	XOP_GET_STACK,
+	XOP_GET_GGVAR,
+
+	XOP_GET_SBASE,
+	XOP_GET_LOCAL,
+	XOP_GET_TABLE,
+
+	XOP_GET_INDEX,
+	XOP_GET_INDEX_N,
+	XOP_GET_ARRAY,
+	XOP_GET_LLVAR,
+
+	XOP_SET_SBASE,
+	XOP_SET_LOCAL,
+	XOP_SET_TABLE,
+
+	XOP_SET_INDEX,
+	XOP_SET_INDEX_N,
+	XOP_SET_ARRAY,
+	XOP_SET_LLVAR,
+	XOP_SET_GGVAR,
+
+	XOP_SET_LOCAL_REF,
+
+	XOP_SADJ,
+
+
+	XOP_CALL,
+	XOP_THIS_CALL,
+
+	XOP_JUMP,
+	XOP_JUMP_N,
+	XOP_JUMP_0,
+	XOP_JUMP_1,
+
+	XOP_TRY_ENTER,
+	XOP_TRY_LEAVE,
+	XOP_TRY_THROW,
+
+	XOP_HALT,
+	XOP_EXIT,
+	XOP_FAIL,
+
+	XOP_MAX,
+
+};
+
+
+class DLLIMPEXP_EWA_BASE XopInst
+{
+public:
+	uint16_t op; 
+	uint16_t padding;
+	int32_t p1;
+	int32_t p2;
+	int32_t p3;
+
+	XopInst(uint32_t op_=0,int32_t p1_=0,int32_t p2_=0,int32_t p3_=0)
+		:op(op_)
+		,p1(p1_)
+		,p2(p2_)
+		,p3(p3_)
+	{}
+};
+
+
+EW_LEAVE
+
+namespace tl
+{
+	template<> struct is_pod<ew::XopInst> : public value_type<true>{};
+};
+
+#endif
+

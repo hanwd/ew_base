@@ -3,7 +3,7 @@
 #define __H_EW_MEMORY_MEMPOOL__
 
 #include "ewa_base/basic/exception.h"
-#include "ewa_base/basic/system.h"
+//#include "ewa_base/basic/system.h"
 #include "ewa_base/basic/atomic.h"
 
 EW_ENTER

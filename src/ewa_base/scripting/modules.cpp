@@ -4,8 +4,6 @@
 
 EW_ENTER
 
-
-
 class CallableFunctionImport : public CallableFunction
 {
 public:
@@ -624,6 +622,7 @@ void CG_GGVar::_init()
 	init_module_logger();
 	init_module_coroutine();
 
+	gi.add(NULL,"pcall");
 	gi.add(NULL, "#internal_end");
 
 	_bInited=true;
@@ -645,6 +644,10 @@ void CG_GGVar::_init()
 			gi[lib + "." + (*it).first] = (*it).second;
 		}	
 	}
+
+	Executor ewsl;
+	ewsl.execute("function pcall(fn,...){try return true,fn(...);catch(...) return false,...;};");
+	gi["pcall"]=ewsl.tb1["pcall"];
 
 }
 
@@ -692,6 +695,7 @@ void CG_GGVar::add(CallableMetatable* p)
 	add(p, p->m_sClassName, 0);
 }
 
+
 void CG_GGVar::import(const String& lib,bool reload)
 {
 
@@ -713,12 +717,39 @@ void CG_GGVar::import(const String& lib,bool reload)
 
 	try
 	{
+		String a=System::GetEnv("OS");
+
 		DataPtrT<CallableModule> pmodule(new CallableModule(lib));
 
 		CodeGen cgen;
 		cgen.module = lib;
 
-		if (cgen.prepare("ewsl_lib/"+lib + ".ewsl", Executor::INDIRECT_FILE))
+		String libfile="ewsl_lib/"+lib + ".ewsl";
+	
+		const char* s=getenv("EWSL_LIBPATH");
+		
+		arr_1t<String> libpaths=string_split(s?s:"",";");
+		libpaths.push_back("ewsl_lib/");
+
+		for(size_t i=0;i<libpaths.size();++i)
+		{
+			String path=libpaths[i];
+			if(path=="") continue;
+
+			char ch=path.c_str()[path.size()-1];
+			if(ch!='\\' && ch!='/')
+			{
+				path+="/";
+			}
+
+			arr_1t<String> files=System::FindAllFiles(path,lib+".*");
+			if(files.empty()) continue;
+
+			libfile=path+files[0];
+			break;
+		}
+
+		if (cgen.prepare(libfile, Executor::INDIRECT_FILE))
 		{
 			Executor lexer;
 			lexer.push(cgen.get());

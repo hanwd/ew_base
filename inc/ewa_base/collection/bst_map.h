@@ -29,9 +29,10 @@ public:
 	typedef typename impl_type::allocator_type allocator_type;
 
 	inline bst_map() {}
-	inline bst_map(const key_compare& kc,const A& al=A()):basetype(kc,al) {}
-
 	inline bst_map(const bst_map& o):basetype(o) {}
+
+	inline explicit bst_map(const key_compare& kc,const A& al=A()):basetype(kc,al) {}
+
 	inline bst_map& operator=(const bst_map& o)
 	{
 		impl=o.impl;

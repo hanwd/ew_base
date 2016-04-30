@@ -104,6 +104,7 @@ public:
 template<> class hash_t<bool> : public hash_origin<bool> {};
 template<> class hash_t<int8_t> : public hash_origin<int8_t> {};
 template<> class hash_t<uint8_t> : public hash_origin<uint8_t> {};
+template<> class hash_t<char> : public hash_origin<uint8_t> {};
 
 template<> class hash_t<int16_t> : public hash_pod<int16_t> {};
 template<> class hash_t<uint16_t> : public hash_pod<uint16_t> {};

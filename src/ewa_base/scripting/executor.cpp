@@ -377,22 +377,33 @@ void Executor::_vm_run2(int k)
 			--ci1.nsp;
 			break;
 		case XOP2_DOT_MUL:
+			pl2_call<pl_arr_mul>::k(ci1.nsp[-1],ci1.nsp[-1],ci1.nsp[0]);
+			--ci1.nsp;
+			break;
 		case XOP2_MUL:
-			pl2_call<pl_mul>::k(ci1.nsp[-1],ci1.nsp[-1],ci1.nsp[0]);
+			pl2_call<pl_mat_mul>::k(ci1.nsp[-1],ci1.nsp[-1],ci1.nsp[0]);
 			--ci1.nsp;
 			break;
 		case XOP2_DOT_DIV:
+			// int div int may return double if needed, so do NOT use fast version (pl2_call<...>::k)
+			pl2_call<pl_arr_div>::g(ci1.nsp[-1],ci1.nsp[-1],ci1.nsp[0]);
+			--ci1.nsp;
+			break;
 		case XOP2_DIV:
 			// int div int may return double if needed, so do NOT use fast version (pl2_call<...>::k)
-			pl2_call<pl_div>::g(ci1.nsp[-1],ci1.nsp[-1],ci1.nsp[0]);
+			pl2_call<pl_mat_div>::g(ci1.nsp[-1],ci1.nsp[-1],ci1.nsp[0]);
 			--ci1.nsp;
 			break;
 		case XOP2_MOD:
 			pl2_call<pl_mod>::k(ci1.nsp[-1],ci1.nsp[-1],ci1.nsp[0]);
 			--ci1.nsp;
 			break;
+		case XOP2_DOT_POW:
+			pl2_call<pl_arr_pow>::g(ci1.nsp[-1],ci1.nsp[-1],ci1.nsp[0]);
+			--ci1.nsp;
+			break;
 		case XOP2_POW:
-			pl2_call<pl_pow>::g(ci1.nsp[-1],ci1.nsp[-1],ci1.nsp[0]);
+			pl2_call<pl_mat_pow>::g(ci1.nsp[-1],ci1.nsp[-1],ci1.nsp[0]);
 			--ci1.nsp;
 			break;
 		case XOP2_BITWISE_AND:

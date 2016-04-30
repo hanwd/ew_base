@@ -5,6 +5,7 @@
 #include "ewa_base/basic/hashing.h"
 #include "ewa_base/basic/string_detail.h"
 #include "ewa_base/collection/arr_1t.h"
+#include "ewa_base/memory/allocator.h"
 
 #ifdef _MSC_VER
 #pragma warning(disable:4307)

@@ -30,7 +30,7 @@ public:
 
 	inline bst_set() {}
 	inline bst_set(const bst_set& o):basetype(o) {}
-	inline bst_set(const key_compare& kc,const A& al=A()):basetype(kc,al) {}
+	inline explicit bst_set(const key_compare& kc,const A& al=A()):basetype(kc,al) {}
 
 	inline bst_set& operator=(const bst_set& o)
 	{

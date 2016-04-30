@@ -608,14 +608,13 @@ public:
 };
 
 
-bool Scanner::parse(const String& s)
+bool Scanner::parse(const String& s_)
 {
 
+	pbeg=(mychar_ptr)s_.c_str();
+	pend=(mychar_ptr)pbeg+s_.size();
+
 	aTokens.clear();
-
-	pbeg=(mychar_ptr)s.c_str();
-	pend=(mychar_ptr)pbeg+s.size();
-
 	stok.pcur=pbeg;
 	stok.line=1;
 	stok.cpos=1;

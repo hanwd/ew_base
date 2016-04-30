@@ -5,7 +5,7 @@
 
 #include "ewa_base/config.h"
 #include "ewa_base/basic/hashing.h"
-#include "ewa_base/basic/system.h"
+//#include "ewa_base/basic/system.h"
 #include "ewa_base/memory/allocator.h"
 #include "ewa_base/memory/mempool.h"
 
@@ -720,8 +720,7 @@ public:
 	template<typename It,typename Ot>
 	static Ot uninitialized_copy_n(It first_,size_t count_,Ot dest_)
 	{
-		//return std::uninitialized_copy_n(first_,count_,dest_);		//C++11
-		return std::uninitialized_copy(first_,first_+count_,dest_);
+		return std::uninitialized_copy_n(first_,count_,dest_);		//C++11
 	}
 
 	template<typename It,typename Ot>
@@ -730,12 +729,11 @@ public:
 		return std::copy(first_,last_,dest_);
 	}
 
-
 	template<typename It,typename Ot>
 	static Ot copy_n(It first_,size_t count_,Ot dest_)
 	{
-		//return std::copy_n(first_,count_,dest_);
-		return std::copy(first_,first_+count_,dest_);
+		if(count_==0) return dest_;
+		return std::copy_n(first_,count_,dest_);
 	}
 
 	template<typename It,typename Ot>

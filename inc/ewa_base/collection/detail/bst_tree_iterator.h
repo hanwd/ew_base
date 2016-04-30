@@ -3,6 +3,7 @@
 #define __H_EW_COLLECTION_BST_TREE_ITERATOR__
 
 #include "ewa_base/collection/detail/bst_tree_node.h"
+#include "ewa_base/basic/system.h"
 
 EW_ENTER
 

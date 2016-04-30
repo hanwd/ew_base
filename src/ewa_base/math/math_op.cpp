@@ -95,10 +95,20 @@ const op_info& pl_le::info(){static op_info sm_info("rel.le",0);return sm_info;}
 
 const op_info& pl_add::info(){static op_info sm_info("math.add",0);return sm_info;}
 const op_info& pl_sub::info(){static op_info sm_info("math.sub",0);return sm_info;}
+const op_info& pl_mod::info(){static op_info sm_info("math.mod",0);return sm_info;}
+
 const op_info& pl_mul::info(){static op_info sm_info("math.mul",0);return sm_info;}
 const op_info& pl_div::info(){static op_info sm_info("math.div",0);return sm_info;}
 const op_info& pl_pow::info(){static op_info sm_info("math.pow",0);return sm_info;}
-const op_info& pl_mod::info(){static op_info sm_info("math.mod",0);return sm_info;}
+
+const op_info& pl_arr_mul::info(){static op_info sm_info("math.dot_mul",0);return sm_info;}
+const op_info& pl_arr_div::info(){static op_info sm_info("math.dot_div",0);return sm_info;}
+const op_info& pl_arr_pow::info(){static op_info sm_info("math.dot_pow",0);return sm_info;}
+
+const op_info& pl_mat_mul::info(){static op_info sm_info("math.mul",0);return sm_info;}
+const op_info& pl_mat_div::info(){static op_info sm_info("math.div",0);return sm_info;}
+const op_info& pl_mat_pow::info(){static op_info sm_info("math.pow",0);return sm_info;}
+
 
 const op_info& pl_bw_not::info(){static op_info sm_info("bitwise.not",0);return sm_info;}
 const op_info& pl_bw_and::info(){static op_info sm_info("bitwise.and",0);return sm_info;}
@@ -107,6 +117,22 @@ const op_info& pl_bw_xor::info(){static op_info sm_info("bitwise.xor",0);return 
 
 const op_info& pl_bw_shl::info(){static op_info sm_info("bitwise.shl",0);return sm_info;}
 const op_info& pl_bw_shr::info(){static op_info sm_info("bitwise.shr",0);return sm_info;}
+
+
+bool pl_mat_mul::metatable_call(CallableMetatable* mt, Variant& r, Variant& v1, Variant& v2)
+{
+	return pl_base0::metatable_call(mt,r,v1,v2);
+}
+
+bool pl_mat_div::metatable_call(CallableMetatable* mt, Variant& r, Variant& v1, Variant& v2)
+{
+	return pl_base0::metatable_call(mt,r,v1,v2);
+}
+
+bool pl_mat_pow::metatable_call(CallableMetatable* mt, Variant& r, Variant& v1, Variant& v2)
+{
+	return pl_base0::metatable_call(mt,r,v1,v2);
+}
 
 EW_LEAVE
 

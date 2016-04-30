@@ -169,29 +169,30 @@ private:
 };
 
 
-template<template<typename> class G,typename T>
+template<typename T>
 struct opx_scalar_cpx : public tl::value_type<false>
 {
 	typedef T type;
 };
 
-template<template<typename> class G,typename T>
-struct opx_scalar_cpx<G,G<T> > : public tl::value_type<true>
+template<typename T>
+struct opx_scalar_cpx<tiny_cpx<T> > : public tl::value_type<true>
 {
 	typedef T type;
 };
 
-template<template<typename> class G,typename X,typename Y>
+template<typename X,typename Y>
 struct opx_helper_cpx
 {
-	static const bool value=opx_scalar_cpx<G,X>::value||opx_scalar_cpx<G,Y>::value;
-	typedef typename opx_scalar_cpx<G,X>::type type1;
-	typedef typename opx_scalar_cpx<G,Y>::type type2;
-	template<typename T> struct rebind{typedef G<T> type;};
+	static const bool value=opx_scalar_cpx<X>::value||opx_scalar_cpx<Y>::value;
+	typedef typename opx_scalar_cpx<X>::type type1;
+	typedef typename opx_scalar_cpx<Y>::type type2;
+	template<typename T> struct rebind{typedef tiny_cpx<T> type;};
 };
 
+
 template<typename X,typename Y>
-struct cpx_promote : public opx_promote<opx_helper_trait<opx_helper_cpx<tiny_cpx,X,Y>,scr_promote> >{};
+struct cpx_promote : public opx_promote<opx_helper_trait<opx_helper_cpx<X,Y>,scr_promote> >{};
 
 template<typename T> class hash_t<tiny_cpx<T> > : public hash_pod<tiny_cpx<T> > {};
 

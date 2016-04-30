@@ -33,8 +33,9 @@ public:
 	using basetype::swap;
 
 	inline arr_1t(){}
-	inline arr_1t(const A& al):basetype(al){}
 	inline arr_1t(const arr_1t& o):basetype(o){}
+	inline explicit arr_1t(const A& al):basetype(al){}
+
 	inline arr_1t& operator=(const arr_1t& o){impl=o.impl;return *this;}
 
 #if defined(EW_C11)

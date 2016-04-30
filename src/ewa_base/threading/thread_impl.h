@@ -73,13 +73,15 @@ public:
 
 	static inline ThreadImpl& this_data()
 	{
-		ThreadImpl* p=tc_impl_data;
-		if(!p)
+		if(!tc_impl_data)
 		{
-			p=tc_impl_data=&dummy_data();
+			ThreadManager::current();
+			if(tc_impl_data) return *tc_impl_data;
+
+			tc_impl_data=&dummy_data();
 			System::LogTrace("unknown thread(%p) ThreadImpl::this_data()",(void*)Thread::id());
 		}
-		return *p;
+		return *tc_impl_data;
 	}
 };
 

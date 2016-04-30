@@ -3,6 +3,7 @@
 
 #include "ewa_base/basic/object.h"
 #include "ewa_base/basic/pointer_detail.h"
+#include "ewa_base/basic/platform.h"
 
 EW_ENTER
 

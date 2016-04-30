@@ -3,6 +3,8 @@
 
 #include "ewa_base/config.h"
 #include "ewa_base/basic/string_detail.h"
+#include "ewa_base/basic/string.h"
+#include "ewa_base/basic/stringbuffer.h"
 #include "ewa_base/basic/platform.h"
 
 #define EW_FUNCTION_TRACER(lv) FunctionTracer __function_tracer(__FUNCTION__,lv);
@@ -42,6 +44,10 @@ public:
 	static int64_t GetMemAvailPhys();
 	static int64_t GetMemTotalVirtual();
 	static int64_t GetMemAvailVirtual();
+
+	static String GetEnv(const String& name);
+
+	static arr_1t<String> FindAllFiles(const String& folder, const String& pattern = "*.*");
 
 
 #define STRING_FORMAT_LEVEL(X,Y) DoLog(Y,X)

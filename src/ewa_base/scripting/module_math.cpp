@@ -75,10 +75,15 @@ void init_module_math()
 
 	gi.add_inner<PLX_func<pl_add> >();
 	gi.add_inner<PLX_func<pl_sub> >();
-	gi.add_inner<PLX_func<pl_mul> >();
-	gi.add_inner<PLX_func<pl_div> >();
 	gi.add_inner<PLX_func<pl_mod> >();
-	gi.add_inner<PLX_func<pl_pow> >();
+
+	gi.add_inner<PLX_func<pl_arr_mul> >();
+	gi.add_inner<PLX_func<pl_arr_div> >();
+	gi.add_inner<PLX_func<pl_arr_pow> >();
+	gi.add_inner<PLX_func<pl_mat_mul> >();
+	gi.add_inner<PLX_func<pl_mat_div> >();
+	gi.add_inner<PLX_func<pl_mat_pow> >();
+
 
 	gi.add_inner<PLX_func<pl_sqrt> >();
 	gi.add_inner<PLX_func<pl_log> >();
@@ -118,7 +123,8 @@ void init_module_math()
 	gi.add_inner<PLX_func<pl_bw_not> >();
 
 	// replace div(int,int) implement
-	pl2_call<pl_div>::lk::cmap[type_flag<int64_t>::value<<4|type_flag<int64_t>::value]=int_div_hook_int_int;
+	pl2_call<pl_arr_div>::lk::cmap[type_flag<int64_t>::value<<4|type_flag<int64_t>::value]=int_div_hook_int_int;
+	pl2_call<pl_mat_div>::lk::cmap[type_flag<int64_t>::value<<4|type_flag<int64_t>::value]=int_div_hook_int_int;
 
 }
 

@@ -396,6 +396,26 @@ public:
 IMPLEMENT_OBJECT_INFO(CallableFunctionShell, ObjectInfo);
 
 
+class CallableFunctionGetEnv : public CallableFunction
+{
+public:
+
+	CallableFunctionGetEnv() :CallableFunction("os.getenv",1){}
+
+	virtual int __fun_call(Executor& ewsl, int pm)
+	{
+		ewsl.check_pmc(this, pm, 1);
+		String p = variant_cast<String>(ewsl.ci0.nbx[1]);
+		ewsl.ci0.nbx[1].reset<String>(System::GetEnv(p));
+		return 1;
+	}
+
+	DECLARE_OBJECT_CACHED_INFO(CallableFunctionGetEnv, ObjectInfo);
+
+};
+
+IMPLEMENT_OBJECT_INFO(CallableFunctionGetEnv, ObjectInfo);
+
 void init_module_os()
 {
 
@@ -403,6 +423,8 @@ void init_module_os()
 	gi.add_inner<CallableFunctionTime>();
 	gi.add_inner<CallableFunctionSleep>();
 	gi.add_inner<CallableFunctionShell>();
+	gi.add_inner<CallableFunctionGetEnv>();
+
 	gi.add_inner<CallableMetatableTimeSpan>();
 	gi.add_inner<CallableMetatableTimePoint>();
 

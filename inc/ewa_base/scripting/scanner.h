@@ -81,27 +81,21 @@ public:
 	typedef tokState::mychar mychar;
 	typedef tokState::mychar_ptr mychar_ptr;
 
-
 protected:
 
 	template<template<unsigned> class P> 
 	static void skip(tokState& p);
 
-
 	StringBuffer<mychar> tempbuf;
 
 	mychar_ptr pbeg; 
 	mychar_ptr pend;
-
 	tokState stok;
-
-	arr_1t<tokItem> aTokens;
-
 
 	tokItem tokitem;
 
+	arr_1t<tokItem> aTokens;
 	indexer_map<String,tokType>& aKeyword;
-
 
 	ScannerBase(indexer_map<String, tokType>&);
 

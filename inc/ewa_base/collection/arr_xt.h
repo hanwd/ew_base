@@ -27,8 +27,8 @@ public:
 	typedef typename basetype::const_reverse_iterator const_reverse_iterator;
 
 	inline arr_xt(){}
-	inline arr_xt(const A& al):basetype(al){}
 	inline arr_xt(const arr_xt& o):basetype(o),dims(o.dims){}
+	inline explicit arr_xt(const A& al):basetype(al){}
 
 	inline arr_xt& operator=(const arr_xt& o)
 	{
@@ -258,6 +258,29 @@ public:
 		return hash_array<T>::hash(o.data(),o.size())^hash_array<typename type::size_type>::hash(o.size_ptr(),type::MAX_DIM);
 	}
 };
+
+
+
+template<typename T>
+struct opx_scalar_arr : public tl::value_type<false>
+{
+	typedef T type;
+};
+template<typename T,typename A>
+struct opx_scalar_arr<arr_xt<T,A> > : public tl::value_type<true>
+{
+	typedef T type;
+};
+
+template<typename X,typename Y,template<typename,typename> class B>
+struct opx_helper_arr
+{
+	static const bool value=opx_scalar_arr<X>::value||opx_scalar_arr<Y>::value;
+	typedef typename opx_scalar_arr<X>::type type1;
+	typedef typename opx_scalar_arr<Y>::type type2;
+	template<typename T> struct rebind{typedef arr_xt<T> type;};
+};
+
 
 EW_LEAVE
 #endif

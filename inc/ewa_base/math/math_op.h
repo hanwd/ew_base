@@ -389,6 +389,18 @@ struct DLLIMPEXP_EWA_BASE pl_base2_num : public pl_base2
 	struct rebind : public cpx_promote<T1,T2>{};
 };
 
+
+
+
+struct DLLIMPEXP_EWA_BASE pl_base2_mat : public pl_base2
+{
+	static const int dispatch_type=DISPATCH_ARR;
+
+	template<typename T1,typename T2>
+	struct rebind : public opx_promote<opx_helper_trait<opx_helper_arr<T1,T2,cpx_promote>,cpx_promote> >{};
+		
+};
+
 struct DLLIMPEXP_EWA_BASE pl_add : public pl_base2_num
 {
 	template<typename T1,typename T2>
@@ -428,6 +440,74 @@ struct DLLIMPEXP_EWA_BASE pl_mul : public pl_base2_num
 	static const op_info& info();
 };
 
+struct DLLIMPEXP_EWA_BASE pl_arr_mul : public pl_mul
+{
+	static const op_info& info();
+};
+
+
+struct DLLIMPEXP_EWA_BASE pl_mat_mul : public pl_base2_mat
+{
+
+	template<typename T1,typename T2>
+	static typename rebind<T1,T2>::type g(const T1& v1,const T2& v2){return v1*v2;}
+
+	template<typename T1,typename T2>
+	static typename rebind<arr_xt<T1>,T2>::type g(const arr_xt<T1>& v1,const T2& v2)
+	{
+		typedef rebind<T1,T2>::type type;
+		arr_xt<type> result;
+		size_t sz=v1.size();
+		result.resize(v1.size_ptr(),sz);
+		for(size_t i=0;i<sz;i++) result[i]=v1[i]*v2;
+		return EW_MOVE(result);
+		
+	}
+	template<typename T1,typename T2>
+	static typename rebind<T1,arr_xt<T2> >::type g(const T1& v1,const arr_xt<T2>& v2)
+	{
+		typedef rebind<T1,T2>::type type;
+		arr_xt<type> result;
+		size_t sz=v2.size();
+		result.resize(v2.size_ptr(),sz);
+		for(size_t i=0;i<sz;i++) result[i]=v1*v2[i];
+		return EW_MOVE(result);
+	}
+
+	template<typename T1,typename T2>
+	static typename rebind<arr_xt<T1>,arr_xt<T2> >::type g(const arr_xt<T1>& v1,const arr_xt<T2>& v2)
+	{
+		typedef rebind<T1,T2>::type type;
+		arr_xt<type> result;
+
+		const arr_xt_dims& s1=v1.size_ptr();
+		const arr_xt_dims& s2=v2.size_ptr();
+
+		size_t k3=s1[2]*s1[3]*s1[4]*s1[5];
+
+		if(s1[1]!=s2[0]||k3!=s2[2]*s2[3]*s2[4]*s2[5])
+		{
+			Exception::XError("invalid_matrix_size");
+		}
+
+		result.resize(s1[0],s2[1],s1[2],s1[3],s1[4],s1[5]);
+
+		for(size_t k=0;k<k3;k++) for(size_t i=0;i<s1[0];i++) for(size_t j=0;j<s2[1];j++)
+		{
+			for(size_t n=0;n<s1[1];n++)
+			{
+				result(i,j,k)+=v1(i,n,k)*v2(n,j,k);
+			}
+		}
+
+		return EW_MOVE(result);
+	}
+
+	static bool metatable_call(CallableMetatable* mt, Variant& r, Variant& v1, Variant& v2);
+
+	static const op_info& info();
+};
+
 struct DLLIMPEXP_EWA_BASE pl_div : public pl_base2_num
 {
 	template<typename T1,typename T2>
@@ -439,6 +519,54 @@ struct DLLIMPEXP_EWA_BASE pl_div : public pl_base2_num
 	}
 	static const op_info& info();
 };
+
+
+struct DLLIMPEXP_EWA_BASE pl_arr_div : public pl_div
+{
+	static const op_info& info();
+};
+
+struct DLLIMPEXP_EWA_BASE pl_mat_div : public pl_base2_mat
+{
+	template<typename T1,typename T2>
+	static typename rebind<T1,T2>::type g(const T1& v1,const T2& v2){return v1/v2;}
+
+	template<typename T1,typename T2>
+	static typename rebind<arr_xt<T1>,T2>::type g(const arr_xt<T1>& v1,const T2& v2)
+	{
+		typedef rebind<T1,T2>::type type;
+		arr_xt<type> result;
+		size_t sz=v1.size();
+		result.resize(v1.size_ptr(),sz);
+		for(size_t i=0;i<sz;i++) result[i]=v1[i]/v2;
+		return EW_MOVE(result);
+		
+	}
+	template<typename T1,typename T2>
+	static typename rebind<T1,arr_xt<T2> >::type g(const T1& v1,const arr_xt<T2>& v2)
+	{
+		typedef rebind<T1,T2>::type type;
+		arr_xt<type> result;
+		size_t sz=v2.size();
+		result.resize(v2.size_ptr(),sz);
+		for(size_t i=0;i<sz;i++) result[i]=v1/v2[i];
+		return EW_MOVE(result);
+	}
+
+	template<typename T1,typename T2>
+	static typename rebind<arr_xt<T1>,arr_xt<T2> >::type g(const arr_xt<T1>& v1,const arr_xt<T2>& v2)
+	{
+		typedef rebind<T1,T2>::type type;
+		arr_xt<type> result;
+		Exception::XError("matrix_div_not_implement");
+		return EW_MOVE(result);
+	}
+
+	static bool metatable_call(CallableMetatable* mt, Variant& r, Variant& v1, Variant& v2);
+
+	static const op_info& info();
+};
+
 
 struct DLLIMPEXP_EWA_BASE pl_pow : public pl_base2_num
 {
@@ -474,6 +602,51 @@ struct DLLIMPEXP_EWA_BASE pl_pow : public pl_base2_num
 
 	static const op_info& info();
 };
+
+
+
+struct DLLIMPEXP_EWA_BASE pl_arr_pow : public pl_pow
+{
+	static const op_info& info();
+};
+
+struct DLLIMPEXP_EWA_BASE pl_mat_pow : public pl_base2_mat
+{
+
+	template<typename T1,typename T2>
+	static typename rebind<T1,T2>::type g(const T1& v1,const T2& v2){return pl_pow::g(v1,v2);}
+
+	template<typename T1,typename T2>
+	static typename rebind<arr_xt<T1>,T2>::type g(const arr_xt<T1>& v1,const T2& v2)
+	{
+		typedef rebind<T1,T2>::type type;
+		arr_xt<type> result;
+		Exception::XError("matrix_pow_not_implement");
+		return EW_MOVE(result);
+		
+	}
+	template<typename T1,typename T2>
+	static typename rebind<T1,arr_xt<T2> >::type g(const T1& v1,const arr_xt<T2>& v2)
+	{
+		typedef rebind<T1,T2>::type type;
+		arr_xt<type> result;
+		Exception::XError("matrix_pow_not_implement");
+		return EW_MOVE(result);
+	}
+
+	template<typename T1,typename T2>
+	static typename rebind<arr_xt<T1>,arr_xt<T2> >::type g(const arr_xt<T1>& v1,const arr_xt<T2>& v2)
+	{
+		typedef rebind<T1,T2>::type type;
+		arr_xt<type> result;
+		Exception::XError("matrix_pow_not_implement");		
+		return EW_MOVE(result);
+	}
+
+	static bool metatable_call(CallableMetatable* mt, Variant& r, Variant& v1, Variant& v2);
+	static const op_info& info();
+};
+
 
 struct DLLIMPEXP_EWA_BASE pl_mod : public pl_base2_num
 {

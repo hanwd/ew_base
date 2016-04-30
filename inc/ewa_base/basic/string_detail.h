@@ -87,8 +87,6 @@ public:
 		return dst;
 	}
 
-
-
 	static inline char_type* str_cat(const char_type* p1,const char_type* p2)
 	{
 		size_t n1=std::char_traits<char_type>::length(p1);

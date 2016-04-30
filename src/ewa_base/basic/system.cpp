@@ -195,6 +195,30 @@ int System::GetCacheLineSize()
 	return SystemInfo::current().m_nCacheLine;
 }
 
+String System::GetEnv(const String& name)
+{
+#ifdef EW_WINDOWS
+	char buffer[4096]={0};
+	int n=::GetEnvironmentVariableA(name.c_str(),buffer,4096);
+	if(n==0)
+	{
+		System::CheckError("getenv failed");
+		return "";
+	}
+	else if(n<4096)
+	{
+		return buffer;
+	}
+	else
+	{
+		StringBuffer<char> tmp;tmp.resize(n);
+		::GetEnvironmentVariableA(name.c_str(),&tmp[0],n);
+		return tmp;
+	}
+#else
+	return "";
+#endif
+}
 
 
 int System::GetPid()
@@ -632,6 +656,34 @@ FunctionTracer::FunctionTracer(const char* s,int lv) :func(s),level(lv)
 FunctionTracer::~FunctionTracer()
 {
 	System::DoLog(level,"%s Leave", func);
+}
+
+
+
+arr_1t<String> System::FindAllFiles(const String& folder, const String& pattern)
+{
+	arr_1t<String> files;
+
+
+
+#ifdef EW_WINDOWS
+
+	String folder_pattern = folder;
+	
+	folder_pattern+=pattern;
+
+	WIN32_FIND_DATAA p;
+	HANDLE h = FindFirstFileA(folder_pattern.c_str(), &p);
+
+	if (h != INVALID_HANDLE_VALUE)
+	{
+		files.push_back(p.cFileName);
+		while (FindNextFileA(h, &p))
+			files.push_back(p.cFileName);
+	}
+#endif
+
+	return files;
 }
 
 EW_LEAVE

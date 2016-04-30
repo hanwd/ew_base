@@ -202,6 +202,71 @@ public:
 IMPLEMENT_OBJECT_INFO(CallableFunctionStringSubstr, ObjectInfo);
 
 
+class CallableFunctionStringSplit : public CallableFunction
+{
+public:
+
+	CallableFunctionStringSplit():CallableFunction("string.split"){}
+
+	int __fun_call(Executor& ewsl,int pm)
+	{
+
+		ewsl.check_pmc(this,pm,1);
+
+		String* _pValue = ewsl.ci1.nbp[StackState1::SBASE_THIS].ptr<String>();
+		if(!_pValue)
+		{
+			ewsl.kerror("invalid param");
+		}
+
+		String _sSplitBy=variant_cast<String>(ewsl.ci0.nbx[1]);
+
+		arr_1t<String> _aStrings;
+		_aStrings=string_split(*_pValue,_sSplitBy);
+
+		arr_xt<Variant> _aVariants;
+		_aVariants.resize(_aStrings.size());
+		std::transform(_aStrings.begin(),_aStrings.end(),_aVariants.begin(),[](const String& s){Variant v;v.reset(s);return v;});
+				
+		ewsl.ci0.nbx[1].reset(_aVariants);
+		return 1;
+	}
+	DECLARE_OBJECT_CACHED_INFO(CallableFunctionStringSplit, ObjectInfo);
+};
+
+IMPLEMENT_OBJECT_INFO(CallableFunctionStringSplit, ObjectInfo);
+
+
+class CallableFunctionStringReplace : public CallableFunction
+{
+public:
+
+	CallableFunctionStringReplace():CallableFunction("string.replace"){}
+
+	int __fun_call(Executor& ewsl,int pm)
+	{
+
+		ewsl.check_pmc(this,pm,2);
+
+		String* _pValue = ewsl.ci1.nbp[StackState1::SBASE_THIS].ptr<String>();
+		if(!_pValue)
+		{
+			ewsl.kerror("invalid param");
+		}
+
+		String _sOld=variant_cast<String>(ewsl.ci0.nbx[1]);
+		String _sNew=variant_cast<String>(ewsl.ci0.nbx[1]);
+
+				
+		ewsl.ci0.nbx[1].reset(string_replace(*_pValue,_sOld,_sNew));
+		return 1;
+	}
+	DECLARE_OBJECT_CACHED_INFO(CallableFunctionStringReplace, ObjectInfo);
+};
+
+IMPLEMENT_OBJECT_INFO(CallableFunctionStringReplace, ObjectInfo);
+
+
 class CallableFunctionStringFormat : public CallableFunction
 {
 public:
@@ -228,7 +293,7 @@ public:
 		{
 			res << pl_cast<String>::g(ewsl.ci0.nbx[i]);
 		}
-		ewsl.ci0.nbx[1].reset<String>(res);
+		ewsl.ci0.nbx[1].reset(res.c_str());
 		return 1;
 	}
 	DECLARE_OBJECT_CACHED_INFO(CallableFunctionStringConcat, ObjectInfo);
@@ -250,7 +315,9 @@ void init_module_string()
 
 	gi.add_inner<CallableFunctionStringFormat>();
 	gi.add_inner<CallableFunctionStringConcat>();
-		
+	gi.add_inner<CallableFunctionStringSplit>();
+	gi.add_inner<CallableFunctionStringReplace>();
+
 
 }
 

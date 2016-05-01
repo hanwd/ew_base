@@ -885,6 +885,10 @@ DataPtrT<TNode_val_function> read_node_handler<TNode_val_function>::g(Parser& pa
 
 	if(parser.pcur[0].type!=TOK_BRA1)
 	{
+		if(parser.pcur[0].type!=TOK_ID)
+		{
+			parser.kexpected("function name");
+		}
 		node->func_name=read_expr_handler<-1>::g(parser);
 	}
 

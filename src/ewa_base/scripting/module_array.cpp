@@ -57,7 +57,7 @@ public:
 
 		size_t sz=1+::floor((s2-s1)/ds);
 		arr_xt<double>& xt(ewsl.ci0.nbx[1].ref_unique<arr_xt<double> >());
-		xt.resize(sz);
+		xt.resize(1,sz);
 
 		for(size_t i=0;i<sz;i++)
 		{
@@ -139,7 +139,8 @@ public:
 		}
 
 		arr_xt<double>& val(ewsl.ci0.nbx[1].ref_unique<arr_xt<double> >());
-		val.resize(sz);
+		val.resize(1,
+			sz);
 
 		if(sz>1)
 		{
@@ -347,6 +348,8 @@ public:
 		DataPtrT<CallableWrapT<arr_xt<Variant> > > p(new CallableWrapT<arr_xt<Variant> >);
 		Variant* _bp=ewsl.ci0.nbx+1;
 		p->value.assign(_bp,pm);
+		p->value.reshape(1,pm);
+
 		_bp[0].kptr(p.get());
 		return 1;
 	}

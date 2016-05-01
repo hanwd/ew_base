@@ -397,7 +397,7 @@ struct DLLIMPEXP_EWA_BASE pl_base2_mat : public pl_base2
 	static const int dispatch_type=DISPATCH_ARR;
 
 	template<typename T1,typename T2>
-	struct rebind : public opx_promote<opx_helper_trait<opx_helper_arr<T1,T2,cpx_promote>,cpx_promote> >{};
+	struct rebind : public arr_promote<T1,T2>{};
 		
 };
 
@@ -547,9 +547,7 @@ struct DLLIMPEXP_EWA_BASE pl_mat_div : public pl_base2_mat
 	{
 		typedef rebind<T1,T2>::type type;
 		arr_xt<type> result;
-		size_t sz=v2.size();
-		result.resize(v2.size_ptr(),sz);
-		for(size_t i=0;i<sz;i++) result[i]=v1/v2[i];
+		Exception::XError("matrix_div_not_implement");
 		return EW_MOVE(result);
 	}
 

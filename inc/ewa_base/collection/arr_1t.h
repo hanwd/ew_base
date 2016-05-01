@@ -171,6 +171,5 @@ public:
 	}
 };
 
-
 EW_LEAVE
 #endif

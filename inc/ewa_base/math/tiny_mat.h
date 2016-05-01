@@ -59,29 +59,28 @@ private:
 };
 
 
-template<template<typename,int,int> class G,int R,int C,typename T>
-struct opx_scalar_mat : public tl::value_type<false>
+template<typename T,int R,int C>
+struct opx_scalar_mat_n : public tl::value_type<false>
+{
+	typedef T type;
+	typedef tiny_mat<T,R,C> promoted;
+};
+
+template<typename T,int R,int C>
+struct opx_scalar_mat_n<tiny_mat<T,R,C>,R,C> : public tl::value_type<true>
 {
 	typedef T type;
 };
 
-template<template<typename,int,int> class G,int R,int C,typename T>
-struct opx_scalar_mat<G,R,C,G<T,R,C> > : public tl::value_type<true>
+template<int R,int C>
+struct opx_scalar_mat
 {
-	typedef T type;
-};
-
-template<template<typename,int,int> class G,typename X,typename Y,int R,int C>
-struct opx_helper_mat
-{
-	static const bool value=opx_scalar_mat<G,R,C,X>::value||opx_scalar_mat<G,R,C,Y>::value;
-	typedef typename opx_scalar_mat<G,R,C,X>::type type1;
-	typedef typename opx_scalar_mat<G,R,C,Y>::type type2;
-	template<typename T> struct rebind{typedef G<T,R,C> type;};
+	template<typename T>
+	struct rebind : public opx_scalar_mat_n<T,R,C>{};
 };
 
 template<typename X,typename Y,int R,int C>
-struct mat_promote : public opx_promote<opx_helper_trait<opx_helper_mat<tiny_mat,X,Y,R,C>,cpx_promote> >{};
+struct mat_promote : public opx_helper_promote<X,Y,cpx_promote,opx_scalar_mat<R,C>::rebind>{};
 
 template<typename T,int R,int C> class hash_t<tiny_mat<T,R,C> > : public hash_pod<tiny_mat<T,R,C> > {};
 

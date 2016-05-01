@@ -324,6 +324,56 @@ int CallableWrapT<arr_xt<T> >::__setarray(Executor& ewsl,int pm)
 	Variant* _bp=ewsl.ci0.nbx+1;
 
 	int flag=0;
+
+	if(pm==1)
+	{
+		flag|=sub.idx[0].update(_bp[0],0,value.size());
+		if(flag==1)
+		{
+			//需要增大数组，扩大并强制转化为一维行向量
+			value.reshape(1,sub.idx[0].imax+1);
+			flag=0;
+		}
+
+		Variant& val(ewsl.ci0.nbx[0]);
+
+		switch(val.type())
+		{
+		case type_flag<int64_t>::value:
+			__arrset_1t(sub,variant_handler<int64_t>::raw(val));
+			break;
+		case type_flag<double>::value:
+			__arrset_1t(sub,variant_handler<double>::raw(val));
+			break;
+		case type_flag<dcomplex>::value:
+			__arrset_1t(sub,variant_handler<dcomplex>::raw(val));
+			break;
+		case type_flag<arr_xt<int64_t> >::value:
+			__arrset_1t(sub,variant_handler<arr_xt<int64_t> >::raw(val));
+			break;
+		case type_flag<arr_xt<double> >::value:
+			__arrset_1t(sub,variant_handler<arr_xt<double> >::raw(val));
+			break;
+		case type_flag<arr_xt<dcomplex> >::value:
+			__arrset_1t(sub,variant_handler<arr_xt<dcomplex> >::raw(val));
+			break;
+		case type_flag<arr_xt<Variant> >::value:
+			__arrset_1t(sub,variant_handler<arr_xt<Variant> >::raw(val));
+			break;
+		default:
+			if(tl::is_same_type<T,Variant>::value)
+			{
+				__arrset_1t(sub,val);
+				break;
+			}
+			ewsl.kerror("invalid param");
+		}
+
+		ewsl.ci1.nsp=ewsl.ci0.nbx-1;
+		return STACK_BALANCED;
+
+	}
+
 	for(int i=0;i<pm;i++)
 	{
 		flag|=sub.idx[i].update(_bp[i],0,xtd[i]);
@@ -333,6 +383,7 @@ int CallableWrapT<arr_xt<T> >::__setarray(Executor& ewsl,int pm)
 	if(flag==0){}
 	else if(flag==1)
 	{
+		// 自动增大数组
 		arr_xt_dims kkk=value.size_ptr();
 		for(int i=0;i<pm;i++)
 		{
@@ -344,6 +395,7 @@ int CallableWrapT<arr_xt<T> >::__setarray(Executor& ewsl,int pm)
 			kkk[i]=std::max<size_t>(kkk[i],sub.idx[i].imax+1);
 		}
 		value.resize(kkk);
+
 	}
 	else
 	{
@@ -393,96 +445,6 @@ int CallableWrapT<arr_xt<T> >::__setarray(Executor& ewsl,int pm)
 	return STACK_BALANCED;
 }
 
-//template<>
-//int CallableWrapT<arr_xt<Variant> >::__setarray(Executor& ewsl,int pm)
-//{
-//
-//	sub_xt<arr_type> sub(value);
-//	arr_xt_dims xtd=value.size_ptr();
-//
-//	Variant* _bp=ewsl.ci0.nbx+1;
-//
-//	int flag=0;
-//	for(int i=0;i<pm;i++)
-//	{
-//		flag|=sub.idx[i].update(_bp[i],0,xtd[i]);
-//		xtd[i]=sub.idx[i].size;
-//	}
-//
-//
-//	if(flag==0){}
-//	else if(flag==1)
-//	{
-//		arr_xt_dims kkk=value.size_ptr();
-//		for(int i=0;i<pm;i++)
-//		{
-//			if(sub.idx[i].imin<0)
-//			{
-//				ewsl.kerror("negative array index");
-//			}
-//
-//			kkk[i]=std::max<size_t>(kkk[i],sub.idx[i].imax+1);
-//		}
-//		value.resize(kkk);
-//	}
-//	else
-//	{
-//		ewsl.kerror("invalid array index");
-//	}
-//
-//	for(int i=pm;i<6;i++)
-//	{
-//		sub.idx[i].size=xtd[i];
-//	}
-//
-//	Variant& val(ewsl.ci0.nbx[0]);
-//
-//	switch(val.type())
-//	{
-//	case 0:
-//		__arrset_xt(sub,val);
-//		break;
-//	case type_flag<bool>::value:
-//		__arrset_xt(sub,variant_handler<bool>::raw(val));
-//		break;
-//	case type_flag<int64_t>::value:
-//		__arrset_xt(sub,variant_handler<int64_t>::raw(val));
-//		break;
-//	case type_flag<double>::value:
-//		__arrset_xt(sub,variant_handler<double>::raw(val));
-//		break;
-//	case type_flag<dcomplex>::value:
-//		__arrset_xt(sub,variant_handler<dcomplex>::raw(val));
-//		break;
-//	case type_flag<arr_xt<int64_t> >::value:
-//		__arrset_xt(sub,variant_handler<arr_xt<int64_t> >::raw(val));
-//		break;
-//	case type_flag<arr_xt<double> >::value:
-//		__arrset_xt(sub,variant_handler<arr_xt<double> >::raw(val));
-//		break;
-//	case type_flag<arr_xt<dcomplex> >::value:
-//		__arrset_xt(sub,variant_handler<arr_xt<dcomplex> >::raw(val));
-//		break;
-//	case type_flag<arr_xt<Variant> >::value:
-//		{
-//			arr_xt<Variant>& res(variant_handler<arr_xt<Variant> >::raw(val));
-//			if(res.size()!=0)
-//			{
-//				__arrset_xt(sub,res);
-//			}
-//			else
-//			{
-//				__arrset_xt(sub,val);
-//			}
-//		}
-//		break;
-//	default:
-//		ewsl.kerror("invalid param");
-//	}
-//
-//	ewsl.ci1.nsp=ewsl.ci0.nbx-1;
-//	return STACK_BALANCED;
-//}
 
 template<typename T>
 void CallableWrapT<arr_xt<T> >::__get_iterator(Executor& ewsl,int d)

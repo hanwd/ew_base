@@ -746,7 +746,7 @@ bool Scanner::parse(const String& s_)
 			new_item(TOK_SHARP);
 			break;
 		case '@':
-			new_item(TOK_KEY,"function");
+			new_item(TOK_KEY,"def");
 			break;
 		case ',':
 			new_item(TOK_COMMA);

@@ -623,6 +623,10 @@ void CG_GGVar::_init()
 	init_module_coroutine();
 
 	gi.add(NULL,"pcall");
+	gi.add(NULL,"map");
+	gi.add(NULL,"reduce");
+	gi.add(NULL,"select");
+	gi.add(NULL,"join");
 	gi.add(NULL, "#internal_end");
 
 	_bInited=true;
@@ -646,8 +650,64 @@ void CG_GGVar::_init()
 	}
 
 	Executor ewsl;
-	ewsl.execute("function pcall(fn,...){try return true,fn(...);catch(...) return false,...;};");
-	gi["pcall"]=ewsl.tb1["pcall"];
+	ewsl.execute(
+"\n"
+"function pcall(fn,...)\n"
+"{\n"
+"	try \n"
+"		return true,fn(...);\n"
+"	catch(...) \n"
+"		return false,...;\n"
+"};\n"
+"\n"
+"function map(x,f)\n"
+"{\n"
+"	local r=[];\n"
+"	local k=0;\n"
+"	for_each(v in x)\n"
+"	{\n"
+"		r[k++]=f(v,k);\n"
+"	}\n"
+"	return r;\n"
+"};\n"
+"\n"
+"function select(x,f)\n"
+"{\n"
+"	local r=[];\n"
+"	local k=0;\n"
+"	for_each(v in x)\n"
+"	{\n"
+"		if(f(v)) r[k++]=v;\n"
+"	}\n"
+"	return r;	\n"
+"}\n"
+"\n"
+"function join(x,r)\n"
+"{\n"
+"	local z=r;\n"
+"	return reduce(x,def(x,y,k)\n"
+"	{\n"
+"		return k==0?x#y..z..x;\n"
+"	});\n"
+"};\n"
+"function reduce(x,f,n)\n"
+"{\n"
+"	local k=0;\n"
+"	for_each(v in x)\n"
+"	{\n"
+"		n=f(v,n,k++);	\n"
+"	}\n"
+"	return n;\n"
+"};\n"
+"\n"
+		
+		
+		
+		);
+	for(size_t i=0;i<ewsl.tb1.size();i++)
+	{
+		gi[ewsl.tb1.get(i).first]=ewsl.tb1.get(i).second;
+	}
 
 }
 

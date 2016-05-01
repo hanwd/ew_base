@@ -3,6 +3,7 @@
 
 
 #include "ewa_base/collection/arr_1t.h"
+#include "ewa_base/math/tiny_cpx.h"
 
 EW_ENTER
 
@@ -265,6 +266,7 @@ template<typename T>
 struct opx_scalar_arr : public tl::value_type<false>
 {
 	typedef T type;
+	typedef arr_xt<T> promoted;
 };
 template<typename T,typename A>
 struct opx_scalar_arr<arr_xt<T,A> > : public tl::value_type<true>
@@ -272,15 +274,9 @@ struct opx_scalar_arr<arr_xt<T,A> > : public tl::value_type<true>
 	typedef T type;
 };
 
-template<typename X,typename Y,template<typename,typename> class B>
-struct opx_helper_arr
-{
-	static const bool value=opx_scalar_arr<X>::value||opx_scalar_arr<Y>::value;
-	typedef typename opx_scalar_arr<X>::type type1;
-	typedef typename opx_scalar_arr<Y>::type type2;
-	template<typename T> struct rebind{typedef arr_xt<T> type;};
-};
-
+template<typename X,typename Y>
+struct arr_promote : public opx_helper_promote<X,Y,cpx_promote,opx_scalar_arr>{};
 
 EW_LEAVE
+
 #endif

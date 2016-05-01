@@ -68,7 +68,6 @@ namespace detail
 		typedef int64_t type;
 	};
 
-
 	template<>
 	class scalar_type<2> : public tl::value_type<true>
 	{
@@ -84,55 +83,42 @@ namespace detail
 	};
 }
 
-template<typename B,int F=-1>
-struct opx_promote;
-
-template<typename B>
-struct opx_promote<B,0> : public tl::value_type<false>
-{
-
-};
-
-template<typename B>
-struct opx_promote<B,1> : public tl::value_type<true>
-{
-	typedef typename B::type scalar;
-	typedef typename B::template rebind<scalar>::type promoted;
-	typedef scalar type;
-
-};
-
-template<typename B>
-struct opx_promote<B,2> : public tl::value_type<true>
-{
-	typedef typename B::type scalar;
-	typedef typename B::template rebind<scalar>::type promoted;
-	typedef promoted type;
-};
-
-template<typename B>
-struct opx_promote<B,-1> : public opx_promote<B,B::value>
-{
-
-};
-
-template<typename G,template<typename,typename> class B>
-struct opx_helper_trait : public B<typename G::type1,typename G::type2>
-{
-	typedef B<typename G::type1,typename G::type2> basetype;
-	static const int value=basetype::value?(G::value?2:1):0;
-
-	template<typename T>
-	struct rebind : public G::template rebind<T>{};
-};
-
-
 template<typename X,typename Y>
 class scr_promote : public detail::scalar_type<detail::scalar_flag<X>::value|detail::scalar_flag<Y>::value>
 {
 public:
 
 };
+
+
+template<typename X,typename Y,template<typename,typename> class B,template<typename> class H,int N=-1>
+struct opx_helper_promote;
+
+template<typename X,typename Y,template<typename,typename> class B,template<typename> class H>
+struct opx_helper_promote<X,Y,B,H,0> : public tl::value_type<false>{};
+
+template<typename X,typename Y,template<typename,typename> class B,template<typename> class H>
+struct opx_helper_promote<X,Y,B,H,1> : public tl::value_type<true>
+{
+	typedef typename B<X,Y>::type scalar;
+	typedef typename H<scalar>::promoted promoted;
+	typedef scalar type;
+};
+
+template<typename X,typename Y,template<typename,typename> class B,template<typename> class H>
+struct opx_helper_promote<X,Y,B,H,2> : public tl::value_type<true>
+{
+	typedef typename B<typename H<X>::type,typename H<Y>::type>::type scalar;
+	typedef typename H<scalar>::promoted promoted;
+	typedef promoted type;
+};
+template<typename X,typename Y,template<typename,typename> class B,template<typename> class H>
+struct opx_helper_promote<X,Y,B,H,-1> : 
+	public opx_helper_promote<X,Y,B,H,B<typename H<X>::type,typename H<Y>::type>::value?(H<X>::value||H<Y>::value?2:1):0>
+{
+
+};
+
 
 
 EW_LEAVE

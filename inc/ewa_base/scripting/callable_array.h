@@ -134,10 +134,8 @@ public:
 	DECLARE_OBJECT_INFO(CallableResultGroup,ObjectInfo)
 };
 
-
 DEFINE_OBJECT_NAME_T(arr_1t,"arr_1t")
 DEFINE_OBJECT_NAME_T(arr_xt,"arr_xt")
-
 
 EW_LEAVE
 

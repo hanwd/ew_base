@@ -653,6 +653,12 @@ template<typename T,typename A,bool pod>
 template<typename It>
 void arr_container<T,A,pod>::assign(It first_,size_type count_)
 {
+	if(count_==0)
+	{
+		clear();
+		return;
+	}
+
 	if(_inside(first_))
 	{
 		T* p1=_alloc_copy(count_,first_,count_);

@@ -35,6 +35,13 @@ CallableFunction::CallableFunction()
 
 }
 
+bool CallableFunction::ToValue(String& v,int) const
+{
+	v.Printf("cpp_function:%s(0x%p)",GetName(),this);
+	return true;
+}
+
+
 CallableFunction::CallableFunction(const String& s, int f) 
 :flags(f)
 ,m_sName(s)

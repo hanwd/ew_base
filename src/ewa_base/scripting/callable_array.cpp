@@ -466,11 +466,24 @@ void CallableWrapT<arr_xt<T> >::__get_iterator(Executor& ewsl,int d)
 template<typename T>
 int CallableWrapT<arr_xt<T> >::__getarray_index_range(Executor& ewsl,int pm)
 {
-	if(unsigned(pm)>=6) ewsl.kerror("invalid dim");
-	int64_t sz=((int64_t)value.size(pm))-1;
-	ewsl.push(0);
-	ewsl.push(sz);
-	return 2;
+	if(pm<0)
+	{
+		int64_t sz=((int64_t)value.size())-1;
+		ewsl.push(0);
+		ewsl.push(sz);
+		return 2;
+	}
+	else if(pm<6)
+	{
+		int64_t sz=((int64_t)value.size(pm))-1;
+		ewsl.push(0);
+		ewsl.push(sz);
+	}
+	else
+	{
+		ewsl.kerror("invalid dim");
+	}
+	return 2;	
 }
 
 template<typename T>
@@ -496,9 +509,6 @@ bool CallableWrapT<arr_xt<T> >::__test_dims(arr_xt_dims& dm,int op)
 		return false;
 	}
 }
-
-
-
 
 
 void ResultTreeNode::Serialize(Serializer& ar)

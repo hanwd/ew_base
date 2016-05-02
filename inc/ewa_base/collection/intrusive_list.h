@@ -5,7 +5,6 @@
 
 EW_ENTER
 
-
 template<typename T>
 class policy_list
 {

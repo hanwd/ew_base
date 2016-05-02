@@ -79,6 +79,8 @@ public:
 
 	void __get_iterator(Executor& ewsl,int nd){CallableTableOperators::__do_get_iterator(ewsl,value,nd);}
 
+	bool ToValue(String& v,int) const;
+
 	DECLARE_OBJECT_INFO(CallableWrapT,ObjectInfo);
 
 };

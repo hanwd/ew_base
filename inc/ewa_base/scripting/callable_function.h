@@ -28,6 +28,8 @@ public:
 
 	virtual int __getindex(Executor&,const String&); // top.s
 
+	bool ToValue(String& v,int) const;
+
 protected:
 	String m_sName;
 	DataPtrT<HelpData> m_pHelp;

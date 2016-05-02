@@ -47,7 +47,7 @@ VisReturnType TNodeVisitorCG_GeneratorUnit::visit_arr(TNode_expression_arr* node
 			if(node->exp_flag[i]!=0)
 			{
 				cgen.emit_getvar("#arr");
-				cgen.emit_push(i);
+				cgen.emit_push(n==1?-1:i);
 				cgen.emit_getsys("#arr_getindex");
 				cgen.emit_call(2,2);
 				cgen.emit_setvar("end");

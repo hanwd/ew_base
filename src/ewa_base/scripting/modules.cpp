@@ -234,9 +234,6 @@ public:
 };
 IMPLEMENT_OBJECT_INFO(CallableFunctionIsTable, ObjectInfo);
 
-
-
-
 class CallableFunctionTranslate : public CallableFunction
 {
 public:
@@ -468,80 +465,6 @@ public:
 };
 IMPLEMENT_OBJECT_INFO(CallableCommandEval, ObjectInfo);
 
-class CallableCommandLoadVar : public CallableCommand
-{
-public:
-
-	CallableCommandLoadVar():CallableCommand("load_var"){}
-	virtual int __fun_call(Executor& ewsl,int pm)
-	{
-		ewsl.check_pmc(this,pm,1);
-		String *p=ewsl.ci0.nbx[1].ptr<String>();
-		if(!p)
-		{
-			ewsl.kerror("invalid param");
-			return 0;
-		}
-
-		SerializerFile ar;
-
-		arr_1t<Variant> var;
-		if(ar.file.Open(*p,FileAccess::FLAG_RD))
-		{
-			ar.reader() & var;			
-		}
-		else
-		{
-			ewsl.kerror("invalid file");
-		}
-
-		std::copy(var.begin(), var.end(), ewsl.ci0.nbx + 1);
-
-		return var.size();
-	
-	}
-	DECLARE_OBJECT_CACHED_INFO(CallableCommandLoadVar, ObjectInfo);
-
-};
-IMPLEMENT_OBJECT_INFO(CallableCommandLoadVar, ObjectInfo);
-
-class CallableCommandSaveVar : public CallableCommand
-{
-public:
-
-	CallableCommandSaveVar():CallableCommand("save_var"){}
-
-	virtual int __fun_call(Executor& ewsl,int pm)
-	{
-		ewsl.check_pmc(this,pm,1,-1);
-		String *p=ewsl.ci0.nbx[1].ptr<String>();
-		if(!p)
-		{
-			ewsl.kerror("invalid param");
-			return 0;
-		}
-
-		SerializerFile ar;
-
-		arr_1t<Variant> var;
-		var.assign(ewsl.ci0.nbx + 2, pm - 1);
-
-		if(ar.file.Open(*p,FileAccess::FLAG_WC))
-		{
-			ar.writer() & var;			
-		}
-		else
-		{
-			ewsl.kerror("invalid file");
-		}
-
-		return 0;
-	
-	}
-	DECLARE_OBJECT_CACHED_INFO(CallableCommandSaveVar, ObjectInfo);
-
-};
-IMPLEMENT_OBJECT_INFO(CallableCommandSaveVar, ObjectInfo);
 
 class CallableCommandNoop : public CallableCommand
 {
@@ -596,13 +519,12 @@ void CG_GGVar::_init()
 	gi.add_inner<CallableFunctionTypeId>();
 	gi.add_inner<CallableFunctionIsTable>();
 	gi.add_inner<CallableFunctionIsNil>();
+
 	gi.add_inner<CallableCommandClear>();
 	gi.add_inner<CallableCommandClc>();
 	gi.add_inner<CallableCommandExec>();
 	gi.add_inner<CallableCommandEval>();
 	gi.add_inner<CallableCommandLoadEwsl>();
-	gi.add_inner<CallableCommandLoadVar>();
-	gi.add_inner<CallableCommandSaveVar>();
 
 	gi.add_inner<CallableFunctionAssert>();
 	gi.add_inner<CallableFunctionHelp>();
@@ -777,19 +699,16 @@ void CG_GGVar::import(const String& lib,bool reload)
 
 	try
 	{
-		String a=System::GetEnv("OS");
+
 
 		DataPtrT<CallableModule> pmodule(new CallableModule(lib));
 
 		CodeGen cgen;
 		cgen.module = lib;
 
-		String libfile="ewsl_lib/"+lib + ".ewsl";
+		String libfile="";
 	
-		const char* s=getenv("EWSL_LIBPATH");
-		
-		arr_1t<String> libpaths=string_split(s?s:"",";");
-		libpaths.push_back("ewsl_lib/");
+		arr_1t<String> libpaths=string_split(System::GetEnv("EWSL_LIBPATH","ewsl_lib"),";");
 
 		for(size_t i=0;i<libpaths.size();++i)
 		{
@@ -807,6 +726,11 @@ void CG_GGVar::import(const String& lib,bool reload)
 
 			libfile=path+files[0];
 			break;
+		}
+
+		if(libfile=="")
+		{
+			libfile="ewsl_lib/"+lib + ".ewsl";
 		}
 
 		if (cgen.prepare(libfile, Executor::INDIRECT_FILE))

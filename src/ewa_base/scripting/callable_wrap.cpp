@@ -97,7 +97,7 @@ int CallableWrapT<String>::__setarray(Executor& ewsl,int pm)
 
 int CallableWrapT<String>::__getarray_index_range(Executor& ewsl,int pm)
 {
-	if(unsigned(pm)>=1) ewsl.kerror("invalid dim");
+	if(pm>=1) ewsl.kerror("invalid dim");
 
 	StringBuffer<wchar_t> rhs(value);
 	ewsl.push(0);

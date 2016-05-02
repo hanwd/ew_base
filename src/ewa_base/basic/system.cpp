@@ -195,15 +195,14 @@ int System::GetCacheLineSize()
 	return SystemInfo::current().m_nCacheLine;
 }
 
-String System::GetEnv(const String& name)
+String System::GetEnv(const String& name,const String& value_if_not_found)
 {
 #ifdef EW_WINDOWS
 	char buffer[4096]={0};
 	int n=::GetEnvironmentVariableA(name.c_str(),buffer,4096);
 	if(n==0)
 	{
-		System::CheckError("getenv failed");
-		return "";
+		return value_if_not_found;
 	}
 	else if(n<4096)
 	{

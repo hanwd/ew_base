@@ -6,6 +6,11 @@
 
 EW_ENTER
 
+bool CallableCode::ToValue(String& v,int) const
+{
+	v.Printf("def_function:%s(0x%p)",GetName(),this);
+	return true;
+}
 
 void CallableCode::__set_helpdata(const String& s)
 { 

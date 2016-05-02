@@ -16,14 +16,11 @@ public:
 
 	String m_sClassName;
 
-	CallableMetatable(const String& name=""):table_meta(value),m_sClassName(name){}
+	CallableMetatable(const String& name="");
 
-	void Serialize(Serializer& ar)
-	{
-		ar & m_sClassName;
-		ar & table_self;
-		ar & table_meta;
-	}
+	void Serialize(Serializer& ar);
+
+	bool ToValue(String& v,int) const;
 
 	virtual CallableData* DoClone(ObjectCloneState& cs)
 	{
@@ -85,6 +82,8 @@ public:
 		ar & m_sClassName;
 	}
 
+	bool ToValue(String& v,int) const;
+
 	virtual CallableModule* ToModule(){return this;}
 
 	DECLARE_OBJECT_INFO(CallableModule, ObjectInfo);
@@ -126,6 +125,8 @@ public:
 
 	virtual int __getindex(Executor&,const String&); // top.s
 	virtual int __setindex(Executor&,const String&); // top.s=val
+
+	bool ToValue(String& v,int) const;
 
 	void Serialize(Serializer& ar);
 

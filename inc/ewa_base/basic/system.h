@@ -45,7 +45,7 @@ public:
 	static int64_t GetMemTotalVirtual();
 	static int64_t GetMemAvailVirtual();
 
-	static String GetEnv(const String& name);
+	static String GetEnv(const String& name,const String& value_if_not_found="");
 
 	static arr_1t<String> FindAllFiles(const String& folder, const String& pattern = "*.*");
 

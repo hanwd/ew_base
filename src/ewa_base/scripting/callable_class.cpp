@@ -6,6 +6,21 @@
 
 EW_ENTER
 
+CallableMetatable::CallableMetatable(const String& name):table_meta(value),m_sClassName(name){}
+
+void CallableMetatable::Serialize(Serializer& ar)
+{
+	ar & m_sClassName;
+	ar & table_self;
+	ar & table_meta;
+}
+
+bool CallableMetatable::ToValue(String& v,int) const
+{
+	v.Printf("metatable:%s(0x%p)",m_sClassName,this);
+	return true;
+}
+
 
 HelpData* CallableMetatable::__get_helpdata()
 { 
@@ -30,6 +45,17 @@ int CallableMetatable::__fun_call(Executor& ewsl,int pm)
 	return 1;
 }
 
+bool CallableClass::ToValue(String& v,int) const
+{
+	v.Printf("class:%s(0x%p)",metax->m_sClassName,this);
+	return true;
+}
+
+bool CallableModule::ToValue(String& v,int) const
+{
+	v.Printf("module:%s(0x%p)",m_sClassName,this);
+	return true;
+}
 
 void CallableClass::reset(CallableMetatable* p)
 {

@@ -1,7 +1,13 @@
 #include "ewa_base/scripting.h"
+#include "ewa_base/util/strlib.h"
 
 EW_ENTER
 
+template<typename T>
+struct callable_metatable_array_name
+{
+	static String name();
+};
 
 template<int N>
 class CallableFunctionGetIteratorT : public CallableFunction
@@ -139,8 +145,7 @@ public:
 		}
 
 		arr_xt<double>& val(ewsl.ci0.nbx[1].ref_unique<arr_xt<double> >());
-		val.resize(1,
-			sz);
+		val.resize(1,sz);
 
 		if(sz>1)
 		{
@@ -196,26 +201,46 @@ public:
 	}
 };
 
-template<typename T>
-class CallableFunctionZeros : public CallableFunctionArrayValue<T>
+
+
+class CallableFunctionZeros : public CallableFunctionArrayValue<double>
 {
 public:
-	CallableFunctionZeros():CallableFunctionArrayValue<T>("zeros",T(0)){}
-
+	CallableFunctionZeros():CallableFunctionArrayValue<double>("zeros",0.0){}
 	DECLARE_OBJECT_CACHED_INFO(CallableFunctionZeros, ObjectInfo);
 };
-IMPLEMENT_OBJECT_INFO_T1(CallableFunctionZeros, ObjectInfo);
+IMPLEMENT_OBJECT_INFO(CallableFunctionZeros, ObjectInfo);
+
+class CallableFunctionOnes : public CallableFunctionArrayValue<double>
+{
+public:
+	CallableFunctionOnes():CallableFunctionArrayValue<double>("ones",1.0){}
+	DECLARE_OBJECT_CACHED_INFO(CallableFunctionOnes, ObjectInfo);
+};
+IMPLEMENT_OBJECT_INFO(CallableFunctionOnes, ObjectInfo);
+
 
 
 template<typename T>
-class CallableFunctionOnes : public CallableFunctionArrayValue<T>
+class CallableFunctionZerosT : public CallableFunctionArrayValue<T>
 {
 public:
-	CallableFunctionOnes():CallableFunctionArrayValue<T>("ones",T(1)){}
+	CallableFunctionZerosT():CallableFunctionArrayValue<T>(callable_metatable_array_name<T>::name()+".zeros",T(0)){}
 
-	DECLARE_OBJECT_CACHED_INFO(CallableFunctionOnes, ObjectInfo);
+	DECLARE_OBJECT_CACHED_INFO(CallableFunctionZerosT, ObjectInfo);
 };
-IMPLEMENT_OBJECT_INFO_T1(CallableFunctionOnes, ObjectInfo);
+IMPLEMENT_OBJECT_INFO_T1(CallableFunctionZerosT, ObjectInfo);
+
+
+template<typename T>
+class CallableFunctionOnesT : public CallableFunctionArrayValue<T>
+{
+public:
+	CallableFunctionOnesT():CallableFunctionArrayValue<T>(callable_metatable_array_name<T>::name()+".ones",T(1)){}
+
+	DECLARE_OBJECT_CACHED_INFO(CallableFunctionOnesT, ObjectInfo);
+};
+IMPLEMENT_OBJECT_INFO_T1(CallableFunctionOnesT, ObjectInfo);
 
 
 class CallableFunctionArrayDiag : public CallableFunction
@@ -338,25 +363,6 @@ public:
 IMPLEMENT_OBJECT_INFO(CallableFunctionGetArrayIndex, ObjectInfo);
 
 
-class CallableFunctionPack : public CallableFunction
-{
-public:
-	CallableFunctionPack():CallableFunction("pack"){}
-
-	virtual int __fun_call(Executor& ewsl,int pm)
-	{
-		DataPtrT<CallableWrapT<arr_xt<Variant> > > p(new CallableWrapT<arr_xt<Variant> >);
-		Variant* _bp=ewsl.ci0.nbx+1;
-		p->value.assign(_bp,pm);
-		p->value.reshape(1,pm);
-
-		_bp[0].kptr(p.get());
-		return 1;
-	}
-	DECLARE_OBJECT_CACHED_INFO(CallableFunctionPack, ObjectInfo);
-};
-
-IMPLEMENT_OBJECT_INFO(CallableFunctionPack, ObjectInfo);
 
 class CallableFunctionDot3Adjust : public CallableFunction
 {
@@ -404,54 +410,6 @@ public:
 
 IMPLEMENT_OBJECT_INFO(CallableFunctionKepnAdjust, ObjectInfo);
 
-template<unsigned N>
-class fk_unpack
-{
-public:
-
-	template<typename T>
-	static int g(Executor&,const T&)
-	{
-		return 1;
-	}
-
-	template<typename T>
-	static int g(Executor& ewsl,const arr_xt<T>& v)
-	{
-		DataPtrT<ObjectData> tmp(ewsl.ci1.nsp[0].kptr());
-		size_t n = v.size();
-		ewsl.check_stk(n);
-		for (size_t i = 0; i < n; i++)
-		{
-			ewsl.ci0.nbx[1 + i].reset(v[i]);
-		}
-		return n;
-	}
-
-	static int value(Executor& ewsl,const Variant& v)
-	{
-		typedef typename flag_type<N>::type type;
-		return g(ewsl,variant_handler<type>::raw(v));
-	}
-};
-
-class CallableFunctionUnpack : public CallableFunction
-{
-public:
-
-	CallableFunctionUnpack():CallableFunction("unpack"){}
-	virtual int __fun_call(Executor& ewsl,int pm)
-	{
-		ewsl.check_pmc(this,pm,1);
-		typedef int (*fn)(Executor&,const Variant&);
-		typedef lookup_table_4bit<fk_unpack,fn> lk;
-		Variant& v(*ewsl.ci1.nsp);
-		return lk::test(v.type())(ewsl,v);
-	}
-	DECLARE_OBJECT_CACHED_INFO(CallableFunctionUnpack, ObjectInfo);
-};
-
-IMPLEMENT_OBJECT_INFO(CallableFunctionUnpack, ObjectInfo);
 
 template<unsigned N>
 class fk_trans
@@ -489,7 +447,6 @@ public:
 		ewsl.ci0.nbx[1].ref_unique<arr_xt<T> >().swap(v2);
 		return 1;
 	}
-
 	static int value(Executor& ewsl,const Variant& v)
 	{
 		typedef typename flag_type<N>::type type;
@@ -502,23 +459,12 @@ class CallableFunctionArrayTrans : public CallableFunction
 {
 public:
 
-	CallableFunctionArrayTrans():CallableFunction("array.trans",1){}
+	CallableFunctionArrayTrans(const String& name="array.trans",int v=1):CallableFunction(name,v){}
 
 	virtual int __fun_call(Executor& ewsl,int pm)
 	{
-		if (pm == 1)
-		{
-			return do_apply(ewsl, ewsl.ci0.nbx[1]);
-		}
-		else if (pm == 0)
-		{
-			return do_apply(ewsl, ewsl.ci1.nbp[StackState1::SBASE_THIS]);
-		}
-		else
-		{
-			ewsl.check_pmc(this, pm,1);
-			return INVALID_CALL;
-		}
+		ewsl.check_pmc(this, pm,1);
+		return do_apply(ewsl, ewsl.ci0.nbx[1]);
 	}
 
 	static int do_apply(Executor& ewsl,Variant& v)
@@ -534,28 +480,44 @@ public:
 
 IMPLEMENT_OBJECT_INFO(CallableFunctionArrayTrans, ObjectInfo);
 
+template<typename T>
+class CallableFunctionArrayTransT : public CallableFunctionArrayTrans
+{
+public:
+	CallableFunctionArrayTransT():CallableFunctionArrayTrans(callable_metatable_array_name<T>::name()+".size",0){}
+	virtual int __fun_call(Executor& ewsl,int pm)
+	{
+		ewsl.check_pmc(this, pm,0);
+		return do_apply(ewsl, ewsl.ci1.nbp[StackState1::SBASE_THIS]);	
+	}
+	DECLARE_OBJECT_CACHED_INFO(CallableFunctionArrayTransT, ObjectInfo);
+};
+IMPLEMENT_OBJECT_INFO_T1(CallableFunctionArrayTransT, ObjectInfo);
+
+template<typename T>
+class CallableFunctionArrayUnpackT : public CallableFunctionUnpack
+{
+public:
+	CallableFunctionArrayUnpackT():CallableFunctionUnpack(callable_metatable_array_name<T>::name()+".unpack"){}
+	virtual int __fun_call(Executor& ewsl,int pm)
+	{
+		ewsl.check_pmc(this, pm,0);
+		return do_apply(ewsl, ewsl.ci1.nbp[StackState1::SBASE_THIS]);	
+	}
+	DECLARE_OBJECT_CACHED_INFO(CallableFunctionArrayUnpackT, ObjectInfo);
+};
+IMPLEMENT_OBJECT_INFO_T1(CallableFunctionArrayUnpackT, ObjectInfo);
 
 class CallableFunctionArraySize : public CallableFunction
 {
 public:
 
-	CallableFunctionArraySize() :CallableFunction("array.size",1){}
+	CallableFunctionArraySize(const String& name="array.size",int v=1) :CallableFunction(name,v){}
 
 	virtual int __fun_call(Executor& ewsl, int pm)
 	{
-		if (pm == 1)
-		{
-			return do_apply(ewsl, ewsl.ci0.nbx[1]);
-		}
-		else if (pm == 0)
-		{
-			return do_apply(ewsl, ewsl.ci1.nbp[StackState1::SBASE_THIS]);
-		}
-		else
-		{
-			ewsl.check_pmc(this, pm, 1);
-			return INVALID_CALL;
-		}
+		ewsl.check_pmc(this, pm, 1);
+		return do_apply(ewsl, ewsl.ci0.nbx[1]);
 	}
 
 	static int do_apply(Executor& ewsl, Variant& v)
@@ -577,46 +539,52 @@ public:
 
 IMPLEMENT_OBJECT_INFO(CallableFunctionArraySize, ObjectInfo);
 
-
-class CallableFunctionArrayLength : public CallableFunction
+template<typename T>
+class CallableFunctionArraySizeT : public CallableFunctionArraySize
 {
 public:
-
-	CallableFunctionArrayLength() :CallableFunction("array.length", 1){}
-
-	virtual int __fun_call(Executor& ewsl, int pm)
+	CallableFunctionArraySizeT():CallableFunctionArraySize(callable_metatable_array_name<T>::name()+".size",0){}
+	virtual int __fun_call(Executor& ewsl,int pm)
 	{
-		if (pm == 1)
-		{
-			return do_apply(ewsl, ewsl.ci0.nbx[1]);
-		}
-		else if (pm == 0)
-		{
-			return do_apply(ewsl, ewsl.ci1.nbp[StackState1::SBASE_THIS]);
-		}
-		else
-		{
-			ewsl.check_pmc(this, pm, 1);
-			return INVALID_CALL;
-		}
+		ewsl.check_pmc(this, pm,0);
+		return do_apply(ewsl, ewsl.ci1.nbp[StackState1::SBASE_THIS]);	
 	}
-
-	static int do_apply(Executor& ewsl, Variant& v)
-	{
-		arr_xt_dims dims;
-		if (!v.kptr() || !v.kptr()->__test_dims(dims, 2))
-		{
-			ewsl.kerror("invalid param");
-		}	
-		ewsl.ci0.nbx[1].reset(dims[0]);
-		return 1;
-	}
-
-	DECLARE_OBJECT_CACHED_INFO(CallableFunctionArrayLength, ObjectInfo);
+	DECLARE_OBJECT_CACHED_INFO(CallableFunctionArraySizeT, ObjectInfo);
 };
+IMPLEMENT_OBJECT_INFO_T1(CallableFunctionArraySizeT, ObjectInfo);
 
-IMPLEMENT_OBJECT_INFO(CallableFunctionArrayLength, ObjectInfo);
 
+
+template<typename T>
+class CallableFunctionArrayLengthT : public CallableFunctionArrayLength
+{
+public:
+	CallableFunctionArrayLengthT():CallableFunctionArrayLength(callable_metatable_array_name<T>::name()+".length",0){}
+	virtual int __fun_call(Executor& ewsl,int pm)
+	{
+		ewsl.check_pmc(this, pm,0);
+		return do_apply(ewsl, ewsl.ci1.nbp[StackState1::SBASE_THIS]);	
+	}
+	DECLARE_OBJECT_CACHED_INFO(CallableFunctionArrayLengthT, ObjectInfo);
+};
+IMPLEMENT_OBJECT_INFO_T1(CallableFunctionArrayLengthT, ObjectInfo);
+
+
+
+template<typename T>
+class CallableFunctionArrayReverseT : public CallableFunctionReverse
+{
+public:
+	CallableFunctionArrayReverseT():CallableFunctionReverse(callable_metatable_array_name<T>::name()+".reverse"){}
+	virtual int __fun_call(Executor& ewsl,int pm)
+	{
+		ewsl.check_pmc(this, pm,0);
+		ewsl.ci0.nbx[1]=ewsl.ci1.nbp[StackState1::SBASE_THIS];
+		return do_apply(ewsl, ewsl.ci0.nbx[1]);	
+	}
+	DECLARE_OBJECT_CACHED_INFO(CallableFunctionArrayReverseT, ObjectInfo);
+};
+IMPLEMENT_OBJECT_INFO_T1(CallableFunctionArrayReverseT, ObjectInfo);
 
 template<typename T>
 class CallableMetatableT<arr_xt<T> > : public CallableMetatable
@@ -632,11 +600,7 @@ public:
 	DECLARE_OBJECT_CACHED_INFO(CallableMetatableT, ObjectInfo);
 };
 
-template<typename T>
-struct callable_metatable_array_name
-{
-	static String name();
-};
+
 
 template<> 
 String callable_metatable_array_name<double>::name()
@@ -665,12 +629,13 @@ template<typename T>
 CallableMetatableT<arr_xt<T> >::CallableMetatableT()
 :CallableMetatable(callable_metatable_array_name<T>::name())
 {
-	table_meta["zeros"].kptr(CallableFunctionZeros<scalar_type>::sm_info.CreateObject());
-	table_meta["ones"].kptr(CallableFunctionOnes<scalar_type>::sm_info.CreateObject());
-	table_meta["trans"].kptr(CallableFunctionArrayTrans::sm_info.CreateObject());
-	table_meta["size"].kptr(CallableFunctionArraySize::sm_info.CreateObject());
-	table_meta["length"].kptr(CallableFunctionArrayLength::sm_info.CreateObject());
-
+	table_meta["zeros"].kptr(CallableFunctionZerosT<scalar_type>::sm_info.CreateObject());
+	table_meta["ones"].kptr(CallableFunctionOnesT<scalar_type>::sm_info.CreateObject());
+	table_meta["trans"].kptr(CallableFunctionArrayTransT<T>::sm_info.CreateObject());
+	table_meta["size"].kptr(CallableFunctionArraySizeT<T>::sm_info.CreateObject());
+	table_meta["length"].kptr(CallableFunctionArrayLengthT<T>::sm_info.CreateObject());
+	table_meta["reverse"].kptr(CallableFunctionArrayReverseT<T>::sm_info.CreateObject());
+	table_meta["unpack"].kptr(CallableFunctionArrayUnpackT<T>::sm_info.CreateObject());
 	CG_GGVar::current().sm_meta[type_flag<type>::value].reset(this);
 }
 
@@ -678,16 +643,21 @@ template<typename T>
 int CallableMetatableT<arr_xt<T> >::__fun_call(Executor& ewsl, int pm)
 {
 
-	ewsl.check_pmc(this, pm, 1, 6);
+	//ewsl.check_pmc(this, pm, 1, 6);
 
-	arr_xt_dims dims;
-	Variant* _bp = ewsl.ci0.nbx + 1;
-	for (int i = 0; i<pm; i++)
-	{
-		dims[i] = pl_cast<size_t>::g(_bp[i]);
-	}
+	//arr_xt_dims dims;
+	//Variant* _bp = ewsl.ci0.nbx + 1;
+	//for (int i = 0; i<pm; i++)
+	//{
+	//	dims[i] = pl_cast<size_t>::g(_bp[i]);
+	//}
 	type arr;
-	arr.resize(dims);
+
+	if(pm>=1)
+	{
+		variant_cast<type>(ewsl.ci0.nbx[1]);
+	}
+	//arr.resize(dims);
 
 	ewsl.ci0.nbx[1].reset(arr);
 	return 1;
@@ -718,19 +688,18 @@ void init_module_array()
 	gi.add_inner<CallableFunctionArrayTrans>();
 	gi.add_inner<CallableFunctionArrayDiag>();
 
-	gi.add_inner<CallableFunctionZeros<double> >();
-	gi.add_inner<CallableFunctionOnes<double>>();
+	gi.add_inner<CallableFunctionZeros>();
+	gi.add_inner<CallableFunctionOnes>();
 
 	gi.add_inner<CallableFunctionColon>();
-	gi.add_inner<CallableFunctionArrayTrans>();
-
 	gi.add_inner<CallableFunctionColon_data>();
 	gi.add_inner<CallableFunctionLinspace>();
 	gi.add_inner<CallableFunctionPack>();
 	gi.add_inner<CallableFunctionUnpack>();
+	gi.add_inner<CallableFunctionReverse>();
+
 	gi.add_inner<CallableFunctionDot3Adjust>();
 	gi.add_inner<CallableFunctionKepnAdjust>();
-
 	gi.add_inner<CallableFunctionGetIteratorT<1> >();
 	gi.add_inner<CallableFunctionGetIteratorT<2> >();
 	gi.add_inner<CallableFunctionGetArrayIndex>();

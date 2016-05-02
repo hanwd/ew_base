@@ -56,7 +56,7 @@ public:
 
 
 template<typename T>
-class CallableWrapT<arr_xt<T> > : public CallableDataBaseT<arr_xt<T> >
+class DLLIMPEXP_EWA_BASE CallableWrapT<arr_xt<T> > : public CallableDataBaseT<arr_xt<T> >
 {
 public:
 	typedef CallableDataBaseT<arr_xt<T> > basetype;
@@ -94,7 +94,7 @@ public:
 };
 
 
-class ResultTreeNode
+class DLLIMPEXP_EWA_BASE ResultTreeNode
 {
 public:
 
@@ -117,7 +117,7 @@ protected:
 
 
 
-class CallableResultGroup : public CallableWrapT<arr_xt<Variant> >
+class DLLIMPEXP_EWA_BASE CallableResultGroup : public CallableWrapT<arr_xt<Variant> >
 {
 public:
 	typedef CallableWrapT<arr_xt<Variant> > basetype;

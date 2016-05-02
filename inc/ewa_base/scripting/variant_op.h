@@ -244,7 +244,7 @@ public:
 
 	static type g(const VariantTable& o)
 	{
-		return String::Format("table:%p",&o);
+		return String::Format("table:0x%p",&o);
 	}
 
 	template<typename O>
@@ -263,11 +263,25 @@ public:
 	template<typename O>
 	static type g(const arr_xt<O>& v)
 	{
-		return String::Format("[array:%p]",&v);
+		return String::Format("[array:0x%p]",&v);
 	}
 
 };
 
+template<>
+class pl_cast_base<Variant>
+{
+public:
+	typedef Variant type;
+
+	template<typename O>
+	static type g(const O& o)
+	{
+		return Variant(o);
+	}
+
+
+};
 
 template<typename T>
 class pl_cast_base<arr_xt<T> >

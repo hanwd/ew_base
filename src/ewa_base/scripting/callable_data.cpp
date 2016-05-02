@@ -72,7 +72,7 @@ void CallableData::__get_iterator(Executor& ewsl,int)
 
 bool CallableData::ToValue(String& v,int) const
 {
-	v.Printf("object:%p",this);
+	v.Printf("object:0x%p",this);
 	return true;
 }
 

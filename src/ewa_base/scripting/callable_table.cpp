@@ -5,6 +5,11 @@
 
 EW_ENTER
 
+bool CallableWrapT<VariantTable>::ToValue(String& v,int) const
+{
+	v.Printf("table:0x%p",this);
+	return true;
+}
 
 int CallableTableOperators::__do_setindex(Executor& ewsl,VariantTable& tb,const String& si)
 {

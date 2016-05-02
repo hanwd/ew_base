@@ -67,6 +67,8 @@ public:
 
 	int __getindex(Executor& ewsl,const String& index);
 
+	bool ToValue(String& v,int) const;
+
 	DECLARE_OBJECT_INFO(CallableCode,ObjectInfo);
 
 protected:

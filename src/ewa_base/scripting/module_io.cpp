@@ -11,13 +11,13 @@ public:
 
 	static void g(StringBuffer<char>& sb,const arr_1t<Variant>& v)
 	{
-		sb<<String::Format("array:%p",&v);
+		sb<<String::Format("array:0x%p",&v);
 	}
 
 	template<typename X>
 	static void g(StringBuffer<char>& sb,const arr_xt<X>& v)
 	{
-		sb<<String::Format("array:%p",&v);
+		sb<<String::Format("array:0x%p",&v);
 	}
 
 	static void g(StringBuffer<char>& sb,const String& v)
@@ -32,12 +32,12 @@ public:
 
 	static void g(StringBuffer<char>& sb,const dcomplex& v)
 	{
-		sb<<String::Format("complex(%g,%g)",v.real(),v.imag());
+		sb<<String::Format("%g+%gi",v.real(),v.imag());
 	}
 
 	static void g(StringBuffer<char>& sb,const VariantTable& v)
 	{
-		sb<<String::Format("table:%p",&v);
+		sb<<String::Format("table:0x%p",&v);
 	}
 
 	static void g(StringBuffer<char>& sb,CallableData* v)
@@ -55,7 +55,7 @@ public:
 		}
 		else
 		{
-			sb<<String::Format("object:%p",v);
+			sb<<String::Format("object:0x%p",v);
 		}
 	
 	}
@@ -102,6 +102,11 @@ public:
 		sb<<v;
 	}
 
+	static void k(StringBuffer<char>& sb,const dcomplex& v)
+	{
+		sb<<v.real()<<"+"<<v.imag()<<"i";
+	}
+
 	static void k(StringBuffer<char>& sb,const Variant& v)
 	{
 		sb<<pl_cast<String>::g(v);
@@ -144,12 +149,12 @@ public:
 
 	static void g(StringBuffer<char>& sb,const dcomplex& v)
 	{
-		sb<<String::Format("complex(%g,%g)",v.real(),v.imag());
+		sb<<String::Format("%g+%gi",v.real(),v.imag());
 	}
 
 	static void g(StringBuffer<char>& sb,const VariantTable& v)
 	{
-		sb<<"table(size:"<<v.size()<<",addr:"<<(void*)&v<<")\n";
+		sb<<"table(size:"<<v.size()<<",addr:0x"<<(void*)&v<<")\n";
 		for(size_t i=0;i<v.size();i++)
 		{
 			sb<<v.get(i).first<<"\t: "<<pl_cast<String>::g(v.get(i).second)<<"\n";
@@ -222,7 +227,7 @@ public:
 			sb<<dims[i];
 			if(i!=d-1) sb<<"x";
 		}
-		sb<<",addr:";
+		sb<<",addr:0x";
 		sb<<(void*)&v;
 		sb<<")\n";
 
@@ -258,12 +263,12 @@ public:
 
 	static void g(StringBuffer<char>& sb,const dcomplex& v)
 	{
-		sb<<String::Format("complex(%g,%g)",v.real(),v.imag());
+		sb<<String::Format("%g+%gi",v.real(),v.imag());
 	}
 
 	static void g(StringBuffer<char>& sb,const VariantTable& v)
 	{
-		sb<<"table(size:"<<v.size()<<",addr:"<<(void*)&v<<")\n";
+		sb<<"table(size:"<<v.size()<<",addr:0x"<<(void*)&v<<")\n";
 		for(size_t i=0;i<v.size();i++)
 		{
 			sb<<v.get(i).first<<"\t: "<<pl_cast<String>::g(v.get(i).second)<<"\n";
@@ -528,6 +533,237 @@ public:
 IMPLEMENT_OBJECT_INFO(CallableFunctionSaveTxt, ObjectInfo);
 
 
+class ArrayParser
+{
+public:
+
+
+	void skip_comment_1()
+	{
+		if (pchar[0] == '/'&&pchar[1] == '/')
+		{
+			for (pchar += 2; *pchar; pchar++)
+			{
+				if (pchar[0] == '\n')
+				{
+					break;
+				}
+			}
+		}
+	}
+
+	void skip_blank()
+	{
+		for (;;)
+		{
+			while (*pchar == ' ' || *pchar == '\r' || *pchar == '\t') pchar++;
+			if(pchar[0]=='/'&&pchar[1]=='/') skip_comment_1();
+			break;
+		}
+	}
+
+
+	const char* pchar;
+	bool is_complex;
+
+	arr_xt<double> darr;
+	arr_xt<dcomplex> carr;
+
+
+	double read_double()
+	{
+		double s=1.0;
+		double v=0;
+
+		if(pchar[0]=='+') pchar++;
+		else if(pchar[0]=='-')
+		{
+			s=-1.0;
+			pchar++;
+		}
+
+		if(pchar[0]!='.'&&pchar[0]<'0'&&pchar[0]>'9')
+		{
+			Exception::XError("invalid number");
+		}
+
+		while(pchar[0]>='0'&&pchar[0]<='9')
+		{
+			v=v*10.0+double(pchar[0]-'0');
+			pchar++;
+		}
+
+		if(pchar[0]=='.')
+		{
+			double d=0.1;
+			pchar++;
+			while(pchar[0]>='0'&&pchar[0]<='9')
+			{
+				v=v+d*double(pchar[0]-'0');
+				d=d*0.1;
+				pchar++;
+			}
+		}
+
+		if(pchar[0]=='e'||pchar[0]=='E')
+		{
+			pchar++;
+			int pow_value=0;
+			int pow_sign=1;
+
+			if(pchar[0]=='+') pchar++;
+			else if(pchar[0]=='-')
+			{
+				pow_sign=-1;
+				pchar++;
+			}
+			while(pchar[0]>='0'&&pchar[0]<='9')
+			{
+				pow_value=pow_value*10+(pchar[0]-'0');
+				pchar++;
+			}
+			v=v*::pow(10.0,double(pow_sign*pow_value));
+		}
+
+		return v*s;
+	}
+
+	void read_number()
+	{
+		double v1=read_double();
+		double v2=0.0;
+
+		if(pchar[0]=='i'||pchar[0]=='j')
+		{
+			v2=v1;
+			v1=0.0;
+		}
+		else if(pchar[0]=='+'||pchar[0]=='-')
+		{
+			v2=read_double();
+			if(pchar[0]=='i'||pchar[0]=='j')
+			{
+				pchar++;
+			}
+			else
+			{
+				Exception::XError("invalid imag part");
+			}
+			if(!is_complex)
+			{
+				is_complex=true;
+				carr.assign(darr.begin(),darr.end());
+				darr.clear();
+			}
+		}
+
+		if(is_complex)
+		{
+			carr.push_back(dcomplex(v1,v2));
+		}
+		else
+		{
+			darr.push_back(v1);
+		}
+	}
+
+	template<typename T>
+	Variant adjust(arr_xt<T>& val,size_t c)
+	{
+
+		size_t n=val.size();
+		if(n%c!=0) Exception::XError("invalid col");
+		size_t r=n/c;
+
+		val.reshape(c,r);
+
+		Variant var;
+		arr_xt<T>& dst(var.ref<arr_xt<T> >());
+		dst.resize(r,c);
+		for(size_t i=0;i<r;i++) for(size_t j=0;j<c;j++)
+		{
+			dst(i,j)=val(j,i);
+		}
+
+		return var;
+	}
+
+	Variant parse(const String& data)
+	{
+		is_complex=false;
+
+		int col=-1;
+
+		pchar = data.c_str();
+		while(*pchar)
+		{
+			int n=0;
+			while(1)
+			{
+				skip_blank();
+				if(pchar[0]=='\0'||pchar[0]=='\n') break;
+				read_number();
+				n++;
+			}
+
+			if(pchar[0]=='\0') break;
+
+			pchar++;
+			if(n==0) continue;
+			if(col<0) col=n;
+			else if(col!=n)
+			{
+				Exception::XError("invalid colsize");
+			}	
+		}
+
+		if(col<1) Exception::XError("invalid col");
+
+		if(is_complex)
+		{
+			return adjust(carr,col);
+		}
+		else
+		{
+			return adjust(darr,col);		
+		}
+	}
+
+
+
+};
+
+
+Variant parse_array(const String& s)
+{
+	ArrayParser parser;
+	return parser.parse(s);
+}
+
+class CallableFunctionLoadTxt : public CallableFunction
+{
+public:
+	CallableFunctionLoadTxt():CallableFunction("io.load_txt",1)
+	{
+	
+	}
+
+	virtual int __fun_call(Executor& ewsl,int pm)
+	{
+		ewsl.check_pmc(this,pm,1);
+		String file=variant_cast<String>(ewsl.ci0.nbx[1]);
+		StringBuffer<char> sb;
+		if(!sb.load(file,FILE_TEXT))
+		{
+			ewsl.kerror("invalid filename");
+		}
+		ewsl.ci0.nbx[1]=parse_array(sb);
+		return 1;
+	}
+	DECLARE_OBJECT_CACHED_INFO(CallableFunctionLoadTxt, ObjectInfo);
+};
+
+IMPLEMENT_OBJECT_INFO(CallableFunctionLoadTxt, ObjectInfo);
 
 class CallableFunctionLoadJson : public CallableFunction
 {
@@ -562,15 +798,96 @@ public:
 };
 IMPLEMENT_OBJECT_INFO(CallableFunctionLoadJson, ObjectInfo);
 
+
+
+class CallableFunctionLoadVar : public CallableFunction
+{
+public:
+
+	CallableFunctionLoadVar():CallableFunction("io.load_var",1){}
+	virtual int __fun_call(Executor& ewsl,int pm)
+	{
+		ewsl.check_pmc(this,pm,1);
+		String *p=ewsl.ci0.nbx[1].ptr<String>();
+		if(!p)
+		{
+			ewsl.kerror("invalid param");
+			return 0;
+		}
+
+		SerializerFile ar;
+
+		arr_1t<Variant> var;
+		if(ar.file.Open(*p,FileAccess::FLAG_RD))
+		{
+			ar.reader() & var;			
+		}
+		else
+		{
+			ewsl.kerror("invalid file");
+		}
+
+		std::copy(var.begin(), var.end(), ewsl.ci0.nbx + 1);
+
+		return var.size();
+	
+	}
+	DECLARE_OBJECT_CACHED_INFO(CallableFunctionLoadVar, ObjectInfo);
+
+};
+IMPLEMENT_OBJECT_INFO(CallableFunctionLoadVar, ObjectInfo);
+
+class CallableFunctionSaveVar : public CallableFunction
+{
+public:
+
+	CallableFunctionSaveVar():CallableFunction("io.save_var",1){}
+
+	virtual int __fun_call(Executor& ewsl,int pm)
+	{
+		ewsl.check_pmc(this,pm,1,-1);
+		String *p=ewsl.ci0.nbx[1].ptr<String>();
+		if(!p)
+		{
+			ewsl.kerror("invalid param");
+			return 0;
+		}
+
+		SerializerFile ar;
+
+		arr_1t<Variant> var;
+		var.assign(ewsl.ci0.nbx + 2, pm - 1);
+
+		if(ar.file.Open(*p,FileAccess::FLAG_WC))
+		{
+			ar.writer() & var;			
+		}
+		else
+		{
+			ewsl.kerror("invalid file");
+		}
+
+		return 0;
+	
+	}
+	DECLARE_OBJECT_CACHED_INFO(CallableFunctionSaveVar, ObjectInfo);
+
+};
+IMPLEMENT_OBJECT_INFO(CallableFunctionSaveVar, ObjectInfo);
+
 void init_module_io()
 {
 	CG_GGVar& gi(CG_GGVar::current());
+	gi.add_inner<CallableFunctionLoadVar>();
+	gi.add_inner<CallableFunctionSaveVar>();
+	gi.add_inner<CallableFunctionLoadTxt>();
+	gi.add_inner<CallableFunctionSaveTxt>();
+	gi.add_inner<CallableFunctionLoadJson>();
+
 	gi.add_inner<CallableFunctionPrint>();
 	gi.add_inner<CallableFunctionPrintLn>();
 	gi.add_inner<CallableFunctionPrintEx>();
 	gi.add_inner<CallableFunctionShowTemp>();
-	gi.add_inner<CallableFunctionSaveTxt>();
-	gi.add_inner<CallableFunctionLoadJson>();
 
 }
 

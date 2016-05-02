@@ -5,7 +5,6 @@
 #include "ewa_base/basic/atomic.h"
 #include "ewa_base/basic/bitflags.h"
 #include "ewa_base/basic/exception.h"
-//#include "ewa_base/basic/system.h"
 
 #include <cstdlib>
 

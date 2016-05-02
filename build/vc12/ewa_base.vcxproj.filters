@@ -504,6 +504,9 @@
     <ClInclude Include="..\..\inc\ewa_base\scripting\callable_wrap.h">
       <Filter>include\scripting</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\inc\ewa_base\scripting\callable_misc.h">
+      <Filter>include\scripting</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\ewa_base\basic\atomic.cpp">
@@ -801,6 +804,9 @@
       <Filter>source\scripting</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\ewa_base\scripting\callable_wrap.cpp">
+      <Filter>source\scripting</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewa_base\scripting\callable_misc.cpp">
       <Filter>source\scripting</Filter>
     </ClCompile>
   </ItemGroup>

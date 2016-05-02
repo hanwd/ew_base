@@ -13,5 +13,6 @@ int main(int argc,char** argv)
 	ThreadManager::current().close();
 	ThreadManager::current().wait();
 
+	Console::Pause();
 	return 0;
 };

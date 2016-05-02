@@ -586,6 +586,33 @@ public:
 };
 IMPLEMENT_OBJECT_INFO_T1(CallableFunctionArrayReverseT, ObjectInfo);
 
+
+template<typename T>
+class CallableFunctionArrayPushT : public CallableFunction
+{
+public:
+	CallableFunctionArrayPushT():CallableFunction(callable_metatable_array_name<T>::name()+".push"){}
+
+	virtual int __fun_call(Executor& ewsl,int pm)
+	{
+		typedef arr_xt<T> type;
+		type* p=ewsl.ci1.nbp[StackState1::SBASE_THIS].ptr<type>();
+		if(!p)
+		{
+			Exception::XError("invalid array");
+		}
+		for(int i=1;i<=pm;i++)
+		{
+			(*p).push_back(variant_cast<T>(ewsl.ci0.nbx[i]));
+		}
+		(*p).reshape(1,(*p).size());
+
+		return 0;
+	}
+	DECLARE_OBJECT_CACHED_INFO(CallableFunctionArrayPushT, ObjectInfo);
+};
+IMPLEMENT_OBJECT_INFO_T1(CallableFunctionArrayPushT, ObjectInfo);
+
 template<typename T>
 class CallableMetatableT<arr_xt<T> > : public CallableMetatable
 {
@@ -636,29 +663,19 @@ CallableMetatableT<arr_xt<T> >::CallableMetatableT()
 	table_meta["length"].kptr(CallableFunctionArrayLengthT<T>::sm_info.CreateObject());
 	table_meta["reverse"].kptr(CallableFunctionArrayReverseT<T>::sm_info.CreateObject());
 	table_meta["unpack"].kptr(CallableFunctionArrayUnpackT<T>::sm_info.CreateObject());
+	table_meta["push"].kptr(CallableFunctionArrayPushT<T>::sm_info.CreateObject());
+
 	CG_GGVar::current().sm_meta[type_flag<type>::value].reset(this);
 }
 
 template<typename T>
 int CallableMetatableT<arr_xt<T> >::__fun_call(Executor& ewsl, int pm)
 {
-
-	//ewsl.check_pmc(this, pm, 1, 6);
-
-	//arr_xt_dims dims;
-	//Variant* _bp = ewsl.ci0.nbx + 1;
-	//for (int i = 0; i<pm; i++)
-	//{
-	//	dims[i] = pl_cast<size_t>::g(_bp[i]);
-	//}
 	type arr;
-
 	if(pm>=1)
 	{
-		variant_cast<type>(ewsl.ci0.nbx[1]);
+		arr=variant_cast<type>(ewsl.ci0.nbx[1]);
 	}
-	//arr.resize(dims);
-
 	ewsl.ci0.nbx[1].reset(arr);
 	return 1;
 

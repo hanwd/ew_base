@@ -120,8 +120,6 @@ public:
 	// complie s(filename) and execute
 	bool execute_file(const String& s,int pmc=0,int kep=0);
 
-	bool load_module(const String& s);
-
 	template<typename T>
 	T eval(const String &s);
 

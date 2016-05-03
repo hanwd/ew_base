@@ -184,18 +184,17 @@ public:
 	{
 		ewsl.check_pmc(this, pm, 1, 6);
 
-		Variant* nbp=ewsl.ci1.nsp-pm+1;
 
-		arr_xt_dims xtd;
-		for(int i=0;i<pm;i++)
-		{
-			xtd[i]=pl_cast<size_t>::g(nbp[i]);
-		}
+		arr_xt_dims _array_dims;
+		CallableFunctionResize::update_dims(_array_dims,ewsl.ci0.nbx+1,pm);
 
-		arr_type& val(nbp[0].ref_unique<arr_type>());
+		arr_type& val(ewsl.ci0.nbx[1].ref_unique<arr_type>());
 		
-		val.resize(xtd);
-		if(nValue!=T()){for(size_t i=0;i<val.size();i++) val(i)=nValue;}
+		val.resize(_array_dims);
+		if(nValue!=T())
+		{
+			for(size_t i=0;i<val.size();i++) val(i)=nValue;
+		}
 
 		return 1;
 	}
@@ -588,6 +587,35 @@ IMPLEMENT_OBJECT_INFO_T1(CallableFunctionArrayReverseT, ObjectInfo);
 
 
 template<typename T>
+class CallableFunctionArrayResizeT : public CallableFunctionResize
+{
+public:
+	CallableFunctionArrayResizeT():CallableFunctionResize(callable_metatable_array_name<T>::name()+".resize"){}
+	virtual int __fun_call(Executor& ewsl,int pm)
+	{
+		ewsl.check_pmc(this, pm,1,6);
+		return do_apply(ewsl, ewsl.ci1.nbp[StackState1::SBASE_THIS],ewsl.ci0.nbx+1,pm);	
+	}
+	DECLARE_OBJECT_CACHED_INFO(CallableFunctionArrayResizeT, ObjectInfo);
+};
+IMPLEMENT_OBJECT_INFO_T1(CallableFunctionArrayResizeT, ObjectInfo);
+
+template<typename T>
+class CallableFunctionArrayReshapeT : public CallableFunctionReshape
+{
+public:
+	CallableFunctionArrayReshapeT():CallableFunctionReshape(callable_metatable_array_name<T>::name()+".reshape"){}
+	virtual int __fun_call(Executor& ewsl,int pm)
+	{
+		ewsl.check_pmc(this, pm,1,6);
+		return do_apply(ewsl, ewsl.ci1.nbp[StackState1::SBASE_THIS],ewsl.ci0.nbx+1,pm);	
+	}
+	DECLARE_OBJECT_CACHED_INFO(CallableFunctionArrayReshapeT, ObjectInfo);
+};
+IMPLEMENT_OBJECT_INFO_T1(CallableFunctionArrayReshapeT, ObjectInfo);
+
+
+template<typename T>
 class CallableFunctionArrayPushT : public CallableFunction
 {
 public:
@@ -664,6 +692,8 @@ CallableMetatableT<arr_xt<T> >::CallableMetatableT()
 	table_meta["reverse"].kptr(CallableFunctionArrayReverseT<T>::sm_info.CreateObject());
 	table_meta["unpack"].kptr(CallableFunctionArrayUnpackT<T>::sm_info.CreateObject());
 	table_meta["push"].kptr(CallableFunctionArrayPushT<T>::sm_info.CreateObject());
+	table_meta["resize"].kptr(CallableFunctionArrayResizeT<T>::sm_info.CreateObject());
+	table_meta["reshape"].kptr(CallableFunctionArrayReshapeT<T>::sm_info.CreateObject());
 
 	CG_GGVar::current().sm_meta[type_flag<type>::value].reset(this);
 }

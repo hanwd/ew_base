@@ -33,8 +33,6 @@ public:
 	DECLARE_OBJECT_CACHED_INFO(CallableFunctionReverse, ObjectInfo);
 };
 
-
-
 class DLLIMPEXP_EWA_BASE CallableFunctionPack : public CallableFunction
 {
 public:
@@ -53,6 +51,30 @@ public:
 	virtual int __fun_call(Executor& ewsl,int pm);
 
 	DECLARE_OBJECT_CACHED_INFO(CallableFunctionUnpack, ObjectInfo);
+};
+
+
+class DLLIMPEXP_EWA_BASE CallableFunctionResize : public CallableFunction
+{
+public:
+	CallableFunctionResize(const String& name="resize");
+
+	static void update_dims(arr_xt_dims& dims,Variant* nbp,int pm);
+	static int do_apply(Executor& ewsl,Variant& var,Variant* nbp,int pm);
+	virtual int __fun_call(Executor& ewsl,int pm);
+
+	DECLARE_OBJECT_CACHED_INFO(CallableFunctionResize, ObjectInfo);
+};
+
+class DLLIMPEXP_EWA_BASE CallableFunctionReshape : public CallableFunction
+{
+public:
+	CallableFunctionReshape(const String& name="reshape");
+
+	static int do_apply(Executor& ewsl,Variant& var,Variant* nbp,int pm);
+	virtual int __fun_call(Executor& ewsl,int pm);
+
+	DECLARE_OBJECT_CACHED_INFO(CallableFunctionReshape, ObjectInfo);
 };
 
 

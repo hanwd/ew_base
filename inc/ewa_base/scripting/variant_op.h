@@ -634,12 +634,31 @@ class pl2_dispatch<P,N,2>: public pl2_dispatch_base<P>
 {
 public:
 
+	template<typename T>
+	static inline void s(Variant& r,const T& v)
+	{
+		r.reset(v);
+	}
+
+	template<typename T>
+	static inline void s(Variant& r,const arr_xt<T>& v)
+	{
+		if(v.size()==1)
+		{
+			r.reset(v[0]);
+		}
+		else
+		{
+			r.reset(v);
+		}
+	}
+
 	template<typename T1,typename T2>
 	static inline void g(Variant& r,const T1& v1,const T2& v2)
 	{
 		typedef typename P::template rebind<T1,T2>::type retx;
 		retx y=P::g(v1,v2);
-		r.reset(y);
+		s(r,y);
 	}
 
 	static inline void value(Variant& r,Variant& v1,Variant& v2)

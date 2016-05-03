@@ -83,8 +83,11 @@ public:
 	}
 
 	void reshape(size_type k0,size_type k1=1,size_type k2=1,size_type k3=1,size_type k4=1,size_type k5=1);
+	void reshape(const arr_xt_dims& kn);
+
 	void resize(size_type k0,size_type k1=1,size_type k2=1,size_type k3=1,size_type k4=1,size_type k5=1);
 	void resize(const arr_xt_dims& kn,size_t rs=0);
+
 
 	void clear()
 	{
@@ -215,8 +218,13 @@ template<typename T,typename A>
 void arr_xt<T,A>::reshape(size_type k0,size_type k1,size_type k2,size_type k3,size_type k4,size_type k5)
 {
 	arr_xt_dims _dms(k0,k1,k2,k3,k4,k5);
-	size_t n = _dms.checked_size(this->get_allocator().max_size());
+	reshape(_dms);
+}
 
+template<typename T,typename A>
+void arr_xt<T,A>::reshape(const arr_xt_dims& _dms)
+{
+	size_t n = _dms.checked_size(this->get_allocator().max_size());
 	if(n!=impl.size())
 	{
 		impl.resize(_dms.size());

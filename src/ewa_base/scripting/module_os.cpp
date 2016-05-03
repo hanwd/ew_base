@@ -406,7 +406,7 @@ public:
 	{
 		ewsl.check_pmc(this, pm, 1);
 		String p = variant_cast<String>(ewsl.ci0.nbx[1]);
-		ewsl.ci0.nbx[1].reset<String>(System::GetEnv(p));
+		ewsl.ci0.nbx[1].reset(System::GetEnv(p));
 		return 1;
 	}
 

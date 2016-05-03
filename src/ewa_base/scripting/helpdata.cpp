@@ -121,7 +121,7 @@ void HelpData::parse(const String& name_, const String& desc)
 		const char* pstr = line.c_str();
 		size_t nlen = line.size();
 
-		if(!::isblank(pstr[0]) && pstr[nlen - 1] == ':')
+		if(pstr[0]!=' ' && pstr[0]!='\t' && pstr[nlen-1] == ':')
 		{
 			helpmap[name] = string_trim(string_join(it1, it2, "\n"), TRIM_B, '\n');
 			name = (*it2).substr(0, nlen-1);

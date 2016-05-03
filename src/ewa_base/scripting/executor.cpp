@@ -459,7 +459,7 @@ void Executor::_vm_run2(int k)
 			--ci1.nsp;
 			break;
 		case XOP2_SAME:
-			ci1.nsp[-1].reset<bool>(ci1.nsp[-1].kptr()==ci1.nsp[0].kptr());
+			ci1.nsp[-1].reset<bool>(ci1.nsp[-1].kptr() !=NULL && ci1.nsp[-1].kptr()==ci1.nsp[0].kptr());
 			--ci1.nsp;
 			break;
 		case XOP2_NE:
@@ -718,7 +718,7 @@ void Executor::_vm_run2(int k)
 					(*++ci1.nsp)=*++sp1;
 				}
 
-				(*++ci1.nsp).ref_unique<int64_t>()=pmc-1;
+				(*++ci1.nsp).ref<int64_t>()=pmc-1;
 				break;
 			}
 
@@ -731,7 +731,7 @@ void Executor::_vm_run2(int k)
 		case XOP_FAIL:
 			kerror("xop_fail");
 		default:
-			kerror("unknown instuction");
+			kerror("unknown instruction");
 		}
 	}
 }

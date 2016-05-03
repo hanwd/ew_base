@@ -706,7 +706,7 @@ int CallableMetatableT<arr_xt<T> >::__fun_call(Executor& ewsl, int pm)
 	{
 		arr=variant_cast<type>(ewsl.ci0.nbx[1]);
 	}
-	ewsl.ci0.nbx[1].reset(arr);
+	ewsl.ci0.nbx[1].reset(EW_MOVE(arr));
 	return 1;
 
 }

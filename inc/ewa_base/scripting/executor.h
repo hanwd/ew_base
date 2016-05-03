@@ -82,7 +82,7 @@ public:
 	inline void check_pmc(CallableData*,int pm1,int pm_lo,int pm_hi)
 	{
 		if( (pm_lo<0||pm1>=pm_lo) && (pm_hi<0||pm1<=pm_hi)) return;
-		kerror(String::Format("invalid param count",pm_lo,pm_hi));
+		kerror(String::Format("invalid param count, %d-%d params expected",pm_lo,pm_hi));
 	}
 
 	inline void check_stk(size_t n)

@@ -82,6 +82,14 @@ public:
 		impl.append(val_);
 	}
 
+	inline void pop_back_and_reshaepe_to_row_vector(size_t n)
+	{
+		if(impl.size()<n) Exception::XError("not enough elements for pop");
+		size_t d=impl.size()-n;
+		impl.resize(d);
+		dims.resize(1,d);
+	}
+
 	void reshape(size_type k0,size_type k1=1,size_type k2=1,size_type k3=1,size_type k4=1,size_type k5=1);
 	void reshape(const arr_xt_dims& kn);
 

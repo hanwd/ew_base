@@ -418,7 +418,7 @@ public:
 	template<typename T>
 	static int g(Executor& ewsl,const T&)
 	{
-		ewsl.ci0.nbx[1].unique();
+		//ewsl.ci0.nbx[1].reset(v);
 		return 1;
 	}
 
@@ -487,6 +487,7 @@ public:
 	virtual int __fun_call(Executor& ewsl,int pm)
 	{
 		ewsl.check_pmc(this, pm,0);
+		ewsl.ci0.nbx[1]=ewsl.ci1.nbp[StackState1::SBASE_THIS];
 		return do_apply(ewsl, ewsl.ci1.nbp[StackState1::SBASE_THIS]);	
 	}
 	DECLARE_OBJECT_CACHED_INFO(CallableFunctionArrayTransT, ObjectInfo);
@@ -641,6 +642,123 @@ public:
 };
 IMPLEMENT_OBJECT_INFO_T1(CallableFunctionArrayPushT, ObjectInfo);
 
+
+
+template<typename T>
+class CallableFunctionArrayPopT : public CallableFunction
+{
+public:
+	CallableFunctionArrayPopT():CallableFunction(callable_metatable_array_name<T>::name()+".pop"){}
+
+	virtual int __fun_call(Executor& ewsl,int pm)
+	{
+		size_t n=1;
+		ewsl.check_pmc(this,pm,0,1);
+
+		if(pm==1)
+		{
+			n=variant_cast<size_t>(ewsl.ci0.nbx[1]);
+		}
+	
+		typedef arr_xt<T> type;
+		type* p=ewsl.ci1.nbp[StackState1::SBASE_THIS].ptr<type>();
+		if(!p)
+		{
+			Exception::XError("invalid array");
+		}
+
+		(*p).pop_back_and_reshaepe_to_row_vector(n);
+		return 0;
+	}
+	DECLARE_OBJECT_CACHED_INFO(CallableFunctionArrayPopT, ObjectInfo);
+};
+IMPLEMENT_OBJECT_INFO_T1(CallableFunctionArrayPopT, ObjectInfo);
+
+
+template<typename T>
+class CallableFunctionArrayRemoveT : public CallableFunction
+{
+public:
+	CallableFunctionArrayRemoveT():CallableFunction(callable_metatable_array_name<T>::name()+".remove"){}
+
+	virtual int __fun_call(Executor& ewsl,int pm)
+	{
+
+		arr_xt<int64_t> idx;
+		if(pm==1)
+		{
+			idx=variant_cast<arr_xt<int64_t> >(ewsl.ci0.nbx[1]);
+		}
+		else
+		{
+			for(int i=1;i<=pm;i++)
+			{
+				idx.push_back(variant_cast<int64_t>(ewsl.ci0.nbx[i]));
+			}
+		}
+
+		ewsl.ci0.nbx[1]=ewsl.ci1.nbp[StackState1::SBASE_THIS];
+
+		if(idx.empty())
+		{
+			return 1;
+		}
+	
+		typedef arr_xt<T> type;
+		type* p=ewsl.ci1.nbp[StackState1::SBASE_THIS].ptr<type>();
+		if(!p)
+		{
+			Exception::XError("invalid array");
+		}
+
+
+		type &val(*p);
+		int64_t n=val.size();
+
+		for(size_t i=0;i<idx.size();i++)
+		{
+			if(idx[i]<0)
+			{
+				idx[i]+=n;			
+			}
+		}
+
+		std::sort(idx.begin(),idx.end());
+
+		if(*idx.begin()<0||*idx.rbegin()>=n)
+		{
+			ewsl.kerror("invalid index");
+		}
+
+		idx.push_back(n);
+
+		arr_xt<int64_t>::iterator itn=idx.begin();
+	
+		size_t j=0;
+
+		for(size_t i=0;i<n;i++)
+		{
+			if(i<*itn)
+			{
+				val[j++]=val[i];
+			}
+			else
+			{
+				do
+				{
+					itn++;
+				}while(*itn==i);
+			}
+		}
+
+		val.reshape(1,j);
+	
+		return 1;
+	}
+	DECLARE_OBJECT_CACHED_INFO(CallableFunctionArrayRemoveT, ObjectInfo);
+};
+IMPLEMENT_OBJECT_INFO_T1(CallableFunctionArrayRemoveT, ObjectInfo);
+
 template<typename T>
 class CallableMetatableT<arr_xt<T> > : public CallableMetatable
 {
@@ -692,8 +810,10 @@ CallableMetatableT<arr_xt<T> >::CallableMetatableT()
 	table_meta["reverse"].kptr(CallableFunctionArrayReverseT<T>::sm_info.CreateObject());
 	table_meta["unpack"].kptr(CallableFunctionArrayUnpackT<T>::sm_info.CreateObject());
 	table_meta["push"].kptr(CallableFunctionArrayPushT<T>::sm_info.CreateObject());
+	table_meta["pop"].kptr(CallableFunctionArrayPopT<T>::sm_info.CreateObject());
 	table_meta["resize"].kptr(CallableFunctionArrayResizeT<T>::sm_info.CreateObject());
 	table_meta["reshape"].kptr(CallableFunctionArrayReshapeT<T>::sm_info.CreateObject());
+	table_meta["remove"].kptr(CallableFunctionArrayRemoveT<T>::sm_info.CreateObject());
 
 	CG_GGVar::current().sm_meta[type_flag<type>::value].reset(this);
 }

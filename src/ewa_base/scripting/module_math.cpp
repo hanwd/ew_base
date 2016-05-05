@@ -137,11 +137,11 @@ void int_div_hook_int_int(Variant &r, Variant& v1, Variant& v2)
 	}
 	if(n1%n2==0)
 	{
-		r.reset<int64_t>(n1/n2);
+		r.reset(n1/n2);
 	}
 	else
 	{
-		r.reset<double>(double(n1)/double(n2));
+		r.reset(double(n1)/double(n2));
 	}
 }
 

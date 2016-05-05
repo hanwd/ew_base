@@ -50,7 +50,6 @@ indexer_map<String, int>& get_op_table_instance()
 		op_table["||"] = 2;
 		op_table[".."] = 2;
 
-		//op_table["1"] = 15;
 		// 1 is reserved for comma, a,b,c
 		op_table["="] = 0;
 		op_table["+="] = 0;
@@ -186,7 +185,7 @@ DataPtrT<TNode_item> read_node_handler<TNode_item>::g(Parser& parser)
 				parser.kerror("invalid row_size");
 			}
 
-			for(int i=0;i<plist->aList.size();i++)
+			for(size_t i=0;i<plist->aList.size();i++)
 			{
 				q->exp_list->aList.append(plist->aList[i]);
 			}

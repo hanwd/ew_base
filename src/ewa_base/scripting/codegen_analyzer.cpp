@@ -433,6 +433,7 @@ VisReturnType TNodeVisitorCG_AnalyzerUnit::visit(TNode_braket* node,VisExtraPara
 			}
 			int r=n/c;
 
+
 			TNode_expression_call* trans = new TNode_expression_call(node->exp_list->token);
 			trans->tbl.reset(new TNode_var("trans"));
 			trans->exp_list.reset(new TNode_expression_list);

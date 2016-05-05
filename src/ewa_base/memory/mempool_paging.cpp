@@ -152,6 +152,17 @@ public:
 		return pCache!=NULL;
 	}
 
+	void OutputString(const char* s)
+	{
+		System::LogTrace(s);
+
+#ifdef EW_MSVC
+		::OutputDebugStringA(s);
+		::OutputDebugStringA("\n");
+#endif
+
+	}
+
 	void leak(void* p,size_t n)
 	{
 
@@ -168,7 +179,9 @@ public:
 		else
 		{
 			nLeakCount++;
-			System::LogTrace("leak detected: %p,%d",p,(int)n);
+
+			::sprintf(pCache,"mp_alloc:leak detected: %p,%d",p,(int)n);
+			OutputString(pCache);
 		}
 	}
 
@@ -189,7 +202,7 @@ public:
 				}
 				else
 				{
-					System::LogError("MpAllocNode in incorrect Slot detected");
+					System::LogError("mp_alloc:MpAllocNode in incorrect Slot detected");
 				}
 			}
 
@@ -220,7 +233,8 @@ public:
 		{
 			if(nLeakCount==0)
 			{
-				System::LogTrace("no leak detected");
+				::sprintf(pCache,"mp_alloc:no leak detected");
+				OutputString(pCache);
 			}
 			return;
 		}
@@ -238,7 +252,7 @@ public:
 			}
 
 			char* p1=pCache;
-			p1+=sprintf(p1,"leak detected, file:%s, line: %d, count:%d {",(*it).first.file,(int)(*it).first.line,(int)(*it).second.size());
+			p1+=sprintf(p1,"mp_alloc:leak detected, file:%s, line: %d, count:%d {",(*it).first.file,(int)(*it).first.line,(int)(*it).second.size());
 
 			for(size_t i=0;;)
 			{
@@ -263,8 +277,7 @@ public:
 			*p1++='}';
 			*p1++='\0';
 
-			System::LogTrace(pCache);
-
+			OutputString(pCache);
 		}
 	}
 };

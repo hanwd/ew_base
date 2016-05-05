@@ -151,6 +151,7 @@ TEST_DEFINE(TEST_Scripting_Executor2)
 "	typeid(1.0),"
 "	typeid(1i),"
 "	typeid('string'),"
+"	typeid(table()),"
 "	typeid(array_integer.ones(1)),"
 "	typeid(array_double.ones(1)),"
 "	typeid(array_complex.ones(1)),"

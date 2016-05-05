@@ -445,6 +445,8 @@ void Scanner::read_comment2()
 
 	mychar_ptr p1=stok.pcur;
 
+	int n=1;
+
 	stok.inc();
 	for(;;)
 	{
@@ -457,7 +459,14 @@ void Scanner::read_comment2()
 		if(stok.pcur[-1]=='*')
 		{
 			stok.inc();
-			break;
+			if(--n==0)
+			{
+				break;
+			}
+		}
+		else if(stok.pcur[1]=='*')
+		{
+			n++;
 		}
 		stok.inc();
 	}
@@ -480,7 +489,7 @@ void Scanner::read_comment1()
 	skip<lkt_is_comment1>(stok);
 	mychar_ptr p2=stok.pcur;
 
-	aComments.push_back(CommentItem(_lastline,stok.line,p1,p2));
+	aComments.push_back(CommentItem(_lastline,stok.line+1,p1,p2));
 
 }
 

@@ -608,7 +608,7 @@ void CG_GGVar::_init()
 "		if(f(v,k++)) r.push(v);\n"
 "	}\n"
 "	return r;	\n"
-"}\n"
+"};\n"
 "\n"
 "function join(x,r)\n"
 "{\n"

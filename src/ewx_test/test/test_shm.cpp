@@ -56,7 +56,7 @@ TEST_DEFINE(TEST_Shm)
 	TEST_ASSERT_MSG(sm2.Alloc(4096*8),"ShmOpen");
 
 	p1=sm2.data();
-	TEST_ASSERT_MSG(p1!=NULL,"FileAccess::Alloc failed");
+	TEST_ASSERT_MSG(p1!=NULL,"SharedMem::Alloc failed");
 	if(p1)
 	{
 		memset(p1,1,4096*8);

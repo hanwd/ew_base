@@ -20,7 +20,7 @@ VisReturnType TNodeVisitorCG_GeneratorRValue::visit(TNode* node,VisExtraParam)
 
 VisReturnType TNodeVisitorCG_GeneratorRValue::visit(TNode_variable_list* node,VisExtraParam)
 {
-	kerror("TNode_variable_list cannot be lvalue!!!");
+	kerror("TNode_variable_list cannot be rvalue!!!");
 	return def_value();
 }
 

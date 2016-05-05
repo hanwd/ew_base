@@ -5,9 +5,6 @@
 #include "ewa_base/scripting/variant.h"
 #include "ewa_base/scripting/callable_table.h"
 #include "ewa_base/scripting/callable_array.h"
-//#include "ewa_base/scripting/executor.h"
-
-
 #include "ewa_base/scripting/parser_visitor.h"
 
 #define SYNTAX_TNODE_ACCEPT(X) \
@@ -485,6 +482,8 @@ public:
 	TNode_val_class(){}
 	TNode_val_class(const String& v):basetype(v){}
 	TNode_val_class(const tokItem& v):basetype(v){}
+
+	DataPtrT<TNode_expression_list> base_list;
 
 	SYNTAX_TNODE_ACCEPT(TNode_val_class);
 };

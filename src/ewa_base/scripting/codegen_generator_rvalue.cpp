@@ -878,8 +878,15 @@ VisReturnType TNodeVisitorCG_GeneratorRValue::visit(TNode_val_class* node,VisExt
 
 	cgen.back().cg_local.enter2(node->tScope);
 
+	VisReturnType n=0;
+	
+	if(node->base_list)
+	{
+		n=node->base_list->accept(*this,-1);
+	}
+
 	cgen.emit_getsys("#new_metatable");
-	cgen.emit_call(0,3);
+	cgen.emit_call(n,3);
 	cgen.emit_setvar("meta");
 	cgen.emit_setvar("self");
 

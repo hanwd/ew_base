@@ -119,7 +119,7 @@ public:
 
 		if(pm<1) ewsl.kerror("invalid param");
 
-		typename FunctionParamT<T1> val1;
+		FunctionParamT<T1> val1;
 		if(val1.update(ewsl.ci0.nbx[1]))
 		{
 			(Target.*func)(val1.value);
@@ -163,8 +163,8 @@ public:
 
 		if(pm<1) ewsl.kerror("invalid param");
 
-		typename FunctionParamT<T1> val1;
-		typename FunctionParamT<T2> val2;
+		FunctionParamT<T1> val1;
+		FunctionParamT<T2> val2;
 
 		if(val1.update(ewsl.ci0.nbx[1]) && val2.update(ewsl.ci0.nbx[2]))
 		{
@@ -211,9 +211,9 @@ public:
 
 		if(pm<1) ewsl.kerror("invalid param");
 
-		typename FunctionParamT<T1> val1;
-		typename FunctionParamT<T2> val2;
-		typename FunctionParamT<T3> val3;
+		FunctionParamT<T1> val1;
+		FunctionParamT<T2> val2;
+		FunctionParamT<T3> val3;
 
 		if(val1.update(ewsl.ci0.nbx[1]) && val2.update(ewsl.ci0.nbx[2]) && val3.update(ewsl.ci0.nbx[3]))
 		{

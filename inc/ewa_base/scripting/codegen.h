@@ -8,30 +8,6 @@
 EW_ENTER
 
 class DLLIMPEXP_EWA_BASE CodeGen;
-//
-//class DLLIMPEXP_EWA_BASE CG_Table
-//{
-//public:
-//
-//	int find(const String& v)
-//	{
-//		return m_aVariables.find(v)==m_aVariables.end()?-1:0;
-//	}
-//
-//	bool add(const String& v)
-//	{
-//		return m_aVariables.insert(v).second;
-//	}
-//
-//	void clear()
-//	{
-//		m_aVariables.clear();
-//	}
-//
-//private:
-//	bst_set<String> m_aVariables;
-//};
-
 
 
 class DLLIMPEXP_EWA_BASE CG_Local

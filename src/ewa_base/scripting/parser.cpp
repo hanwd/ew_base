@@ -937,9 +937,15 @@ DataPtrT<TNode_val_class> read_node_handler<TNode_val_class>::g(Parser& parser)
 
 	++parser.pcur;
 
-	if(parser.pcur[0].type!=TOK_BRA3)
+	if(parser.pcur[0].type!=TOK_BRA3 && parser.pcur[0].type!=TOK_COLON )
 	{
 		node->func_name=read_expr_handler<-1>::g(parser);
+	}
+
+	if(parser.pcur[0].type==TOK_COLON)
+	{
+		++parser.pcur;	
+		node->base_list=read_node_handler<TNode_expression_list>::g(parser);
 	}
 
 	node->func_body=read_node_handler<TNode_statement_block>::g(parser);

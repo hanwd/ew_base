@@ -29,13 +29,36 @@ class CallableFunctionClass : public CallableFunction
 public:
 	CallableFunctionClass():CallableFunction("#new_metatable"){}
 
+	void link(VariantTable& lhs,const VariantTable& rhs)
+	{
+		for(VariantTable::const_iterator it=rhs.begin();it!=rhs.end();++it)
+		{
+			lhs.insert(*it);
+		}
+	}
+
 	virtual int __fun_call(Executor& ewsl,int pm)
 	{
-		ewsl.check_pmc(this,pm,0);
-		CallableMetatable* pcls=new CallableMetatable;
+		//ewsl.check_pmc(this,pm,0);
+		DataPtrT<CallableMetatable> pcls=new CallableMetatable;
+		for(int i=1;i<=pm;i++)
+		{
+			CallableData* p=ewsl.ci0.nbx[i].kptr();
+			CallableMetatable* base=p?p->ToMetatable():NULL;
+			if(!base)
+			{
+				ewsl.kerror("base is not metatable");
+			}
+			else
+			{
+				link(pcls->table_meta,base->table_meta);
+				link(pcls->table_self,base->table_self);
+			}
+		}
+
 		ewsl.ci0.nbx[1].kptr(pcls);
-		ewsl.ci0.nbx[2].kptr(new CallableTableProxy(pcls->table_self,pcls));
-		ewsl.ci0.nbx[3].kptr(new CallableTableProxy(pcls->table_meta,pcls));
+		ewsl.ci0.nbx[2].kptr(new CallableTableProxy(pcls->table_self,pcls.get()));
+		ewsl.ci0.nbx[3].kptr(new CallableTableProxy(pcls->table_meta,pcls.get()));
 		return 3;
 	}
 	DECLARE_OBJECT_CACHED_INFO(CallableFunctionClass, ObjectInfo);

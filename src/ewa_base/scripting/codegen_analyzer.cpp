@@ -898,6 +898,10 @@ VisReturnType TNodeVisitorCG_AnalyzerRValue::visit(TNode_val_class* node,VisExtr
 		node->func_name->accept(lvis,0);
 	}
 
+	if(node->base_list)
+	{
+		node->base_list->accept(rvis,0);
+	}
 
 	avis.back().cg_local.enter1(node->tScope);
 	avis.define_var("self",VAR_LOCAL);

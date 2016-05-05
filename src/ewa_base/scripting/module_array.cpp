@@ -734,6 +734,9 @@ void init_module_array()
 	gi.add_inner<CallableFunctionArrayLength>();
 	gi.add_inner<CallableFunctionArrayTrans>();
 	gi.add_inner<CallableFunctionArrayDiag>();
+	gi.add_inner<CallableFunctionReshape>();
+	gi.add_inner<CallableFunctionResize>();
+
 
 	gi.add_inner<CallableFunctionZeros>();
 	gi.add_inner<CallableFunctionOnes>();

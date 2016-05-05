@@ -197,26 +197,8 @@ int System::GetCacheLineSize()
 
 String System::GetEnv(const String& name,const String& value_if_not_found)
 {
-#ifdef EW_WINDOWS
-	char buffer[4096]={0};
-	int n=::GetEnvironmentVariableA(name.c_str(),buffer,4096);
-	if(n==0)
-	{
-		return value_if_not_found;
-	}
-	else if(n<4096)
-	{
-		return buffer;
-	}
-	else
-	{
-		StringBuffer<char> tmp;tmp.resize(n);
-		::GetEnvironmentVariableA(name.c_str(),&tmp[0],n);
-		return tmp;
-	}
-#else
-	return "";
-#endif
+	const char* value=::getenv(name.c_str());
+	return value?String(value):value_if_not_found;
 }
 
 

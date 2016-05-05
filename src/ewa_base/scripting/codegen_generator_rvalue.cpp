@@ -259,17 +259,14 @@ indexer_map<String,DataPtrT<xop2_info> >& _g_get_mp_op2()
 	{
 		mp_op2["+"].reset(new xop2_info(XOP2_ADD));
 		mp_op2["-"].reset(new xop2_info(XOP2_SUB));
+		mp_op2["%"].reset(new xop2_info(XOP2_MOD));
 		mp_op2["*"].reset(new xop2_info(XOP2_MUL));
 		mp_op2["/"].reset(new xop2_info(XOP2_DIV));
-		mp_op2["%"].reset(new xop2_info(XOP2_MOD));
-
-
-		mp_op2["**"].reset(new xop2_info(XOP2_POW));
+		mp_op2["^"].reset(new xop2_info(XOP2_POW));
 
 		mp_op2[".*"].reset(new xop2_info(XOP2_DOT_MUL));
 		mp_op2["./"].reset(new xop2_info(XOP2_DOT_DIV));
 		mp_op2[".^"].reset(new xop2_info(XOP2_DOT_POW));
-		mp_op2[".**"].reset(new xop2_info(XOP2_DOT_POW));
 
 		mp_op2[">"].reset(new xop2_info(XOP2_GT));
 		mp_op2["<"].reset(new xop2_info(XOP2_LT));
@@ -292,7 +289,7 @@ indexer_map<String,DataPtrT<xop2_info> >& _g_get_mp_op2()
 
 		mp_op2["&"].reset(new xop2_info(XOP2_BITWISE_AND));
 		mp_op2["|"].reset(new xop2_info(XOP2_BITWISE_OR));
-		mp_op2["^"].reset(new xop2_info(XOP2_BITWISE_XOR));
+		//mp_op2["^"].reset(new xop2_info(XOP2_BITWISE_XOR));
 
 		mp_op2[".."].reset(new xop2_info(XOP2_CAT));
 	}

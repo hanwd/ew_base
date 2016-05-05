@@ -423,7 +423,51 @@ VisReturnType TNodeVisitorCG_AnalyzerUnit::visit(TNode_braket* node,VisExtraPara
 {
 	if(node->flags.get(TNode_braket::FLAG_WITH_BRAKET2))
 	{
-		if(node->exp_list->dot3_pos()==1)
+		if(node->row_size>0)
+		{
+			int c=node->row_size;
+			int n=node->exp_list->aList.size();
+			if(n%c!=0)
+			{
+				cgen.kerror("invalid matrix");
+			}
+			int r=n/c;
+
+			TNode_expression_call* trans = new TNode_expression_call(node->exp_list->token);
+			trans->tbl.reset(new TNode_var("trans"));
+			trans->exp_list.reset(new TNode_expression_list);
+
+			DataPtrT<TNode_expression> qe(trans);
+
+			TNode_expression_call* reshape = new TNode_expression_call(node->exp_list->token);
+
+			trans->exp_list->aList.append(reshape);
+
+			reshape->tbl.reset(new TNode_var("reshape"));
+			reshape->exp_list.reset(new TNode_expression_list);
+
+			tokItem t1,t2;
+			t1.type=t2.type=TOK_INTEGER;
+			t1.word<<r;
+			t2.word<<c;
+
+
+			TNode_expression_call* kc = new TNode_expression_call(node->exp_list->token);
+
+			reshape->exp_list->aList.append(kc);
+			reshape->exp_list->aList.append(new TNode_val_integer(t2));
+			reshape->exp_list->aList.append(new TNode_val_integer(t1));
+
+
+			kc->tbl.reset(new TNode_var("pack"));
+			kc->exp_list=node->exp_list;
+
+			visit_it<TNode_expression>(qe,visp);
+			return replace_by(qe.get());
+
+
+		}
+		else if(node->exp_list->dot3_pos()==1)
 		{
 			avis.getvar("...");
 			return replace_by(new TNode_var("..."));

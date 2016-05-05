@@ -6,73 +6,72 @@ EW_ENTER
 
 indexer_map<String, int>& get_op_table_instance()
 {
-	static indexer_map<String, int> m;
-	if (m.empty())
+	static indexer_map<String, int> op_table;
+	if (op_table.empty())
 	{
-		m["++"] = 16;
-		m["--"] = 16;
-		m["~"] = 16;
-		m["!"] = 16;
+		op_table["++"] = 16;
+		op_table["--"] = 16;
+		op_table["~"] = 16;
+		op_table["!"] = 16;
 
+		op_table["^"] = 14;
+		op_table[".^"] = 14;
 
-		m["**"] = 14;
-		m[".**"] = 14;
+		op_table[".*"] = 13;
+		op_table["./"] = 13;
+		op_table[".\\"] = 13;
+		op_table["*"] = 13;
+		op_table["/"] = 13;
+		op_table["\\"] = 13;
+		op_table["%"] = 12;
 
-		m[".*"] = 13;
-		m["./"] = 13;
-		m[".\\"] = 13;
-		m["*"] = 13;
-		m["/"] = 13;
-		m["\\"] = 13;
-		m["%"] = 12;
+		op_table["+"] = 10;
+		op_table["-"] = 10;
 
-		m["+"] = 10;
-		m["-"] = 10;
+		op_table["&"] = 9;
 
-		m["&"] = 9;
-		m["^"] = 8;
-		m["|"] = 7;
+		op_table["|"] = 7;
 
-		m["<<"] = 7;
-		m[">>"] = 7;
+		op_table["<<"] = 7;
+		op_table[">>"] = 7;
 
 		// 6 is reserved for colon a:b
 
-		m[">"] = 5;
-		m["<"] = 5;
-		m[">="] = 5;
-		m["<="] = 5;
-		m["=="] = 5;
-		m["==="] = 5;
-		m["!="] = 5;
+		op_table[">"] = 5;
+		op_table["<"] = 5;
+		op_table[">="] = 5;
+		op_table["<="] = 5;
+		op_table["=="] = 5;
+		op_table["==="] = 5;
+		op_table["!="] = 5;
 
-		m["&&"] = 4;
-		m["^^"] = 3;
-		m["||"] = 2;
-		m[".."] = 2;
+		op_table["&&"] = 4;
+		op_table["^^"] = 3;
+		op_table["||"] = 2;
+		op_table[".."] = 2;
 
-		//m["1"] = 15;
+		//op_table["1"] = 15;
 		// 1 is reserved for comma, a,b,c
-		m["="] = 0;
-		m["+="] = 0;
-		m["-="] = 0;
-		m["*="] = 0;
+		op_table["="] = 0;
+		op_table["+="] = 0;
+		op_table["-="] = 0;
+		op_table["*="] = 0;
 
-		m["/="] = 0;
-		m["\\="] = 0;
-		m["+="] = 0;
-		m["&="] = 0;
-		m["|="] = 0;
-		m["^="] = 0;
+		op_table["/="] = 0;
+		op_table["\\="] = 0;
+		op_table["+="] = 0;
+		op_table["&="] = 0;
+		op_table["|="] = 0;
+		op_table["^="] = 0;
 
-		m["=>"] = 0;
+		op_table["=>"] = 0;
 
-		m["**="] = 0;
-		m[">>="] = 0;
-		m["<<="] = 0;
+		op_table["**="] = 0;
+		op_table[">>="] = 0;
+		op_table["<<="] = 0;
 
 	}
-	return m;
+	return op_table;
 }
 
 
@@ -173,6 +172,27 @@ DataPtrT<TNode_item> read_node_handler<TNode_item>::g(Parser& parser)
 		DataPtrT<TNode_braket> q=new TNode_braket;
 		q->flags.add(TNode_braket::FLAG_WITH_BRAKET2);
 		q->exp_list=read_node_handler<TNode_expression_list>::g(parser);
+
+		while(parser.test(TOK_SEMICOLON))
+		{
+			DataPtrT<TNode_expression_list> plist=read_node_handler<TNode_expression_list>::g(parser);
+			if(q->row_size<0)
+			{
+				q->row_size=q->exp_list->aList.size();
+			}
+
+			if(plist->aList.size()!=q->row_size||q->row_size==0)
+			{
+				parser.kerror("invalid row_size");
+			}
+
+			for(int i=0;i<plist->aList.size();i++)
+			{
+				q->exp_list->aList.append(plist->aList[i]);
+			}
+
+		}
+
 		parser.match(TOK_KET2);
 		node=q;
 	}
@@ -434,6 +454,12 @@ DataPtrT<TNode_expression> read_expr_handler<0>::g(Parser& parser)
 		if(op_table[parser.pcur[0].word]!=0)
 		{
 			break;
+		}
+
+		const String& op_name(parser.pcur[0].word);
+		if(op_name.empty() || op_name.c_str()[op_name.size()-1]!='=')
+		{
+			parser.kerror(String::Format("invalid operator %s",op_name));
 		}
 
 		ntmp=new TNode_expression_op_assign(parser.pcur[0]);

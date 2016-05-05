@@ -28,7 +28,7 @@ public:
 
 	Parser();
 
-	indexer_map<String,int>& op_table;
+	indexer_map<String,int> op_table;
 
 protected:
 

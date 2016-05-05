@@ -37,7 +37,6 @@ void _g_signal_terminate(int param)
 
 ThreadManager::ThreadManager()
 {
-	EW_FUNCTION_TRACER(LOGLEVEL_TRACE);
 
 	signal(SIGTERM, _g_signal_terminate);
 	signal(SIGINT, _g_signal_terminate);

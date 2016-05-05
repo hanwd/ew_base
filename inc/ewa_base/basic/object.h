@@ -10,7 +10,7 @@
 	typedef INFO infobase;\
 	typedef ObjectInfoT<TYPE,INFO> infotype;\
 	static infotype sm_info;\
-	infobase& GetObjectInfo() const{return sm_info;}\
+	virtual infobase& GetObjectInfo() const{return sm_info;}\
 	virtual const String& GetObjectName() const {return sm_info.GetName();}
 
 #define DECLARE_OBJECT_CACHED_INFO(TYPE,INFO)	\

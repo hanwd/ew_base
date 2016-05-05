@@ -270,11 +270,12 @@ public:
 		FLAG_MAX			=FLAG_MIN<<3,
 	};
 
-	TNode_braket(){}
-	TNode_braket(const String& v):basetype(v){}
-	TNode_braket(const tokItem& v):basetype(v){}
+	TNode_braket(){row_size=-1;}
+	TNode_braket(const String& v):basetype(v){row_size=-1;}
+	TNode_braket(const tokItem& v):basetype(v){row_size=-1;}
 
 	DataPtrT<TNode_expression_list> exp_list;
+	int row_size;
 
 	SYNTAX_TNODE_ACCEPT(TNode_braket);
 };

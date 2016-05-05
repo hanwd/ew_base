@@ -108,17 +108,17 @@ TEST_DEFINE(TEST_Thread)
 	TEST_ASSERT(!thrd2.alive());
 	TEST_ASSERT(thrd2.count()==0);
 
-	//AAA aa;
-	//ThreadEx thrd3;
-	//thrd3.flags().add(Thread::FLAG_DYNAMIC);
-	//thrd3.activate(hello);
+	AAA aa;
+	ThreadEx thrd3;
+	thrd3.flags().add(Thread::FLAG_DYNAMIC);
+	thrd3.activate(&hello);
 
-	//auto fn = hbind(&AAA::my_run,&aa);
-	//thrd3.activate(fn);
-	//thrd3.wait();
+	auto fn = hbind(&AAA::my_run,&aa);
+	thrd3.activate(fn);
+	thrd3.wait();
 
-	//TEST_ASSERT(a_my_run);
-	//TEST_ASSERT(hello_run);
+	TEST_ASSERT(a_my_run);
+	TEST_ASSERT(hello_run);
 
 
 }

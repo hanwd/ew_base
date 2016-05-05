@@ -405,10 +405,16 @@ public:
 	CallableCommandLoadEwsl() :CallableCommand("load_ewsl"){}
 	virtual int __fun_call(Executor& ewsl,int pm)
 	{
-		ewsl.check_pmc(this,pm,1);
+		ewsl.check_pmc(this,pm,1,2);
+
+		int type=Executor::INDIRECT_FILE;
+		if(pm==2)
+		{
+			type=variant_cast<int>(ewsl.ci0.nbx[2]);
+		}
 
 		String p=ewsl.ci0.nbx[1].get<String>();
-		if (ewsl.prepare(p, Executor::INDIRECT_FILE))
+		if (ewsl.prepare(p, type))
 		{
 			ewsl.ci0.nbx[1] = *ewsl.ci1.nsp;
 			return 1;
@@ -602,7 +608,7 @@ void CG_GGVar::_init()
 "		if(f(v,k++)) r.push(v);\n"
 "	}\n"
 "	return r;	\n"
-"}\n"
+"};\n"
 "\n"
 "function join(x,r)\n"
 "{\n"

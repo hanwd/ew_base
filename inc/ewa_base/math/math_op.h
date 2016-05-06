@@ -503,7 +503,10 @@ struct DLLIMPEXP_EWA_BASE pl_mat_mul : public pl_base2_mat
 		return EW_MOVE(result);
 	}
 
-	static bool metatable_call(CallableMetatable* mt, Variant& r, Variant& v1, Variant& v2);
+	static inline bool metatable_call(CallableMetatable* mt, Variant& r, Variant& v1, Variant& v2)
+	{
+		return mt->__mul(r, v1, v2);;
+	}
 
 	static const op_info& info();
 };
@@ -517,6 +520,7 @@ struct DLLIMPEXP_EWA_BASE pl_div : public pl_base2_num
 	{
 		return mt->__div(r, v1, v2);;
 	}
+
 	static const op_info& info();
 };
 
@@ -560,7 +564,10 @@ struct DLLIMPEXP_EWA_BASE pl_mat_div : public pl_base2_mat
 		return EW_MOVE(result);
 	}
 
-	static bool metatable_call(CallableMetatable* mt, Variant& r, Variant& v1, Variant& v2);
+	static inline bool metatable_call(CallableMetatable* mt, Variant& r, Variant& v1, Variant& v2)
+	{
+		return mt->__div(r, v1, v2);;
+	}
 
 	static const op_info& info();
 };
@@ -641,7 +648,6 @@ struct DLLIMPEXP_EWA_BASE pl_mat_pow : public pl_base2_mat
 		return EW_MOVE(result);
 	}
 
-	static bool metatable_call(CallableMetatable* mt, Variant& r, Variant& v1, Variant& v2);
 	static const op_info& info();
 };
 

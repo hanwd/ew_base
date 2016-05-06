@@ -391,13 +391,36 @@ public:
 	}
 };
 
+
+class CallableFunctionPuts : public CallableFunctionPrintBase
+{
+public:
+
+	CallableFunctionPuts():CallableFunctionPrintBase("io.puts",1)
+	{
+		aBreakers["end0"]="";
+		aBreakers["end1"]="";
+	}
+
+	virtual int __fun_call(Executor& ewsl,int pm)
+	{
+		StringBuffer<char> sb;
+		_do_print_to_stringbuffer_1(sb,ewsl.ci0.nbx,pm);
+		this_logger().Print(sb.c_str());
+		return 0;
+	}
+	DECLARE_OBJECT_CACHED_INFO(CallableFunctionPuts, ObjectInfo);
+};
+
+IMPLEMENT_OBJECT_INFO(CallableFunctionPuts, ObjectInfo);
+
 class CallableFunctionPrint : public CallableFunctionPrintBase
 {
 public:
 
 	CallableFunctionPrint():CallableFunctionPrintBase("io.print",1)
 	{
-		aBreakers["end0"]="";
+		aBreakers["end0"]=" ";
 		aBreakers["end1"]=" ";
 	}
 
@@ -520,8 +543,8 @@ public:
 		else
 		{
 			StringBuffer<char> sb;
-			_do_print_to_stringbuffer_2(sb,ewsl.ci0.nbx,1);
-			bool f=sb.save(variant_cast<String>(ewsl.ci0.nbx[2]));
+			_do_print_to_stringbuffer_2(sb,ewsl.ci0.nbx+1,1);
+			bool f=sb.save(variant_cast<String>(ewsl.ci0.nbx[1]));
 			ewsl.ci0.nbx[1].reset(f);
 		}			
 
@@ -878,12 +901,14 @@ IMPLEMENT_OBJECT_INFO(CallableFunctionSaveVar, ObjectInfo);
 void init_module_io()
 {
 	CG_GGVar& gi(CG_GGVar::current());
+
 	gi.add_inner<CallableFunctionLoadVar>();
 	gi.add_inner<CallableFunctionSaveVar>();
 	gi.add_inner<CallableFunctionLoadTxt>();
 	gi.add_inner<CallableFunctionSaveTxt>();
 	gi.add_inner<CallableFunctionLoadJson>();
 
+	gi.add_inner<CallableFunctionPuts>();
 	gi.add_inner<CallableFunctionPrint>();
 	gi.add_inner<CallableFunctionPrintLn>();
 	gi.add_inner<CallableFunctionPrintEx>();

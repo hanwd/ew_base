@@ -652,14 +652,9 @@ public:
 
 	virtual int __fun_call(Executor& ewsl,int pm)
 	{
-		size_t n=1;
+
 		ewsl.check_pmc(this,pm,0,1);
 
-		if(pm==1)
-		{
-			n=variant_cast<size_t>(ewsl.ci0.nbx[1]);
-		}
-	
 		typedef arr_xt<T> type;
 		type* p=ewsl.ci1.nbp[StackState1::SBASE_THIS].ptr<type>();
 		if(!p)
@@ -667,8 +662,22 @@ public:
 			Exception::XError("invalid array");
 		}
 
-		(*p).pop_back_and_reshaepe_to_row_vector(n);
-		return 0;
+		if(pm==1)
+		{
+			size_t n=variant_cast<size_t>(ewsl.ci0.nbx[1]);
+			(*p).pop_back_and_reshaepe_to_row_vector(n);
+			return 0;
+		}
+		else
+		{
+			if(!(*p).empty())
+			{
+				ewsl.ci0.nbx[1].reset(*(*p).rbegin());
+			}
+			(*p).pop_back_and_reshaepe_to_row_vector(1);
+			return 1;		
+		}
+
 	}
 	DECLARE_OBJECT_CACHED_INFO(CallableFunctionArrayPopT, ObjectInfo);
 };

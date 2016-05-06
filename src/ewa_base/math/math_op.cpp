@@ -119,20 +119,5 @@ const op_info& pl_bw_shl::info(){static op_info sm_info("bitwise.shl",0);return 
 const op_info& pl_bw_shr::info(){static op_info sm_info("bitwise.shr",0);return sm_info;}
 
 
-bool pl_mat_mul::metatable_call(CallableMetatable* mt, Variant& r, Variant& v1, Variant& v2)
-{
-	return pl_base0::metatable_call(mt,r,v1,v2);
-}
-
-bool pl_mat_div::metatable_call(CallableMetatable* mt, Variant& r, Variant& v1, Variant& v2)
-{
-	return pl_base0::metatable_call(mt,r,v1,v2);
-}
-
-bool pl_mat_pow::metatable_call(CallableMetatable* mt, Variant& r, Variant& v1, Variant& v2)
-{
-	return pl_base0::metatable_call(mt,r,v1,v2);
-}
-
 EW_LEAVE
 

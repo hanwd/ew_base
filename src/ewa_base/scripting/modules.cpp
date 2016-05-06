@@ -355,7 +355,12 @@ public:
 	CallableTableProxyGlobal() :CallableFunction("_G"){}
 	int __setindex(Executor& ewsl,const String& si){return CallableTableOperators::__do_setindex(ewsl,ewsl.tb1,si);}
 	int __getindex(Executor& ewsl,const String& si){return CallableTableOperators::__do_getindex(ewsl,ewsl.tb1,si);}
+	virtual int __getarray(Executor& ewsl,int pm){return CallableTableOperators::__do_getarray(ewsl,ewsl.tb1,pm);}
+	virtual int __setarray(Executor& ewsl,int pm){return CallableTableOperators::__do_setarray(ewsl,ewsl.tb1,pm);}
 	void __get_iterator(Executor& ewsl,int nd){CallableTableOperators::__do_get_iterator(ewsl,ewsl.tb1,nd);}
+
+	bool ToValue(String& v,int) const{v="table:global variable proxy";return true;}
+
 	DECLARE_OBJECT_CACHED_INFO(CallableTableProxyGlobal, ObjectInfo);
 };
 IMPLEMENT_OBJECT_INFO(CallableTableProxyGlobal, ObjectInfo);

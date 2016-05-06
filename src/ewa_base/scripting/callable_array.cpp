@@ -453,7 +453,7 @@ void CallableWrapT<arr_xt<T> >::__get_iterator(Executor& ewsl,int d)
 	{
 		ewsl.ci1.nsp[0].kptr(new CallableDataIterator1T<typename arr_type::const_iterator>(this,value.begin(),value.end()));
 	}
-	else if(d==2)
+	else if(d==2||d==-2)
 	{
 		ewsl.ci1.nsp[0].kptr(new CallableDataIteratorPT<typename arr_type::const_iterator>(this,value.begin(),value.end()));
 	}

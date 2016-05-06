@@ -519,7 +519,7 @@ bool CodeGen::is_library(const String& s)
 	CG_Variable* q=sfa.cg_local.find(s);
 	if (!q) q = find_var(s);
 
-	return q && q->type == VAR_SYSTEM;
+	return q && q->type == VAR_SYSTEM && s!="_G";
 }
 
 CG_Variable* CodeGen::find_var(const String& s)

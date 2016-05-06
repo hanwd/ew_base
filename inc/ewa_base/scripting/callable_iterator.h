@@ -9,6 +9,17 @@ class DLLIMPEXP_EWA_BASE CallableDataIterator : public CallableObject
 {
 public:
 
+	template<typename X>
+	static inline void push_value(Executor& ewsl,const X& x)
+	{
+		ewsl.push(x);
+	}
+	template<typename X,typename Y>
+	static inline void push_value(Executor& ewsl,const std::pair<X,Y>& p)
+	{
+		ewsl.push(p.second);
+	}
+
 };
 
 class DLLIMPEXP_EWA_BASE CallableDataIterator1 : public CallableDataIterator
@@ -34,16 +45,6 @@ public:
 
 	CallableDataIterator1T(ObjectData* p,T it1_,T it2_):obj(p),it1(it1_),it2(it2_){}
 
-	template<typename X>
-	static inline void push_value(Executor& ewsl,const X& x)
-	{
-		ewsl.push(x);
-	}
-	template<typename X,typename Y>
-	static inline void push_value(Executor& ewsl,const std::pair<X,Y>& p)
-	{
-		ewsl.push(p.second);
-	}
 
 	int __fun_call(Executor& ewsl,int)
 	{
@@ -74,17 +75,6 @@ public:
 
 	CallableDataIteratorPT(ObjectData* p,T it1_,T it2_):obj(p),it1(it1_),it2(it2_),idx(0){}
 
-	template<typename X>
-	static inline void push_value(Executor& ewsl,const X& x)
-	{
-		ewsl.push(x);
-	}
-
-	template<typename X,typename Y>
-	static inline void push_value(Executor& ewsl,const std::pair<X,Y>& p)
-	{
-		ewsl.push(p.second);
-	}
 
 	int __fun_call(Executor& ewsl,int)
 	{

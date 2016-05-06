@@ -3,8 +3,69 @@
 #include "ewa_base/scripting/parser_nodes.h"
 #include "ewa_base/scripting/executor.h"
 #include "ewa_base/util/strlib.h"
+#include "ewa_base/scripting/callable_iterator.h"
 
 EW_ENTER
+
+
+template<int M>
+class DLLIMPEXP_EWA_BASE CallableDataIteratorClassT : public CallableDataIterator1
+{
+public:
+
+	static const int N=M>0?M:-M;
+
+	DataPtrT<CallableClass> obj;
+	size_t it1;
+	size_t it2;
+	int ret;
+
+	CallableDataIteratorClassT(CallableClass* p):obj(p)
+	{
+		it1=0;
+		it2=obj->value.size();
+	}
+
+
+	int __fun_call(Executor& ewsl,int)
+	{
+		if(it1==it2)
+		{
+			ewsl.push(false);
+			if(N>1) ewsl.push();
+			ewsl.push();
+		}
+		else
+		{
+			ewsl.push(true);
+			if(M==-2) ewsl.push(it1);
+			if(M==+2) ewsl.push(obj->metax->table_self.get(it1).first);
+			ewsl.push(obj->value[it1]);
+			it1++;
+		}
+		return N+1;
+	}
+};
+
+void CallableClass::__get_iterator(Executor& ewsl,int nd)
+{
+	if(nd==1)
+	{
+		ewsl.ci1.nsp[0].kptr(new CallableDataIteratorClassT<1>(this));
+	}
+	else if(nd==2)
+	{
+		ewsl.ci1.nsp[0].kptr(new CallableDataIteratorClassT<2>(this));
+	}
+	else if(nd==-2)
+	{
+		ewsl.ci1.nsp[0].kptr(new CallableDataIteratorClassT<-2>(this));
+	}
+	else
+	{
+		CallableData::__get_iterator(ewsl,nd);
+	}
+}
 
 CallableMetatable::CallableMetatable(const String& name):table_meta(value),m_sClassName(name){}
 

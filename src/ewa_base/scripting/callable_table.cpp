@@ -102,6 +102,10 @@ void CallableTableOperators::__do_get_iterator(Executor& ewsl,VariantTable& tb,i
 	{
 		ewsl.ci1.nsp[0].kptr(new CallableDataIterator2T<VariantTable::const_iterator>(pd,tb.begin(),tb.end()));
 	}
+	else if(nd==-2)
+	{
+		ewsl.ci1.nsp[0].kptr(new CallableDataIteratorPT<VariantTable::const_iterator>(pd,tb.begin(),tb.end()));	
+	}
 	else
 	{
 		pd->CallableData::__get_iterator(ewsl,nd);

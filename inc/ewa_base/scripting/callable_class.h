@@ -130,6 +130,8 @@ public:
 
 	void Serialize(Serializer& ar);
 
+	virtual void __get_iterator(Executor&,int);
+
 	DECLARE_OBJECT_INFO(CallableClass,ObjectInfo);
 };
 

@@ -98,7 +98,7 @@ int idx_1t::update(const arr_xt<int64_t>& d,intptr_t n1,intptr_t n2)
 
 int idx_1t::update(const arr_xt<double>& d,intptr_t n1,intptr_t n2)
 {
-	return _update_array(IDX_INTPTR,d,n1,n2);
+	return _update_array(IDX_DBLPTR,d,n1,n2);
 }
 
 int idx_1t::update(const arr_xt<Variant>& d,intptr_t n1,intptr_t n2)

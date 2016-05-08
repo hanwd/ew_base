@@ -509,8 +509,14 @@ void Executor::_vm_run2(int k)
 			{
 				arr_xt<Variant>* q=ci1.nsp[0].ptr< arr_xt<Variant> >();
 				if(!q) kerror("invalid setindex_n");
-
-// TODO: clone?
+				ewsl.popq();
+				ewsl.popq((*q)[cip->p1]);
+			}
+			break;
+		case XOP_SET_INDEX_N_REF:
+			{
+				arr_xt<Variant>* q=ci1.nsp[0].ptr< arr_xt<Variant> >();
+				if(!q) kerror("invalid setindex_n");
 				(*q)[cip->p1]=ci1.nsp[-1];
 				ci1.nsp-=2;
 			}

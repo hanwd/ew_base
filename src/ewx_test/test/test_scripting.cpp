@@ -245,9 +245,7 @@ TEST_DEFINE(TEST_Scripting_Executor2)
 "		return this.x*this.y;"
 "	};"
 "};"
-"global a=Rect();"
-"a.x=10;"
-"a.y=20;"
+"global a=Rect();a.x=10;a.y=20;"
 "global s=a.area();"
 );
 	TEST_ASSERT(variant_cast<int>(ewsl.tb1["s"])==10*20);
@@ -269,7 +267,8 @@ TEST_DEFINE(TEST_Scripting_Executor2)
 
 //coroutine
 	ewsl.execute(
-"#import coroutine;\nfunction f(...){println('co',...);println('co',coroutine.yield(4,5,6));return 10;};"
+"#import coroutine;\n"
+"function f(...){println('co',...);println('co',coroutine.yield(4,5,6));return 10;};"
 "global co=coroutine.create(f);"
 "println('stat',coroutine.status(co));"
 "println('main',coroutine.resume(co,1,2,3));"

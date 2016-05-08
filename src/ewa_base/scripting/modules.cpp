@@ -560,6 +560,7 @@ void CG_GGVar::_init()
 	gi.add(NULL,"reduce");
 	gi.add(NULL,"select");
 	gi.add(NULL,"join");
+	gi.add(NULL,"array_concat");
 	gi.add(NULL, "#internal_end");
 
 	_bInited=true;
@@ -631,6 +632,14 @@ void CG_GGVar::_init()
 "		n=f(v,n,k++);	\n"
 "	}\n"
 "	return n;\n"
+"};\n"
+"def array_concat(fn,...)\n"
+"{\n"
+"	for_each(v in [...])\n"
+"	{\n"
+"		if(v.length()>0) fn[end+1:end+v.length()]=v[:];\n"
+"	}\n"
+"	return fn;\n"
 "};\n"
 "\n"
 		

@@ -172,21 +172,21 @@ bool ThreadImpl::put_thread(ThreadImpl* impl)
 {
 	ThreadManager& tmgr(ThreadManager::current());
 
-	if( !tmgr.m_nFlags.get(ThreadImpl::THREADMANAGER_DISABLED) )
-	{
-		impl->pNext=tmgr.m_pThreads_free;
-		impl->pPrev=NULL;
-		if(tmgr.m_pThreads_free)
-		{
-			tmgr.m_pThreads_free->pPrev=impl;
-		}
-		tmgr.m_pThreads_free=impl;
-		return true;
-	}
-	else
+	if( tmgr.m_nFlags.get(ThreadImpl::THREADMANAGER_DISABLED) )
 	{
 		return false;
 	}
+
+	impl->pNext=tmgr.m_pThreads_free;
+	impl->pPrev=NULL;
+	if(tmgr.m_pThreads_free)
+	{
+		tmgr.m_pThreads_free->pPrev=impl;
+	}
+	tmgr.m_pThreads_free=impl;
+
+	return true;
+
 }
 
 
@@ -289,7 +289,7 @@ void ThreadImpl::svc()
 		}
 
 
-		if(thrd_priority!=50) set_priority(50);
+		set_priority(50);
 		set_affinity(thrd_affinity);
 
 

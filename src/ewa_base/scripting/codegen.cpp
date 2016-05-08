@@ -92,7 +92,15 @@ CG_Variable* CG_Local::find_capture(const String& name_,int d)
 				{
 					if(q->index>0)
 					{
-						Exception::XError("capture function param???");
+						// 函数参数被capture，改名并在target中增加原名变量
+						// 在代码生成时将参数的值移动到target中
+						CG_Variable* q2=new CG_Variable(*q);
+						q2->index=-1;
+						q->name="@@"+q->name;
+
+						q2->next=q->next;
+						q->next=q2;
+						q=q2;
 					}
 
 					q->flags.add(CG_Variable::FLAG_INITIALIZED|CG_Variable::FLAG_TOUCHED|CG_Variable::FLAG_CAPTURED);
@@ -409,13 +417,33 @@ void CodeGen::stackframe_enter(TNode_val_function* node)
 	cg_local.enter2(node->tScope);
 
 	size_t n=node->capture_num();
+
 	if(n>0)
 	{
 		emit_push((int)n);
 		emit_getsys("#new_target");
 		emit_call(1,1);
 		emit_setvar("#target");
+
+		// 处理函数参数被capture，把参数移动到target中
+		CG_Variable* q=node->tScope.next;
+		while(q!=node->tScope.tail)
+		{
+			const String& name(q->name);
+			if(name.substr(0,2)=="@@")
+			{
+				emit(XOP_GET_LOCAL,q->index);
+				emit_getvar("#target");
+				q=q->next;
+				EW_ASSERT(q->target<0);
+				EW_ASSERT(q->index<(int)n);
+				EW_ASSERT(q->name==name.substr(2));
+				emit(XOP_SET_INDEX_N_REF,q->index);
+			}
+			q=q->next;
+		}
 	}
+
 }
 
 

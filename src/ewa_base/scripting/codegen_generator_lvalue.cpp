@@ -75,6 +75,12 @@ VisReturnType TNodeVisitorCG_GeneratorLValue::visit(TNode_expression_arr* node,V
 	return def_value();
 }
 
+VisReturnType TNodeVisitorCG_GeneratorLValue::visit(TNode_expression_call*,VisExtraParam)
+{
+	cgen.kerror("function call cannot be lvale");
+	return def_value();
+}
+
 VisReturnType TNodeVisitorCG_GeneratorLValue::visit(TNode_expression_list* node,VisExtraParam visp)
 {
 

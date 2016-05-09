@@ -92,6 +92,8 @@ public:
 	virtual VisReturnType visit(TNode_expression_dot*,VisExtraParam);
 	virtual VisReturnType visit(TNode_expression_arr*,VisExtraParam);
 	virtual VisReturnType visit(TNode_expression_list*,VisExtraParam);
+	virtual VisReturnType visit(TNode_expression_call*,VisExtraParam);
+
 	virtual VisReturnType visit(TNode_val_nil*,VisExtraParam);
 
 	virtual VisReturnType visit(TNode_expression_op2* node,VisExtraParam p);

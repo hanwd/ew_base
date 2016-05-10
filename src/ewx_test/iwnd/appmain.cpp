@@ -20,7 +20,6 @@ int ew_main()
 	using namespace ew;
 	mp_check_leak(1);
 
-	System::SetLogFile("ew.log");
 	System::LogTrace("----  process enter   -------");
 
 	WndManager& wm(WndManager::current());

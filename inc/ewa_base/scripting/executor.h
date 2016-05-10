@@ -133,6 +133,9 @@ public:
 	const CG_GGVar& tb0;
 	VariantTable& tb1;
 
+	String set_cwd(const String& s);
+	String get_cwd();
+
 	DataPtrT<CallableCoroutine> co_this;
 	DataPtrT<CallableCoroutine> co_main;
 	DataPtrT<CallableCoroutine> co_last;
@@ -140,7 +143,7 @@ public:
 protected:
 
 	VariantTable tb1_internal;
-	CG_VariableGlobal var_import;
+	//CG_VariableGlobal var_import;
 
 	void _vm_run1(int kep);
 	void _vm_run2(int kep);

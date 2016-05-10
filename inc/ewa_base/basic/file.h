@@ -8,15 +8,7 @@ EW_ENTER
 
 class DLLIMPEXP_EWA_BASE File
 {
-public:
-
-	enum
-	{
-		FILEPOS_BEG,
-		FILEPOS_CUR,
-		FILEPOS_END
-	};
-
+protected:
 	class impl_type : public KO_Handle<KO_Policy_handle>
 	{
 	public:
@@ -29,6 +21,16 @@ public:
 		}
 		bool m_bGood;
 	};
+public:
+
+	enum
+	{
+		FILEPOS_BEG,
+		FILEPOS_CUR,
+		FILEPOS_END
+	};
+
+
 
 	typedef int64_t pos_t;
 

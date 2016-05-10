@@ -411,10 +411,79 @@ public:
 	}
 
 	DECLARE_OBJECT_CACHED_INFO(CallableFunctionGetEnv, ObjectInfo);
+};
+IMPLEMENT_OBJECT_INFO(CallableFunctionGetEnv, ObjectInfo);
 
+
+class CallableFunctionGetCwd : public CallableFunction
+{
+public:
+
+	CallableFunctionGetCwd() :CallableFunction("os.getcwd",1){}
+
+	virtual int __fun_call(Executor& ewsl, int pm)
+	{
+		ewsl.check_pmc(this, pm, 0);
+		String p = variant_cast<String>(ewsl.ci0.nbx[1]);
+		ewsl.ci0.nbx[1].reset(ewsl.get_cwd());
+		return 1;
+	}
+
+	DECLARE_OBJECT_CACHED_INFO(CallableFunctionGetCwd, ObjectInfo);
 };
 
-IMPLEMENT_OBJECT_INFO(CallableFunctionGetEnv, ObjectInfo);
+IMPLEMENT_OBJECT_INFO(CallableFunctionGetCwd, ObjectInfo);
+
+class CallableFunctionSetCwd : public CallableFunction
+{
+public:
+
+	CallableFunctionSetCwd() :CallableFunction("os.setcwd",1){}
+
+	virtual int __fun_call(Executor& ewsl, int pm)
+	{
+		ewsl.check_pmc(this, pm, 1);
+		String& newcwd=ewsl.ci0.nbx[1].ref<String>();
+		newcwd=ewsl.set_cwd(newcwd);
+		return 1;
+	}
+
+	DECLARE_OBJECT_CACHED_INFO(CallableFunctionSetCwd, ObjectInfo);
+};
+
+IMPLEMENT_OBJECT_INFO(CallableFunctionSetCwd, ObjectInfo);
+
+
+class CallableFunctionDir : public CallableFunction
+{
+public:
+
+	CallableFunctionDir() :CallableFunction("os.dir",1){}
+
+	virtual int __fun_call(Executor& ewsl, int pm)
+	{
+		ewsl.check_pmc(this, pm, 0,1);
+		String dir;
+		if(pm==1) dir=ewsl.ci0.nbx[1].ref<String>();
+		
+		dir=System::MakePath(dir,ewsl.get_cwd());
+
+		arr_1t<FindItem> files=System::FindAllFiles(dir);
+		arr_xt<Variant> result;
+		result.resize(files.size());
+
+		for(size_t i=0;i<files.size();i++)
+		{
+			result[i].reset(files[i].filename);
+		}
+		ewsl.ci0.nbx[1].reset(result);
+		return 1;
+	}
+
+	DECLARE_OBJECT_CACHED_INFO(CallableFunctionDir, ObjectInfo);
+};
+
+IMPLEMENT_OBJECT_INFO(CallableFunctionDir, ObjectInfo);
 
 void init_module_os()
 {
@@ -424,6 +493,10 @@ void init_module_os()
 	gi.add_inner<CallableFunctionSleep>();
 	gi.add_inner<CallableFunctionShell>();
 	gi.add_inner<CallableFunctionGetEnv>();
+
+	gi.add_inner<CallableFunctionGetCwd>();
+	gi.add_inner<CallableFunctionSetCwd>();
+	gi.add_inner<CallableFunctionDir>();
 
 	gi.add_inner<CallableMetatableTimeSpan>();
 	gi.add_inner<CallableMetatableTimePoint>();

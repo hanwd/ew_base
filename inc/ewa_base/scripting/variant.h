@@ -170,6 +170,7 @@ public:
 
 	void Serialize(Serializer& ar);
 
+
 protected:
 
 	union variant_data_union

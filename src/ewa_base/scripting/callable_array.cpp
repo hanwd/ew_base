@@ -135,11 +135,11 @@ int idx_1t::update(Variant& d,intptr_t n1,intptr_t n2)
 {
 	int k=d.type();
 
-	if(k==2)
+	if(k==type_flag<int64_t>::value)
 	{
 		return update(variant_handler<int64_t>::raw(d),n1,n2);
 	}
-	else if(k==3)
+	else if(k==type_flag<double>::value)
 	{
 		return update(variant_handler<double>::raw(d),n1,n2);
 	}
@@ -147,7 +147,7 @@ int idx_1t::update(Variant& d,intptr_t n1,intptr_t n2)
 	{
 		return d.kptr()->__update_idx(*this,n1,n2);
 	}
-	else if (k == 1)
+	else if (k == type_flag<bool>::value)
 	{
 		int64_t v = variant_handler<bool>::raw(d);
 		return update(v,n1,n2);

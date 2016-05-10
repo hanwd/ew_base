@@ -641,26 +641,99 @@ FunctionTracer::~FunctionTracer()
 
 
 
-arr_1t<String> System::FindAllFiles(const String& folder, const String& pattern)
+char System::GetPathSep()
 {
-	arr_1t<String> files;
+#ifdef EW_WINDOWS
+	return '\\';
+#else
+	return '/';
+#endif
+}
+
+bool System::IsPathSep(char ch)
+{
+	return ch=='/'||ch=='\\';
+}
+
+String System::AdjustPath(const String& path,bool sep)
+{
+	char ch=GetPathSep();
+
+	size_t _n=path.size();
+	if(_n==0)
+	{
+		return "";
+	}
+	else if(IsPathSep(path.c_str()[_n-1]))
+	{
+		if(!sep)
+		{
+			return path.substr(0,_n-1);
+		}
+	}
+	else if(sep)
+	{
+		return path+String(&ch,1);
+	}
+
+	return path;
+}
+
+bool System::IsRelative(const String& file)
+{
+	if(IsPathSep(file.c_str()[0])) return false;
+	return file.find(":")<0;
+}
+
+String System::MakePath(const String& file,const String& path)
+{
+	if(IsRelative(file))
+	{
+		return AdjustPath(path,true)+file;
+	}
+	else
+	{
+		return file;
+	}
+}
+
+void PushFindItem(arr_1t<FindItem>& files,WIN32_FIND_DATAA& p)
+{
+	FindItem item;
+	item.filename=p.cFileName;
+	item.filesize=(uint64_t(p.nFileSizeHigh)<<32)|p.nFileSizeLow;
+	item.flags.set(FindItem::IS_FOLDER,(p.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY)!=0);
+	if(item.filename=="."||item.filename=="..") return;
+	files.push_back(item);
+}
 
 
+arr_1t<FindItem> System::FindAllFiles(const String& folder, const String& pattern)
+{
+	arr_1t<FindItem> files;
 
 #ifdef EW_WINDOWS
 
-	String folder_pattern = folder;
-	
-	folder_pattern+=pattern;
 
+	String folder_pattern;
+	if(pattern!="")
+	{
+		folder_pattern = AdjustPath(folder,true)+pattern;
+	}
+	else
+	{
+		folder_pattern = folder;
+	}
+
+	FILE_ATTRIBUTE_DIRECTORY;
 	WIN32_FIND_DATAA p;
 	HANDLE h = FindFirstFileA(folder_pattern.c_str(), &p);
 
 	if (h != INVALID_HANDLE_VALUE)
 	{
-		files.push_back(p.cFileName);
+		PushFindItem(files,p);
 		while (FindNextFileA(h, &p))
-			files.push_back(p.cFileName);
+			PushFindItem(files,p);
 	}
 #endif
 

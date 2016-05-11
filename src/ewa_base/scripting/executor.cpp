@@ -31,12 +31,37 @@ DataPtrT<CallableData> Executor::parse(const String& ss)
 	return NULL;
 }
 
+String Executor::set_cwd(const String& s)
+{
+	String value(ci1.nbp[StackState1::SBASE_CWD].ref<String>());
+	ci1.nbp[StackState1::SBASE_CWD].reset(s);
+	return value;
+}
+
+String Executor::get_cwd()
+{
+	String& value(ci1.nbp[StackState1::SBASE_CWD].ref<String>());
+	return value;
+}
+
+class CallableExecutorState : public CallableData
+{
+public:
+	CG_VariableGlobal var_import;
+};
 
 bool Executor::prepare(const String& ss, int t)
 {
 	CodeGen cgen;
 
-	cgen.cg_system.varmap = var_import.varmap;
+	CallableExecutorState* p=dynamic_cast<CallableExecutorState*>(ci1.nbp[StackState1::SBASE_STATE].kptr());
+	if(!p)
+	{
+		p=new CallableExecutorState;
+		ci1.nbp[StackState1::SBASE_STATE].kptr(p);
+	}
+
+	cgen.cg_system.varmap = p->var_import.varmap;
 
 	cgen.cg_global.add_globals(tb1);
 
@@ -51,7 +76,7 @@ bool Executor::prepare(const String& ss, int t)
 	{
 		CG_Variable* q = cgen.cg_system.next;
 		cgen.cg_system.next = q->next;
-		var_import.add(q);
+		p->var_import.add(q);
 	}
 
 

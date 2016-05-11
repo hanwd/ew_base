@@ -732,22 +732,18 @@ void CG_GGVar::import(const String& lib,bool reload)
 		String libfile="";
 	
 		arr_1t<String> libpaths=string_split(System::GetEnv("EWSL_LIBPATH","ewsl_lib"),";");
+		bool is_folder=false;
 
 		for(size_t i=0;i<libpaths.size();++i)
 		{
 			String path=libpaths[i];
 			if(path=="") continue;
 
-			char ch=path.c_str()[path.size()-1];
-			if(ch!='\\' && ch!='/')
-			{
-				path+="/";
-			}
-
-			arr_1t<String> files=System::FindAllFiles(path,lib+".*");
+			arr_1t<FindItem> files=System::FindAllFiles(path,lib+".*");
 			if(files.empty()) continue;
 
-			libfile=path+files[0];
+			is_folder=files[0].flags.get(FindItem::IS_FOLDER);
+			libfile=System::AdjustPath(path,true)+files[0].filename;
 			break;
 		}
 
@@ -756,25 +752,53 @@ void CG_GGVar::import(const String& lib,bool reload)
 			libfile="ewsl_lib/"+lib + ".ewsl";
 		}
 
-		if (cgen.prepare(libfile, Executor::INDIRECT_FILE))
+		if(!is_folder)
 		{
-			Executor lexer;
-			lexer.push(cgen.get());
-
-			if (lexer.callx(0, 0))
+	
+			if (cgen.prepare(libfile, Executor::INDIRECT_FILE))
 			{
+				Executor lexer;
+				lexer.push(cgen.get());
 
-				for (auto x = cgen.cg_exports.begin(); x != cgen.cg_exports.end(); ++x)
+				if (lexer.callx(0, 0))
 				{
-					pmodule->value[*x] = tb0[lib + "." + (*x)];
-				}
-				
-				tb0[lib].kptr(pmodule);
-				loading.erase(lib);
-				return;
-			}
-		}
 
+					for (auto x = cgen.cg_exports.begin(); x != cgen.cg_exports.end(); ++x)
+					{
+						pmodule->value[*x] = tb0[lib + "." + (*x)];
+					}
+				
+					tb0[lib].kptr(pmodule);
+					loading.erase(lib);
+					return;
+				}
+			}	
+		
+		}
+		else
+		{
+			String modulepath=System::AdjustPath(libfile,true);
+
+			if (cgen.prepare(modulepath+"main.ewsl", Executor::INDIRECT_FILE))
+			{
+				Executor lexer;
+				lexer.push(cgen.get());
+
+				if (lexer.callx(0, 0))
+				{
+
+					for (auto x = cgen.cg_exports.begin(); x != cgen.cg_exports.end(); ++x)
+					{
+						pmodule->value[*x] = tb0[lib + "." + (*x)];
+					}
+				
+					tb0[lib].kptr(pmodule);
+					loading.erase(lib);
+					return;
+				}
+			}	
+		
+		}
 
 	}
 	catch (...)

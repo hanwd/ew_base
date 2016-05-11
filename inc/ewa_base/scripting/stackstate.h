@@ -39,6 +39,8 @@ public:
 		SBASE_TEMP,
 		SBASE_THIS,
 		SBASE_META,
+		SBASE_CWD,
+		SBASE_STATE,
 		SBASE_KEEP=16,
 	};
 

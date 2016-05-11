@@ -6,12 +6,26 @@
 #include "ewa_base/basic/string.h"
 #include "ewa_base/basic/stringbuffer.h"
 #include "ewa_base/basic/platform.h"
+#include "ewa_base/basic/bitflags.h"
+
 
 #define EW_FUNCTION_TRACER(lv) FunctionTracer __function_tracer(__FUNCTION__,lv);
 
 EW_ENTER
 
+class DLLIMPEXP_EWA_BASE FindItem
+{
+public:
+	enum
+	{
+		IS_FOLDER=1<<0,
+	};
 
+	String filename;
+	uint64_t filesize;
+	BitFlags flags;
+
+};
 class DLLIMPEXP_EWA_BASE System
 {
 public:
@@ -47,7 +61,13 @@ public:
 
 	static String GetEnv(const String& name,const String& value_if_not_found="");
 
-	static arr_1t<String> FindAllFiles(const String& folder, const String& pattern = "*.*");
+	static arr_1t<FindItem> FindAllFiles(const String& folder, const String& pattern = "*.*");
+
+	static bool IsPathSep(char ch);
+	static char GetPathSep();
+	static String AdjustPath(const String& path,bool sep);
+	static String MakePath(const String& file,const String& path);
+	static bool IsRelative(const String& file);
 
 
 #define STRING_FORMAT_LEVEL(X,Y) DoLog(Y,X)

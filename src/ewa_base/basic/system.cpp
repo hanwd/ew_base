@@ -457,8 +457,7 @@ public:
 
 	SystemLoggerData()
 	{
-		bEnabled=true;
-		SetLogFile("ew.log",true);
+		bEnabled=true;		
 	}
 
 	~SystemLoggerData()
@@ -497,7 +496,7 @@ public:
 		{
 			LockGuard<AtomicSpin> lock1(spin);
 			fprintf(fp_logfile,"%s %s:%s\n",buf1,GetMsgLevel(lv),buf2);
-			fflush(fp_logfile);
+			//fflush(fp_logfile);
 		}
 		else
 		{

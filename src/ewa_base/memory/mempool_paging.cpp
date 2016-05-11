@@ -832,7 +832,6 @@ void mp_init()
 {
 	if(!g_myalloc_impl)
 	{
-		if(g_myalloc_impl) return;
 
 #if defined(EW_WINDOWS) && defined(_DEBUG)
 		_CrtSetDbgFlag(_CrtSetDbgFlag(_CRTDBG_REPORT_FLAG)|_CRTDBG_LEAK_CHECK_DF);
@@ -849,7 +848,7 @@ void mp_init()
 		::atexit(mp_cleanup);
 		::atexit(tc_cleanup);
 
-		System::LogTrace("mp_init");
+		//System::LogTrace("mp_init");
 	}
 }
 

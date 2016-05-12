@@ -20,12 +20,12 @@ public:
 	{
 		IS_FOLDER=1<<0,
 	};
-
 	String filename;
 	uint64_t filesize;
 	BitFlags flags;
-
 };
+
+
 class DLLIMPEXP_EWA_BASE System
 {
 public:
@@ -33,7 +33,7 @@ public:
 	static bool Execute(const String& s);
 	static bool Execute(const String& s,StringBuffer<char>& result);
 
-	static Stream ExecuteRedirect(const String& s);
+	static Stream ExecuteRedirect(const String& s,bool* status=NULL);
 
 	static const String& GetModulePath();
 

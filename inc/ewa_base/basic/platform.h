@@ -24,6 +24,7 @@ public:
 		return NULL;
 	}
 	static void destroy(type& o);
+	static type duplicate(type v);
 };
 #else
 class KO_Policy_handle
@@ -36,6 +37,7 @@ public:
 		return -1;
 	}
 	static void destroy(type& o);
+	static type duplicate(type v);
 };
 #endif
 
@@ -64,6 +66,10 @@ public:
 	typedef typename P::const_reference const_reference;
 
 	KO_Handle(){}
+	KO_Handle(const_reference v)
+	{
+		reset(v);
+	}
 
 	KO_Handle(const KO_Handle& o) :basetype(o)
 	{

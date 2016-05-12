@@ -235,7 +235,7 @@ String& String::operator+=(const wchar_t* p)
 bool String::ToNumber(int64_t* val) const
 {
 	if(!val) return false;
-	int n=sscanf(m_ptr, "%ld", val);
+	int n=sscanf(m_ptr, "%lld", val);
 	return n>0;
 }
 

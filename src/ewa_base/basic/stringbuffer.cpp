@@ -261,7 +261,7 @@ bool StringBuffer<T>::load(const String& file,int type)
 	if(bom[0]==0xEF && bom[1]==0xBB && bom[2]==0xBF) // UTF8
 	{
 		size_type df=3;
-		ifs.Seek(df,SEEKPOS_BEG);
+		ifs.Seek(df,SEEKTYPE_BEG);
 		size_type nz=sz-df;
 		StringBuffer<char> kb;
 		kb.resize(nz);
@@ -295,7 +295,7 @@ bool StringBuffer<T>::load(const String& file,int type)
 		}
 
 		size_type df=2;
-		ifs.Seek(df,SEEKPOS_BEG);
+		ifs.Seek(df,SEEKTYPE_BEG);
 		size_type nz=sz-df;
 		StringBuffer<unsigned short> kb;
 		kb.resize(nz>>1);
@@ -337,7 +337,7 @@ bool StringBuffer<T>::load(const String& file,int type)
 		}
 
 		size_type df=4;
-		ifs.Seek(df,SEEKPOS_BEG);
+		ifs.Seek(df,SEEKTYPE_BEG);
 		size_type nz=sz-df;
 		StringBuffer<unsigned int> kb;
 		kb.resize(nz>>2);
@@ -369,7 +369,7 @@ bool StringBuffer<T>::load(const String& file,int type)
 	else
 	{
 		size_type df=0;
-		ifs.Seek(df,SEEKPOS_BEG);
+		ifs.Seek(df,SEEKTYPE_BEG);
 		size_type nz=sz-df;
 		sb.resize(nz);
 		ifs.Read((char*)sb.data(),nz);

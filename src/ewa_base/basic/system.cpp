@@ -282,7 +282,7 @@ public:
 		DWORD nRead(0);
 		if(::ReadFile(hReader,buf,len,&nRead,NULL)==FALSE)
 		{
-			flags.add(FLAG_FAILBIT);
+			flags.add(FLAG_READ_FAIL_BIT);
 			System::CheckError("File::Read Error");
 			return -1;
 		}
@@ -294,7 +294,7 @@ public:
 		DWORD nWrite(0);
 		if(::WriteFile(hWriter,buf,len,&nWrite,NULL)==FALSE)
 		{
-			flags.add(FLAG_FAILBIT);
+			flags.add(FLAG_WRITE_FAIL_BIT);
 			System::CheckError("File::Write Error");
 			return -1;
 		}
@@ -373,92 +373,38 @@ public:
 	}
 };
 
-Stream System::ExecuteRedirect(const String& s)
+Stream System::ExecuteRedirect(const String& s,bool* status)
 {
 
 	System::LogTrace("System::Exectue:%s", s);
-	DataPtrT<StreamDataProcess> stream=new StreamDataProcess;
+
+	StreamDataProcess* stream=new StreamDataProcess;
+	Stream::impl_type stream_impl(stream);
+
 	if(stream->Execute(s))
 	{
-		return Stream(stream.get());
+		if(status) *status=true;
+		return stream_impl;
 	}
 	else
 	{
+		if(status) *status=false;
 		return Stream();
 	}
 }
 
 bool System::Execute(const String& s, StringBuffer<char>& result)
 {
-
-	result.clear();
-	System::LogTrace("System::Exectue:%s", s);
-	STARTUPINFOA si= {sizeof(STARTUPINFO)};
-	PROCESS_INFORMATION pi;
-	StringBuffer<char> sb(s);
-	sb.push_back(0);
-
-	HANDLE hReader, hWriter;
-	SECURITY_ATTRIBUTES sa = { sizeof(SECURITY_ATTRIBUTES), NULL, FALSE };
-
-	if (!::CreatePipe(&hReader, &hWriter, &sa, 0))
+	bool flag(false);
+	Stream stream=ExecuteRedirect(s,&flag);
+	if(!flag) return false;
+	char buf[1024*4];
+	while(1)
 	{
-		System::CheckError("");
-		return false;
+		int rc=stream.Read(buf,sizeof(buf));
+		if(rc<=0) break;
+		result.append(buf,rc);
 	}
-
-	HANDLE hProcess=GetCurrentProcess();
-	::DuplicateHandle(hProcess,hWriter,hProcess,&hWriter,0,TRUE,DUPLICATE_SAME_ACCESS|DUPLICATE_CLOSE_SOURCE);
-
-	if(hWriter==NULL)
-	{
-		::CloseHandle(hReader);
-		return false;
-	}
-
-	si.hStdOutput = hWriter;
-	si.hStdError = hWriter;
-
-	si.dwFlags = STARTF_USESTDHANDLES;
-
-	if(!::CreateProcessA(NULL,sb.data(),NULL,NULL,TRUE,0,NULL,NULL,&si,&pi))
-	{
-		System::LogTrace("System::Exectue:%s FAILED",s);
-		::CloseHandle(hWriter);
-		::CloseHandle(hReader);
-		return false;
-	}
-
-	::CloseHandle(hWriter);
-
-	try
-	{
-		char buff[4096];
-		DWORD dwLen;
-		while (1)
-		{
-			if (ReadFile((HANDLE)hReader, buff, 4096, &dwLen, NULL) != FALSE)
-			{
-				result.append(buff, dwLen);
-			}
-			else
-			{
-				break;
-			}
-		}
-		//arr_1t<String> out = string_lines(result);
-		//out.size();
-	}
-	catch (...)
-	{
-
-	}
-
-
-	::CloseHandle(hReader);
-	::CloseHandle(pi.hProcess);
-	::CloseHandle(pi.hThread);
-
 	return true;
 
 }

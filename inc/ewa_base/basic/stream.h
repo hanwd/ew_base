@@ -4,24 +4,26 @@
 #include "ewa_base/config.h"
 #include "ewa_base/basic/object.h"
 #include "ewa_base/basic/platform.h"
-
+#include "ewa_base/basic/bitflags.h"
 
 EW_ENTER
 
 enum
 {
-	SEEKPOS_BEG,
-	SEEKPOS_CUR,
-	SEEKPOS_END
+	SEEKTYPE_BEG,
+	SEEKTYPE_CUR,
+	SEEKTYPE_END
 };
 
-class DLLIMPEXP_EWA_BASE StreamData : public ObjectData
+class DLLIMPEXP_EWA_BASE StreamData : public Object
 {
 public:
 
 	enum
 	{
-		FLAG_FAILBIT=1<<0,
+		FLAG_READ_FAIL_BIT=1<<0,
+		FLAG_WRITE_FAIL_BIT=1<<1,
+		FLAG_FAIL_BITS=FLAG_READ_FAIL_BIT|FLAG_WRITE_FAIL_BIT,
 	};
 
 	virtual int32_t Read(char* buf,size_t len);
@@ -40,11 +42,23 @@ public:
 
 };
 
+class DLLIMPEXP_EWA_BASE KO_Policy_stream
+{
+public:
+	typedef StreamData* type;
+	typedef type const_reference;
+	static type invalid_value(){return NULL;}
+	static void destroy(type& o){delete o;o=NULL;}
+
+};
+
 class DLLIMPEXP_EWA_BASE Stream : public Object
 {
 public:
+	typedef KO_Handle<KO_Policy_stream> impl_type;
+
 	Stream();
-	Stream(StreamData* streamdata);
+	Stream(impl_type impl_);
 
 	virtual int32_t Read(char* buf,size_t len);
 	virtual int32_t Write(const char* buf,size_t len);
@@ -66,7 +80,7 @@ public:
 	bool Open(const String& filename_,int op=FileAccess::FLAG_RD);
 
 protected:
-	DataPtrT<StreamData> m_refData;
+	impl_type impl;
 };
 
 
@@ -74,8 +88,12 @@ protected:
 class DLLIMPEXP_EWA_BASE StreamDataHandle : public StreamData
 {
 public:
+
 	StreamDataHandle();
-	StreamDataHandle(KO_Handle<KO_Policy_handle> impl);
+	StreamDataHandle(KO_Policy_handle::type v);
+	~StreamDataHandle();
+	StreamDataHandle(const StreamDataHandle&);
+	StreamDataHandle& operator=(const StreamDataHandle&);
 
 	virtual int32_t Read(char* buf,size_t len);
 	virtual int32_t Write(const char* buf,size_t len);
@@ -83,12 +101,12 @@ public:
 	void Close();
 	void Flush();
 
-	void native_handle(KO_Handle<KO_Policy_handle>::const_reference v);
-
-	KO_Handle<KO_Policy_handle>::type native_handle();
+	void native_handle(KO_Policy_handle::type v);
+	KO_Policy_handle::type native_handle();
 
 protected:
-	KO_Handle<KO_Policy_handle> m_pHandle;
+	KO_Policy_handle::type m_pHandle;
+
 };
 
 

@@ -85,12 +85,12 @@ void ThreadPool::putq(ITask* q)
 	}
 }
 
-void ThreadPool::reqexit()
+void ThreadPool::cancel()
 {
 	LockGuard<Mutex> lock1(m_tMutex);
 	m_tTaskQueue.clear();
 
-	basetype::reqexit();
+	basetype::cancel();
 	m_tCond.notify_all();
 }
 
@@ -118,7 +118,7 @@ ThreadPool::TaskItem* ThreadPool::getq()
 	LockGuard<Mutex> lock1(m_tMutex);
 	for(;;)
 	{
-		if(test_destroy())
+		if(test_canceled())
 		{
 			m_nWorkerNum--;
 			return NULL;

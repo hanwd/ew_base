@@ -44,6 +44,8 @@ ec.gp_new("View");
 	ec.gp_add("Languages");
 	ec.gp_add("");
 	ec.gp_add("Option");
+	ec.gp_add("");
+	ec.gp_add("FullScreen");
 ec.gp_end();
 
 ec.gp_new("Help");
@@ -98,5 +100,5 @@ ec.set_accel("Redo","Ctrl+Y");
 ec.set_accel("Find","Ctrl+F");
 ec.set_accel("Replace","Ctrl+H");
 
-
+ec.set_accel("FullScreen","Ctrl+F11");
 

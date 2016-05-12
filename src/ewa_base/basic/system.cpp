@@ -268,21 +268,138 @@ const String& System::GetModulePath()
 }
 
 #ifdef EW_WINDOWS
+
+class StreamDataProcess : public StreamData
+{
+public:
+	HANDLE hReader, hWriter;
+	PROCESS_INFORMATION pi;
+
+
+
+	int32_t Read(char* buf,size_t len)
+	{
+		DWORD nRead(0);
+		if(::ReadFile(hReader,buf,len,&nRead,NULL)==FALSE)
+		{
+			flags.add(FLAG_FAILBIT);
+			System::CheckError("File::Read Error");
+			return -1;
+		}
+		return nRead;
+	}
+
+	int32_t Write(const char* buf,size_t len)
+	{
+		DWORD nWrite(0);
+		if(::WriteFile(hWriter,buf,len,&nWrite,NULL)==FALSE)
+		{
+			flags.add(FLAG_FAILBIT);
+			System::CheckError("File::Write Error");
+			return -1;
+		}
+		return nWrite;
+	}
+	StreamDataProcess()
+	{
+		hReader=hWriter=NULL;
+		ZeroMemory(&pi,sizeof(pi));
+	}
+
+	bool Execute(const String& s)
+	{
+
+		STARTUPINFOA si= {sizeof(STARTUPINFO)};
+
+		StringBuffer<char> sb(s);
+		sb.push_back(0);
+
+		HANDLE hReader0, hWriter0;
+		SECURITY_ATTRIBUTES sa = { sizeof(SECURITY_ATTRIBUTES), NULL, FALSE };
+
+		if (!::CreatePipe(&hReader0, &hWriter, &sa, 0))
+		{
+			System::CheckError("");
+			return false;
+		}
+
+		if (!::CreatePipe(&hReader, &hWriter0, &sa, 0))
+		{
+			::CloseHandle(hReader0);
+			System::CheckError("");
+			return false;
+		}
+
+
+		HANDLE hProcess=GetCurrentProcess();
+		::DuplicateHandle(hProcess,hWriter0,hProcess,&hWriter0,0,TRUE,DUPLICATE_SAME_ACCESS|DUPLICATE_CLOSE_SOURCE);
+		::DuplicateHandle(hProcess,hReader0,hProcess,&hReader0,0,TRUE,DUPLICATE_SAME_ACCESS|DUPLICATE_CLOSE_SOURCE);
+
+
+		if(hWriter==NULL)
+		{
+			::CloseHandle(hReader0);
+			::CloseHandle(hWriter0);
+			return false;
+		}
+
+		si.hStdOutput = hWriter0;
+		si.hStdError = hWriter0;
+		si.hStdInput = hReader0;
+
+		si.dwFlags = STARTF_USESTDHANDLES;
+
+		if(!::CreateProcessA(NULL,sb.data(),NULL,NULL,TRUE,0,NULL,NULL,&si,&pi))
+		{
+			System::LogTrace("System::Exectue:%s FAILED",s);
+			::CloseHandle(hWriter0);
+			::CloseHandle(hReader0);
+			return false;
+		}		
+
+		::CloseHandle(hReader0);
+		::CloseHandle(hWriter0);
+
+		return true;
+
+	}
+
+	~StreamDataProcess()
+	{
+		::CloseHandle(pi.hProcess);
+		::CloseHandle(pi.hThread);
+		::CloseHandle(hReader);
+		::CloseHandle(hWriter);
+	}
+};
+
+Stream System::ExecuteRedirect(const String& s)
+{
+
+	System::LogTrace("System::Exectue:%s", s);
+	DataPtrT<StreamDataProcess> stream=new StreamDataProcess;
+	if(stream->Execute(s))
+	{
+		return Stream(stream.get());
+	}
+	else
+	{
+		return Stream();
+	}
+}
+
 bool System::Execute(const String& s, StringBuffer<char>& result)
 {
 
 	result.clear();
-
 	System::LogTrace("System::Exectue:%s", s);
-
-
 	STARTUPINFOA si= {sizeof(STARTUPINFO)};
 	PROCESS_INFORMATION pi;
 	StringBuffer<char> sb(s);
 	sb.push_back(0);
 
 	HANDLE hReader, hWriter;
-	SECURITY_ATTRIBUTES sa = { sizeof(SECURITY_ATTRIBUTES), NULL, TRUE };
+	SECURITY_ATTRIBUTES sa = { sizeof(SECURITY_ATTRIBUTES), NULL, FALSE };
 
 	if (!::CreatePipe(&hReader, &hWriter, &sa, 0))
 	{
@@ -290,6 +407,14 @@ bool System::Execute(const String& s, StringBuffer<char>& result)
 		return false;
 	}
 
+	HANDLE hProcess=GetCurrentProcess();
+	::DuplicateHandle(hProcess,hWriter,hProcess,&hWriter,0,TRUE,DUPLICATE_SAME_ACCESS|DUPLICATE_CLOSE_SOURCE);
+
+	if(hWriter==NULL)
+	{
+		::CloseHandle(hReader);
+		return false;
+	}
 
 	si.hStdOutput = hWriter;
 	si.hStdError = hWriter;
@@ -321,8 +446,8 @@ bool System::Execute(const String& s, StringBuffer<char>& result)
 				break;
 			}
 		}
-		arr_1t<String> out = string_lines(result);
-		out.size();
+		//arr_1t<String> out = string_lines(result);
+		//out.size();
 	}
 	catch (...)
 	{

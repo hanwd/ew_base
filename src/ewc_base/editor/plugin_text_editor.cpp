@@ -432,6 +432,8 @@ PluginTextEditor::PluginTextEditor(WndManager& w):basetype(w,"Plugin.TextEditor"
 	m_aExtension.insert(".cpp");
 	m_aExtension.insert(".hpp");
 	m_aExtension.insert(".sql");
+	m_aExtension.insert(".ewsl");
+
 }
 
 IMPLEMENT_IPLUGIN(PluginTextEditor)

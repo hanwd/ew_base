@@ -70,7 +70,7 @@ public:
 
 	void svc();
 
-	void reqexit();
+	void cancel();
 
 	void clear();
 

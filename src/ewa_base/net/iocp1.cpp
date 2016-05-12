@@ -226,7 +226,7 @@ void IOCPPool::ccc_execute_cmd()
 
 void IOCPPool::svc_checker()
 {
-	while(!test_destroy())
+	while(!test_canceled())
 	{
 		ccc_update_info();
 		ccc_handle_sock();
@@ -239,11 +239,11 @@ void IOCPPool::svc_checker()
 
 IOCPPool::~IOCPPool()
 {
-	reqexit();
+	cancel();
 	wait();
 }
 
-void IOCPPool::reqexit()
+void IOCPPool::cancel()
 {
 	DisconnectAll();
 
@@ -274,7 +274,7 @@ void IOCPPool::DisconnectAll()
 void IOCPPool::wait_for_all_session_exit()
 {
 	m_nCanClose.wait();
-	reqexit();
+	cancel();
 	wait();
 }
 
@@ -434,7 +434,7 @@ void IOCPPool::svc_worker()
 	MyOverLapped* pdat;
 	BOOL bRet;
 
-	while(!test_destroy())
+	while(!test_canceled())
 	{
 
 		bRet = GetQueuedCompletionStatus(hIOCPhandler, &BytesTransferred, (PULONG_PTR)&pkey, (LPOVERLAPPED*)&pdat,100);
@@ -684,7 +684,7 @@ void IOCPPool::svc_worker()
 	struct epoll_event evts[20];
 	if(!hIOCPhandler.ok()) return;
 
-	while (!test_destroy())
+	while (!test_canceled())
 	{
 		int nfds=epoll_wait(hIOCPhandler,evts,1,1000);
 

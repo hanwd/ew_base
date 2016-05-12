@@ -16,6 +16,14 @@
 EW_ENTER
 
 
+class StreamDataFile : public StreamDataHandle
+{
+public:
+
+	virtual int64_t Size();
+	virtual int64_t Seek(int64_t pos,int t);
+};
+
 #ifdef EW_WINDOWS
 
 String fn_encode(const String& oldname_)
@@ -23,11 +31,12 @@ String fn_encode(const String& oldname_)
 	return oldname_;
 }
 
-
-bool File::Open(const String& filename_,int flag_)
+bool Stream::Open(const String& filename_,int flag_)
 {
 	String fn=fn_encode(filename_);
-	Close();
+
+	StreamDataFile* streamfile=new StreamDataFile;
+	m_refData.reset(streamfile);
 
 	HANDLE hFile=(HANDLE)CreateFileA(
 					 fn.c_str(),
@@ -43,69 +52,31 @@ bool File::Open(const String& filename_,int flag_)
 	if (hFile == INVALID_HANDLE_VALUE)
 	{
 		System::CheckError("File::Open error");
-
-		impl.m_bGood=false;
 		return false;
 	}
 
-	impl.m_bGood=true;
-
-	impl.reset(hFile);
-
 	if(flag_&FileAccess::FLAG_APPEND)
 	{
-		Seek(0,FILEPOS_END);
+		streamfile->Seek(0,SEEKPOS_END);
 	}
+
+	streamfile->native_handle(hFile);
 
 	return true;
 }
 
-int64_t File::Size()
+int64_t StreamDataFile::Size()
 {
 	FileAccess::LargeInteger tmp;
-	tmp.d[0]=::GetFileSize(impl,&tmp.d[1]);
+	tmp.d[0]=::GetFileSize(m_pHandle,&tmp.d[1]);
 	return tmp.dval;
 }
 
-int32_t File::Read(char* buf,size_t len)
-{
-	DWORD nRead(0);
-	if(::ReadFile(impl,buf,len,&nRead,NULL)==FALSE)
-	{
-		impl.m_bGood=false;
-		System::CheckError("File::Read Error");
-		return -1;
-	}
-	return nRead;
-}
-
-int32_t File::Write(const char* buf,size_t len)
-{
-	DWORD nWrite(0);
-	if(::WriteFile(impl,buf,len,&nWrite,NULL)==FALSE)
-	{
-		impl.m_bGood=false;
-		System::CheckError("File::Write Error");
-		return -1;
-	}
-	return nWrite;
-}
-
-bool File::Eof()
-{
-	return Size()==Tell();
-}
-
-int64_t File::Tell()
-{
-	return Seek(0,FILEPOS_CUR);
-}
-
-int64_t File::Seek(int64_t pos,int t)
+int64_t StreamDataFile::Seek(int64_t pos,int t)
 {
 	LARGE_INTEGER li;
 	li.QuadPart=pos;
-	li.LowPart = SetFilePointer (impl,
+	li.LowPart = SetFilePointer (m_pHandle,
 								 li.LowPart,
 								 &li.HighPart,
 								 t);
@@ -120,23 +91,13 @@ int64_t File::Seek(int64_t pos,int t)
 }
 
 
-void File::Rewind()
-{
-	Seek(0,FILEPOS_BEG);
-}
-
-void File::Flush()
-{
-	if(!::FlushFileBuffers(impl))
-	{
-		System::CheckError("File::Flush Error");
-	}
-}
-
 void File::Truncate(size_t size_)
 {
-	Seek(size_,FILEPOS_BEG);
-	if(!SetEndOfFile(impl))
+	StreamDataFile* streamfile=dynamic_cast<StreamDataFile*>(m_refData.get());
+	if(!streamfile) return;
+
+	streamfile->Seek(size_,SEEKPOS_BEG);
+	if(!SetEndOfFile(streamfile->native_handle()))
 	{
 		System::CheckError("File::Truncate Error");
 	}
@@ -169,9 +130,12 @@ static int shm_fileflag(int flag_)
 	return acc;
 }
 
-bool File::Open(const String& filename_,int flag_)
+bool Stream::Open(const String& filename_,int flag_)
 {
 	String filename=fn_encode(filename_);
+
+	StreamDataFile* streamfile=new StreamDataFile;
+	m_refData.reset(streamfile);
 
 	int fd=::open(filename.c_str(),shm_fileflag(flag_),0777);
 	if(fd<0)
@@ -179,33 +143,27 @@ bool File::Open(const String& filename_,int flag_)
 		if((flag_&FileAccess::FLAG_CR)==0)
 		{
 			System::CheckError("File::Open Error");
-			impl.m_bGood=false;
 			return false;
 		}
 		fd=::open(filename.c_str(),shm_fileflag(flag_)|O_CREAT,0777);
 		if(fd<0)
 		{
 			System::CheckError("File::Open Error");
-			impl.m_bGood=false;
 			return false;
 		}
 	}
-
-	impl.m_bGood=true;
-	impl.reset(fd);
-
 	if(flag_&FileAccess::FLAG_APPEND)
 	{
-		Seek(0,FILEPOS_END);
+		streamfile->Seek(0,FILEPOS_END);
 	}
-
+	streamfile->native_handle(fd);
 	return true;
 }
 
-int64_t File::Size()
+int64_t StreamDataFile::Size()
 {
 	struct stat statbuf;
-	if(fstat(impl,&statbuf)<0)
+	if(fstat(m_pHandle,&statbuf)<0)
 	{
 		System::CheckError("File::Size Error");
 		return -1;
@@ -216,58 +174,21 @@ int64_t File::Size()
 
 
 
-int32_t File::Read(char* buf,size_t len)
-{
-	int nLen= ::read(impl,buf,len);
-	if(nLen<0)
-	{
-		System::CheckError("File::Read Error");
-		impl.m_bGood=false;
-	}
-	return nLen;
-}
 
-int32_t File::Write(const char* buf,size_t len)
+int64_t StreamDataFile::Seek(int64_t pos,int t)
 {
-	int nLen=::write(impl,buf,len);
-	if(nLen<0)
-	{
-		System::CheckError("File::Write Error");
-		impl.m_bGood=false;
-	}
-	return nLen;
-}
-
-bool File::Eof()
-{
-	return Size()==Tell();
-}
-
-int64_t File::Tell()
-{
-	return Seek(0,FILEPOS_CUR);
-}
-
-int64_t File::Seek(int64_t pos,int t)
-{
-	return lseek(impl,pos,t);
+	return lseek(m_pHandle,pos,t);
 }
 
 
-void File::Rewind()
-{
-	Seek(0,FILEPOS_BEG);
-}
-
-void File::Flush()
-{
-	::fsync(impl);
-}
 
 void File::Truncate(size_t size_)
 {
-	Seek(size_,FILEPOS_BEG);
-	ftruncate(impl,size_);
+	StreamDataFile* streamfile=dynamic_cast<StreamDataFile*>(m_refData.get());
+	if(!streamfile) return;
+
+	streamfile->Seek(size_,FILEPOS_BEG);
+	ftruncate(streamfile->native_handle(),size_);
 }
 
 #endif
@@ -279,15 +200,6 @@ File::File(const String& filename_,int op)
 	Open(filename_,op);
 }
 
-File::~File()
-{
-	Close();
-}
-
-void File::Close()
-{
-	impl.close();
-}
 
 bool File::Rename(const String& oldname_,const String& newname_)
 {

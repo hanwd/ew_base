@@ -7,7 +7,7 @@
 #include "ewa_base/basic/stringbuffer.h"
 #include "ewa_base/basic/platform.h"
 #include "ewa_base/basic/bitflags.h"
-
+#include "ewa_base/basic/stream.h"
 
 #define EW_FUNCTION_TRACER(lv) FunctionTracer __function_tracer(__FUNCTION__,lv);
 
@@ -32,6 +32,8 @@ public:
 
 	static bool Execute(const String& s);
 	static bool Execute(const String& s,StringBuffer<char>& result);
+
+	static Stream ExecuteRedirect(const String& s);
 
 	static const String& GetModulePath();
 

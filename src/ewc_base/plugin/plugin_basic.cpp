@@ -10,6 +10,7 @@
 #include "ewc_base/wnd/wnd_updator.h"
 #include "ewc_base/mvc/mvc_view.h"
 #include <wx/aui/aui.h>
+#include <wx/frame.h>
 
 EW_ENTER
 
@@ -281,6 +282,43 @@ public:
 	EvtCommandStartFrame():EvtCommand("StartFrame"){}
 	bool DoCmdExecute(ICmdParam&)
 	{
+		return true;
+	}
+};
+
+
+class EvtCommandFullScreen : public EvtCommand
+{
+public:
+	EvtCommandFullScreen():EvtCommand("FullScreen")
+	{
+		flags.add(FLAG_CHECK);
+	}
+
+	wxTopLevelWindow* GetTopLevelWindow()
+	{
+		wxApp* app=dynamic_cast<wxApp*>(wxApp::GetInstance());
+		if(!app) return NULL;
+		wxTopLevelWindow* top=dynamic_cast<wxTopLevelWindow*>(app->GetTopWindow());
+		if(!top) return NULL;
+		return top;
+	}
+
+	void DoUpdateCtrl(IUpdParam& upd)
+	{
+		wxTopLevelWindow* top=GetTopLevelWindow();
+		flags.set(FLAG_CHECKED,top && top->IsFullScreen());
+		EvtCommand::DoUpdateCtrl(upd);
+	}
+
+	bool DoCmdExecute(ICmdParam&)
+	{
+		WndManager& wm(WndManager::current());
+		wxTopLevelWindow* top=GetTopLevelWindow();
+		if(!top) return false;
+		bool flag=!top->IsFullScreen();
+		top->ShowFullScreen(flag);
+		wm.wup.gp_add("FullScreen");
 		return true;
 	}
 };
@@ -850,7 +888,7 @@ bool PluginBasic::OnAttach()
 	ec.append(new EvtCommandStartFrame());
 	ec.append(new EvtCommandCloseFrame());
 	ec.append(new EvtViewLayout(wm));
-	//ec.append(new EvtCommand("FullScreen"));
+	ec.append(new EvtCommandFullScreen);
 	ec.append(new EvtCommand("Website"));
 	ec.append(new EvtCommand("Document"));
 	ec.append(new EvtCommand("About"));
@@ -993,6 +1031,7 @@ bool PluginBasic::OnAttach()
 		ec.gp_add("Delete");
 		ec.gp_add("");
 		ec.gp_add("SelectAll");
+
 	ec.gp_end();
 
 	EvtManager::current()["StartFrame"].AttachListener(this);

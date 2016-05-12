@@ -34,7 +34,7 @@ public:
 	IOCPPool(const String& name_="iocp_server",int maxconn_=1024*16);
 	~IOCPPool();
 
-	void reqexit();
+	void cancel();
 	void wait_for_all_session_exit();
 
 	void DisconnectAll();

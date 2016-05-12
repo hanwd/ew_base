@@ -294,7 +294,7 @@ public:
 		{
 			while(!q.popq(v))
 			{
-				if(test_destroy())
+				if(test_canceled())
 				{
 					TEST_ASSERT_MSG(false,"svc_reader exit");
 					return;
@@ -304,7 +304,7 @@ public:
 			if(v!=i)
 			{
 				TEST_ASSERT_MSG(false,"svc_reader failed");
-				reqexit();
+				cancel();
 				return;
 			}
 		}
@@ -318,7 +318,7 @@ public:
 		{
 			while(!q.push(i))
 			{
-				if(test_destroy())
+				if(test_canceled())
 				{
 					TEST_ASSERT_MSG(false,"svc_writer exit");
 					return;

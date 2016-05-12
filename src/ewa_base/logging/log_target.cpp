@@ -87,7 +87,6 @@ LogFile::~LogFile()
 
 void LogFile::Handle(const LogRecord& o)
 {
-	if(!fp.Good()) return;
 
 	LockGuard<AtomicSpin> lock1(spin);
 

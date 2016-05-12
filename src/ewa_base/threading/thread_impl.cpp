@@ -293,7 +293,7 @@ void ThreadImpl::svc()
 		set_affinity(thrd_affinity);
 
 
-		thrd_ptr->test_destroy();
+		thrd_ptr->test_canceled();
 		{
 			try
 			{
@@ -361,8 +361,8 @@ public:
 	}
 
 
-	bool test_destroy(){return ThreadImpl::sm_bReqexit;}
-	void reqexit(){ThreadManager::current().close();}
+	bool test_canceled(){return ThreadImpl::sm_bReqexit;}
+	void cancel(){ThreadManager::current().close();}
 	void wait(){ThreadManager::current().wait();}
 	bool activate(){return false;}
 	bool alive(){return true;}
@@ -382,8 +382,8 @@ public:
 		impl.thrd_ptr=this;
 	}
 
-	bool test_destroy(){return ThreadImpl::sm_bReqexit;}
-	void reqexit(){}
+	bool test_canceled(){return ThreadImpl::sm_bReqexit;}
+	void cancel(){}
 	void wait(){}
 	bool activate(){return false;}
 	bool alive(){return true;}

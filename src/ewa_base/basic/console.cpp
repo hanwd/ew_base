@@ -68,21 +68,6 @@ void Console::SetColor(int color)
 }
 
 
-//void Console::Write(const String& s)
-//{
-//	g_tSpinConsole.lock();
-//	std::cout<<s.c_str();
-//	g_tSpinConsole.unlock();
-//}
-//
-//void Console::WriteLine(const String& s)
-//{
-//	g_tSpinConsole.lock();
-//	std::cout<<s.c_str()<<std::endl;
-//	g_tSpinConsole.unlock();
-//}
-
-
 void Console::Write(const String& s,int color)
 {
 	g_tSpinConsole.lock();

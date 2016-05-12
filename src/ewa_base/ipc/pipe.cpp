@@ -249,7 +249,7 @@ public:
 
 		for(;;)
 		{
-			if(Thread::this_thread().test_destroy())
+			if(Thread::this_thread().test_canceled())
 			{
 				return false;
 			}
@@ -403,7 +403,7 @@ bool NamedPipe::Connect(const String& name,int t)
 			break;
 		}
 
-		if(t!=-1||thread.test_destroy())
+		if(t!=-1||thread.test_canceled())
 		{
 			return false;
 		}

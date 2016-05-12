@@ -28,7 +28,7 @@ public:
 	void svc()
 	{
 		TEST_ASSERT(&this_thread()==this);
-		while(!test_destroy())
+		while(!test_canceled())
 		{
 			Thread::sleep_for(100);
 		}
@@ -101,7 +101,7 @@ TEST_DEFINE(TEST_Thread)
 	TEST_ASSERT(thrd2.activate(3));
 	TEST_ASSERT(thrd2.count()==13);
 
-	thrd2.reqexit();
+	thrd2.cancel();
 	thrd2.wait();
 	logger.LogMessage("thrd2 test leave");
 

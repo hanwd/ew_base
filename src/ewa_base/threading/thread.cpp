@@ -41,7 +41,7 @@ int Thread::count()
 	return m_nAlive;
 }
 
-void Thread::reqexit()
+void Thread::cancel()
 {
 	LockGuard<Mutex> lock1(m_thrd_mutex);
 	m_nState=STATE_CANCEL;
@@ -60,7 +60,13 @@ void Thread::resume()
 	m_cond_state_changed.notify_all();
 }
 
-bool Thread::test_destroy()
+
+bool Thread::is_canceled()
+{
+	return (m_nState&STATE_CANCEL)!=0||ThreadImpl::sm_bReqexit;
+}
+
+bool Thread::test_canceled()
 {
 	if((m_nState&STATE_ANY)==0)
 	{

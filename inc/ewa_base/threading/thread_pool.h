@@ -32,7 +32,7 @@ public:
 
 	bool activate();
 
-	void reqexit();
+	void cancel();
 
 	void set_worker_min(int n);
 	void set_worker_max(int n);

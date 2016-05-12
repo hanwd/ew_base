@@ -35,7 +35,7 @@ public:
 
 	static Thread& main_thread();
 	static Thread& this_thread();
-	//static ThreadImpl& this_data();
+
 
 	// Return current thread rank, from 0 to count()-1
 	static int rank();
@@ -54,7 +54,9 @@ public:
 
 	// Return true if thread exit flag is set
 	// Block if thread pause flag is set
-	virtual bool test_destroy();
+	virtual bool test_canceled();
+
+	virtual bool is_canceled();
 
 	// Sleep for a number of milliseconds.
 	static void sleep_for(int milliseconds);
@@ -80,10 +82,10 @@ public:
 	// Wait until thread terminates or timepoint reached.
 	bool wait_until(const TimePoint& abs_time);
 
-	// Set the thread exit flag, causing member function test_destroy() return true;
-	virtual void reqexit();
+	// Set the thread exit flag, causing member function test_canceled() return true;
+	virtual void cancel();
 
-	// Set the thread pasue flag, causing member function test_destroy() block.
+	// Set the thread pasue flag, causing member function test_canceled() block.
 	void pause();
 
 	// Unset the thread pause flag.

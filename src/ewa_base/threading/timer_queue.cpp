@@ -55,10 +55,10 @@ TimerQueue::~TimerQueue()
 	clear();
 }
 
-void TimerQueue::reqexit()
+void TimerQueue::cancel()
 {
 	clear();
-	basetype::reqexit();
+	basetype::cancel();
 }
 
 void TimerQueue::clear()
@@ -150,7 +150,7 @@ ITimer* TimerQueue::getq()
 		{
 			LockGuard<Mutex> lock1(m_tMutex);
 
-			if(test_destroy())
+			if(test_canceled())
 			{
 				return NULL;
 			}

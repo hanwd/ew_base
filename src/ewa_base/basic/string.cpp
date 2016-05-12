@@ -235,15 +235,15 @@ String& String::operator+=(const wchar_t* p)
 bool String::ToNumber(int64_t* val) const
 {
 	if(!val) return false;
-	*val=::atoi(c_str());
-	return true;
+	int n=sscanf(m_ptr, "%ld", val);
+	return n>0;
 }
 
 bool String::ToNumber(int32_t* val) const
 {
 	if(!val) return false;
-	*val=::atoi(c_str());
-	return true;
+	int n=sscanf(m_ptr, "%d", val);
+	return n>0;
 }
 
 bool String::ToNumber(float32_t* val) const

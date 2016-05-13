@@ -94,7 +94,7 @@
 #define DLLIMPEXP_EWA_BASE EWA_BASE_IMPORT
 #endif
 
-#define EW_CHECK_HEAP
+//#define EW_CHECK_HEAP
 
 #ifdef _DEBUG
 	//detect heap corruption for mp_alloc/mp_free

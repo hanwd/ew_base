@@ -255,6 +255,11 @@ public:
 		if(m_refData && m_refData->GetRef()!=1) SetData(static_cast<T*>(m_refData->Clone(1)));
 	}
 
+	void swap(ObjectT& other)
+	{
+		m_refData.swap(other.m_refData);
+	}
+
 protected:
 	DataPtrT<T> m_refData;
 };

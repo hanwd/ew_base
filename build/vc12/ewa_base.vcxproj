@@ -46,6 +46,7 @@
     <ClInclude Include="..\..\inc\ewa_base\basic\platform.h" />
     <ClInclude Include="..\..\inc\ewa_base\basic\pointer.h" />
     <ClInclude Include="..\..\inc\ewa_base\basic\pointer_detail.h" />
+    <ClInclude Include="..\..\inc\ewa_base\basic\process.h" />
     <ClInclude Include="..\..\inc\ewa_base\basic\stream.h" />
     <ClInclude Include="..\..\inc\ewa_base\basic\string.h" />
     <ClInclude Include="..\..\inc\ewa_base\basic\stringbuffer.h" />
@@ -183,6 +184,7 @@
     <ClCompile Include="..\..\src\ewa_base\basic\object.cpp" />
     <ClCompile Include="..\..\src\ewa_base\basic\object_data.cpp" />
     <ClCompile Include="..\..\src\ewa_base\basic\object_info.cpp" />
+    <ClCompile Include="..\..\src\ewa_base\basic\process.cpp" />
     <ClCompile Include="..\..\src\ewa_base\basic\stream.cpp" />
     <ClCompile Include="..\..\src\ewa_base\basic\string.cpp" />
     <ClCompile Include="..\..\src\ewa_base\basic\stringbuffer.cpp" />

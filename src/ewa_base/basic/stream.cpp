@@ -20,7 +20,7 @@ void StreamData::Flush()
 
 void StreamData::Close()
 {
-
+	flags.del(FLAG_FAIL_BITS);
 }
 
 int64_t StreamData::Size()
@@ -48,66 +48,61 @@ Stream::Stream()
 
 }
 
-Stream::Stream(impl_type impl_):impl(impl_)
+Stream::Stream(StreamData* p):basetype(p)
 {
 
 }
 
 int32_t Stream::Read(char* buf,size_t len)
 {
-	if(!impl.ok()) return -1;
-	return ((StreamData*)impl)->Read(buf,len);
+	if(!m_refData) return -1;
+	return m_refData->Read(buf,len);
 }
 
 int32_t Stream::Write(const char* buf,size_t len)
 {
-	if(!impl.ok()) return -1;
-	return ((StreamData*)impl)->Write(buf,len);
+	if(!m_refData) return -1;
+	return m_refData->Write(buf,len);
 }
 
 void Stream::Flush()
 {
-	if(!impl.ok()) return;
-	((StreamData*)impl)->Flush();
+	if(!m_refData) return;
+	m_refData->Flush();
 }
 
 void Stream::Close()
 {
-	impl.close();
+	m_refData.reset(NULL);
 }
 
 int64_t Stream::Size()
 {
-	if(!impl.ok()) return -1;
-	return ((StreamData*)impl)->Size();
+	if(!m_refData) return -1;
+	return m_refData->Size();
 }
 
 int64_t Stream::Seek(int64_t pos,int t)
 {
-	if(!impl.ok()) return -1;
-	return ((StreamData*)impl)->Seek(pos,t);
+	if(!m_refData) return -1;
+	return m_refData->Seek(pos,t);
 }
 
 int64_t Stream::Tell()
 {
-	if(!impl.ok()) return -1;
-	return ((StreamData*)impl)->Tell();
+	if(!m_refData) return -1;
+	return m_refData->Tell();
 }
 
 bool Stream::Good()
 {
-	return impl.ok() && !((StreamData*)impl)->flags.get(StreamData::FLAG_FAIL_BITS);
+	return m_refData && !m_refData->flags.get(StreamData::FLAG_FAIL_BITS);
 }
 
 void Stream::Rewind()
 {
-	if(!impl.ok()) return;
-	((StreamData*)impl)->Rewind();
-}
-
-void Stream::swap(Stream& other)
-{
-	impl.swap(other.impl);
+	if(!m_refData) return;
+	m_refData->Rewind();
 }
 
 StreamDataHandle::StreamDataHandle(const StreamDataHandle& o)
@@ -259,7 +254,7 @@ bool Stream::Open(const String& filename_,int flag_)
 	String fn=fn_encode(filename_);
 
 	StreamDataFile* streamfile=new StreamDataFile;
-	impl.reset(streamfile);
+	SetData(streamfile);
 
 	HANDLE hFile=(HANDLE)CreateFileA(
 					 fn.c_str(),

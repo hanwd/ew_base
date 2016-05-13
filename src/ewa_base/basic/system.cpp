@@ -275,8 +275,6 @@ public:
 	HANDLE hReader, hWriter;
 	PROCESS_INFORMATION pi;
 
-
-
 	int32_t Read(char* buf,size_t len)
 	{
 		DWORD nRead(0);
@@ -300,6 +298,7 @@ public:
 		}
 		return nWrite;
 	}
+
 	StreamDataProcess()
 	{
 		hReader=hWriter=NULL;
@@ -379,7 +378,7 @@ Stream System::ExecuteRedirect(const String& s,bool* status)
 	System::LogTrace("System::Exectue:%s", s);
 
 	StreamDataProcess* stream=new StreamDataProcess;
-	Stream::impl_type stream_impl(stream);
+	Stream stream_impl(stream);
 
 	if(stream->Execute(s))
 	{

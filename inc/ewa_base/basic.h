@@ -11,6 +11,7 @@
 #include "ewa_base/basic/bitflags.h"
 #include "ewa_base/basic/clock.h"
 #include "ewa_base/basic/system.h"
+#include "ewa_base/basic/process.h"
 #include "ewa_base/basic/console.h"
 #include "ewa_base/basic/platform.h"
 #include "ewa_base/basic/object.h"

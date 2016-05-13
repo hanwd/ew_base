@@ -30,12 +30,16 @@ void KO_Policy_handle::destroy(type& o)
 	::CloseHandle(o);
 }
 
-KO_Policy_handle::type KO_Policy_handle::duplicate(type o)
+KO_Policy_handle::type KO_Policy_handle::duplicate(type o,int h)
 {
-	void* hProcess=::GetCurrentProcess();
-	type h=invalid_value();
-	DuplicateHandle(hProcess,o,hProcess,&h,0,FALSE,DUPLICATE_SAME_ACCESS);
-	return h;
+	type handle=invalid_value();
+	if(o!=invalid_value())
+	{
+		void* hProcess=::GetCurrentProcess();	
+		DuplicateHandle(hProcess,o,hProcess,&handle,0,h?TRUE:FALSE,DUPLICATE_SAME_ACCESS);
+	}
+
+	return handle;
 }
 
 #else

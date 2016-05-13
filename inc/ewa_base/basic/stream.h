@@ -5,6 +5,7 @@
 #include "ewa_base/basic/object.h"
 #include "ewa_base/basic/platform.h"
 #include "ewa_base/basic/bitflags.h"
+#include "ewa_base/basic/pointer.h"
 
 EW_ENTER
 
@@ -15,7 +16,7 @@ enum
 	SEEKTYPE_END
 };
 
-class DLLIMPEXP_EWA_BASE StreamData : public Object
+class DLLIMPEXP_EWA_BASE StreamData : public ObjectData
 {
 public:
 
@@ -42,23 +43,14 @@ public:
 
 };
 
-class DLLIMPEXP_EWA_BASE KO_Policy_stream
+
+class DLLIMPEXP_EWA_BASE Stream : public ObjectT<StreamData>
 {
 public:
-	typedef StreamData* type;
-	typedef type const_reference;
-	static type invalid_value(){return NULL;}
-	static void destroy(type& o){delete o;o=NULL;}
-
-};
-
-class DLLIMPEXP_EWA_BASE Stream : public Object
-{
-public:
-	typedef KO_Handle<KO_Policy_stream> impl_type;
+	typedef ObjectT<StreamData> basetype;
 
 	Stream();
-	Stream(impl_type impl_);
+	Stream(StreamData* p);
 
 	virtual int32_t Read(char* buf,size_t len);
 	virtual int32_t Write(const char* buf,size_t len);
@@ -75,12 +67,8 @@ public:
 
 	bool Good();
 
-	void swap(Stream& other);
-
 	bool Open(const String& filename_,int op=FileAccess::FLAG_RD);
 
-protected:
-	impl_type impl;
 };
 
 

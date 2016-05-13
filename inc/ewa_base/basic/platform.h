@@ -24,7 +24,7 @@ public:
 		return NULL;
 	}
 	static void destroy(type& o);
-	static type duplicate(type v);
+	static type duplicate(type v,int h=0);
 };
 #else
 class KO_Policy_handle
@@ -40,6 +40,17 @@ public:
 	static type duplicate(type v);
 };
 #endif
+
+template<typename T>
+class KO_Policy_pointer
+{
+public:
+	typedef T* type;
+	typedef type const_reference;
+	static type invalid_value(){return NULL;}
+	static void destroy(type& o);
+};
+
 
 template<typename P>
 class KO_Base

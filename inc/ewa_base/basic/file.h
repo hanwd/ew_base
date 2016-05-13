@@ -15,16 +15,13 @@ public:
 	{
 	public:
 		typedef KO_Handle<KO_Policy_handle> basetype;
-		impl_type(){m_bGood=true;}
 		void swap(impl_type& o)
 		{
 			basetype::swap(o);
-			std::swap(m_bGood,o.m_bGood);
+			std::swap(flags,o.flags);
 		}
-		bool m_bGood;
+		BitFlags flags;
 	};
-
-	typedef int64_t pos_t;
 
 	static bool Rename(const String& oldname_,const String& newname_);
 	static bool Remove(const String& filename_);
@@ -66,7 +63,7 @@ public:
 
 	bool Good()
 	{
-		return impl.m_bGood;
+		return !impl.flags.get(StreamData::FLAG_FAIL_BITS);
 	}
 
 private:

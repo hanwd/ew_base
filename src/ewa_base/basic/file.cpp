@@ -40,12 +40,11 @@ bool File::Open(const String& filename_,int flag_)
 	{
 		System::CheckError("File::Open error");
 
-		impl.m_bGood=false;
+		impl.flags.add(StreamData::FLAG_FAIL_BITS);
 		return false;
 	}
 
-	impl.m_bGood=true;
-
+	impl.flags.del(StreamData::FLAG_FAIL_BITS);
 	impl.reset(hFile);
 
 	if(flag_&FileAccess::FLAG_APPEND)
@@ -68,7 +67,7 @@ int32_t File::Read(char* buf,size_t len)
 	DWORD nRead(0);
 	if(::ReadFile(impl,buf,len,&nRead,NULL)==FALSE)
 	{
-		impl.m_bGood=false;
+		impl.flags.add(StreamData::FLAG_READ_FAIL_BIT);
 		System::CheckError("File::Read Error");
 		return -1;
 	}
@@ -80,7 +79,7 @@ int32_t File::Write(const char* buf,size_t len)
 	DWORD nWrite(0);
 	if(::WriteFile(impl,buf,len,&nWrite,NULL)==FALSE)
 	{
-		impl.m_bGood=false;
+		impl.flags.add(StreamData::FLAG_WRITE_FAIL_BIT);
 		System::CheckError("File::Write Error");
 		return -1;
 	}

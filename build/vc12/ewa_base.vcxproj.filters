@@ -510,6 +510,9 @@
     <ClInclude Include="..\..\inc\ewa_base\basic\stream.h">
       <Filter>include\basic</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\inc\ewa_base\basic\process.h">
+      <Filter>include\basic</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\ewa_base\basic\atomic.cpp">
@@ -813,6 +816,9 @@
       <Filter>source\scripting</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\ewa_base\basic\stream.cpp">
+      <Filter>source\basic</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewa_base\basic\process.cpp">
       <Filter>source\basic</Filter>
     </ClCompile>
   </ItemGroup>

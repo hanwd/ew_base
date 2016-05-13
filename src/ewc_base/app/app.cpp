@@ -5,6 +5,21 @@
 #include "wx/app.h"
 #include "ewc_base/wnd/impl_wx/window.h"
 
+#ifdef EWC_BASE_DLL
+#include <msvc/wx/setup.h>
+
+
+BOOL APIENTRY DllMain(HANDLE hModule,DWORD ul_reason_for_call,LPVOID lpReserved)
+{
+	EW_UNUSED(hModule);
+	EW_UNUSED(ul_reason_for_call);
+	EW_UNUSED(lpReserved);
+
+	return TRUE;
+}
+
+#endif
+
 EW_ENTER
 
 

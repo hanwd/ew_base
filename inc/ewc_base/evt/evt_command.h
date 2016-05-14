@@ -110,7 +110,7 @@ class DLLIMPEXP_EWC_BASE EvtCommandWindow : public EvtCommand
 public:
 	typedef EvtCommand basetype;
 
-	EvtCommandWindow(wxWindow* pw);
+	EvtCommandWindow(wxWindow* pw=NULL);
 	EvtCommandWindow(const String& n,wxWindow* pw=NULL);
 
 	IWindowPtr CreateWndsItem(IWindowPtr pw);

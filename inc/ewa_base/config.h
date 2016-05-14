@@ -73,6 +73,13 @@
 #define EWA_BASE_IMPORT
 #endif
 
+#ifdef EWA_BASE_BUILDING
+#define DLLIMPEXP_EWA_BASE EWA_BASE_EXPORT
+#else
+#define DLLIMPEXP_EWA_BASE EWA_BASE_IMPORT
+#endif
+
+
 #ifdef _MSC_VER
 #pragma warning(disable:4251)
 #endif
@@ -88,11 +95,7 @@
 #define EW_FORCEINLINE inline
 #endif
 
-#ifdef EWA_BASE_BUILDING
-#define DLLIMPEXP_EWA_BASE EWA_BASE_EXPORT
-#else
-#define DLLIMPEXP_EWA_BASE EWA_BASE_IMPORT
-#endif
+
 
 //#define EW_CHECK_HEAP
 

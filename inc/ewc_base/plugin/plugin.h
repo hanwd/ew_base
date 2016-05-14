@@ -6,7 +6,7 @@
 
 #define IMPLEMENT_IPLUGIN(T) \
 template<>\
-void RegisterPluginT<T>(WndManager& wm)\
+void DLLIMPEXP_EWC_BASE RegisterPluginT<T>(WndManager& wm)\
 {\
 	Plugin::DoRegister(wm,new T(wm));\
 }
@@ -14,26 +14,26 @@ void RegisterPluginT<T>(WndManager& wm)\
 
 EW_ENTER
 	
-class PluginCommon;
-class PluginEditor;
-class IEditorPlugin;
+class DLLIMPEXP_EWC_BASE PluginCommon;
+class DLLIMPEXP_EWC_BASE PluginEditor;
+class DLLIMPEXP_EWC_BASE IEditorPlugin;
 
-class PluginMainWindow;
-class PluginBasic;
-class PluginSearch;
-class PluginWorkspace;
-class PluginHistoryFiles;
-class PluginMessage;
-class PluginOption;
-class PluginStatusBar;
+class DLLIMPEXP_EWC_BASE PluginMainWindow;
+class DLLIMPEXP_EWC_BASE PluginBasic;
+class DLLIMPEXP_EWC_BASE PluginSearch;
+class DLLIMPEXP_EWC_BASE PluginWorkspace;
+class DLLIMPEXP_EWC_BASE PluginHistoryFiles;
+class DLLIMPEXP_EWC_BASE PluginMessage;
+class DLLIMPEXP_EWC_BASE PluginOption;
+class DLLIMPEXP_EWC_BASE PluginStatusBar;
 
-class PluginTextEditor;
-class PluginFlashViewer;
-class PluginWebView;
-class PluginEwslEditor;
+class DLLIMPEXP_EWC_BASE PluginTextEditor;
+class DLLIMPEXP_EWC_BASE PluginFlashViewer;
+class DLLIMPEXP_EWC_BASE PluginWebView;
+class DLLIMPEXP_EWC_BASE PluginEwslEditor;
 
 template<typename T>
-void RegisterPluginT(WndManager& wm);
+void DLLIMPEXP_EWC_BASE RegisterPluginT(WndManager& wm);
 
 class DLLIMPEXP_EWC_BASE Plugin : public EvtBase
 {
@@ -73,7 +73,7 @@ public:
 
 };
 
-class PluginEx : public Plugin
+class DLLIMPEXP_EWC_BASE PluginEx : public Plugin
 {
 public:
 

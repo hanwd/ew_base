@@ -25,13 +25,11 @@ public:
 };
 
 template<typename T>
-class EvtProxyT : public EvtProxyBase
+class DLLIMPEXP_EWC_BASE EvtProxyT : public EvtProxyBase
 {
 public:
 	T tmp_value;
 	virtual Validator* CreateValidator(wxWindow*);
-
-
 };
 
 

@@ -218,6 +218,7 @@ void Process::Kill(int r)
 	((ProcessImpl*)impl)->Kill(r);
 }
 
+template<>
 void KO_Policy_pointer<ProcessImpl>::destroy(type& o)
 {
 	delete o;

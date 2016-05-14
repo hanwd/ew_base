@@ -43,5 +43,10 @@ void MvcModel::DetachView(MvcView* v)
 }
 
 
+void MvcModelInfo::OnInit()
+{
+
+}
+
 EW_LEAVE
 

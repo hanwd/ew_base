@@ -79,7 +79,7 @@ public:
 		return __proxy().back();	
 	}
 
-	value_proxy& back() const
+	const value_proxy& back() const
 	{
 		return __proxy().back();	
 	}

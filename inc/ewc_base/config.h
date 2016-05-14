@@ -4,14 +4,25 @@
 #include "ewa_base.h"
 
 
-#ifdef EWC_BASE_BUILDING
-#define DLLIMPEXP_EWC_BASE EW_EXPORT
+
+#ifdef EWC_BASE_DLL
+#ifdef _MSC_VER
+#define EWC_BASE_EXPORT __declspec(dllexport)
+#define EWC_BASE_IMPORT __declspec(dllimport)
 #else
-#define DLLIMPEXP_EWC_BASE EW_IMPORT
+#define EWC_BASE_EXPORT __attribute__((dllexport))
+#define EWC_BASE_IMPORT __attribute__((dllimport))
+#endif
+#else
+#define EWC_BASE_EXPORT
+#define EWC_BASE_IMPORT
 #endif
 
-#undef DLLIMPEXP_EWC_BASE
-#define DLLIMPEXP_EWC_BASE
+#ifdef EWC_BASE_BUILDING
+#define DLLIMPEXP_EWC_BASE EWC_BASE_EXPORT
+#else
+#define DLLIMPEXP_EWC_BASE EWC_BASE_IMPORT
+#endif
 
 
 class wxString;

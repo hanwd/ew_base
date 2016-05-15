@@ -2,6 +2,7 @@
 #define __H_EW_UI_EVT_GROUP__
 
 #include "ewc_base/evt/evt_command.h"
+#include "ewc_base/app/data_defs.h"
 
 EW_ENTER
 

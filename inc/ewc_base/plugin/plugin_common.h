@@ -18,7 +18,7 @@ public:
 
 };
 
-class PluginCommon2 : public PluginCommon
+class DLLIMPEXP_EWC_BASE PluginCommon2 : public PluginCommon
 {
 public:
 

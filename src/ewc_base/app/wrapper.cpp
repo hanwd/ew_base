@@ -3,6 +3,7 @@
 #include "ewc_base/app/res_manager.h"
 #include "ewc_base/plugin/plugin_manager.h"
 #include "ewc_base/wnd/impl_wx/window.h"
+#include "ewc_base/app/wrapper.h"
 
 #include "wx/clipbrd.h"
 #include "wx/filedlg.h"

@@ -123,7 +123,7 @@ public:
 
 
 template<>
-class ValidatorW<wxTextEntryBase> : public Validator
+class DLLIMPEXP_EWC_BASE ValidatorW<wxTextEntryBase> : public Validator
 {
 public:
 	LitePtrT<wxTextEntryBase> pWindow;
@@ -201,7 +201,7 @@ class DLLIMPEXP_EWC_BASE IWnd_controlT : public T
 public:
 	using T::m_pVald;
 
-	IWnd_controlT();
+	IWnd_controlT(){}
 
 	void OnEnter(wxCommandEvent&)
 	{
@@ -286,29 +286,29 @@ public:
 };
 
 
-class IWnd_dialog;
-class IWnd_frame;
-class IWnd_container;
-class IWnd_button;
-class IWnd_label;
-class IWnd_textctrl;
-class IPassword;
-class ISearchCtrl;
-class IWnd_notebook;
-class IWnd_checkbox;
-class IWnd_hline;
-class IWnd_vline;
-class IWnd_cmdlink_button;
-class IWnd_gauge;
-class IWnd_slider;
-class IWnd_spinctrl;
-class IWnd_hyperlink;
-class IWnd_datectrl;
-class IWnd_timectrl;
-class IWnd_bitmap;
-class IWnd_combo;
-class IWnd_dataview;
-class IWnd_bookbase;
+class DLLIMPEXP_EWC_BASE IWnd_dialog;
+class DLLIMPEXP_EWC_BASE IWnd_frame;
+class DLLIMPEXP_EWC_BASE IWnd_container;
+class DLLIMPEXP_EWC_BASE IWnd_button;
+class DLLIMPEXP_EWC_BASE IWnd_label;
+class DLLIMPEXP_EWC_BASE IWnd_textctrl;
+class DLLIMPEXP_EWC_BASE IPassword;
+class DLLIMPEXP_EWC_BASE ISearchCtrl;
+class DLLIMPEXP_EWC_BASE IWnd_notebook;
+class DLLIMPEXP_EWC_BASE IWnd_checkbox;
+class DLLIMPEXP_EWC_BASE IWnd_hline;
+class DLLIMPEXP_EWC_BASE IWnd_vline;
+class DLLIMPEXP_EWC_BASE IWnd_cmdlink_button;
+class DLLIMPEXP_EWC_BASE IWnd_gauge;
+class DLLIMPEXP_EWC_BASE IWnd_slider;
+class DLLIMPEXP_EWC_BASE IWnd_spinctrl;
+class DLLIMPEXP_EWC_BASE IWnd_hyperlink;
+class DLLIMPEXP_EWC_BASE IWnd_datectrl;
+class DLLIMPEXP_EWC_BASE IWnd_timectrl;
+class DLLIMPEXP_EWC_BASE IWnd_bitmap;
+class DLLIMPEXP_EWC_BASE IWnd_combo;
+class DLLIMPEXP_EWC_BASE IWnd_dataview;
+class DLLIMPEXP_EWC_BASE IWnd_bookbase;
 
 EW_LEAVE
 

@@ -10,7 +10,7 @@
 #include "ewc_base/wnd/impl_wx/iwnd_stc.h"
 #include "ewc_base/wnd/impl_wx/iwnd_bookbase.h"
 #include "ewc_base/evt/evt_option.h"
-
+#include "ewc_base/wnd/wnd_manager.h"
 
 #include "plugin_ewsl_caret.h"
 

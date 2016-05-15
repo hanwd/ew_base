@@ -148,6 +148,12 @@ bool App::IsOk()
 
 wxWindow* App::GetDummyParent()
 {
+	//wxApp* app=dynamic_cast<wxApp*>(wxApp::GetInstance());
+	//if(app)
+	//{
+	//	wxWindow* win=app->GetTopWindow();
+	//	return win;
+	//}
 	return NULL;
 }
 

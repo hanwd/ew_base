@@ -16,7 +16,7 @@ public:
 	
 	WndModelFindSearch(WndManager& wm):WndModel("Model.Search")
 	{
-		//flags.add(FLAG_NO_CLOSE|FLAG_AUTO_FIT);
+		
 	}
 
 	bool Create()

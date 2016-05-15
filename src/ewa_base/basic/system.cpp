@@ -24,7 +24,7 @@ BOOL APIENTRY DllMain(HANDLE hModule,DWORD ul_reason_for_call,LPVOID lpReserved)
 	EW_UNUSED(ul_reason_for_call);
 	EW_UNUSED(lpReserved);
 
-	ew::System::LogTrace("dll_main: %d",(int)ul_reason_for_call);
+	//ew::System::LogTrace("dll_main: %d",(int)ul_reason_for_call);
 
 	return TRUE;
 }

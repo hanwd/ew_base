@@ -2,7 +2,7 @@
 
 #include "ewc_base/evt/evt_base.h"
 #include "ewc_base/evt/validator.h"
-
+#include "ewc_base/app/data_defs.h"
 EW_ENTER
 
 EvtBase::EvtBase()
@@ -13,6 +13,16 @@ EvtBase::EvtBase()
 EvtBase::EvtBase(const String& s):m_sId(s)
 {
 	m_nId=-1;
+}
+
+void EvtBase::UpdateCtrl(IUpdParam& upd)
+{
+	if(upd.test(this)) DoUpdateCtrl(upd);
+}
+
+void EvtBase::UpdateCtrl()
+{
+	IUpdParam upd;DoUpdateCtrl(upd);
 }
 
 bool EvtBase::CmdExecute(ICmdParam& cmd)

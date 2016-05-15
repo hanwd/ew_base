@@ -7,6 +7,7 @@
 
 EW_ENTER
 
+class IUpdParam;
 
 class DLLIMPEXP_EWC_BASE IValueOptionData : public ObjectData
 {
@@ -120,8 +121,8 @@ public:
 	// 用于与界面Combo类的控件交互，给出下拉列表的内容
 	virtual IValueOptionData* GetComboArray(){return NULL;}
 
-	void UpdateCtrl(IUpdParam& upd){if(upd.test(this)) DoUpdateCtrl(upd);}
-	void UpdateCtrl(){IUpdParam upd;DoUpdateCtrl(upd);}
+	void UpdateCtrl(IUpdParam& upd);
+	void UpdateCtrl();
 
 	// 更新此事件相关的工具条，菜单等。
 	virtual void DoUpdateCtrl(IUpdParam& upd);

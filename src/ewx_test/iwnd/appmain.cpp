@@ -1,6 +1,3 @@
-#include "ewc_base/wnd/impl_wx/window.h"
-#include <wx/process.h>
-#include <wx/utils.h>
 
 #include "ewc_base/app/app.h"
 #include "ewc_base/wnd/wnd_model.h"
@@ -38,7 +35,7 @@ int ew_main()
 	wm.RegisterT<PluginEwslEditor>();
 	wm.RegisterT<PluginWebView>();
 
-	wm.SetName(_kT("ew6_ui_framework"));
+	wm.SetName(_kT("ew_ui_framework"));
 
 	// 尝试从文件载入配置文件
 	if(!wm.app.conf.Load("config/default.conf"))

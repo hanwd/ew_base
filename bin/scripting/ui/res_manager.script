@@ -40,9 +40,9 @@ kr.gp_set("Folder_Open","wxART_FOLDER_OPEN");
 kr.gp_set("AppIcon","@File");
 
 // 使用png格式的图标文件，注意可以多个，即可以分别定义不同大小的图标
-kr.gp_beg("Website");
-	kr.gp_add("res/icon/camera_48.png");
-kr.gp_end();
+//kr.gp_beg("Website");
+//	kr.gp_add("res/icon/camera_48.png");
+//kr.gp_end();
 
 // 保存资源文件，供下次载入
 //kr.save("myres.dat");

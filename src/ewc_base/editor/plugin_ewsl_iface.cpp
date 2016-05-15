@@ -1,5 +1,5 @@
 #include "plugin_ewsl_caret.h"
-
+#include "ewc_base/wnd/wnd_manager.h"
 
 EW_ENTER
 

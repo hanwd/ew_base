@@ -2,10 +2,9 @@
 #define __H_EW_UI_APP__
 
 #include "ewc_base/config.h"
-#include "ewc_base/wnd/wnd_manager.h"
-#include "ewc_base/app/data_defs.h"
-#include "ewc_base/app/wrapper.h"
 #include "ewc_base/app/app_config.h"
+#include "ewc_base/wnd/wnd_manager.h"
+#include "ewc_base/app/wrapper.h"
 
 EW_ENTER
 

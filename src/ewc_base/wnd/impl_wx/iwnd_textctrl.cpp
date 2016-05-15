@@ -24,7 +24,7 @@ IPassword::IPassword(wxWindow* p,const WndPropertyEx& h):IWnd_textctrl(p,h,wxTE_
 
 }
 
-class IWndControlT_SearchCtrl : public IWnd_controlT<ISearchCtrl>
+class DLLIMPEXP_EWC_BASE IWndControlT_SearchCtrl : public IWnd_controlT<ISearchCtrl>
 {
 public:
 	void OnClear(wxCommandEvent&)
@@ -34,6 +34,11 @@ public:
 		m_pVald->WndExecuteEx(IDefs::ACTION_VALUE_CHANGED);
 	}
 };
+
+ISearchCtrl::ISearchCtrl()
+{
+
+}
 
 ISearchCtrl::ISearchCtrl(wxWindow* p,const WndPropertyEx& h)
 	:wxSearchCtrl(p,h.id(),wxEmptyString,h,h,wxTE_PROCESS_ENTER)
@@ -316,5 +321,7 @@ bool ICmdProcTextEntryCtrl::DoTestId(ICmdParam& cmd)
 		return basetype::DoTestId(cmd);
 	}
 }
+
+template class IWnd_controlT<ISearchCtrl>;
 
 EW_LEAVE

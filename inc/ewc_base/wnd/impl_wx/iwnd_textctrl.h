@@ -16,23 +16,24 @@ public:
 	ValidatorHolderT<Validator> m_pVald;
 };
 
-class IPassword : public IWnd_textctrl
+class DLLIMPEXP_EWC_BASE IPassword : public IWnd_textctrl
 {
 public:
 	IPassword(wxWindow* p,const WndPropertyEx& h);
 };
 
 
-class ISearchCtrl : public wxSearchCtrl
+class DLLIMPEXP_EWC_BASE ISearchCtrl : public wxSearchCtrl
 {
 public:
+	ISearchCtrl();
 	ISearchCtrl(wxWindow* p,const WndPropertyEx& h);
 	ValidatorHolderT<Validator> m_pVald;
 };
 
 
 
-class ICmdProcTextEntryCtrl : public ICmdProcTextEntry
+class DLLIMPEXP_EWC_BASE ICmdProcTextEntryCtrl : public ICmdProcTextEntry
 {
 public:
 	typedef ICmdProcTextEntry basetype;

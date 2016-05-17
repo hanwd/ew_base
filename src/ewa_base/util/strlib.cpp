@@ -160,7 +160,7 @@ String string_unescape(const String& s)
 				}
 
 				StringBuffer<char> wb;
-				IConv::unicode_to_ansi(wb, &vv, 1);
+				IConv::unicode_to_utf8(wb, &vv, 1);
 				sb << wb;
 				p += 6;
 
@@ -186,6 +186,8 @@ String string_unescape(const String& s)
 			p += 1;
 		}
 	}
+
+	IConv::utf8_to_ansi(sb,sb.data(),sb.size());
 	return sb;
 }
 

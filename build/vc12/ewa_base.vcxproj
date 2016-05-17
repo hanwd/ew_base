@@ -219,6 +219,7 @@
     <ClCompile Include="..\..\src\ewa_base\net\overlapped.cpp" />
     <ClCompile Include="..\..\src\ewa_base\net\session.cpp" />
     <ClCompile Include="..\..\src\ewa_base\net\session_client.cpp" />
+    <ClCompile Include="..\..\src\ewa_base\net\session_http.cpp" />
     <ClCompile Include="..\..\src\ewa_base\net\session_server.cpp" />
     <ClCompile Include="..\..\src\ewa_base\net\session_tcp.cpp" />
     <ClCompile Include="..\..\src\ewa_base\net\session_udp.cpp" />

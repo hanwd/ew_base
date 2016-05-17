@@ -201,6 +201,11 @@ String System::GetEnv(const String& name,const String& value_if_not_found)
 	return value?String(value):value_if_not_found;
 }
 
+String System::GetUsername()
+{
+	return GetEnv("USERNAME");
+}
+
 
 int System::GetPid()
 {
@@ -774,6 +779,13 @@ void PushFindItem(arr_1t<FindItem>& files,WIN32_FIND_DATAA& p)
 	item.flags.set(FindItem::IS_FOLDER,(p.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY)!=0);
 	if(item.filename=="."||item.filename=="..") return;
 	files.push_back(item);
+}
+
+bool System::FileExists(const String& fn,int t)
+{
+	arr_1t<FindItem> _items=FindAllFiles(fn,"");
+	if(_items.empty()) return false;
+	return ((_items[0].flags.get(FindItem::IS_FOLDER)?2:1)&t)!=0;
 }
 
 

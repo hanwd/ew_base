@@ -15,7 +15,9 @@
 int ew_main()
 {
 	using namespace ew;
+
 	mp_check_leak(1);
+	System::SetLogFile("ew.log",true);
 
 	System::LogTrace("----  process enter   -------");
 

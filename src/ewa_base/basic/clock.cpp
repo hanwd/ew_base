@@ -163,7 +163,7 @@ String TimeDetail::Format(const String& f) const
 	char buffer[256];
 	if(f=="")
 	{
-		strftime (buffer,256,"%Y-%m-%d %H:%M:%S ",&tk);
+		strftime (buffer,256,"%Y-%m-%d %H:%M:%S",&tk);
 	}
 	else
 	{

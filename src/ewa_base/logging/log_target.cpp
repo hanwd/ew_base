@@ -30,16 +30,16 @@ String LogTarget::Format(const LogRecord& o) const
 	{
 		if(flags.get(FLAG_SHOWTIME))
 		{
-			msg << o.m_tStamp.Format("%Y-%m-%d %H:%M:%S ");
+			msg << o.m_tStamp.Format("%Y-%m-%d %H:%M:%S");
 		}
 		else
 		{
-			msg << o.m_tStamp.Format("%Y-%m-%d ");
+			msg << o.m_tStamp.Format("%Y-%m-%d");
 		}
 	}
 	else if(flags.get(FLAG_SHOWTIME))
 	{
-		msg << o.m_tStamp.Format("%H:%M:%S ");
+		msg << o.m_tStamp.Format("%H:%M:%S");
 	}
 
 

@@ -5,16 +5,36 @@ EW_ENTER
 
 SessionHttp::SessionHttp(){phase=0;httpstatus=200;}
 
-void SessionHttp::HandleHeader(StringBuffer<char>& sb1,int sz)
+void SessionHttp::HandleHeader(StringBuffer<char>& sb2)
 {
+	StringBuffer<char> sb1;
+
 	sb1<<"HTTP/1.1 "<<httpstatus<<" OK\r\n";
 	sb1<<"Cache-Control:no-cache\r\n";
-	if(sz>0) sb1<<"Content-Length:"<<sz<<"\r\n";
+
 	for(map_type::const_iterator it=cookie.begin();it!=cookie.end();++it)
 	{
 		sb1<<"Set-Cookie: "<<(*it).first<<"="<<string_escape((*it).second)<<"; path=/; domain=127.0.0.1\r\n";		
 	}
-	sb1<<"\r\n";	
+	if(httpstatus==301)
+	{
+		sb1<<"Location: " <<props["Location"]<<"\r\n";
+	}
+	else if(sb2.size()>0)
+	{
+		sb1<<"Content-Length:"<<sb2.size()<<"\r\n";
+	}
+
+	sb1<<"\r\n";
+
+	if(httpstatus!=301)
+	{
+		sb1<<sb2;
+	}
+
+	sb1.swap(sb2);
+
+
 }
 
 void SessionHttp::HandleContent(StringBuffer<char>& sb2)
@@ -39,26 +59,28 @@ void SessionHttp::HandleRequest()
 		System::LogTrace("phase != 1");
 	}
 
-	StringBuffer<char> sb1,sb2;
+	StringBuffer<char> sb1;
 
-	HandleContent(sb2);
-
-	if(httpstatus==301)
-	{
-		sb1<<"HTTP/1.1 301 Redirect\r\n";
-		sb1<<"Location: " <<props["Location"]<<"\r\n";
-		sb1<<"\r\n";
-		sb1<<"\r\n";
-	}
-	else
-	{
-		IConv::ansi_to_utf8(sb2,sb2.data(),sb2.size());
-		HandleHeader(sb1,sb2.size());
-		sb1<<sb2;
-	}
+	HandleContent(sb1);
+	HandleHeader(sb1);
 
 	AsyncSend(sb1.c_str(),sb1.size());	
 
+}
+
+void SessionHttp::HandleQuery(const String& s)
+{
+	arr_1t<String> q2=string_split(s,"&");
+	for(size_t i=0;i<q2.size();i++)
+	{
+		int q1=q2[i].find('=');
+		if(q1>0)
+		{
+			String key=string_unescape(q2[i].substr(0,q1));
+			String value=string_unescape(q2[i].substr(q1+1));
+			query[key]=value;
+		}
+	}
 }
 
 void SessionHttp::HandleLines()
@@ -80,17 +102,7 @@ void SessionHttp::HandleLines()
 		int p2=temp_uri.find('?');
 		if(p2>=0)
 		{
-			arr_1t<String> q2=string_split(temp_uri.substr(p2+1),"&");
-			for(size_t i=0;i<q2.size();i++)
-			{
-				int q1=q2[i].find('=');
-				if(q1>0)
-				{
-					String key=string_unescape(q2[i].substr(0,q1));
-					String value=string_unescape(q2[i].substr(q1+1));
-					query[key]=value;
-				}
-			}
+			HandleQuery(temp_uri.substr(p2+1));
 			temp_uri=temp_uri.substr(0,p2);
 		}
 
@@ -158,6 +170,7 @@ void SessionHttp::OnRecvCompleted(TempOlapPtr& q)
 				lines.append(String(&sb[p1],p3-p1));
 				if(p3==p1)
 				{
+					p1=p2+1;
 					phase=1;
 					break;
 				}
@@ -201,7 +214,7 @@ void SessionHttp::OnRecvCompleted(TempOlapPtr& q)
 		}
 		else
 		{
-			
+			HandleQuery(sb);
 		}
 
 		HandleRequest();

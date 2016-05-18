@@ -388,4 +388,99 @@ Variant parse_json(const String& json)
 	return parser.parse(json);
 }
 
+
+
+void variant_to_json(const Variant& json,StringBuffer<char>& sb,const String& tb);
+
+template<unsigned N>
+class variant_to_json_dispatch
+{
+public:
+
+	template<typename T>
+	static void g(const T& value,StringBuffer<char>& sb,const String& tb)
+	{
+		sb<<"\"[unknown object]\"";
+	}
+
+	static void g(const dcomplex& json,StringBuffer<char>& sb,const String& tb)
+	{
+		sb<<"\"("<<json.real()<<","<<json.imag()<<")\"";
+	}
+
+	static void g(int64_t json,StringBuffer<char>& sb,const String& tb)
+	{
+		sb<<json;
+	}
+
+	static void g(double json,StringBuffer<char>& sb,const String& tb)
+	{
+		sb<<json;
+	}
+
+	static void g(bool json,StringBuffer<char>& sb,const String& tb)
+	{
+		sb<<(json?"true":"false");
+	}
+
+	static void g(const String& json,StringBuffer<char>& sb,const String& tb)
+	{
+		sb<<"\""<<json<<"\"";
+	}
+
+	static void g(const Variant& json,StringBuffer<char>& sb,const String& tb)
+	{
+		variant_to_json(json,sb,tb);
+	}
+
+	static void g(const VariantTable& json,StringBuffer<char>& sb,const String& tb)
+	{
+		sb<<tb<<"{"<<"\r\n";
+		{
+			String tx=tb+"\t";
+			for(size_t i=0;i<json.size();i++)
+			{
+				sb<<tx<<"\""<<json.get(i).first<<"\":";
+				g(json.get(i).second,sb,tx);
+				if(i+1<json.size()) sb<<",";
+				sb<<"\r\n";
+			}
+		}
+		sb<<tb<<"}";
+	}
+
+	template<typename T>
+	static void g(const arr_xt<T>& json,StringBuffer<char>& sb,const String& tb)
+	{
+		sb<<tb<<"["<<"\r\n";
+
+		String tx=tb+"\t";
+		for(size_t i=0;i<json.size();i++)
+		{
+			g(json[i],sb,tx);
+			if(i+1<json.size()) sb<<",";
+			sb<<"\r\n";
+		}
+		sb<<tb<<"]";
+	}
+
+	static void value(const Variant& v,StringBuffer<char>& sb,const String& tb)
+	{
+		typedef typename flag_type<N>::type type;
+		g(variant_handler<type>::raw(v),sb,tb);
+	}
+};
+
+void variant_to_json(const Variant& json,StringBuffer<char>& sb,const String& tb)
+{
+	typedef void (*fn)(const Variant&,StringBuffer<char>&,const String&);
+	typedef lookup_table_4bit<variant_to_json_dispatch,fn> lk;
+	lk::test(json.type())(json,sb,tb);
+}
+
+void to_json(const Variant& json,StringBuffer<char>& sb)
+{
+	variant_to_json_dispatch<0>::g(json,sb,"");
+}
+
 EW_LEAVE

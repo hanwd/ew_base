@@ -32,8 +32,10 @@ public:
 
 	SessionHttp();
 
-	virtual void HandleHeader(StringBuffer<char>& sb1,int sz);
+	virtual void HandleHeader(StringBuffer<char>& sb1);
 	virtual void HandleContent(StringBuffer<char>& sb2);
+
+	void HandleQuery(const String& s);
 
 	void HandleRequest();
 
@@ -42,6 +44,12 @@ public:
 	virtual void OnRecvCompleted(TempOlapPtr& q);
 
 	void OnConnected();
+
+	void Redirect(const String& url)
+	{
+		httpstatus=301;
+		props["Location"]=url;	
+	}
 
 protected:
 

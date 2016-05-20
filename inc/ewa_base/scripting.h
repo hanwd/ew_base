@@ -9,6 +9,7 @@
 #include "ewa_base/scripting/callable_table.h"
 #include "ewa_base/scripting/callable_class.h"
 #include "ewa_base/scripting/callable_array.h"
+#include "ewa_base/scripting/callable_buffer.h"
 #include "ewa_base/scripting/callable_misc.h"
 
 #include "ewa_base/scripting/scanner.h"

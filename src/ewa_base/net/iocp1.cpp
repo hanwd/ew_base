@@ -224,6 +224,18 @@ void IOCPPool::ccc_execute_cmd()
 	}
 }
 
+
+void IOCPPool::AttachObject(DataPtrT<IocpObject> pobj)
+{
+	if(!pobj) return;
+	m_aObjects.insert(pobj);
+}
+
+void IOCPPool::DetachObject(DataPtrT<IocpObject> pobj)
+{
+	m_aObjects.erase(pobj);
+}
+
 void IOCPPool::svc_checker()
 {
 	while(!test_canceled())
@@ -231,6 +243,12 @@ void IOCPPool::svc_checker()
 		ccc_update_info();
 		ccc_handle_sock();
 		ccc_execute_cmd();
+
+		for(bst_set<DataPtrT<IocpObject> >::iterator it=m_aObjects.begin();it!=m_aObjects.end();++it)
+		{
+			const_cast<DataPtrT<IocpObject>&>(*it)->touch();
+		}
+
 		Thread::sleep_for(100);
 	}
 

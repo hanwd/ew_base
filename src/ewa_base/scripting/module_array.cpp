@@ -842,7 +842,7 @@ int CallableMetatableT<arr_xt<T> >::__fun_call(Executor& ewsl, int pm)
 
 template<typename T> 
 typename CallableMetatableT<arr_xt<T> >::infotype  
-CallableMetatableT<arr_xt<T> >::sm_info(ObjectNameT<T>::MakeName("CallableMetatableT"));
+CallableMetatableT<arr_xt<T> >::sm_info(ObjectNameT<T>::MakeName("CallableMetatableT#arr_xt"));
 
 //template class CallableMetatableT<arr_xt<bool> >;
 template class CallableMetatableT<arr_xt<int64_t> >;

@@ -513,6 +513,9 @@
     <ClInclude Include="..\..\inc\ewa_base\basic\process.h">
       <Filter>include\basic</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\inc\ewa_base\scripting\callable_buffer.h">
+      <Filter>include\scripting</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\ewa_base\basic\atomic.cpp">
@@ -823,6 +826,9 @@
     </ClCompile>
     <ClCompile Include="..\..\src\ewa_base\net\session_http.cpp">
       <Filter>source\net</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewa_base\scripting\callable_buffer.cpp">
+      <Filter>source\scripting</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

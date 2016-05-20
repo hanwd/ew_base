@@ -104,6 +104,7 @@
     <ClInclude Include="..\..\inc\ewa_base\net\socket.h" />
     <ClInclude Include="..\..\inc\ewa_base\scripting.h" />
     <ClInclude Include="..\..\inc\ewa_base\scripting\bytecode_inst.h" />
+    <ClInclude Include="..\..\inc\ewa_base\scripting\callable_buffer.h" />
     <ClInclude Include="..\..\inc\ewa_base\scripting\callable_data.h" />
     <ClInclude Include="..\..\inc\ewa_base\scripting\callable_misc.h" />
     <ClInclude Include="..\..\inc\ewa_base\scripting\callable_wrap.h" />
@@ -224,6 +225,7 @@
     <ClCompile Include="..\..\src\ewa_base\net\session_tcp.cpp" />
     <ClCompile Include="..\..\src\ewa_base\net\session_udp.cpp" />
     <ClCompile Include="..\..\src\ewa_base\net\socket.cpp" />
+    <ClCompile Include="..\..\src\ewa_base\scripting\callable_buffer.cpp" />
     <ClCompile Include="..\..\src\ewa_base\scripting\callable_misc.cpp" />
     <ClCompile Include="..\..\src\ewa_base\scripting\callable_wrap.cpp" />
     <ClCompile Include="..\..\src\ewa_base\scripting\codegen.cpp" />

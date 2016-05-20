@@ -156,6 +156,11 @@ namespace detail
 			return m_ptr!=NULL;
 		}
 
+		inline bool operator<(const BasePtrT& o)
+		{
+			return m_ptr<o.m_ptr;
+		}
+
 
 	protected:
 		T *m_ptr;

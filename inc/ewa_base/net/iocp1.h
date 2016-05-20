@@ -9,7 +9,7 @@
 #include "ewa_base/threading/thread_spin.h"
 #include "ewa_base/logging/logger.h"
 #include "ewa_base/basic/lockguard.h"
-
+#include "ewa_base/scripting/callable_data.h"
 
 EW_ENTER
 
@@ -21,6 +21,12 @@ public:
 	virtual void Handle(SessionArray& akey)=0;
 };
 
+class  DLLIMPEXP_EWA_BASE IocpObject : public CallableData
+{
+public:
+	virtual void touch(){}
+
+};
 
 class DLLIMPEXP_EWA_BASE IOCPPool : public ThreadEx, private NonCopyable
 {
@@ -61,11 +67,15 @@ public:
 		return m_sName;
 	}
 
+	void AttachObject(DataPtrT<IocpObject> pobj);
+	void DetachObject(DataPtrT<IocpObject> pobj);
+
 protected:
 
 	void ccc_update_info();
 	void ccc_handle_sock();
 	void ccc_execute_cmd();
+
 
 #ifdef EW_WINDOWS
 	void ccc_handle_iocp(Session* pkey,MyOverLapped* pdat);
@@ -76,6 +86,9 @@ protected:
 	IOCPAccounter accounter;
 
 	SessionArray m_aSessions;
+	bst_set<DataPtrT<IocpObject> > m_aObjects; 
+
+
 	LockFreeQueue<int> m_lkfqSessionAvailable;
 	LockFreeQueue<DataPtrT<IocpCommand>,LockFreeQueuePolicyObj<DataPtrT<IocpCommand> > > m_lkfqCommand;
 	int m_nSessionMax;

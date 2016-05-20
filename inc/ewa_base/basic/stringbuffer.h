@@ -110,14 +110,14 @@ protected:
 	void _do_format_integer(G v);
 };
 
-
+DEFINE_OBJECT_NAME_T(StringBuffer,"Buffer");
 
 template<typename T> class hash_t<StringBuffer<T> >
 {
 public:
-	inline uint32_t operator()(const StringBuffer<T>& v)
+	inline uint32_t operator()(const StringBuffer<T>& o)
 	{
-		return hash_array<T>::hash(v.data(),v.size());
+		return hash_array<T>::hash(o.data(),o.size());
 	}
 };
 

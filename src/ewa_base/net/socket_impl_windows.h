@@ -25,6 +25,7 @@ public:
 		sock_type p=t==Socket::TCP?socket(AF_INET, t, IPPROTO_TCP):socket(AF_INET, t, IPPROTO_UDP);
 		if(p!=INVALID_SOCKET)
 		{
+			SetHandleInformation((HANDLE)p, HANDLE_FLAG_INHERIT, 0);
 			impl.reset(p);
 			return true;
 		}

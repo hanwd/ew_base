@@ -65,7 +65,11 @@ public:
 
 	bool Redirect(KO_Handle<KO_Policy_handle>& h)
 	{
-		if(pi.hProcess!=NULL) return false;
+		if(pi.hProcess!=NULL)
+		{
+			System::LogTrace("Process::Redirect failed, process already created!");
+			return false;
+		}
 		hWriter=h;
 		hReader.close();
 		return true;
@@ -112,11 +116,33 @@ public:
 		Close();
 	}
 
+	bool WaitFor(int ms)
+	{
+		if(pi.hProcess==NULL) return true;
+
+		DWORD rc=::WaitForSingleObject(pi.hProcess,ms);
+		if(rc==WAIT_TIMEOUT)
+		{
+			return false;
+		}
+		return true;
+	}
+
 	void Wait()
 	{
 		if(pi.hProcess==NULL) return;
 		::WaitForSingleObject(pi.hProcess,INFINITE);
-		Close();
+	}
+
+	bool GetExitCode(int* code)
+	{
+		DWORD code2;
+		if(GetExitCodeProcess(pi.hProcess,&code2))
+		{
+			if(code) *code=code2;
+			return true;
+		}
+		return false;
 	}
 
 	void Close()
@@ -124,7 +150,6 @@ public:
 		hReader.close();
 		hWriter.close();
 		hStream.Close();
-
 		::CloseHandle(pi.hThread);
 		::CloseHandle(pi.hProcess);
 		pi.hThread=NULL;
@@ -149,8 +174,8 @@ public:
 		si.hStdInput = h1;
 
 		si.dwFlags = (h1!=NULL||h2!=NULL)?STARTF_USESTDHANDLES:0;
-
-		bool flag=::CreateProcessA(NULL,sb.data(),NULL,NULL,TRUE,0,NULL,NULL,&si,&pi)!=FALSE;
+		
+		bool flag=::CreateProcessA(NULL,sb.data(),NULL,NULL,(si.dwFlags&STARTF_USESTDHANDLES)?TRUE:FALSE,0,NULL,NULL,&si,&pi)!=FALSE;
 
 		::CloseHandle(h1);
 		::CloseHandle(h2);
@@ -205,10 +230,20 @@ void Process::Wait()
 	((ProcessImpl*)impl)->Wait();
 }
 
+bool Process::GetExitCode(int* code)
+{
+	if(!impl.ok()) return false;
+	return ((ProcessImpl*)impl)->GetExitCode(code);
+}
+
+bool Process::WaitFor(int ms)
+{
+	if(!impl.ok()) return true;
+	return ((ProcessImpl*)impl)->WaitFor(ms);
+}
+
 void Process::Close()
 {
-	if(!impl.ok()) return;
-	((ProcessImpl*)impl)->Wait();
 	impl.close();
 }
 

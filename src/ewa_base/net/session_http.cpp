@@ -3,6 +3,78 @@
 EW_ENTER
 
 
+SessionHttpEwsl::SessionHttpEwsl(SessionManager& t):Target(t)
+{
+
+}
+
+SessionData* SessionManager::CreateSessionData()
+{
+	return new SessionData;
+}
+
+bool SessionData::is_timeout(const SessionManager& sm)
+{
+	return flags.get(FLAG_ABONDON)||(sm.tp_now-tplast).GetSeconds()>180;
+}
+
+void SessionManager::EraseTimeoutSessions()
+{
+	TimePoint tp=Clock::now();
+	if((tp-tp_now).GetSeconds()<30) return;
+	tp_now=tp;
+
+	for(map_type::iterator it=session_map.begin();it!=session_map.end();)
+	{
+		if((*it).second->is_timeout(*this))
+		{
+			it=session_map.erase(it);
+		}
+		else
+		{
+			it++;
+		}
+	}	
+}
+
+SessionManager::session_ptr SessionManager::GetSession(String& cookie_id)
+{
+	LockGuard<AtomicSpin> lock(spin);
+	EraseTimeoutSessions();
+	session_ptr item;
+	map_type::iterator it=session_map.find(cookie_id);
+	if(it==session_map.end()||(*it).second->flags.get(SessionData::FLAG_ABONDON))
+	{
+		cookie_id=NewSessionId();
+		session_ptr &item(session_map[cookie_id]);
+		item.reset(CreateSessionData());
+		item->id=cookie_id;
+		return item;
+	}
+	else
+	{
+		session_ptr &item(session_map[cookie_id]);
+		item->touch();
+		return item;
+	}
+
+
+}
+
+String SessionManager::NewSessionId()
+{
+	String id;
+	int64_t val=Clock::now().val/1000;
+	static uint32_t pwd=val;
+	pwd=(pwd*0x12345789+0x5131)^(pwd>>8);
+
+	id<<String::Format("%08d",pwd%100000000u);
+	id<<val;
+
+	return id;
+}
+
+
 SessionHttp::SessionHttp(){phase=0;httpstatus=200;}
 
 void SessionHttp::HandleHeader(StringBuffer<char>& sb2)
@@ -229,5 +301,104 @@ void SessionHttp::OnConnected()
 }
 
 
+void SessionHttp::Redirect(const String& url)
+{
+	httpstatus=301;
+	props["Location"]=url;	
+}
+
+
+
+class DLLIMPEXP_EWA_BASE SessionHttpRequest : public CallableTableEx
+{
+public:
+	SessionHttpRequest(SessionHttpEwsl& o)
+	{
+		value["uri"].reset(o.uri);
+		value["method"].reset(o.method);
+		value["anchor"].reset(o.anchor);
+		VariantTable& query(value["query"].ref<VariantTable>());
+		for(SessionHttpEwsl::map_type::iterator it=o.query.begin();it!=o.query.end();++it)
+		{
+			query[(*it).first].reset((*it).second);
+		}
+	}
+};
+
+class DLLIMPEXP_EWA_BASE SessionHttpResponse : public CallableTableEx
+{
+public:
+	SessionHttpResponse()
+	{
+		value["buffer"].kptr(new CallableWrapT<StringBuffer<char> >);
+		value["status"].reset(200);
+	}
+};
+
+
+DataPtrT<CallableTableEx> http_server_objects(new CallableTableEx);
+
+void SessionHttpEwsl::HandleContent(StringBuffer<char>& sb)
+{
+
+	String filepath=Target.server_path+uri;
+
+	int i=-1;
+	for(const char* p=uri.c_str();*p;p++)
+	{
+		if(*p=='.') i=p-uri.c_str();
+	}
+
+	if(i>0 && uri.substr(i)==".ewsl")
+	{
+		Variant request(new SessionHttpRequest(*this));
+		Variant session(Target.GetSession(cookie["KSessionId"]));
+		DataPtrT<SessionHttpResponse> response(new SessionHttpResponse);
+
+
+		Executor ewsl;
+		ewsl.push(session);
+		ewsl.push(request);
+		ewsl.push(response);
+		ewsl.push(http_server_objects);
+
+		if(ewsl.execute_file(filepath,4))
+		{
+			httpstatus=variant_cast<int>(response->value["status"]);
+			if(httpstatus==301)
+			{
+				props["Location"]=variant_cast<String>(response->value["location"]);
+			}
+			else
+			{
+				sb=variant_cast<String>(response->value["text"]);			
+			}
+		}
+		else
+		{
+			sb<<"server_error";		
+		}
+	}
+	else if(!sb.load(filepath,FILE_BINARY))
+	{
+		SessionHttp::HandleContent(sb);
+	}
+}
+
+
+void SessionHttpServer::NewSession(PerIO_socket& sk)
+{
+	sk.sock.Block(false);
+	DataPtrT<SessionHttpEwsl> kjobd_worker(new SessionHttpEwsl(Target));
+	kjobd_worker->sk_local.swap(sk);
+	StartSession(kjobd_worker.get(),hiocp);
+}
+
+
+
+void SessionHttpServer::Register(const String& name,Variant& object)
+{
+	http_server_objects->value[name]=object;
+}
 
 EW_LEAVE

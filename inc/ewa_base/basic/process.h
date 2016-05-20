@@ -19,7 +19,6 @@ public:
 	{
 		FLAG_ASYNC		=1<<0,
 		FLAG_CONSOLE	=1<<1,
-
 	};
 
 	Process();
@@ -36,8 +35,11 @@ public:
 
 	void Wait();
 
+	bool WaitFor(int ms);
+
 	void Close();
 
+	bool GetExitCode(int* code=NULL);
 
 protected:
 

@@ -2,6 +2,7 @@
 #define __H_EW_SCRIPTING_VARIANT_WRAP__
 
 #include "ewa_base/scripting/callable_data.h"
+#include "ewa_base/basic/stringbuffer.h"
 #include "ewa_base/basic/clock.h"
 
 EW_ENTER
@@ -168,6 +169,9 @@ class DLLIMPEXP_EWA_BASE CallableWrapT<VariantTable>;
 template<typename T>
 class DLLIMPEXP_EWA_BASE CallableWrapT<arr_xt<T> >;
 
+
+template<typename T>
+class DLLIMPEXP_EWA_BASE CallableWrapT<StringBuffer<T> >;
 
 EW_LEAVE
 #endif

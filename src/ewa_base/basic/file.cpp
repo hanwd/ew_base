@@ -28,7 +28,7 @@ bool File::Open(const String& filename_,int flag_)
 	HANDLE hFile=(HANDLE)CreateFileA(
 					 fn.c_str(),
 					 FileAccess::makeflag(flag_,GENERIC_READ,GENERIC_WRITE),
-					 FILE_SHARE_READ,
+					 FILE_SHARE_READ|FILE_SHARE_WRITE,
 					 NULL,
 					 (flag_&FileAccess::FLAG_CR)?OPEN_ALWAYS:OPEN_EXISTING,
 					 NULL,

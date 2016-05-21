@@ -32,7 +32,15 @@ public:
 
 	static void g(StringBuffer<char>& sb,const dcomplex& v)
 	{
-		sb<<String::Format("%g+%gi",v.real(),v.imag());
+		if(v.imag()<0.0)
+		{
+			sb<<String::Format("%g%gi",v.real(),v.imag());		
+		}
+		else
+		{
+			sb<<String::Format("%g+%gi",v.real(),v.imag());		
+		}
+
 	}
 
 	static void g(StringBuffer<char>& sb,const VariantTable& v)
@@ -104,7 +112,7 @@ public:
 
 	static void k(StringBuffer<char>& sb,const dcomplex& v)
 	{
-		sb<<v.real()<<"+"<<v.imag()<<"i";
+		fk_print_to_stringbuffer_1<N>::g(sb,v);
 	}
 
 	static void k(StringBuffer<char>& sb,const Variant& v)
@@ -263,7 +271,7 @@ public:
 
 	static void g(StringBuffer<char>& sb,const dcomplex& v)
 	{
-		sb<<String::Format("%g+%gi",v.real(),v.imag());
+		fk_print_to_stringbuffer_1<N>::g(sb,v);
 	}
 
 	static void g(StringBuffer<char>& sb,const VariantTable& v)

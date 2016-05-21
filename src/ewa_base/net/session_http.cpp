@@ -318,6 +318,7 @@ public:
 		value["method"].reset(o.method);
 		value["anchor"].reset(o.anchor);
 		VariantTable& query(value["query"].ref<VariantTable>());
+
 		for(SessionHttpEwsl::map_type::iterator it=o.query.begin();it!=o.query.end();++it)
 		{
 			query[(*it).first].reset((*it).second);
@@ -371,7 +372,7 @@ void SessionHttpEwsl::HandleContent(StringBuffer<char>& sb)
 			}
 			else
 			{
-				sb=variant_cast<String>(response->value["text"]);			
+				sb.swap(response->value["buffer"].ref<StringBuffer<char> >());
 			}
 		}
 		else

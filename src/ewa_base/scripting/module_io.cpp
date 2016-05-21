@@ -906,6 +906,57 @@ public:
 };
 IMPLEMENT_OBJECT_INFO(CallableFunctionSaveVar, ObjectInfo);
 
+
+
+class CallableFunctionToJson : public CallableFunction
+{
+public:
+
+	CallableFunctionToJson():CallableFunction("io.to_json",1){}
+
+	virtual int __fun_call(Executor& ewsl,int pm)
+	{
+		ewsl.check_pmc(this,pm,1);
+		Variant var;
+		to_json(ewsl.ci0.nbx[1],var.ref<StringBuffer<char> >());
+		ewsl.ci0.nbx[1]=var;
+		return 1;	
+	}
+	DECLARE_OBJECT_CACHED_INFO(CallableFunctionToJson, ObjectInfo);
+
+};
+IMPLEMENT_OBJECT_INFO(CallableFunctionToJson, ObjectInfo);
+
+
+class CallableFunctionParseJson : public CallableFunction
+{
+public:
+
+	CallableFunctionParseJson():CallableFunction("io.parse_json",1){}
+
+	virtual int __fun_call(Executor& ewsl,int pm)
+	{
+		ewsl.check_pmc(this,pm,1);
+		StringBuffer<char>* p=ewsl.ci0.nbx[1].ptr<StringBuffer<char> >();
+		if(p)
+		{
+			ewsl.ci0.nbx[1]=parse_json(*p);
+		}
+		else
+		{
+			StringBuffer<char> sb=variant_cast<String>(ewsl.ci0.nbx[1]);
+			ewsl.ci0.nbx[1]=parse_json(*p);
+		}
+		return 1;	
+	}
+	DECLARE_OBJECT_CACHED_INFO(CallableFunctionParseJson, ObjectInfo);
+
+};
+
+IMPLEMENT_OBJECT_INFO(CallableFunctionParseJson, ObjectInfo);
+
+
+
 void init_module_io()
 {
 	CG_GGVar& gi(CG_GGVar::current());
@@ -922,6 +973,8 @@ void init_module_io()
 	gi.add_inner<CallableFunctionPrintEx>();
 	gi.add_inner<CallableFunctionShowTemp>();
 
+	gi.add_inner<CallableFunctionToJson>();
+	gi.add_inner<CallableFunctionParseJson>();
 }
 
 EW_LEAVE

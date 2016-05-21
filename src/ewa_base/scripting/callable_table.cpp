@@ -23,7 +23,8 @@ int CallableTableOperators::__do_getindex(Executor& ewsl,VariantTable& tb,const 
 	int id=tb.find1(si);
 	if(id<0)
 	{
-		ewsl.kerror("invalid index");
+		(*ewsl.ci1.nsp).clear();
+		//ewsl.kerror("invalid index");
 	}
 	else
 	{

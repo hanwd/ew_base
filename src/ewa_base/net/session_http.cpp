@@ -86,7 +86,7 @@ void SessionHttp::HandleHeader(StringBuffer<char>& sb2)
 
 	for(map_type::const_iterator it=cookie.begin();it!=cookie.end();++it)
 	{
-		sb1<<"Set-Cookie: "<<(*it).first<<"="<<string_escape((*it).second)<<"; path=/; domain=127.0.0.1\r\n";		
+		sb1<<"Set-Cookie: "<<(*it).first<<"="<<string_escape((*it).second)<<"; path=/; \r\n";		
 	}
 	if(httpstatus==301)
 	{

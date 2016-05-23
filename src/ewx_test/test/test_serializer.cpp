@@ -46,7 +46,9 @@ public:
 
 	void Serialize(Serializer& ar)
 	{
-		ar & aInts & aMaps & s1 & ivals & arr;
+		ar & aInts;
+		ar & aMaps;
+		ar & s1 & ivals & arr;
 		ar & dptr1 & dptr2;
 	}
 
@@ -83,7 +85,7 @@ TEST_DEFINE(TEST_Serializer)
 	writer.open("test_serializer.dat");
 	try
 	{
-		writer & dat[0];
+		writer & Serializer::head & dat[0] & Serializer::tail;
 	}
 	catch(...)
 	{
@@ -94,7 +96,7 @@ TEST_DEFINE(TEST_Serializer)
 	reader.open("test_serializer.dat");
 	try
 	{
-		reader & dat[1];
+		reader & Serializer::head & dat[1] & Serializer::tail;
 	}
 	catch(...)
 	{
@@ -134,8 +136,8 @@ TEST_DEFINE(TEST_Serializer)
 
 	try
 	{
-		sbuf.writer() & v1; // write data to buffer
-		sbuf.reader() & v2; // read data from buffer
+		sbuf.writer() & Serializer::head & v1 &Serializer::tail; // write data to buffer
+		sbuf.reader() & Serializer::head & v2 &Serializer::tail; // read data from buffer
 	}
 	catch(...)
 	{

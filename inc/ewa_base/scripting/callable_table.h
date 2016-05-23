@@ -26,8 +26,10 @@ public:
 	static int __do_getindex(Executor& ewsl,VariantTable& tb,const String& si);
 	static int __do_getarray(Executor& ewsl,VariantTable& tb,int pm);
 	static int __do_setarray(Executor& ewsl,VariantTable& tb,int pm);
-
 	static void __do_get_iterator(Executor& ewsl,VariantTable& tb,int nd);
+
+	static bool __do_test_dims(VariantTable& tb,arr_xt_dims& dm,int op);
+	static int __do_getarray_index_range(Executor& ewsl,VariantTable& tb,int pm);
 };
 
 class DLLIMPEXP_EWA_BASE CallableTableProxy : public CallableObject
@@ -45,14 +47,13 @@ public:
 	CallableTableProxy(VariantTable& v,ObjectData* p=NULL):value(v),parent(p){}
 
 	int __getindex(Executor& ewsl,const String& si);
-
 	int __setindex(Executor& ewsl,const String& si);
-
 	int __getarray(Executor& ewsl,int pm);
-
 	int __setarray(Executor& ewsl,int pm);
 
-	void __get_iterator(Executor& ewsl,int nd);
+	int __getarray_index_range(Executor& ewsl,int pm){return CallableTableOperators::__do_getarray_index_range(ewsl,value,pm);}
+	bool __test_dims(arr_xt_dims& dm,int op){return CallableTableOperators::__do_test_dims(value,dm,op);}
+	void __get_iterator(Executor& ewsl,int nd){CallableTableOperators::__do_get_iterator(ewsl,value,nd);}
 
 };
 
@@ -77,6 +78,8 @@ public:
 	int __getarray(Executor& ewsl,int pm){return CallableTableOperators::__do_getarray(ewsl,value,pm);}
 	int __setarray(Executor& ewsl,int pm){return CallableTableOperators::__do_setarray(ewsl,value,pm);}
 
+	int __getarray_index_range(Executor& ewsl,int pm){return CallableTableOperators::__do_getarray_index_range(ewsl,value,pm);}
+	bool __test_dims(arr_xt_dims& dm,int op){return CallableTableOperators::__do_test_dims(value,dm,op);}
 	void __get_iterator(Executor& ewsl,int nd){CallableTableOperators::__do_get_iterator(ewsl,value,nd);}
 
 	bool ToValue(String& v,int) const;

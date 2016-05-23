@@ -15,12 +15,13 @@ public:
 
 	File file;
 
-	size_t send(const char* data,size_t size);
+	bool seek(int64_t p){return -1!=file.Seek(p,SEEKTYPE_BEG);}
+	int64_t tell(){return file.Tell();}
 
+	size_t send(const char* data,size_t size);
 	size_t recv(char* data,size_t size);
 
 	void close();
-
 	bool good();
 	
 };
@@ -43,8 +44,7 @@ class DLLIMPEXP_EWA_BASE SerializerWriterStream : public SerializerWriter
 {
 public:
 
-	SerializerWriterStream(std::ostream& is):fs(is) {}
-
+	SerializerWriterStream(std::ostream& os):fs(os) {}
 	bool good() const{return fs.good();}
 
 protected:

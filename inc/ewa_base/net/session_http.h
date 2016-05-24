@@ -71,6 +71,7 @@ public:
 	arr_1t<String> lines;
 	int phase;
 	int flags;
+	int length;
 
 	typedef indexer_map<String,String> map_type;
 
@@ -96,6 +97,8 @@ public:
 	void OnConnected();
 
 	void Redirect(const String& url);
+
+	void HandleMulitpart(const char* p1,const char* p2);
 
 protected:
 	void HandleLines();

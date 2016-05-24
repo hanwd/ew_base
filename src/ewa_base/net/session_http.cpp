@@ -75,7 +75,7 @@ String SessionManager::NewSessionId()
 }
 
 
-SessionHttp::SessionHttp(){phase=0;httpstatus=200;}
+SessionHttp::SessionHttp(){phase=0;httpstatus=200;length=-1;}
 
 void SessionHttp::HandleHeader(StringBuffer<char>& sb2)
 {
@@ -206,6 +206,10 @@ void SessionHttp::HandleLines()
 					p0=p2+1;
 				}
 			}
+			else if(key=="Content-Length")
+			{
+				value.ToNumber(&length);
+			}
 			else
 			{
 				props[key]=value;
@@ -223,6 +227,31 @@ void SessionHttp::OnSendCompleted(TempOlapPtr& q)
 	{
 		Disconnect();
 	}
+}
+
+
+
+
+void SessionHttp::HandleMulitpart(const char* p1,const char* p3)
+{
+	const char* L1=::strstr(p1,"\n");
+	if(!L1||L1>p3)
+	{
+		System::LogDebug("invalid multipart");
+		return;
+	}
+	p1=L1+1;
+	while(1)
+	{
+		const char* p2=p1;
+		ParserBase::skip<lkt_not_newline>(p2);
+		if(p2-p1==2)
+		{
+
+		}
+	}
+	
+
 }
 
 void SessionHttp::OnRecvCompleted(TempOlapPtr& q)
@@ -247,7 +276,6 @@ void SessionHttp::OnRecvCompleted(TempOlapPtr& q)
 					break;
 				}
 				p1=p2+1;
-
 			}
 		}
 
@@ -280,16 +308,61 @@ void SessionHttp::OnRecvCompleted(TempOlapPtr& q)
 
 	if(phase==1)
 	{
+
+		if(length>0)
+		{
+			 if(sb.size()!=length)
+			 {
+				AsyncRecv(q);
+				return;			 
+			 }
+
+			if(::strstr(props["Content-Type"].c_str(),"multipart/form-data")!=NULL)
+			{
+
+				const char* boundary=::strstr(props["Content-Type"].c_str(),"boundary=");
+				if(!boundary)
+				{
+					System::LogTrace("invalid multipart/form-data");
+				}
+				else
+				{
+					boundary+=::strlen("boundary=");
+					const char* p1=sb.c_str();
+					while(p1=::strstr(p1,boundary))
+					{
+						const char* p2=::strstr(p1+1,boundary);
+						if(p2)
+						{
+							HandleMulitpart(p1,p2);
+							p1=p2+1;
+						}
+						else
+						{
+
+							System::LogTrace("invalid multipart/form-data boundary");
+							break;
+						}
+					}
+				}								
+
+			}
+			HandleRequest();
+
+			return;
+		}
+
 		if(flags==1)
 		{
 			
 		}
-		else
+		else 
 		{
+
 			HandleQuery(sb);
 		}
+		HandleRequest();	
 
-		HandleRequest();
 	}
 
 

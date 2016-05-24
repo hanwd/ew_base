@@ -425,7 +425,7 @@ public:
 
 	static void g(const String& json,StringBuffer<char>& sb,const String& tb)
 	{
-		sb<<"\""<<json<<"\"";
+		sb<<"\""<<string_escape(json)<<"\"";
 	}
 
 	static void g(const Variant& json,StringBuffer<char>& sb,const String& tb)

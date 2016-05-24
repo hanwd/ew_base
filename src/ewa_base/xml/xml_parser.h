@@ -9,21 +9,6 @@
 EW_ENTER
 
 
-class DLLIMPEXP_EWA_BASE ParserBase : public Object
-{
-public:
-
-	typedef char mychar;
-	typedef const char* mychar_ptr;
-
-	template<template<unsigned> class P> static inline void skip(mychar_ptr& p)
-	{
-		mychar_ptr tmp=p;
-		while(lookup_table<P>::test(*tmp)) ++tmp;
-		p=tmp;
-	}
-
-};
 
 class XmlParser : public ParserBase
 {

@@ -184,6 +184,12 @@ public:
 	static const unsigned char value = (N >= '0'&&N <= '9') ? (N - '0') : 0xFF;
 };
 
+template<unsigned N>
+class lkt_not_newline
+{
+public:
+	static const int value = N!=0||N!='\n';
+};
 
 template<template<unsigned> class P,typename T>
 T lookup_table<P,T>::cmap[256]=
@@ -254,6 +260,29 @@ T lookup_table<P,T>::cmap[256]=
 	P<0xFC>::value,P<0xFD>::value,P<0xFE>::value,P<0xFF>::value
 };
 
+
+class DLLIMPEXP_EWA_BASE ParserBase : public Object
+{
+public:
+
+	typedef char mychar;
+	typedef const char* mychar_ptr;
+
+	template<template<unsigned> class P> static inline void skip(mychar_ptr& p)
+	{
+		mychar_ptr tmp=p;
+		while(lookup_table<P>::test(*tmp)) ++tmp;
+		p=tmp;
+	}
+	template<template<unsigned> class P> static inline void skip(mychar_ptr& p,mychar_ptr d)
+	{
+		mychar_ptr tmp=p;
+		while(lookup_table<P>::test(*tmp) && p!=d) ++tmp;
+		p=tmp;
+	}
+
+
+};
 
 EW_LEAVE
 #endif

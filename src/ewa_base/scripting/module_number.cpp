@@ -206,8 +206,6 @@ void init_module_number()
 	gi.add_inner<CallableFunctionBooleanOr>();
 	gi.add_inner<CallableFunctionBooleanXor>();
 	gi.add_inner<CallableFunctionBooleanNot>();
-
-
 	gi.add_inner<CallableMetatableT<int64_t> >();
 	gi.add_inner<CallableMetatableT<double> >();
 	gi.add_inner<CallableMetatableT<dcomplex> >();

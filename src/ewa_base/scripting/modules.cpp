@@ -359,8 +359,8 @@ public:
 	int __setarray(Executor& ewsl,int pm){return CallableTableOperators::__do_setarray(ewsl,ewsl.tb1,pm);}
 	int __setindex(Executor& ewsl,const String& si){return CallableTableOperators::__do_setindex(ewsl,ewsl.tb1,si);}
 
+	int __getarray_index_range(Executor& ewsl,int pm){return CallableTableOperators::__do_getarray_index_range(ewsl,ewsl.tb1,pm);}
 	void __get_iterator(Executor& ewsl,int nd){CallableTableOperators::__do_get_iterator(ewsl,ewsl.tb1,nd);}
-
 
 	bool ToValue(String& v,int) const{v="table:global variable proxy";return true;}
 
@@ -560,7 +560,9 @@ void CG_GGVar::_init()
 
 	gi.add(NULL,"pcall");
 	gi.add(NULL,"map");
+	gi.add(NULL,"map_k");
 	gi.add(NULL,"reduce");
+	gi.add(NULL,"reduce_k");
 	gi.add(NULL,"select");
 	gi.add(NULL,"join");
 	gi.add(NULL,"array_concat");
@@ -600,6 +602,15 @@ void CG_GGVar::_init()
 "function map(x,f)\n"
 "{\n"
 "	local r=[];\n"
+"	for_each(v in x)\n"
+"	{\n"
+"		r.push(f(v));\n"
+"	}\n"
+"	return r;\n"
+"};\n"
+"function map_k(x,f)\n"
+"{\n"
+"	local r=[];\n"
 "	local k=0;\n"
 "	for_each(v in x)\n"
 "	{\n"
@@ -611,36 +622,45 @@ void CG_GGVar::_init()
 "function select(x,f)\n"
 "{\n"
 "	local r=[];\n"
-"	local k=0;\n"
 "	for_each(v in x)\n"
 "	{\n"
-"		if(f(v,k++)) r.push(v);\n"
+"		if(f(v)) r.push(v);\n"
 "	}\n"
-"	return r;	\n"
+"	return r;\n"
 "};\n"
 "\n"
-"function join(x,r)\n"
+"function join(s,r)\n"
 "{\n"
 "	local z=r;\n"
-"	return reduce(x,def(x,y,k)\n"
+"	return reduce_k(s,def(x,y,k)\n"
 "	{\n"
-"		return k==0?x#y..z..x;\n"
+"		return k==0?y#x..z..y;\n"
 "	});\n"
 "};\n"
 "function reduce(x,f,n)\n"
 "{\n"
-"	local k=0;\n"
 "	for_each(v in x)\n"
 "	{\n"
-"		n=f(v,n,k++);	\n"
+"		n=f(n,v);	\n"
 "	}\n"
 "	return n;\n"
 "};\n"
-"def array_concat(fn,...)\n"
+"function reduce_k(x,f,n)\n"
 "{\n"
+"	local k=0;\n"
+"	for_each(v in x)\n"
+"	{\n"
+"		n=f(n,v,k++);	\n"
+"	}\n"
+"	return n;\n"
+"};\n"
+"def array_concat(...)\n"
+"{\n"
+"	local fn=[];\n"
 "	for_each(v in [...])\n"
 "	{\n"
-"		if(v.length()>0) fn[end+1:end+v.length()]=v[:];\n"
+"		local n=length(v);\n"
+"		if(n>0) fn[end+1:end+n]=v[:];\n"
 "	}\n"
 "	return fn;\n"
 "};\n"

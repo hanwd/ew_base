@@ -64,20 +64,23 @@ class DLLIMPEXP_EWA_BASE SessionHttp : public SessionClient
 public:
 
 	StringBuffer<char> sb;
+
 	String uri;
 	String method;
 	String anchor;
+	int length;
 
-	arr_1t<String> lines;
+	arr_1t<int> lines;
+
 	int phase;
 	int flags;
-	int length;
 
 	typedef indexer_map<String,String> map_type;
 
 	map_type props;
-	map_type query;
 	map_type cookie;
+
+	VariantTable query;
 
 	int httpstatus;
 
@@ -98,7 +101,7 @@ public:
 
 	void Redirect(const String& url);
 
-	void HandleMulitpart(const char* p1,const char* p2);
+	void HandleMulitpart(char* p1,char* p2);
 
 protected:
 	void HandleLines();

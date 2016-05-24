@@ -371,6 +371,7 @@ void init_module_string()
 {
 	CG_GGVar &gi(CG_GGVar::current());
 	gi.add_inner<CallableMetatableT<String> >();
+	gi.add_inner<CallableMetatableT<StringBuffer<char> > >();
 
 	gi.add_inner<CallableFunctionStringLength>();
 	gi.add_inner<CallableFunctionStringUpper>();

@@ -27,6 +27,47 @@ public:
 IMPLEMENT_OBJECT_INFO_T1(CallableFunctionBufferClearT, ObjectInfo);
 
 template<typename T>
+class CallableFunctionBufferSaveT : public CallableFunction
+{
+public:
+	CallableFunctionBufferSaveT():CallableFunction(){}
+
+	virtual int __fun_call(Executor& ewsl,int pm)
+	{
+		ewsl.check_pmc(this, pm,1,2);
+		String filename=variant_cast<String>(ewsl.ci0.nbx[1]);
+		int type=pm>1?variant_cast<int>(ewsl.ci0.nbx[2]):FILE_BINARY;
+
+		ewsl.ci1.nbp[StackState1::SBASE_THIS].ref<StringBuffer<T> >().save(filename,type);
+		ewsl.ci0.nbx[1]=ewsl.ci1.nbp[StackState1::SBASE_THIS];
+		return 1;	
+	}
+	DECLARE_OBJECT_CACHED_INFO(CallableFunctionBufferSaveT, ObjectInfo);
+};
+IMPLEMENT_OBJECT_INFO_T1(CallableFunctionBufferSaveT, ObjectInfo);
+
+
+template<typename T>
+class CallableFunctionBufferLoadT : public CallableFunction
+{
+public:
+	CallableFunctionBufferLoadT():CallableFunction(){}
+
+	virtual int __fun_call(Executor& ewsl,int pm)
+	{
+		ewsl.check_pmc(this, pm,1,2);
+		String filename=variant_cast<String>(ewsl.ci0.nbx[1]);
+		int type=pm>1?variant_cast<int>(ewsl.ci0.nbx[2]):FILE_BINARY;
+
+		ewsl.ci1.nbp[StackState1::SBASE_THIS].ref<StringBuffer<T> >().load(filename,type);
+		ewsl.ci0.nbx[1]=ewsl.ci1.nbp[StackState1::SBASE_THIS];
+		return 1;	
+	}
+	DECLARE_OBJECT_CACHED_INFO(CallableFunctionBufferLoadT, ObjectInfo);
+};
+IMPLEMENT_OBJECT_INFO_T1(CallableFunctionBufferLoadT, ObjectInfo);
+
+template<typename T>
 class CallableFunctionBufferWriteT : public CallableFunction
 {
 public:
@@ -63,15 +104,18 @@ public:
 	typedef StringBuffer<T> type;
 	typedef T scalar_type;
 
-	CallableMetatableT()
+	CallableMetatableT():CallableMetatable("buffer")
 	{
 		value["clear"].kptr(new CallableFunctionBufferClearT<T>());
 		value["write"].kptr(new CallableFunctionBufferWriteT<T>());
+		value["load"].kptr(new CallableFunctionBufferLoadT<T>());
+		value["save"].kptr(new CallableFunctionBufferSaveT<T>());
 	}
 
 	virtual int __fun_call(Executor& ewsl, int pm)
 	{
-		return 0;
+		ewsl.ci0.nbx[1].reset<StringBuffer<char> >();
+		return 1;
 	}
 
 	DECLARE_OBJECT_CACHED_INFO(CallableMetatableT, ObjectInfo);

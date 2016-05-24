@@ -75,7 +75,13 @@ String SessionManager::NewSessionId()
 }
 
 
-SessionHttp::SessionHttp(){phase=0;httpstatus=200;length=-1;}
+SessionHttp::SessionHttp()
+{
+	phase=0;
+	httpstatus=200;
+	length=-1;
+	lines.push_back(0);
+}
 
 void SessionHttp::HandleHeader(StringBuffer<char>& sb2)
 {
@@ -86,7 +92,7 @@ void SessionHttp::HandleHeader(StringBuffer<char>& sb2)
 
 	for(map_type::const_iterator it=cookie.begin();it!=cookie.end();++it)
 	{
-		sb1<<"Set-Cookie: "<<(*it).first<<"="<<string_escape((*it).second)<<"; path=/; domain=127.0.0.1\r\n";		
+		sb1<<"Set-Cookie: "<<(*it).first<<"="<<string_escape((*it).second)<<"; path=/; \r\n";		
 	}
 	if(httpstatus==301)
 	{
@@ -150,14 +156,23 @@ void SessionHttp::HandleQuery(const String& s)
 		{
 			String key=string_unescape(q2[i].substr(0,q1));
 			String value=string_unescape(q2[i].substr(q1+1));
-			query[key]=value;
+			query[key].reset(value);
 		}
 	}
 }
 
+template<unsigned N>
+class lkt_not_colon
+{
+public:
+	static const unsigned value = N!=':' && N!=0;
+};
+
 void SessionHttp::HandleLines()
 {
-	arr_1t<String> head=string_split(lines[0]," ");
+	const char* p=sb.data();
+
+	arr_1t<String> head=string_split(p," ");
 	if(head.size()>1)
 	{
 		method=head[0];
@@ -182,13 +197,19 @@ void SessionHttp::HandleLines()
 
 	}
 
-	for(size_t i=1;i<lines.size();i++)
+	for(size_t i=2;i<lines.size();i++)
 	{
-		int n=lines[i].find(':');
-		if(n>0)
+
+		const char* p1=p+lines[i-1];
+		const char* p2=p1;
+
+		ParserBase::skip<lkt_not_colon>(p2);
+		if(*p2==0) continue;
+
+		if(p2)
 		{
-			String key=string_trim(lines[i].substr(0,n));
-			String value=lines[i].substr(n+1);
+			String key=string_trim(String(p1,p2));
+			String value=p2+1;
 
 			if(key=="Cookie")
 			{		
@@ -229,65 +250,117 @@ void SessionHttp::OnSendCompleted(TempOlapPtr& q)
 	}
 }
 
-
-
-
-void SessionHttp::HandleMulitpart(const char* p1,const char* p3)
+void SessionHttp::HandleMulitpart(char* p1,char* p2)
 {
-	const char* L1=::strstr(p1,"\n");
-	if(!L1||L1>p3)
+	String name;
+	String filename;
+	String type;
+
+	StringBuffer<char> result;
+	lines.resize(1);
+
+	char* pd=p1;
+	for(;pd!=p2;pd++)
 	{
-		System::LogDebug("invalid multipart");
+		if((*pd)!='\n') continue;
+		int n=lines.back();
+
+		pd[0]=0;
+		if(pd[-1]=='\r') pd[-1]=0;
+
+		int i=pd-p1+1;
+		lines.push_back(i);
+
+		if(i-n==2)
+		{
+			break;
+		}
+	
+
+	}
+
+	if(pd==p2)
+	{
+		System::LogTrace("invalid multipart data");
 		return;
 	}
-	p1=L1+1;
-	while(1)
-	{
-		const char* p2=p1;
-		ParserBase::skip<lkt_not_newline>(p2);
-		if(p2-p1==2)
-		{
 
+	for(size_t j=1;j<lines.size();j++)
+	{
+		const char* s0=p1+lines[j];
+		const char* s1=strstr(s0,":");
+
+		if(s1==NULL) continue;
+		String key=String(s0,s1);
+		String value=String(s1+1);
+
+		if(key=="Content-Disposition")
+		{
+			arr_1t<String> kvs=string_split(value,";");
+			for(arr_1t<String>::iterator it=kvs.begin();it!=kvs.end();++it)
+			{
+				int pe=(*it).find('=');
+				if(pe<=0) continue;
+				String n=string_trim((*it).substr(0,pe));
+				String v=(*it).substr(pe+2,(*it).size()-pe-3);
+
+				if(n=="name")
+				{
+					name=v;
+				}
+				else if(n=="filename")
+				{
+					filename=v;
+				}						
+			}
 		}
+		else if(key=="Content-Type")
+		{
+			type=string_trim(value);
+		}				
 	}
-	
+
+	pd=p1+lines.back();
+
+	if(name=="")
+	{
+
+	}
+	else if(type=="")
+	{
+		query[name].ref<String>().assign(pd,p2);
+	}
+	else
+	{
+		result.assign(pd,p2);
+		VariantTable& tb(query[name].ref<VariantTable>());;
+		tb["data"].reset(result);
+		tb["filename"].reset(filename);
+		tb["type"].reset(type);
+	}
 
 }
 
 void SessionHttp::OnRecvCompleted(TempOlapPtr& q)
 {
-	size_t s0=sb.size();
+	size_t s1=sb.size();
 	sb.append(q->buffer,q->size);
-
-	size_t p1=0;
 
 	if(phase==0)
 	{
-		for(size_t p2=1;p2<sb.size();p2++)
+		size_t s2=sb.size();
+		for(size_t i=s1;i<s2;i++)
 		{
-			if(sb[p2]=='\n')
-			{
-				size_t p3=sb[p2-1]=='\r'?p2-1:p2;
-				lines.append(String(&sb[p1],p3-p1));
-				if(p3==p1)
-				{
-					p1=p2+1;
-					phase=1;
-					break;
-				}
-				p1=p2+1;
-			}
-		}
+			if(sb[i]!='\n') continue;
 
-		if(p1!=0)
-		{
-			size_t s2=sb.size()-p1;
-			memmove(sb.data(),sb.data()+p1,s2);
-			sb.resize(s2);
-		}
+			sb[i]=0;
+			if(sb[i-1]=='\r') sb[i-1]=0;
+	
+			int n=lines.back();
+			lines.push_back(++i);
+			if(i-n!=2) continue;
 
-		if(phase==1)
-		{
+			phase=1;
 			HandleLines();
 
 			if(method!="POST")
@@ -295,20 +368,24 @@ void SessionHttp::OnRecvCompleted(TempOlapPtr& q)
 				HandleRequest();
 				return;
 			}
-		}
-		else
+			else
+			{
+				sb.erase(sb.begin(),sb.begin()+lines.back());
+				break;
+			}
+		}	
+
+		if(phase==0)
 		{
 			AsyncRecv(q);
-			return;
-		}
-
+			return;		
+		}	
 	}
 
 	EW_ASSERT(method=="POST");
 
 	if(phase==1)
 	{
-
 		if(length>0)
 		{
 			 if(sb.size()!=length)
@@ -320,51 +397,68 @@ void SessionHttp::OnRecvCompleted(TempOlapPtr& q)
 			if(::strstr(props["Content-Type"].c_str(),"multipart/form-data")!=NULL)
 			{
 
-				const char* boundary=::strstr(props["Content-Type"].c_str(),"boundary=");
+				sb.save("postd.txt");
+
+				char* boundary=(char*)::strstr(props["Content-Type"].c_str(),"boundary=");
 				if(!boundary)
 				{
 					System::LogTrace("invalid multipart/form-data");
 				}
 				else
 				{
-					boundary+=::strlen("boundary=");
-					const char* p1=sb.c_str();
-					while(p1=::strstr(p1,boundary))
-					{
-						const char* p2=::strstr(p1+1,boundary);
-						if(p2)
-						{
-							HandleMulitpart(p1,p2);
-							p1=p2+1;
-						}
-						else
-						{
+					boundary+=::strlen("boundary=")-2;
+					boundary[0]=boundary[1]='-';
 
-							System::LogTrace("invalid multipart/form-data boundary");
-							break;
+
+					const char* p1=sb.c_str();
+					const char* p3=p1+sb.size();
+
+					size_t ln=strlen(boundary);
+
+					while(1)
+					{
+						const char* p2=p1+ln;
+						const char* pb=boundary;
+						while(p2<p3)
+						{
+							if(*p2!=*pb) {p2++;continue;}
+							if(memcmp(pb,p2,ln)==0) break;
+							p2++;
 						}
+						if(p2>=p3) break;
+			
+						HandleMulitpart((char*)p1,(char*)p2-2);
+						p1=p2;	
 					}
 				}								
 
 			}
-			HandleRequest();
+			else
+			{
+				HandleQuery(sb);
+			}
 
+			HandleRequest();
 			return;
 		}
 
 		if(flags==1)
 		{
-			
+			System::LogTrace("chunk at post?");
 		}
 		else 
 		{
 
 			HandleQuery(sb);
 		}
-		HandleRequest();	
+
+		HandleRequest();
 
 	}
-
+	else
+	{
+		System::LogTrace("invalid data at "__FUNCTION__);
+	}
 
 }
 
@@ -390,12 +484,7 @@ public:
 		value["uri"].reset(o.uri);
 		value["method"].reset(o.method);
 		value["anchor"].reset(o.anchor);
-		VariantTable& query(value["query"].ref<VariantTable>());
-
-		for(SessionHttpEwsl::map_type::iterator it=o.query.begin();it!=o.query.end();++it)
-		{
-			query[(*it).first].reset((*it).second);
-		}
+		value["query"].kptr(new CallableTableProxy(o.query));
 	}
 };
 
@@ -406,6 +495,7 @@ public:
 	{
 		value["buffer"].kptr(new CallableWrapT<StringBuffer<char> >);
 		value["status"].reset(200);
+		value["type"].reset("");
 	}
 };
 
@@ -428,7 +518,6 @@ void SessionHttpEwsl::HandleContent(StringBuffer<char>& sb)
 		Variant request(new SessionHttpRequest(*this));
 		Variant session(Target.GetSession(cookie["KSessionId"]));
 		DataPtrT<SessionHttpResponse> response(new SessionHttpResponse);
-
 
 		Executor ewsl;
 		ewsl.push(session);

@@ -51,6 +51,12 @@ protected:
 
 public:
 
+	struct internal_head{void Serialize(Serializer& ar){ar.handle_head();}};
+	struct internal_tail{void Serialize(Serializer& ar){ar.handle_tail();}};
+
+	static internal_head head;
+	static internal_tail tail;
+
 	enum
 	{
 		READER=1,
@@ -59,44 +65,27 @@ public:
 
 	enum
 	{
-		PTRTAG_NIL,		//NULL pointer
-		PTRTAG_CLS,		//class pointer (but NOT Object)
-		PTRTAG_POD,		//POD pointer
-		PTRTAG_OBJ,		//Object and its derived class pointer
-		PTRTAG_CACHED,
+		PTRTAG_CLS		=-3,		//class pointer (but NOT Object)
+		PTRTAG_POD		=-2,		//POD pointer
+		PTRTAG_OBJ		=-1,		//Object and its derived class pointer
+		PTRTAG_NIL		= 0,		//NULL pointer
+		PTRTAG_CACHED	= 1,
 	};
 
 	enum
 	{
-		STRCVT_UTF8	=1,	// convert string to utf8
+		FLAG_ENCODING_UTF8	=1<<0,
+		FLAG_OFFSET_TABLE	=1<<1,
 	};
 
 	virtual ~Serializer() {}
 
-	bool is_reader()
-	{
-		return type==READER;
-	}
+	bool is_reader(){return type==READER;}
+	bool is_writer(){return type==WRITER;}
 
-	bool is_writer()
-	{
-		return type==WRITER;
-	}
-
-	virtual void errstr(const String& msg)
-	{
-		Exception::XError(msg);
-	}
-
-	void errver()
-	{
-		errstr("invalid_version");
-	}
-
-	virtual bool good() const
-	{
-		return true;
-	}
+	virtual void errstr(const String& msg);
+	virtual void errver();
+	virtual bool good() const;
 
 	virtual Serializer& tag(char ch)=0;
 	virtual Serializer& tag(const char* msg)=0;
@@ -106,38 +95,23 @@ public:
 
 	inline int size_count(size_t n){return size_count(int(n));}
 
-	int global_version()
-	{
-		return gver;
-	}
+	virtual String object_type(const String& name)=0;
 
-	void global_version(int v)
-	{
-		gver=v;
-	}
+	int global_version();
+	void global_version(int v);
 
 	virtual void close() {}
 
 	BitFlags flags;
 
+	virtual bool seek(int64_t){return false;}
+	virtual int64_t tell(){return -1;}
 
-	SerializerWriter& writer()
-	{
-		if(!is_writer())
-		{
-			errstr("NOT_WRITER");
-		}
-		return *(SerializerWriter*)this;
-	}
+	virtual SerializerWriter& writer();
+	virtual SerializerReader& reader();
 
-	virtual SerializerReader& reader()
-	{
-		if(!is_reader())
-		{
-			errstr("NOT_READER");
-		}
-		return *(SerializerReader*)this;
-	}
+	virtual Serializer& handle_head()=0;
+	virtual Serializer& handle_tail()=0;
 
 protected:
 	const int32_t type;
@@ -147,27 +121,53 @@ protected:
 
 
 
-class DLLIMPEXP_EWA_BASE serializer_cached_objects
+class DLLIMPEXP_EWA_BASE CachedObjectManager
 {
 public:
 
-	serializer_cached_objects();
-	~serializer_cached_objects();
+	CachedObjectManager(){clear();}
 
-	void* get(int32_t idx);
+	class PtrOffset
+	{
+	public:
+		int64_t lo;
+		int64_t hi;
+	};
 
-	//int32_t get(Object* dat);
-	//int32_t put(Object* dat);
+	class PtrLoader
+	{
+	public:
 
-	int32_t get(void* dat);
-	int32_t put(void* dat);
+		enum
+		{
+			IS_LOADED		=1<<0,
+		};
+
+		DataPtrT<ObjectData> m_ptr;
+		BitFlags flags;
+	};
+
+
+	arr_1t<PtrOffset> aOffset;
+	arr_1t<PtrLoader> aLoader;
+	indexer_map<ObjectData*,int32_t> aObject;
 
 	void clear();
 
-protected:
-	indexer_set<void*> m_aObjects;
+	void save_ptr(SerializerWriter& ar,ObjectData* ptr);
+	void load_ptr(SerializerReader& ar,ObjectData* &ptr);
+
+	void handle_pending(SerializerWriter& ar);
+	void handle_pending(SerializerReader& ar,bool use_seek=false);
+
+	ObjectData* read_object(SerializerReader& ar,int val);
+
+	Object* create(const String& name);
+
+	arr_1t<int32_t> pendings;
 
 };
+
 
 
 class DLLIMPEXP_EWA_BASE SerializerEx : public Serializer
@@ -178,50 +178,13 @@ protected:
 
 public:
 
-	virtual void errstr(const String& msg)
-	{
-		Exception::XError(msg);
-	}
-
-	void* get(int32_t idx)
-	{
-		return cached_objects.get(idx);
-	}
-
-	//int32_t get(Object* dat)
-	//{
-	//	return cached_objects.get(dat);
-	//}
-
-	//int32_t put(Object* dat)
-	//{
-	//	return cached_objects.put(dat);
-	//}
-
-	int32_t get(void* dat)
-	{
-		return cached_objects.get(dat);
-	}
-
-	int32_t put(void* dat)
-	{
-		return cached_objects.put(dat);
-	}
-
 	void clear()
 	{
 		cached_objects.clear();
 	}
 
-	Object* create(const String& s)
-	{
-		return object_creator.Create(s);
-	}
+	CachedObjectManager cached_objects;
 
-protected:
-
-	serializer_cached_objects cached_objects;
-	ObjectCreator object_creator;
 };
 
 
@@ -231,8 +194,16 @@ class DLLIMPEXP_EWA_BASE SerializerReader : public SerializerEx
 public:
 	SerializerReader():SerializerEx(READER) {}
 
+	virtual bool seek(int64_t p){return reader_seek(p);}
+	virtual int64_t tell(){return reader_tell();}
+
+	virtual bool reader_seek(int64_t){return false;}
+	virtual int64_t reader_tell(){return -1;}
+
 	virtual size_t recv(char* data,size_t size)=0;
 	void checked_recv(char* data,size_t size);
+
+	virtual String object_type(const String& name);
 
 	virtual SerializerReader& tag(char ch);
 	virtual SerializerReader& tag(const char* msg);
@@ -245,6 +216,10 @@ public:
 	virtual void reader_close(){}
 	virtual bool reader_good(){return true;}
 
+	ObjectData* read_object(SerializerReader& ar,int val);
+
+	virtual SerializerReader& handle_head();
+	virtual SerializerReader& handle_tail();
 
 };
 
@@ -254,8 +229,16 @@ public:
 
 	SerializerWriter():SerializerEx(WRITER) {}
 
+	virtual bool seek(int64_t p){return writer_seek(p);}
+	virtual int64_t tell(){return writer_tell();}
+
+	virtual bool writer_seek(int64_t){return false;}
+	virtual int64_t writer_tell(){return -1;}
+
 	virtual size_t send(const char* data,size_t size)=0;
 	void checked_send(const char* data,size_t size);
+
+	String object_type(const String& name);
 
 	virtual SerializerWriter& tag(char ch);
 	virtual SerializerWriter& tag(const char* msg);
@@ -267,6 +250,9 @@ public:
 	virtual bool good(){return writer_good();}
 	virtual void writer_close(){}
 	virtual bool writer_good(){return true;}
+
+	virtual SerializerWriter& handle_head();
+	virtual SerializerWriter& handle_tail();
 
 };
 
@@ -282,7 +268,10 @@ template<typename T>
 class serial_type
 {
 public:
-	static const int value=tl::is_convertible<T,Object>::value?3: (tl::is_pod<T>::value?2:1);
+
+	static const int value=tl::is_convertible<T,ObjectData>::value?Serializer::PTRTAG_CACHED:
+		tl::is_convertible<T,Object>::value?Serializer::PTRTAG_OBJ: 
+		tl::is_pod<T>::value?Serializer::PTRTAG_POD:Serializer::PTRTAG_CLS;
 };
 
 template<typename T> Serializer& operator &(Serializer& ar,T& val);
@@ -535,10 +524,10 @@ public:
 
 
 template<typename A, typename T>
-class serial_ptr<A, T, 3> : public serial_switch<A, T, 3>
+class serial_ptr<A, T, Serializer::PTRTAG_OBJ> : public serial_switch<A, T, Serializer::PTRTAG_OBJ>
 {
 public:
-	typedef serial_switch<A, T, 3> basetype;
+	typedef serial_switch<A, T, Serializer::PTRTAG_OBJ> basetype;
 	typedef T* pointer;
 
 	static void d(Object* p)
@@ -562,11 +551,11 @@ public:
 			return;
 		}
 
-		if(sval==A::PTRTAG_CACHED)
+		if(sval>=A::PTRTAG_CACHED)
 		{
-			int32_t nidx(-1);
-			serial_pod<A,int32_t>::g(ar,nidx);
-			val=dynamic_cast<pointer>((Object*)ar.get(nidx));
+			ObjectData* dptr(NULL);
+			ar.cached_objects.load_ptr(ar,dptr);
+			val=dynamic_cast<pointer>((Object*)dptr);
 			if(!val)
 			{
 				ar.errstr("INVALID_CACHED_INDEX");
@@ -578,10 +567,8 @@ public:
 			ar.errstr("INVALID_POINTER_TYPE");
 			return;
 		}
-		String type;
-		serial_helper_func<A,String>::g(ar,type);
 
-		Object* obj=ar.create(type);
+		Object* obj=ar.cached_objects.create(ar.object_type(""));
 		if(!obj)
 		{
 			ar.errstr("CANNOT_CREATE_OBJECT");
@@ -612,36 +599,41 @@ public:
 
 	static void g(SerializerWriter& ar,pointer& val)
 	{
-		int32_t sval=val==NULL? A::PTRTAG_NIL : A::PTRTAG_OBJ;
-		if(sval==A::PTRTAG_NIL)
+		int32_t sval=val==NULL? Serializer::PTRTAG_NIL : Serializer::PTRTAG_OBJ;
+
+		if(sval==Serializer::PTRTAG_NIL)
 		{
 			serial_pod<A,int32_t>::g(ar,sval);
 			return;
 		}
 
-		int32_t nidx=ar.get(val);
-		if(nidx>0)
+
+		ObjectData* dptr(dynamic_cast<ObjectData*>(val));
+		if(dptr)
 		{
-			sval=A::PTRTAG_CACHED;
-			serial_pod<A,int32_t>::g(ar,sval);
-			serial_pod<A,int32_t>::g(ar,nidx);
-			return;
+			sval=Serializer::PTRTAG_CACHED;
 		}
 
 		serial_pod<A,int32_t>::g(ar,sval);
 
-		String type=val->GetObjectName();
-		serial_helper_func<A,String>::g(ar,type);
-
-		if(type=="")
+		if(dptr)
 		{
-			ar.errstr("UNREGISTER_OBJECT_TYPE");
+			ar.cached_objects.save_ptr(ar,dptr);
 			return;
 		}
 
+		ar.object_type(val->GetObjectName());
 		basetype::g(ar,*val);
 
 	}
+};
+
+
+template<typename A, typename T>
+class serial_ptr<A, T, Serializer::PTRTAG_CACHED> : public serial_ptr<A, T, Serializer::PTRTAG_OBJ>
+{
+public:
+
 };
 
 
@@ -676,7 +668,7 @@ public:
 
 
 template<typename A,typename T>
-class serial_switch<A,T,1>
+class serial_switch<A,T,Serializer::PTRTAG_CLS>
 {
 public:
 	static void g(A& ar,T& val)
@@ -686,15 +678,24 @@ public:
 };
 
 template<typename A,typename T>
-class serial_switch<A,T,2> : public serial_pod<A,T> {};
+class serial_switch<A,T,Serializer::PTRTAG_POD> : public serial_pod<A,T> {};
 
 template<typename A,typename T>
-class serial_switch<A,T,3>
+class serial_switch<A,T,Serializer::PTRTAG_OBJ>
 {
 public:
 	static void g(A& ar,Object& val)
 	{
-		ar.put(&val);
+		val.Serialize(ar);
+	}
+};
+
+template<typename A,typename T>
+class serial_switch<A,T,Serializer::PTRTAG_CACHED>
+{
+public:
+	static void g(A& ar,Object& val)
+	{
 		val.Serialize(ar);
 	}
 };

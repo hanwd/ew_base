@@ -24,7 +24,6 @@ int CallableTableOperators::__do_getindex(Executor& ewsl,VariantTable& tb,const 
 	if(id<0)
 	{
 		(*ewsl.ci1.nsp).clear();
-		//ewsl.kerror("invalid index");
 	}
 	else
 	{
@@ -35,7 +34,7 @@ int CallableTableOperators::__do_getindex(Executor& ewsl,VariantTable& tb,const 
 
 int CallableTableOperators::__do_getarray(Executor& ewsl,VariantTable& tb,int pm)
 {
-	if(pm<1) ewsl.kerror("invalid param");
+	if(pm!=1) ewsl.kerror("invalid param");
 
 	Variant& var(ewsl.ci0.nbx[1]);
 	int64_t* nid=var.ptr<int64_t>();
@@ -62,7 +61,30 @@ int CallableTableOperators::__do_getarray(Executor& ewsl,VariantTable& tb,int pm
 		return 1;
 	}
 
-	ewsl.kerror("invalid param");
+	size_t sz=tb.size();
+
+
+	idx_1t id0;
+	if(id0.update(var,0,sz)!=0)
+	{
+		ewsl.kerror("invalid array index");
+	}
+
+	if(id0.size==1)
+	{
+		var=tb.get(id0(0)).second;
+	}
+	else
+	{
+		arr_xt<Variant> tmp;
+		tmp.resize(id0.size);
+		for(size_t k0=0;k0<id0.size;k0++)
+		{
+			tmp[k0]=tb.get(id0(k0)).second;
+		}
+		var.reset(tmp);
+	}
+
 	return 1;
 }
 
@@ -113,7 +135,33 @@ void CallableTableOperators::__do_get_iterator(Executor& ewsl,VariantTable& tb,i
 	}
 }
 
-
+bool CallableTableOperators::__do_test_dims(VariantTable& tb,arr_xt_dims& dm,int op)
+{
+	if (op==2)
+	{
+		dm[0] = tb.size();
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+int CallableTableOperators::__do_getarray_index_range(Executor& ewsl,VariantTable& tb,int pm)
+{
+	if(pm<0)
+	{
+		int64_t sz=((int64_t)tb.size())-1;
+		ewsl.push(0);
+		ewsl.push(sz);
+		return 2;
+	}
+	else
+	{
+		ewsl.kerror("invalid dim");
+	}
+	return 2;	
+}
 
 int CallableTableProxy::__getindex(Executor& ewsl,const String& si)
 {
@@ -137,11 +185,6 @@ int CallableTableProxy::__setarray(Executor& ewsl,int pm)
 {
 	if(flags.get(FLAG_READONLY)) ewsl.kerror("table is readonly");
 	return CallableTableOperators::__do_setarray(ewsl,value,pm);
-}
-
-void CallableTableProxy::__get_iterator(Executor& ewsl,int nd)
-{
-	CallableTableOperators::__do_get_iterator(ewsl,value,nd);
 }
 
 bool VariantTable::operator==(const  VariantTable& v2) const

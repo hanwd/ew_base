@@ -63,6 +63,12 @@ class DLLIMPEXP_EWA_BASE SessionHttp : public SessionClient
 {
 public:
 
+	enum
+	{
+		FLAG_REQUEST_CHUNKED	=1<<0,
+		FLAG_RESPONSE_CHUNKED	=1<<1,
+	};
+
 	StringBuffer<char> sb;
 
 	String uri;
@@ -70,10 +76,12 @@ public:
 	String anchor;
 	int length;
 
-	arr_1t<int> lines;
+
 
 	int phase;
-	int flags;
+	BitFlags flags;
+
+	String boundary;
 
 	typedef indexer_map<String,String> map_type;
 
@@ -86,25 +94,28 @@ public:
 
 	SessionHttp();
 
+	Stream chunked_stream;
+
 	virtual void HandleHeader(StringBuffer<char>& sb1);
 	virtual void HandleContent(StringBuffer<char>& sb2);
 
 	void HandleQuery(const String& s);
-
 	void HandleRequest();
 
-	void OnSendCompleted(TempOlapPtr& q);
+	void HandleFile(StringBuffer<char>& sb2,const String& filepath);
 
+	virtual void OnSendCompleted(TempOlapPtr& q);
 	virtual void OnRecvCompleted(TempOlapPtr& q);
 
 	void OnConnected();
 
 	void Redirect(const String& url);
 
-	void HandleMulitpart(char* p1,char* p2);
-
 protected:
-	void HandleLines();
+	void _ParseMultipartFormdata(char* p1,char* p2);
+	void _ParseRequestHeaders();
+
+	arr_1t<int> lines;
 };
 
 

@@ -74,21 +74,16 @@ public:
 	typedef return_type (target_type::*func_type)();
 	func_type func;
 
-	CallableFunctionTargetFunc0(const String& n,func_type fn)
-		:B(n)
-		,func(fn)
+	CallableFunctionTargetFunc0(const String& n,func_type fn):B(n),func(fn)
 	{
 
 	}
 
 	int __fun_call(Executor& ewsl,int pm)
 	{
+		ewsl.check_pmc(this,pm,0);
 		target_type& Target(this->get_target(ewsl,ewsl.ci1.nbp[StackState1::SBASE_THIS].kptr()));
-
-		if(pm<0) ewsl.kerror("invalid param");
-
 		(Target.*func)();
-
 		ewsl.ci0.nbx[1]=ewsl.ci1.nbp[StackState1::SBASE_THIS];
 		return 1;
 	}
@@ -106,18 +101,16 @@ public:
 	typedef return_type (target_type::*func_type)(typename FunctionParamT<T1>::const_reference);
 	func_type func;
 
-	CallableFunctionTargetFunc1(const String& n,func_type fn)
-		:B(n)
-		,func(fn)
+	CallableFunctionTargetFunc1(const String& n,func_type fn):B(n),func(fn)
 	{
 
 	}
 
 	int __fun_call(Executor& ewsl,int pm)
 	{
-		target_type& Target(this->get_target(ewsl,ewsl.ci1.nbp[StackState1::SBASE_THIS].kptr()));
+		ewsl.check_pmc(this,pm,1);
 
-		if(pm<1) ewsl.kerror("invalid param");
+		target_type& Target(this->get_target(ewsl,ewsl.ci1.nbp[StackState1::SBASE_THIS].kptr()));
 
 		FunctionParamT<T1> val1;
 		if(val1.update(ewsl.ci0.nbx[1]))
@@ -150,18 +143,16 @@ public:
 
 	func_type func;
 
-	CallableFunctionTargetFunc2(const String& n,func_type fn)
-		:B(n)
-		,func(fn)
+	CallableFunctionTargetFunc2(const String& n,func_type fn):B(n),func(fn)
 	{
 
 	}
 
 	int __fun_call(Executor& ewsl,int pm)
 	{
-		target_type& Target(this->get_target(ewsl,ewsl.ci1.nbp[StackState1::SBASE_THIS].kptr()));
+		ewsl.check_pmc(this,pm,2);
 
-		if(pm<1) ewsl.kerror("invalid param");
+		target_type& Target(this->get_target(ewsl,ewsl.ci1.nbp[StackState1::SBASE_THIS].kptr()));
 
 		FunctionParamT<T1> val1;
 		FunctionParamT<T2> val2;
@@ -198,18 +189,16 @@ public:
 
 	func_type func;
 
-	CallableFunctionTargetFunc3(const String& n,func_type fn)
-		:B(n)
-		,func(fn)
+	CallableFunctionTargetFunc3(const String& n,func_type fn):B(n),func(fn)
 	{
 
 	}
 
 	int __fun_call(Executor& ewsl,int pm)
 	{
-		target_type& Target(this->get_target(ewsl,ewsl.ci1.nbp[StackState1::SBASE_THIS].kptr()));
+		ewsl.check_pmc(this,pm,3);
 
-		if(pm<1) ewsl.kerror("invalid param");
+		target_type& Target(this->get_target(ewsl,ewsl.ci1.nbp[StackState1::SBASE_THIS].kptr()));
 
 		FunctionParamT<T1> val1;
 		FunctionParamT<T2> val2;

@@ -424,7 +424,6 @@ public:
 	virtual int __fun_call(Executor& ewsl, int pm)
 	{
 		ewsl.check_pmc(this, pm, 0);
-		String p = variant_cast<String>(ewsl.ci0.nbx[1]);
 		ewsl.ci0.nbx[1].reset(ewsl.get_cwd());
 		return 1;
 	}
@@ -485,6 +484,179 @@ public:
 
 IMPLEMENT_OBJECT_INFO(CallableFunctionDir, ObjectInfo);
 
+
+class CallableFunctionExit : public CallableFunction
+{
+public:
+
+	CallableFunctionExit() :CallableFunction("os.exit",1)
+	{
+		xop[0].op=XOP_EXIT;
+		xop[1].op=XOP_FAIL;
+
+		__set_helpdata("exit ewsl excutor");
+	}
+	XopInst xop[2];
+	virtual int __fun_call(Executor& ewsl, int pm)
+	{
+		ewsl.ci0.nip=xop;
+		return CallableData::STACK_BALANCED;
+	}
+
+	DECLARE_OBJECT_CACHED_INFO(CallableFunctionExit, ObjectInfo);
+};
+
+IMPLEMENT_OBJECT_INFO(CallableFunctionExit, ObjectInfo);
+
+
+
+static int ERRNO_HandleResult(Executor& ewsl,bool flag)
+{
+	if(flag)
+	{
+		ewsl.ci0.nbx[1].reset(true);
+		return 1;
+	}
+	else
+	{
+		ewsl.ci0.nbx[1].reset(false);
+		ewsl.ci0.nbx[2].reset(::strerror(errno));
+		return 2;
+	}
+}
+
+
+class CallableFunctionRemove : public CallableFunction
+{
+public:
+
+	CallableFunctionRemove():CallableFunction("os.remove",0){}
+
+	virtual int __fun_call(Executor& ewsl,int pm)
+	{
+		ewsl.check_pmc(this,pm,1);
+		String fp=variant_cast<String>(ewsl.ci0.nbx[1]);
+		return ERRNO_HandleResult(ewsl,File::Remove(fp));
+		
+	}
+	DECLARE_OBJECT_CACHED_INFO(CallableFunctionRemove, ObjectInfo);
+};
+IMPLEMENT_OBJECT_INFO(CallableFunctionRemove, ObjectInfo);
+
+
+class CallableFunctionRename : public CallableFunction
+{
+public:
+
+	CallableFunctionRename():CallableFunction("os.rename",0){}
+
+	virtual int __fun_call(Executor& ewsl,int pm)
+	{
+		ewsl.check_pmc(this,pm,2);
+		String fp1=variant_cast<String>(ewsl.ci0.nbx[1]);
+		String fp2=variant_cast<String>(ewsl.ci0.nbx[2]);
+		return ERRNO_HandleResult(ewsl,File::Rename(fp1,fp2));
+	}
+	DECLARE_OBJECT_CACHED_INFO(CallableFunctionRename, ObjectInfo);
+};
+IMPLEMENT_OBJECT_INFO(CallableFunctionRename, ObjectInfo);
+
+
+
+
+class CallableFunctionTmpname : public CallableFunction
+{
+public:
+
+	CallableFunctionTmpname():CallableFunction("os.tmpname",0){}
+
+	virtual int __fun_call(Executor& ewsl,int pm)
+	{
+		ewsl.check_pmc(this,pm,0);
+		char buf[1024*4];
+		String fp=::tmpnam(buf);
+		ewsl.ci0.nbx[1].reset(fp);
+		return 1;		
+	}
+	DECLARE_OBJECT_CACHED_INFO(CallableFunctionTmpname, ObjectInfo);
+};
+IMPLEMENT_OBJECT_INFO(CallableFunctionTmpname, ObjectInfo);
+
+
+
+class CallableFunctionFiles : public CallableFunction
+{
+public:
+
+	CallableFunctionFiles():CallableFunction("os.files",0){}
+
+	virtual int __fun_call(Executor& ewsl,int pm)
+	{
+		ewsl.check_pmc(this,pm,1);
+
+		String fp=variant_cast<String>(ewsl.ci0.nbx[1]);
+		if(!System::FileExists(fp,2))
+		{
+			Exception::XError("invalid folder");
+		}
+
+		arr_1t<FindItem> items=System::FindAllFiles(fp);
+
+		arr_xt<Variant> & tb(ewsl.ci0.nbx[1].ref<arr_xt<Variant> >());
+		tb.resize(items.size());
+
+		for(size_t i=0;i<items.size();i++)
+		{
+			VariantTable& item(tb[i].ref<VariantTable>());
+			item["name"].reset(items[i].filename);
+			item["size"].reset(items[i].filesize);
+			item["flag"].reset(items[i].flags.val());
+		}
+
+		return 1;	
+	}
+	DECLARE_OBJECT_CACHED_INFO(CallableFunctionFiles, ObjectInfo);
+
+};
+
+IMPLEMENT_OBJECT_INFO(CallableFunctionFiles, ObjectInfo);
+
+
+
+class CallableFunctionMkdir : public CallableFunction
+{
+public:
+
+	CallableFunctionMkdir():CallableFunction("os.mkdir",0){}
+
+	virtual int __fun_call(Executor& ewsl,int pm)
+	{
+		ewsl.check_pmc(this,pm,1);
+		String fp=variant_cast<String>(ewsl.ci0.nbx[1]);
+		ewsl.ci0.nbx[1].reset(File::Mkdir(fp));
+		return 0;	
+	}
+	DECLARE_OBJECT_CACHED_INFO(CallableFunctionMkdir, ObjectInfo);
+};
+IMPLEMENT_OBJECT_INFO(CallableFunctionMkdir, ObjectInfo);
+
+class CallableFunctionRmdir : public CallableFunction
+{
+public:
+
+	CallableFunctionRmdir():CallableFunction("os.rmdir",0){}
+
+	virtual int __fun_call(Executor& ewsl,int pm)
+	{
+		ewsl.check_pmc(this,pm,1);
+		String fp=variant_cast<String>(ewsl.ci0.nbx[1]);
+		ewsl.ci0.nbx[1].reset(File::Rmdir(fp));
+		return 0;	
+	}
+	DECLARE_OBJECT_CACHED_INFO(CallableFunctionRmdir, ObjectInfo);
+};
+IMPLEMENT_OBJECT_INFO(CallableFunctionRmdir, ObjectInfo);
+
 void init_module_os()
 {
 
@@ -501,6 +673,15 @@ void init_module_os()
 	gi.add_inner<CallableMetatableTimeSpan>();
 	gi.add_inner<CallableMetatableTimePoint>();
 
+	gi.add_inner<CallableFunctionRemove>();
+	gi.add_inner<CallableFunctionRename>();
+	gi.add_inner<CallableFunctionTmpname>();
+
+	gi.add_inner<CallableFunctionFiles>();
+	gi.add_inner<CallableFunctionMkdir>();
+	gi.add_inner<CallableFunctionRmdir>();
+
+	gi.add_inner<CallableFunctionExit>();
 }
 
 IMPLEMENT_OBJECT_INFO(CallableWrapT<TimePoint>,ObjectInfo);

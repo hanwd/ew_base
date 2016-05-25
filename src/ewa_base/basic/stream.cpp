@@ -274,12 +274,12 @@ bool Stream::Open(const String& filename_,int flag_)
 		return false;
 	}
 
+	streamfile->native_handle(hFile);
+
 	if(flag_&FileAccess::FLAG_APPEND)
 	{
 		streamfile->Seek(0,SEEKTYPE_END);
 	}
-
-	streamfile->native_handle(hFile);
 
 	return true;
 }

@@ -25,6 +25,8 @@ public:
 
 	static bool Rename(const String& oldname_,const String& newname_);
 	static bool Remove(const String& filename_);
+	static bool Mkdir(const String& dir_);
+	static bool Rmdir(const String& dir_);
 
 	File();
 	File(const String& filename_,int op=FileAccess::FLAG_RD);

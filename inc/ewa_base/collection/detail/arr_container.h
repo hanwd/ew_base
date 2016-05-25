@@ -608,7 +608,8 @@ typename arr_container<T,A,pod>::iterator arr_container<T,A,pod>::insert(const_i
 	else
 	{
 		T* p2=m_end1;
-		It x2=first_+(count_+dd);
+		It x2=first_;
+		std::advance(x2,count_+dd);
 		m_end1=xmem<T>::uninitialized_copy_n(x2,-dd,m_end1);
 		m_end1=xmem<T>::uninitialized_copy(p1,p2,m_end1);
 

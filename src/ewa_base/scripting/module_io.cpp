@@ -975,6 +975,9 @@ void init_module_io()
 
 	gi.add_inner<CallableFunctionToJson>();
 	gi.add_inner<CallableFunctionParseJson>();
+
+
+
 }
 
 EW_LEAVE

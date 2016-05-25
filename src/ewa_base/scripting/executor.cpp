@@ -382,6 +382,12 @@ void Executor::_vm_run2(int k)
 		case XOP_NOOP:
 			break;
 		case XOP_EXIT:
+			{
+				co_main->aFrame[0].sp2=ewsl.ci0.nbx;
+				co_main->aFrame.resize(1);
+				co_this=co_main;
+				co_last.reset(NULL);
+			}
 			while(Executor_stackframe_leave(ewsl,cip->p1)) cip=ewsl.ci0.nip++;
 			return;
 		case XOP1_NEG:

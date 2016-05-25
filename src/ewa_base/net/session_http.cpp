@@ -58,7 +58,6 @@ SessionManager::session_ptr SessionManager::GetSession(String& cookie_id)
 		return item;
 	}
 
-
 }
 
 String SessionManager::NewSessionId()
@@ -80,6 +79,7 @@ SessionHttp::SessionHttp()
 	phase=0;
 	httpstatus=200;
 	length=-1;
+
 	lines.push_back(0);
 }
 
@@ -94,16 +94,21 @@ void SessionHttp::HandleHeader(StringBuffer<char>& sb2)
 	{
 		sb1<<"Set-Cookie: "<<(*it).first<<"="<<string_escape((*it).second)<<"; path=/; \r\n";		
 	}
+
 	if(httpstatus==301)
 	{
-		sb1<<"Location: " <<props["Location"]<<"\r\n";
+		sb1<<"Location: " <<props["Location"]<<"\r\n\r\n";
 	}
-	else if(sb2.size()>0)
+	else if(flags.get(FLAG_RESPONSE_CHUNKED))
 	{
-		sb1<<"Content-Length:"<<sb2.size()<<"\r\n";
+		EW_ASSERT(sb2.empty());
+		sb1<<"Transfer-Encoding: chunked\r\n\r\n";
+	}
+	else
+	{
+		sb1<<"Content-Length:"<<sb2.size()<<"\r\n\r\n";
 	}
 
-	sb1<<"\r\n";
 
 	if(httpstatus!=301)
 	{
@@ -168,7 +173,7 @@ public:
 	static const unsigned value = N!=':' && N!=0;
 };
 
-void SessionHttp::HandleLines()
+void SessionHttp::_ParseRequestHeaders()
 {
 	const char* p=sb.data();
 
@@ -238,19 +243,84 @@ void SessionHttp::HandleLines()
 		}
 	}
 
-	flags=props["Transfer-Encoding"]=="chunked"?1:0;
+	if(props["Transfer-Encoding"]=="chunked")
+	{
+		flags.add(FLAG_REQUEST_CHUNKED);
+	}
 
+	if(::strstr(props["Content-Type"].c_str(),"multipart/form-data")!=NULL)
+	{
+		char* p1=(char*)::strstr(props["Content-Type"].c_str(),"boundary=");
+		if(!p1)
+		{
+			System::LogTrace("invalid multipart/form-data");
+		}
+		else
+		{
+			boundary="--"+String(p1+strlen("boundary="));
+		}
+	}
 }
 
 void SessionHttp::OnSendCompleted(TempOlapPtr& q)
 {
-	if(q->flags==0)
+	if(q->flags!=0) return;
+
+	if(!flags.get(FLAG_RESPONSE_CHUNKED))
 	{
 		Disconnect();
+		return;
 	}
+
+
+	static const int CHUNKED_BUFFER_SIZE=1024*8;
+
+	char buf[CHUNKED_BUFFER_SIZE];
+	char *p1=buf+16;
+	int s1=CHUNKED_BUFFER_SIZE-18;
+
+	int32_t sz=chunked_stream.Read(p1,s1);
+	if(sz>0)
+	{
+		char* p2=p1+sz;
+
+		*--p1='\n';
+		*--p1='\r';
+		int32_t tmp=sz;
+		for(int tmp=sz;tmp>0;tmp=tmp/16)
+		{
+			int d=tmp%16;
+			char ch=d<10?'0'+d:'A'-10+d;
+			*--p1=ch;
+		}
+
+		if(sz+7<s1)
+		{
+			flags.del(FLAG_RESPONSE_CHUNKED);
+			memcpy(p2,"\r\n0\r\n\r\n",7);
+			p2+=7;
+		}
+		else
+		{
+			*p2++='\r';
+			*p2++='\n';	
+		}
+		
+		AsyncSend(p1,p2-p1);
+		return;
+	}
+
+	flags.del(FLAG_RESPONSE_CHUNKED);
+	AsyncSend("0\r\n\r\n",5);
+
+	if(sz<0)
+	{
+		System::LogTrace("stream read error");	
+	}
+
 }
 
-void SessionHttp::HandleMulitpart(char* p1,char* p2)
+void SessionHttp::_ParseMultipartFormdata(char* p1,char* p2)
 {
 	String name;
 	String filename;
@@ -275,7 +345,6 @@ void SessionHttp::HandleMulitpart(char* p1,char* p2)
 		{
 			break;
 		}
-	
 
 	}
 
@@ -285,7 +354,7 @@ void SessionHttp::HandleMulitpart(char* p1,char* p2)
 		return;
 	}
 
-	for(size_t j=1;j<lines.size();j++)
+	for(size_t j=0;j<lines.size();j++)
 	{
 		const char* s0=p1+lines[j];
 		const char* s1=strstr(s0,":");
@@ -310,7 +379,12 @@ void SessionHttp::HandleMulitpart(char* p1,char* p2)
 				}
 				else if(n=="filename")
 				{
-					filename=v;
+					const char* fp=v.c_str();
+					for(const char* p=fp;*p;p++)
+					{
+						if(*p=='/'||*p=='\\') fp=p+1;
+					}
+					filename=fp;
 				}						
 			}
 		}
@@ -361,17 +435,23 @@ void SessionHttp::OnRecvCompleted(TempOlapPtr& q)
 			if(i-n!=2) continue;
 
 			phase=1;
-			HandleLines();
+			_ParseRequestHeaders();
 
-			if(method!="POST")
+			if(method=="GET")
 			{
 				HandleRequest();
 				return;
 			}
-			else
+			else if(method=="POST")
 			{
 				sb.erase(sb.begin(),sb.begin()+lines.back());
 				break;
+			}
+			else
+			{
+				System::LogTrace("unknown http method:"+method);
+				Disconnect();
+				return;
 			}
 		}	
 
@@ -382,83 +462,81 @@ void SessionHttp::OnRecvCompleted(TempOlapPtr& q)
 		}	
 	}
 
-	EW_ASSERT(method=="POST");
-
-	if(phase==1)
+	if(phase!=1||method=="POST")
 	{
-		if(length>0)
+		System::LogTrace("invalid state at "__FUNCTION__);
+	}
+
+	if(length>0)
+	{
+		if(sb.size()<(size_t)length)
 		{
-			 if(sb.size()!=length)
-			 {
-				AsyncRecv(q);
-				return;			 
-			 }
+			AsyncRecv(q);
+			return;			 
+		}
+	}
+	else if(flags.get(FLAG_REQUEST_CHUNKED))
+	{
+		System::LogTrace("chunked at post?");
+	}
+	else 
+	{
+		HandleQuery(sb);
+	}
 
-			if(::strstr(props["Content-Type"].c_str(),"multipart/form-data")!=NULL)
+	if(!boundary.empty())		
+	{
+		const char* p1=sb.c_str();
+		const char* p2=p1+sb.size();
+		intptr_t ln=boundary.size();
+
+		if(memcmp(p1,boundary.c_str(),ln)!=0)
+		{
+			Disconnect();
+			return;
+		}
+		p1+=ln+2;
+
+
+		const char* d1=p1;
+		const char* d2=p1;
+
+		while(d2<p2)
+		{
+			if(*d2++!='\n') continue;
+
+			if(d2-d1<=ln || memcmp(d1,boundary.c_str(),ln)!=0)
 			{
+				d1=d2;
+				continue;
+			}
 
-				sb.save("postd.txt");
+			_ParseMultipartFormdata((char*)p1,(char*)d1-2);
 
-				char* boundary=(char*)::strstr(props["Content-Type"].c_str(),"boundary=");
-				if(!boundary)
+			if(d2==p2)
+			{
+				if(d2-d1!=ln+4||d2[-2]!='\r'||d2[-3]!='-'||d2[-4]!='-')
 				{
-					System::LogTrace("invalid multipart/form-data");
+					System::LogTrace("invalid multipart formdata");
 				}
-				else
-				{
-					boundary+=::strlen("boundary=")-2;
-					boundary[0]=boundary[1]='-';
-
-
-					const char* p1=sb.c_str();
-					const char* p3=p1+sb.size();
-
-					size_t ln=strlen(boundary);
-
-					while(1)
-					{
-						const char* p2=p1+ln;
-						const char* pb=boundary;
-						while(p2<p3)
-						{
-							if(*p2!=*pb) {p2++;continue;}
-							if(memcmp(pb,p2,ln)==0) break;
-							p2++;
-						}
-						if(p2>=p3) break;
-			
-						HandleMulitpart((char*)p1,(char*)p2-2);
-						p1=p2;	
-					}
-				}								
-
 			}
 			else
 			{
-				HandleQuery(sb);
+				if(d2-d1!=ln+2||d2[-2]!='\r')
+				{
+					System::LogTrace("invalid multipart formdata");
+				}
 			}
 
-			HandleRequest();
-			return;
+			p1=d1=d2;
 		}
-
-		if(flags==1)
-		{
-			System::LogTrace("chunk at post?");
-		}
-		else 
-		{
-
-			HandleQuery(sb);
-		}
-
-		HandleRequest();
-
 	}
 	else
 	{
-		System::LogTrace("invalid data at "__FUNCTION__);
+		HandleQuery(sb);
 	}
+
+	HandleRequest();
 
 }
 
@@ -474,6 +552,32 @@ void SessionHttp::Redirect(const String& url)
 	props["Location"]=url;	
 }
 
+void SessionHttp::HandleFile(StringBuffer<char>& sb2,const String& filepath)
+{
+	if(chunked_stream.Open(filepath,FileAccess::FLAG_RD))
+	{
+
+		int64_t sz=chunked_stream.Size();
+		if(sz>1024*4)
+		{
+			flags.add(FLAG_RESPONSE_CHUNKED);
+			return;
+		}
+
+		sb2.resize(sz);
+		int32_t s1=chunked_stream.Read(sb2.data(),sz);
+		if(s1==sz)
+		{
+			return;
+		}
+		System::LogTrace("invalid stream read");
+		sb2.clear();
+
+	}
+
+	SessionHttp::HandleContent(sb2);
+
+}
 
 
 class DLLIMPEXP_EWA_BASE SessionHttpRequest : public CallableTableEx
@@ -484,7 +588,7 @@ public:
 		value["uri"].reset(o.uri);
 		value["method"].reset(o.method);
 		value["anchor"].reset(o.anchor);
-		value["query"].kptr(new CallableTableProxy(o.query));
+		value["query"].ref<VariantTable>().swap(o.query);
 	}
 };
 
@@ -502,7 +606,7 @@ public:
 
 DataPtrT<CallableTableEx> http_server_objects(new CallableTableEx);
 
-void SessionHttpEwsl::HandleContent(StringBuffer<char>& sb)
+void SessionHttpEwsl::HandleContent(StringBuffer<char>& sb2)
 {
 
 	String filepath=Target.server_path+uri;
@@ -515,9 +619,9 @@ void SessionHttpEwsl::HandleContent(StringBuffer<char>& sb)
 
 	if(i>0 && uri.substr(i)==".ewsl")
 	{
-		Variant request(new SessionHttpRequest(*this));
-		Variant session(Target.GetSession(cookie["KSessionId"]));
+		DataPtrT<SessionHttpRequest> request(new SessionHttpRequest(*this));
 		DataPtrT<SessionHttpResponse> response(new SessionHttpResponse);
+		Variant session(Target.GetSession(cookie["KSessionId"]));
 
 		Executor ewsl;
 		ewsl.push(session);
@@ -534,17 +638,32 @@ void SessionHttpEwsl::HandleContent(StringBuffer<char>& sb)
 			}
 			else
 			{
-				sb.swap(response->value["buffer"].ref<StringBuffer<char> >());
+				sb2.swap(response->value["buffer"].ref<StringBuffer<char> >());
+				if(sb2.empty())
+				{
+					String& fp(response->value["download"].ref<String>());
+					if(fp!="")
+					{
+						HandleFile(sb2,fp);
+					}
+				}
 			}
 		}
 		else
 		{
-			sb<<"server_error";		
+			sb2<<"server_error";		
 		}
+
+		return;
 	}
-	else if(!sb.load(filepath,FILE_BINARY))
+	else
 	{
-		SessionHttp::HandleContent(sb);
+		if(!cookie["KSessionId"].empty())
+		{
+			Target.GetSession(cookie["KSessionId"]);
+		}
+
+		HandleFile(sb2,filepath);
 	}
 }
 

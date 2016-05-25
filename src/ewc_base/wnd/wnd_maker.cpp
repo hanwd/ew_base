@@ -458,8 +458,6 @@ WndMaker& WndMaker::win(IWindowPtr t,const WndProperty& p)
 	return *this;
 }
 
-
-
 class CallableFunctionMaker : public CallableFunction
 {
 public:

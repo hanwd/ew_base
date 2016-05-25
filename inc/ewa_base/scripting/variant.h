@@ -114,6 +114,11 @@ public:
 		return flag==-1?data.pval:NULL;
 	}
 
+	inline CallableMetatable* get_metatable()
+	{
+		return flag==-1?data.pval->GetMetaTable():CallableData::sm_meta[flag];
+	}
+
 	inline const CallableData* kptr() const
 	{
 		return flag==-1?data.pval:NULL;

@@ -33,6 +33,9 @@ struct DLLIMPEXP_EWA_BASE pl_base0
 
 	static inline bool metatable_call(CallableMetatable*, Variant&,Variant&, Variant&){ return false; }
 
+	static inline bool metatable_call_var(Variant& r, Variant& v1, Variant& v2){return false;}
+
+
 	static const op_info& info();
 };
 

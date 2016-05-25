@@ -824,7 +824,7 @@ CallableMetatableT<arr_xt<T> >::CallableMetatableT()
 	table_meta["reshape"].kptr(CallableFunctionArrayReshapeT<T>::sm_info.CreateObject());
 	table_meta["remove"].kptr(CallableFunctionArrayRemoveT<T>::sm_info.CreateObject());
 
-	CG_GGVar::current().sm_meta[type_flag<type>::value].reset(this);
+	CallableData::sm_meta[type_flag<type>::value]=this;
 }
 
 template<typename T>

@@ -677,6 +677,9 @@ void CG_GGVar::_init()
 }
 
 
+//CallableMetatable** CG_GGVar::sm_meta=CallableData::sm_meta;
+
+
 static CG_GGVar* CG_GGVar_instance;
 
 CG_GGVar& CG_GGVar::current()

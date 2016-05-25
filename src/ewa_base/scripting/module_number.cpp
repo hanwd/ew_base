@@ -7,7 +7,7 @@ template<>
 CallableMetatableT<dcomplex>::CallableMetatableT()
 :CallableMetatable("complex")
 {
-	CG_GGVar::current().sm_meta[type_flag<dcomplex>::value].reset(this);
+	CallableData::sm_meta[type_flag<type>::value]=this;
 	table_meta["i_unit"].reset<type>(type(0, 1));
 }
 
@@ -40,7 +40,7 @@ template<>
 CallableMetatableT<int64_t>::CallableMetatableT()
 :CallableMetatable("integer")
 {
-	CG_GGVar::current().sm_meta[type_flag<type>::value].reset(this);
+	CallableData::sm_meta[type_flag<type>::value]=this;
 	table_meta["MAX_VALUE"].reset<type>(std::numeric_limits<type>::max());
 	table_meta["MIN_VALUE"].reset<type>(std::numeric_limits<type>::min());
 }
@@ -70,7 +70,7 @@ template<>
 CallableMetatableT<double>::CallableMetatableT()
 :CallableMetatable("double")
 {
-	CG_GGVar::current().sm_meta[type_flag<type>::value].reset(this);
+	CallableData::sm_meta[type_flag<type>::value]=this;
 	table_meta["MAX_VALUE"].reset<type>(std::numeric_limits<type>::max());
 	table_meta["MIN_VALUE"].reset<type>(std::numeric_limits<type>::min());
 }
@@ -100,7 +100,7 @@ template<>
 CallableMetatableT<bool>::CallableMetatableT()
 :CallableMetatable("boolean")
 {
-	CG_GGVar::current().sm_meta[type_flag<type>::value].reset(this);
+	CallableData::sm_meta[type_flag<type>::value]=(this);
 	table_meta["TRUE"].reset<type>(true);
 	table_meta["FALSE"].reset<type>(false);
 }

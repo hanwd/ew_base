@@ -3,7 +3,7 @@
 #include "ewa_base/threading.h"
 #include "ewa_base/collection/arr_xt.h"
 #include "ewa_base/serialization.h"
-
+#include "ewa_base/scripting.h"
 
 
 using namespace ew;
@@ -22,9 +22,6 @@ public:
 	}
 
 	DECLARE_OBJECT_INFO(serializable_data,ObjectInfo)
-
-
-
 };
 
 IMPLEMENT_OBJECT_INFO_T2(serializable_data,ObjectInfo)
@@ -32,8 +29,6 @@ IMPLEMENT_OBJECT_INFO_T2(serializable_data,ObjectInfo)
 class sample_data
 {
 public:
-
-
 	bst_map<String,float64_t> aMaps;
 
 	arr_1t<int32_t> aInts;
@@ -146,5 +141,62 @@ TEST_DEFINE(TEST_Serializer)
 
 	TEST_ASSERT(memcmp(v1,v2,sizeof(double)*4)==0);
 	TEST_ASSERT(sbuf.skip()); // reader reach the end of buffer
+}
+
+
+TEST_DEFINE(TEST_SerializerSeek)
+{
+	typedef serializable_data<float,String> float_string;
+
+	SerializerFile sf;
+
+	if(sf.file.Open("seekable.dat",FileAccess::FLAG_WC))
+	{
+
+		SerializerWriter &writer(sf.writer());
+
+		DataPtrT<float_string> p1(new float_string);
+		DataPtrT<float_string> p2(new float_string);
+		DataPtrT<CallableTableEx> p3(new CallableTableEx);
+
+		p3->value["abc"].reset("hello");
+		p3->value["cde"].reset("world");
+
+		p1->val=1.0;
+		p2->val=2.0;
+
+		writer.flags.add(Serializer::FLAG_OFFSET_TABLE);
+		writer & Serializer::head & p1 & p2 & p3 & Serializer::tail;
+
+	}
+	sf.file.Close();
+
+	if(sf.file.Open("seekable.dat",FileAccess::FLAG_RD))
+	{
+		DataPtrT<float_string> p1;
+		DataPtrT<float_string> p2;
+		DataPtrT<CallableTableEx> p3;
+
+		SerializerReader &reader(sf.reader());
+
+		reader & Serializer::head;
+
+		p3.reset(dynamic_cast<CallableTableEx*>(reader.read_object(3)));
+		p1.reset(dynamic_cast<float_string*>(reader.read_object(1)));
+		p2.reset(dynamic_cast<float_string*>(reader.read_object(2)));
+
+		TEST_ASSERT(p3);
+
+		if(p3)
+		{
+			String& s1=p3->value["abc"].ref<String>();
+			String& s2=p3->value["cde"].ref<String>();
+			TEST_ASSERT(s1=="hello");
+			TEST_ASSERT(s2=="world");		
+		}
+		
+		TEST_ASSERT(p1 && p1->val==1.0);
+		TEST_ASSERT(p2 && p2->val==2.0);
+	}
 
 }

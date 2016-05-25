@@ -21,9 +21,8 @@ TEST_DEFINE(TEST_arr_1t)
 	TEST_ASSERT(hh.size()==100);
 	TEST_ASSERT(hh[0]==3);
 
-	int ne;
 
-	ne=0;
+	int ne=0;
 	for(size_t i=1;i<hh.size();i++)
 	{
 		if(hh[i]!=2) ++ne;

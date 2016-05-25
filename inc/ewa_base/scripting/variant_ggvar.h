@@ -27,7 +27,7 @@ public:
 
 	static CG_GGVar& current();
 
-	DataPtrT<CallableMetatable> sm_meta[16];
+	//static CallableMetatable** sm_meta;
 
 private:
 

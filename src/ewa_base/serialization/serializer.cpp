@@ -158,12 +158,16 @@ SerializerReader& SerializerReader::handle_head()
 	if(!flags.get(Serializer::FLAG_OFFSET_TABLE)) return *this;
 
 	int64_t pos=tell();
-	if(pos>0 &&seek(header.offset))
+	if(pos>0 && seek(header.offset))
 	{
 		cached_objects.aOffset.resize(header.size);
 		checked_recv((char*)cached_objects.aOffset.data(),sizeof(CachedObjectManager::PtrOffset)*cached_objects.aOffset.size());
 		if(!seek(pos)) errstr("seek error");
-	}	
+	}
+	else
+	{
+		flags.del(FLAG_OFFSET_TABLE);
+	}
 
 	return *this;
 }
@@ -338,75 +342,27 @@ void CachedObjectManager::clear()
 }
 
 
-//
-//void CachedObjectManager::test_ptr_type(SerializerReader& ar,ObjectData* ptr)
-//{
-//	const String& type(ptr->GetObjectName());
-//	int32_t size=type.size();
-//
-//	ar.checked_recv((char*)&size,4);
-//	if(size!=type.size())
-//	{
-//		ar.errstr("invalid_object");
-//	}
-//
-//	StringBuffer<char> sb;sb.resize(size);
-//	ar.checked_recv(sb.data(),size);
-//
-//	if(memcmp(type.c_str(),sb.data(),size)!=0)
-//	{
-//		ar.errstr("invalid_object");
-//	}
-//}
-//
-//
-//void CachedObjectManager::test_ptr_type(SerializerWriter& ar,ObjectData* ptr)
-//{
-//	const String& type(ptr->GetObjectName());
-//	int32_t size=type.size();
-//	ar.checked_send((const char*)&size,4);
-//	ar.checked_send(type.c_str(),size);
-//}
-
-
-void CachedObjectManager::load_ptr(SerializerReader& ar,ObjectData* &ptr)
+ObjectData* CachedObjectManager::load_ptr(SerializerReader& ar,int32_t val)
 {
-
-	int32_t val;
-	ar.checked_recv((char*)&val,4);
-
-	if(val==0)
-	{
-		ptr=NULL;
-		return;
-	}
+	EW_ASSERT(val!=0);
 
 	int32_t cnt=(int32_t)aLoader.size();
 	if(val>=cnt)
 	{
-		aOffset.resize(val+1);
 		aLoader.resize(val+1);
-	}
-
-	PtrLoader &loader(aLoader[val]);
-	if(loader.m_ptr)
-	{
-		ptr=loader.m_ptr.get();
-		return;
 	}
 
 	String name=ar.object_type("");
 
-	loader.m_ptr.reset(ObjectCreator::current().CreateT<ObjectData>(name));
-	ptr=loader.m_ptr.get();
+	PtrLoader &loader(aLoader[val]);
+	if(!loader.m_ptr)
+	{
+		loader.m_ptr.reset(ObjectCreator::current().CreateT<ObjectData>(name));	
+		aObject[loader.m_ptr.get()]=val;
+		pendings.append(val);
+	}
 
-	aObject[loader.m_ptr.get()]=val;
-
-	pendings.append(val);
-
-
-
-	
+	return loader.m_ptr.get();
 }
 
 Object* CachedObjectManager::create(const String& name)
@@ -414,31 +370,26 @@ Object* CachedObjectManager::create(const String& name)
 	return ObjectCreator::current().Create(name);
 }
 
-void CachedObjectManager::save_ptr(SerializerWriter& ar,ObjectData* ptr)
+
+void CachedObjectManager::save_ptr(SerializerWriter& ar,ObjectData* ptr,bool write_index)
 {
+	EW_ASSERT(ptr!=NULL);
 
-	if(ptr==NULL)
-	{
-		int32_t val=0;
-		ar.checked_send((char*)&val,4);
-		return;
-	}
-
-	int32_t val=aObject[ptr];
+	int32_t &val(aObject[ptr]);
 
 	if(val==0)
 	{
 		val=(int32_t)aLoader.size();
 		aOffset.push_back(PtrOffset());
 		aLoader.push_back(PtrLoader());
-
-		PtrLoader &loader(aLoader[val]);
-		loader.m_ptr=ptr;
-
+		aLoader[val].m_ptr.reset(ptr);
 		pendings.append(val);
 	}
 
-	ar.checked_send((const char*)&val,4);
+	if(write_index)
+	{
+		ar.checked_send((const char*)&val,4);
+	}
 	ar.object_type(ptr->GetObjectName());
 
 }
@@ -450,10 +401,11 @@ void CachedObjectManager::handle_pending(SerializerWriter& ar)
 		arr_1t<int32_t> tmp;tmp.swap(pendings);
 		for(size_t i=0;i<tmp.size();i++)
 		{
-			int val=tmp[i];
+			int32_t val=tmp[i];
 			if(aLoader[val].flags.get(PtrLoader::IS_LOADED)) continue;	
 			aLoader[val].flags.add(PtrLoader::IS_LOADED);
 			aOffset[val].lo=ar.tell();
+			//ar.checked_send((const char*)&val,4);
 			ar.object_type(aLoader[val].m_ptr->GetObjectName());
 			aLoader[val].m_ptr->Serialize(ar);
 			aOffset[val].hi=ar.tell();			
@@ -471,14 +423,14 @@ void CachedObjectManager::handle_pending(SerializerReader& ar,bool use_seek)
 
 		for(size_t i=0;i<tmp.size();i++)
 		{
-			PtrLoader& loader(aLoader[tmp[i]]);
-			PtrOffset& offset(aOffset[tmp[i]]);
+			int val=tmp[i];
+			PtrLoader& loader(aLoader[val]);
 
 			if(loader.flags.get(PtrLoader::IS_LOADED)) continue;
 	
 			loader.flags.add(PtrLoader::IS_LOADED);
 
-			if(use_seek && !ar.seek(offset.lo))
+			if(use_seek && !ar.seek(aOffset[val].lo))
 			{
 				ar.errstr("seek error");
 			}
@@ -486,7 +438,7 @@ void CachedObjectManager::handle_pending(SerializerReader& ar,bool use_seek)
 			ar.object_type(loader.m_ptr->GetObjectName());
 			loader.m_ptr->Serialize(ar);
 
-			if(use_seek && offset.hi!=ar.tell())
+			if(use_seek && aOffset[val].hi!=ar.tell())
 			{
 				ar.errstr("read error");
 			}
@@ -504,37 +456,38 @@ ObjectData* CachedObjectManager::read_object(SerializerReader& ar,int val)
 
 	int64_t sz=aOffset[val].lo;
 
-
 	if((int)aLoader.size()<=val)
 	{
 		aLoader.resize(val+1);
 	}
-
-	if(aLoader[val].flags.get(PtrLoader::IS_LOADED))
+	else if(aLoader[val].flags.get(PtrLoader::IS_LOADED))
 	{
 		return aLoader[val].m_ptr.get();
 	}
 
 	if(!aLoader[val].m_ptr)
 	{
-		if(!ar.seek(sz)) return NULL;
-		ObjectData* ptr=NULL;
-		load_ptr(ar,ptr);
+		if(!ar.seek(sz))
+		{
+			ar.errstr("seek error");
+			return NULL;
+		}		
+		load_ptr(ar,val);
 	}
 
 	pendings.clear();
 	pendings.append(val);
-
 	handle_pending(ar,true);
+
 	return aLoader[val].m_ptr.get();
 
 }
 
 
-ObjectData* SerializerReader::read_object(SerializerReader& ar,int val)
+ObjectData* SerializerReader::read_object(int val)
 {
 	if(!flags.get(FLAG_OFFSET_TABLE)) return NULL;
-	return cached_objects.read_object(ar,val);
+	return cached_objects.read_object(*this,val);
 }
 
 EW_LEAVE

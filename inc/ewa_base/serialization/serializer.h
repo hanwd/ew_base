@@ -154,8 +154,8 @@ public:
 
 	void clear();
 
-	void save_ptr(SerializerWriter& ar,ObjectData* ptr);
-	void load_ptr(SerializerReader& ar,ObjectData* &ptr);
+	void save_ptr(SerializerWriter& ar,ObjectData* ptr,bool write_index=false);
+	ObjectData* load_ptr(SerializerReader& ar,int pos);
 
 	void handle_pending(SerializerWriter& ar);
 	void handle_pending(SerializerReader& ar,bool use_seek=false);
@@ -216,7 +216,7 @@ public:
 	virtual void reader_close(){}
 	virtual bool reader_good(){return true;}
 
-	ObjectData* read_object(SerializerReader& ar,int val);
+	ObjectData* read_object(int val);
 
 	virtual SerializerReader& handle_head();
 	virtual SerializerReader& handle_tail();
@@ -553,8 +553,7 @@ public:
 
 		if(sval>=A::PTRTAG_CACHED)
 		{
-			ObjectData* dptr(NULL);
-			ar.cached_objects.load_ptr(ar,dptr);
+			ObjectData* dptr=ar.cached_objects.load_ptr(ar,sval);
 			val=dynamic_cast<pointer>((Object*)dptr);
 			if(!val)
 			{
@@ -607,24 +606,17 @@ public:
 			return;
 		}
 
-
 		ObjectData* dptr(dynamic_cast<ObjectData*>(val));
 		if(dptr)
 		{
-			sval=Serializer::PTRTAG_CACHED;
+			ar.cached_objects.save_ptr(ar,dptr,true);
 		}
-
-		serial_pod<A,int32_t>::g(ar,sval);
-
-		if(dptr)
+		else
 		{
-			ar.cached_objects.save_ptr(ar,dptr);
-			return;
+			serial_pod<A,int32_t>::g(ar,sval);
+			ar.object_type(val->GetObjectName());
+			basetype::g(ar,*val);
 		}
-
-		ar.object_type(val->GetObjectName());
-		basetype::g(ar,*val);
-
 	}
 };
 

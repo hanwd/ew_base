@@ -515,34 +515,36 @@ public:
 	}
 };
 
-template<typename P,unsigned N,unsigned X>
-class pl2_dispatch : public pl2_dispatch_base<P>
+template<typename P>
+class pl2_dispatch_meta
 {
 public:
 
-	typedef pl2_dispatch_base<P> basetype;
-
-	static const unsigned N1 = N >> 4;
-	static const unsigned N2 = N & 0xF;
-
-	typedef typename flag_type<N1>::type type1;
-	typedef typename flag_type<N2>::type type2;
-
-	static inline CallableMetatable* get_metatable(Variant& v)
+	static void value(Variant& r,Variant& v1,Variant& v2)
 	{
-		CallableData* p = v.kptr();
-		return p ? p->GetMetaTable() : CG_GGVar::current().sm_meta[v.type()].get();
-	}
-
-	static inline void value(Variant& r, Variant& v1, Variant& v2)
-	{
-		CallableMetatable* p1 = get_metatable(v1);
+		CallableMetatable* p1 = v1.get_metatable();
 		if (p1 && P::metatable_call(p1, r, v1, v2)) return;
-		CallableMetatable* p2 = get_metatable(v2);
+		CallableMetatable* p2 = v2.get_metatable();
 		if (p2 && P::metatable_call(p2, r, v1, v2)) return;
 
-		basetype::value(r, v1, v2);
+		if (P::metatable_call_var(r, v1, v2)) return;
+
+		Exception::XError(String::Format("bad argument to %s",P::info().name));
 	}
+};
+
+template<typename P,unsigned N,unsigned X>
+class pl2_dispatch : public pl2_dispatch_meta<P>
+{
+public:
+
+	//typedef pl2_dispatch_meta<P> basetype;
+
+	//static const unsigned N1 = N >> 4;
+	//static const unsigned N2 = N & 0xF;
+
+	//typedef typename flag_type<N1>::type type1;
+	//typedef typename flag_type<N2>::type type2;
 
 };
 

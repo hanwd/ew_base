@@ -8,7 +8,7 @@ template<>
 CallableMetatableT<VariantTable>::CallableMetatableT()
 :CallableMetatable("table")
 {
-	CG_GGVar::current().sm_meta[type_flag<type>::value].reset(this);
+	CallableData::sm_meta[type_flag<type>::value]=this;
 }
 
 template<>

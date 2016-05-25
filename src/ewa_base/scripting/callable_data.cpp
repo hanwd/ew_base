@@ -6,6 +6,7 @@
 
 EW_ENTER
 
+CallableMetatable* CallableData::sm_meta[16];
 
 int CallableData::__getindex(Executor& ewsl,const String& si)
 {

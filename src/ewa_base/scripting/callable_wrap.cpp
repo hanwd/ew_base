@@ -9,7 +9,7 @@ EW_ENTER
 
 CallableMetatable* CallableWrap::GetMetaTable()
 {
-	return CG_GGVar::current().sm_meta[m_nType].get();
+	return CallableData::sm_meta[m_nType];
 }
 
 int CallableWrapT<String>::__getarray(Executor& ewsl,int pm)

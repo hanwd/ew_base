@@ -145,6 +145,12 @@ void int_div_hook_int_int(Variant &r, Variant& v1, Variant& v2)
 	}
 }
 
+template<bool F>
+static void value_direct(Variant &r, Variant&,Variant&)
+{
+	r.reset(F);
+}
+
 void init_module_math()
 {
 	CG_GGVar& gi(CG_GGVar::current());
@@ -201,6 +207,22 @@ void init_module_math()
 	// replace div(int,int) implement
 	pl2_call<pl_arr_div>::lk::cmap[type_flag<int64_t>::value<<4|type_flag<int64_t>::value]=int_div_hook_int_int;
 	pl2_call<pl_mat_div>::lk::cmap[type_flag<int64_t>::value<<4|type_flag<int64_t>::value]=int_div_hook_int_int;
+
+
+	for(int i=0;i<16;i++) for(int j=0;j<16;j++)
+	{
+		unsigned n=(i<<4)|j;
+		if(i!=0&&j!=0) continue;
+
+		if(pl2_call<pl_eq>::lk::cmap[n]==&pl2_dispatch_meta<pl_eq>::value)
+		{
+			pl2_call<pl_eq>::lk::cmap[n]=&value_direct<false>;
+		}
+		if(pl2_call<pl_ne>::lk::cmap[n]==&pl2_dispatch_meta<pl_ne>::value)
+		{
+			pl2_call<pl_ne>::lk::cmap[n]=&value_direct<true>;
+		}
+	}
 
 }
 

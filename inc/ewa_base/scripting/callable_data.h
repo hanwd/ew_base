@@ -180,6 +180,7 @@ public:
 		return static_cast<CallableData*>(p);
 	}
 
+	static CallableMetatable* sm_meta[16];
 
 	DECLARE_OBJECT_INFO(CallableData,ObjectInfo);
 

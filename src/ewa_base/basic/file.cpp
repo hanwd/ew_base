@@ -295,17 +295,31 @@ bool File::Remove(const String& filename_)
 
 bool File::Mkdir(const String& dir_)
 {
-	String cmd = "mkdir "+dir_;
-	cmd.replace("/", "\\");
-	system(cmd.c_str());
+	if(dir_.find('\"')>=0)
+	{
+		return false;
+	}
+
+	String dir(dir_);
+	//dir.replace("/", "\\");
+
+	StringBuffer<char> sb;
+	System::Execute("cmd /c mkdir \""+dir+"\"",sb);
 	return true;
 }
 
 bool File::Rmdir(const String& dir_)
 {
-	String cmd = "rmdir "+dir_;
-	cmd.replace("/", "\\");
-	system(cmd.c_str());
+	if(dir_.find('\"')>=0)
+	{
+		return false;
+	}
+
+	String dir(dir_);
+	//dir.replace("/", "\\");
+
+	StringBuffer<char> sb;
+	System::Execute("cmd /c rmdir \""+dir+"\"",sb);
 	return true;
 }
 EW_LEAVE

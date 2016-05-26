@@ -117,6 +117,35 @@ public:
 };
 IMPLEMENT_OBJECT_INFO(CallableFunctionStringLength, ObjectInfo);
 
+class CallableFunctionStringFind : public CallableFunction
+{
+public:
+	CallableFunctionStringFind() :CallableFunction("string.find"){}
+
+	int __fun_call(Executor& ewsl, int pm)
+	{
+		
+		String* pstr=ewsl.ci1.nbp[StackState1::SBASE_THIS].ptr<String>();
+		if(pm==0||!pstr)
+		{
+			ewsl.ci0.nbx[1].clear();
+			return 1;
+		}
+
+		String what=variant_cast<String>(ewsl.ci0.nbx[1]);
+		int pos=0;
+		if(pm>1)
+		{
+			pos=variant_cast<int>(ewsl.ci0.nbx[2]);
+		}
+		ewsl.ci0.nbx[1].reset(pstr->find(what,pos));
+		return 1;
+	}
+
+	DECLARE_OBJECT_CACHED_INFO(CallableFunctionStringFind, ObjectInfo);
+};
+IMPLEMENT_OBJECT_INFO(CallableFunctionStringFind, ObjectInfo);
+
 class CallableFunctionStringLower : public CallableFunctionStringThisT<pl_string_lower>
 {
 public:
@@ -383,6 +412,9 @@ void init_module_string()
 	gi.add_inner<CallableFunctionStringConcat>();
 	gi.add_inner<CallableFunctionStringSplit>();
 	gi.add_inner<CallableFunctionStringReplace>();
+
+	gi.add_inner<CallableFunctionStringFind>();
+
 
 	gi.add_inner<CallableFunctionUpper>();
 	gi.add_inner<CallableFunctionLower>();

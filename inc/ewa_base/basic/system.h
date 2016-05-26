@@ -74,6 +74,9 @@ public:
 	static String MakePath(const String& file,const String& path);
 	static bool IsRelative(const String& file);
 
+	static String GetCwd();
+	static bool SetCwd(const String& s);
+
 
 #define STRING_FORMAT_LEVEL(X,Y) DoLog(Y,X)
 

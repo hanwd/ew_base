@@ -442,8 +442,8 @@ public:
 	virtual int __fun_call(Executor& ewsl, int pm)
 	{
 		ewsl.check_pmc(this, pm, 1);
-		String& newcwd=ewsl.ci0.nbx[1].ref<String>();
-		newcwd=ewsl.set_cwd(newcwd);
+		String& newcwd=ewsl.ci0.nbx[1].ref<String>();		
+		ewsl.set_cwd(System::MakePath(newcwd,ewsl.get_cwd()));
 		return 1;
 	}
 
@@ -536,7 +536,7 @@ public:
 	{
 		ewsl.check_pmc(this,pm,1);
 		String fp=variant_cast<String>(ewsl.ci0.nbx[1]);
-		return ERRNO_HandleResult(ewsl,File::Remove(fp));
+		return ERRNO_HandleResult(ewsl,File::Remove(System::MakePath(fp,ewsl.get_cwd())));
 		
 	}
 	DECLARE_OBJECT_CACHED_INFO(CallableFunctionRemove, ObjectInfo);
@@ -553,8 +553,8 @@ public:
 	virtual int __fun_call(Executor& ewsl,int pm)
 	{
 		ewsl.check_pmc(this,pm,2);
-		String fp1=variant_cast<String>(ewsl.ci0.nbx[1]);
-		String fp2=variant_cast<String>(ewsl.ci0.nbx[2]);
+		String fp1=System::MakePath(variant_cast<String>(ewsl.ci0.nbx[1]),ewsl.get_cwd());
+		String fp2=System::MakePath(variant_cast<String>(ewsl.ci0.nbx[2]),ewsl.get_cwd());
 		return ERRNO_HandleResult(ewsl,File::Rename(fp1,fp2));
 	}
 	DECLARE_OBJECT_CACHED_INFO(CallableFunctionRename, ObjectInfo);
@@ -633,8 +633,8 @@ public:
 	{
 		ewsl.check_pmc(this,pm,1);
 		String fp=variant_cast<String>(ewsl.ci0.nbx[1]);
-		ewsl.ci0.nbx[1].reset(File::Mkdir(fp));
-		return 0;	
+		ewsl.ci0.nbx[1].reset(File::Mkdir(System::MakePath(fp,ewsl.get_cwd())));
+		return 1;	
 	}
 	DECLARE_OBJECT_CACHED_INFO(CallableFunctionMkdir, ObjectInfo);
 };
@@ -650,8 +650,8 @@ public:
 	{
 		ewsl.check_pmc(this,pm,1);
 		String fp=variant_cast<String>(ewsl.ci0.nbx[1]);
-		ewsl.ci0.nbx[1].reset(File::Rmdir(fp));
-		return 0;	
+		ewsl.ci0.nbx[1].reset(File::Rmdir(System::MakePath(fp,ewsl.get_cwd())));
+		return 1;	
 	}
 	DECLARE_OBJECT_CACHED_INFO(CallableFunctionRmdir, ObjectInfo);
 };

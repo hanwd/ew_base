@@ -26,6 +26,23 @@ public:
 };
 IMPLEMENT_OBJECT_INFO_T1(CallableFunctionBufferClearT, ObjectInfo);
 
+
+template<typename T>
+class CallableFunctionBufferLengthT : public CallableFunction
+{
+public:
+	CallableFunctionBufferLengthT():CallableFunction(){}
+	virtual int __fun_call(Executor& ewsl,int pm)
+	{
+		ewsl.check_pmc(this, pm,0);
+		size_t sz=ewsl.ci1.nbp[StackState1::SBASE_THIS].ref<StringBuffer<T> >().size();
+		ewsl.ci0.nbx[1].reset((int64_t)sz);
+		return 1;	
+	}
+	DECLARE_OBJECT_CACHED_INFO(CallableFunctionBufferLengthT, ObjectInfo);
+};
+IMPLEMENT_OBJECT_INFO_T1(CallableFunctionBufferLengthT, ObjectInfo);
+
 template<typename T>
 class CallableFunctionBufferSaveT : public CallableFunction
 {
@@ -35,11 +52,10 @@ public:
 	virtual int __fun_call(Executor& ewsl,int pm)
 	{
 		ewsl.check_pmc(this, pm,1,2);
-		String filename=variant_cast<String>(ewsl.ci0.nbx[1]);
+		String filename=ewsl.make_path(variant_cast<String>(ewsl.ci0.nbx[1]));
 		int type=pm>1?variant_cast<int>(ewsl.ci0.nbx[2]):FILE_BINARY;
-
-		ewsl.ci1.nbp[StackState1::SBASE_THIS].ref<StringBuffer<T> >().save(filename,type);
-		ewsl.ci0.nbx[1]=ewsl.ci1.nbp[StackState1::SBASE_THIS];
+		bool flag=ewsl.ci1.nbp[StackState1::SBASE_THIS].ref<StringBuffer<T> >().save(filename,type);
+		ewsl.ci0.nbx[1].reset(flag);
 		return 1;	
 	}
 	DECLARE_OBJECT_CACHED_INFO(CallableFunctionBufferSaveT, ObjectInfo);
@@ -56,11 +72,11 @@ public:
 	virtual int __fun_call(Executor& ewsl,int pm)
 	{
 		ewsl.check_pmc(this, pm,1,2);
-		String filename=variant_cast<String>(ewsl.ci0.nbx[1]);
+		String filename=ewsl.make_path(variant_cast<String>(ewsl.ci0.nbx[1]));
 		int type=pm>1?variant_cast<int>(ewsl.ci0.nbx[2]):FILE_BINARY;
 
-		ewsl.ci1.nbp[StackState1::SBASE_THIS].ref<StringBuffer<T> >().load(filename,type);
-		ewsl.ci0.nbx[1]=ewsl.ci1.nbp[StackState1::SBASE_THIS];
+		bool flag=ewsl.ci1.nbp[StackState1::SBASE_THIS].ref<StringBuffer<T> >().load(filename,type);
+		ewsl.ci0.nbx[1].reset(flag);
 		return 1;	
 	}
 	DECLARE_OBJECT_CACHED_INFO(CallableFunctionBufferLoadT, ObjectInfo);
@@ -110,6 +126,8 @@ public:
 		value["write"].kptr(new CallableFunctionBufferWriteT<T>());
 		value["load"].kptr(new CallableFunctionBufferLoadT<T>());
 		value["save"].kptr(new CallableFunctionBufferSaveT<T>());
+		value["length"].kptr(new CallableFunctionBufferLengthT<T>());
+
 	}
 
 	virtual int __fun_call(Executor& ewsl, int pm)

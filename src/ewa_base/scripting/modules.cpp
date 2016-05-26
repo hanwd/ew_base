@@ -213,6 +213,26 @@ public:
 };
 IMPLEMENT_OBJECT_INFO(CallableFunctionIsNil, ObjectInfo);
 
+class CallableFunctionIsString : public CallableFunction
+{
+public:
+	CallableFunctionIsString() :CallableFunction("is_string"){}
+
+	virtual int __fun_call(Executor& ewsl, int pm)
+	{
+		bool f = false;
+		if (pm > 0)
+		{
+			f = ewsl.ci0.nbx[1].type()==type_flag<String>::value;
+		}
+		ewsl.ci0.nbx[1].reset(f);
+		return 1;
+	}
+	DECLARE_OBJECT_CACHED_INFO(CallableFunctionIsString, ObjectInfo);
+
+};
+IMPLEMENT_OBJECT_INFO(CallableFunctionIsString, ObjectInfo);
+
 class CallableFunctionIsTable : public CallableFunction
 {
 public:
@@ -233,6 +253,71 @@ public:
 
 };
 IMPLEMENT_OBJECT_INFO(CallableFunctionIsTable, ObjectInfo);
+
+
+class CallableFunctionIsArray : public CallableFunction
+{
+public:
+	CallableFunctionIsArray() :CallableFunction("is_array"){}
+
+	virtual int __fun_call(Executor& ewsl, int pm)
+	{
+		bool f = false;
+		if (pm > 0)
+		{
+			int t= ewsl.ci0.nbx[1].type();
+			f= t>=type_flag<arr_xt<int64_t> >::value && t<=type_flag<arr_xt<Variant> >::value;
+		}
+		ewsl.ci0.nbx[1].reset(f);
+		return 1;
+	}
+	DECLARE_OBJECT_CACHED_INFO(CallableFunctionIsArray, ObjectInfo);
+
+};
+IMPLEMENT_OBJECT_INFO(CallableFunctionIsArray, ObjectInfo);
+
+
+
+class CallableFunctionIsNumber : public CallableFunction
+{
+public:
+	CallableFunctionIsNumber() :CallableFunction("is_number"){}
+
+	virtual int __fun_call(Executor& ewsl, int pm)
+	{
+		bool f = false;
+		if (pm > 0)
+		{
+			int t= ewsl.ci0.nbx[1].type();
+			f= t>=type_flag<int64_t>::value && t<=type_flag<dcomplex>::value;
+		}
+		ewsl.ci0.nbx[1].reset(f);
+		return 1;
+	}
+	DECLARE_OBJECT_CACHED_INFO(CallableFunctionIsNumber, ObjectInfo);
+};
+IMPLEMENT_OBJECT_INFO(CallableFunctionIsNumber, ObjectInfo);
+
+class CallableFunctionIsBoolean : public CallableFunction
+{
+public:
+	CallableFunctionIsBoolean() :CallableFunction("is_boolean"){}
+
+	virtual int __fun_call(Executor& ewsl, int pm)
+	{
+		bool f = false;
+		if (pm > 0)
+		{
+			int t= ewsl.ci0.nbx[1].type();
+			f= t==type_flag<bool>::value;
+		}
+		ewsl.ci0.nbx[1].reset(f);
+		return 1;
+	}
+	DECLARE_OBJECT_CACHED_INFO(CallableFunctionIsBoolean, ObjectInfo);
+};
+IMPLEMENT_OBJECT_INFO(CallableFunctionIsBoolean, ObjectInfo);
+
 
 class CallableFunctionTranslate : public CallableFunction
 {
@@ -531,8 +616,14 @@ void CG_GGVar::_init()
 	gi.add_inner<CallableFunctionImport>();
 	gi.add_inner<CallableFunctionClone>();
 	gi.add_inner<CallableFunctionTypeId>();
-	gi.add_inner<CallableFunctionIsTable>();
+
 	gi.add_inner<CallableFunctionIsNil>();
+	gi.add_inner<CallableFunctionIsTable>();
+	gi.add_inner<CallableFunctionIsString>();
+	gi.add_inner<CallableFunctionIsArray>();
+	gi.add_inner<CallableFunctionIsNumber>();
+	gi.add_inner<CallableFunctionIsBoolean>();
+
 
 	gi.add_inner<CallableCommandClear>();
 	gi.add_inner<CallableCommandClc>();

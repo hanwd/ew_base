@@ -31,17 +31,22 @@ DataPtrT<CallableData> Executor::parse(const String& ss)
 	return NULL;
 }
 
-String Executor::set_cwd(const String& s)
+String Executor::make_path(const String& s)
+{
+	return System::MakePath(s,get_cwd());
+}
+
+bool Executor::set_cwd(const String& s)
 {
 	String value(ci1.nbp[StackState1::SBASE_CWD].ref<String>());
-	ci1.nbp[StackState1::SBASE_CWD].reset(s);
-	return value;
+	String cwd=System::MakePath(s,value);
+	ci1.nbp[StackState1::SBASE_CWD].reset(cwd);
+	return true;
 }
 
 String Executor::get_cwd()
 {
-	String& value(ci1.nbp[StackState1::SBASE_CWD].ref<String>());
-	return value;
+	return ci1.nbp[StackState1::SBASE_CWD].ref<String>();
 }
 
 class CallableExecutorState : public CallableData

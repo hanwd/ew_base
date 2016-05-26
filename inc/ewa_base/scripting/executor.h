@@ -133,8 +133,10 @@ public:
 	const CG_GGVar& tb0;
 	VariantTable& tb1;
 
-	String set_cwd(const String& s);
+	bool set_cwd(const String& s);
 	String get_cwd();
+
+	String make_path(const String& s);
 
 	DataPtrT<CallableCoroutine> co_this;
 	DataPtrT<CallableCoroutine> co_main;

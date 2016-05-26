@@ -97,6 +97,7 @@ void CallableCoroutine::reset(size_t stack_size)
 CallableCoroutine::CallableCoroutine(size_t stack_size)
 {
 	reset(stack_size);
+	ci1.nbp[StackState1::SBASE_CWD].reset(System::MakePath(System::GetCwd(),""));
 }
 
 void CallableCoroutine::UnInit()

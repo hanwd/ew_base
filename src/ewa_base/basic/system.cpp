@@ -5,6 +5,12 @@
 #include "ewa_base/basic/stringbuffer.h"
 #include "ewa_base/util/strlib.h"
 
+#ifdef EW_WINDOWS
+#include <direct.h>
+#else
+#include <unistd.h>
+#endif
+
 #include <ctime>
 #include <cstdlib>
 #include <cstdio>
@@ -759,16 +765,86 @@ bool System::IsRelative(const String& file)
 	return file.find(":")<0;
 }
 
+String NormalPath(const String& file_)
+{
+	String file(file_);
+	file.replace('\\','/');
+	arr_1t<String> arr=string_split(file,"/");
+
+	arr_1t<String> tmp;
+	
+	for(size_t i=0;i<arr.size();i++)
+	{
+		if(arr[i]=="")
+		{
+			if(i==0) tmp.push_back("");		
+		}
+		else if(arr[i]!="..")
+		{
+			tmp.push_back(arr[i]);
+		}
+		else if(tmp.empty()||tmp.back()=="..")
+		{		
+			tmp.push_back(arr[i]);
+		}
+		else
+		{
+			tmp.pop_back();
+		}	
+	}
+
+	return string_join(tmp.begin(),tmp.end(),"/");
+}
+
 String System::MakePath(const String& file,const String& path)
 {
 	if(IsRelative(file))
 	{
-		return AdjustPath(path,true)+file;
+		return NormalPath(AdjustPath(path,true)+file);
+	}
+	else if(file=="/"||file=="\\")
+	{
+		int pos=path.find(':');
+		if(pos<0)
+		{
+			return "/";
+		}
+		else
+		{
+			return path.substr(0,pos);
+		}
 	}
 	else
 	{
-		return file;
+		return NormalPath(file);
 	}
+}
+
+String System::GetCwd()
+{
+#ifdef EW_WINDOWS
+	 char path[_MAX_PATH];
+	 return _getcwd(path,_MAX_PATH);
+#else
+	char buffer[MAXPATH];
+	return getcwd(buffer,MAXPATH);
+#endif
+}
+
+bool System::SetCwd(const String& s)
+{
+#ifdef EW_WINDOWS
+
+	if((_chdir(s.c_str()))==0)
+	{
+		return true;
+	}
+	
+	return false;
+
+#else
+
+#endif
 }
 
 void PushFindItem(arr_1t<FindItem>& files,WIN32_FIND_DATAA& p)

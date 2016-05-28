@@ -608,7 +608,6 @@ DataPtrT<CallableTableEx> http_server_objects(new CallableTableEx);
 
 void SessionHttpEwsl::HandleContent(StringBuffer<char>& sb2)
 {
-
 	String filepath=Target.server_path+uri;
 
 	int i=-1;

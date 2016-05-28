@@ -122,72 +122,69 @@ String string_trim(const String& s, int flag, char ch)
 	}
 }
 
-static int get_code(unsigned char ch)
-{
-	if (ch >= '0' && ch <= '9') return ch - '0';
-	if (ch >= 'A' && ch <= 'F') return 10 + ch - 'A';
-	if (ch >= 'a' && ch <= 'f') return 10 + ch - 'a';
-	return -1;
-}
+
+
 
 String string_unescape(const String& s)
 {
 	StringBuffer<char> sb;
 	const unsigned char* p = (const unsigned char*)s.c_str();
-	for (; *p;)
+	while(*p)
 	{
-		if (*p == '%')
+		if (*p != '%')
 		{
-			int v1 = lookup_table<lkt_number16b>::test(p[1]);
-			if (v1<0)
-			{
-				if (p[1] != 'u')
-				{
-					sb.push_back(p[0]);
-					p += 1;				
-					continue;;
-				}
-	
-				wchar_t vv = 0;
-				for (int i = 0; i < 4; i++)
-				{
-					v1 = lookup_table<lkt_number16b>::test(p[i+2]);	
-					if (v1 < 0)
-					{
-						break;
-					}
-					vv = (vv << 4) + v1;
-				}
+			sb.push_back(*p++);
+			continue;
+		}
 
-				StringBuffer<char> wb;
-				IConv::unicode_to_utf8(wb, &vv, 1);
-				sb << wb;
-				p += 6;
-
-				continue;
-			
-			}
-
+		int v1 = lookup_table<lkt_number16b>::test(p[1]);
+		if (v1<16)
+		{
 			int v2=lookup_table<lkt_number16b>::test(p[2]);
-			if (v2<0)
+			if(v2<16)
 			{
+				sb.push_back(v1 * 16 + v2);
+				p += 3;
+			}
+			else
+			{
+				System::LogTrace("??? escape: "+String(p,3));
+
 				sb.push_back(p[0]);
 				sb.push_back(p[1]);
 				p += 2;
-				continue;
 			}
+		}
+		else if (p[1] != 'u')
+		{
+			System::LogTrace("??? escape: "+String(p,2));
 
-			sb.push_back(v1 * 16 + v2);
-			p += 3;
+			sb.push_back(p[0]);
+			p += 1;				
+			continue;;
 		}
 		else
 		{
-			sb.push_back(*p);
-			p += 1;
+
+			wchar_t vv = 0;
+			for (int i = 0; i < 4; i++)
+			{
+				v1 = lookup_table<lkt_number16b>::test(p[i+2]);	
+				if (v1 >=16)
+				{
+					System::LogTrace("??? escape: "+String(p,3+i));
+					break;
+				}
+				vv = (vv << 4) + v1;
+			}
+
+			StringBuffer<char> wb;
+			IConv::unicode_to_utf8(wb, &vv, 1);
+			sb << wb;
+			p += 6;			
 		}
 	}
 
-	IConv::utf8_to_ansi(sb,sb.data(),sb.size());
 	return sb;
 }
 
@@ -211,16 +208,27 @@ public:
 	static const unsigned char value = N < 10 ? '0' + N : (N < 16 ? 'A' + N - 10 : -1);
 };
 
+
 String string_escape(const String& str_src)
 {
+	StringBuffer<wchar_t> wb(str_src);
 	StringBuffer<char> sb;
-	for (const unsigned char* p = (const unsigned char*)str_src.c_str(); *p;p++)
+	for (const wchar_t* p = wb.c_str(); *p;p++)
 	{
-		if (lookup_table<lkt_need_escape>::test(*p))
+		if(*p>=256)
 		{
 			sb.push_back('%');
-			sb.push_back(lookup_table<lkt_10b_to_16b_char>::test((*p) >> 4));
-			sb.push_back(lookup_table<lkt_10b_to_16b_char>::test((*p) & 0x0F));
+			sb.push_back('u');
+			sb.push_back(lookup_table<lkt_10b_to_16b_char>::test(((*p)&0xF000)>>12));
+			sb.push_back(lookup_table<lkt_10b_to_16b_char>::test(((*p)&0x0F00)>>8));
+			sb.push_back(lookup_table<lkt_10b_to_16b_char>::test(((*p)&0x00F0)>>4));
+			sb.push_back(lookup_table<lkt_10b_to_16b_char>::test(((*p)&0x000F)>>0));
+		}
+		else if (lookup_table<lkt_need_escape>::test(*p))
+		{
+			sb.push_back('%');
+			sb.push_back(lookup_table<lkt_10b_to_16b_char>::test(((*p)&0x00F0)>>4));
+			sb.push_back(lookup_table<lkt_10b_to_16b_char>::test(((*p)&0x000F)>>0));
 		}
 		else
 		{
@@ -230,5 +238,87 @@ String string_escape(const String& str_src)
 	return sb;
 }
 
+String string_urlencode(const String& str_src)
+{
+	StringBuffer<char> sb;
+	for (const unsigned char* p = (const unsigned char*)str_src.c_str(); *p;p++)
+	{
+		if (lookup_table<lkt_need_escape>::test(*p))
+		{
+			sb.push_back('%');
+			sb.push_back(lookup_table<lkt_10b_to_16b_char>::test(((*p)&0x00F0)>>4));
+			sb.push_back(lookup_table<lkt_10b_to_16b_char>::test(((*p)&0x000F)>>0));
+		}
+		else
+		{
+			sb.push_back(*p);
+		}
+	}
+	return sb;
+}
+
+
+String string_urldecode(const String& s)
+{
+	StringBuffer<char> sb;
+	const unsigned char* p = (const unsigned char*)s.c_str();
+	while(*p)
+	{
+		if (*p != '%')
+		{
+			sb.push_back(*p++);
+			continue;
+		}
+
+		int v1 = lookup_table<lkt_number16b>::test(p[1]);
+		if (v1<16)
+		{
+			int v2=lookup_table<lkt_number16b>::test(p[2]);
+			if(v2<16)
+			{
+				sb.push_back(v1 * 16 + v2);
+				p += 3;
+			}
+			else
+			{
+				System::LogTrace("??? urldecode: "+String(p,3));
+
+				sb.push_back(p[0]);
+				sb.push_back(p[1]);
+				p += 2;
+			}
+		}
+		else if (p[1] != 'u')
+		{
+			System::LogTrace("??? urldecode: "+String(p,2));
+
+			sb.push_back(p[0]);
+			p += 1;				
+			continue;;
+		}
+		else
+		{
+
+			wchar_t vv = 0;
+			for (int i = 0; i < 4; i++)
+			{
+				v1 = lookup_table<lkt_number16b>::test(p[i+2]);	
+				if (v1 >=16)
+				{
+					System::LogTrace("??? urldecode: "+String(p,3+i));
+					break;
+				}
+				vv = (vv << 4) + v1;
+			}
+
+			StringBuffer<char> wb;
+			IConv::unicode_to_utf8(wb, &vv, 1);
+			sb << wb;
+			p += 6;			
+		}
+	}
+
+	return sb;
+}
 
 EW_LEAVE

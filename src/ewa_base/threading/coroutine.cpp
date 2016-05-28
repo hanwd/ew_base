@@ -3,15 +3,12 @@
 
 #include "thread_impl.h"
 
-extern "C" void asm_swap_context(void* callee,void* caller);
 
 EW_ENTER
 
 class DLLIMPEXP_EWA_BASE CoroutineContext;
 
-
 void (*raw_coroutine_swap)(CoroutineContext*,CoroutineContext*)=NULL;
-
 
 #ifdef EW_X86
 
@@ -26,8 +23,6 @@ const unsigned char asm_swap_context_code[]=
 0x53,
 0x56,
 0x57,
-
-
 
 #ifdef EW_WINDOWS
 

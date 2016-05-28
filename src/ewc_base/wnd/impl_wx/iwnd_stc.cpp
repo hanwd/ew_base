@@ -304,7 +304,7 @@ IWnd_stc::IWnd_stc(wxWindow* p,const WndPropertyEx& h,int w)
 
 void IWnd_stc::SetPropertyEx(const String& id,bool f)
 {
-	SetProperty(id.c_str(),f?"1":"0");
+	SetProperty(str2wx(id),f?"1":"0");
 }
 
 void IWnd_stc::UpdateStyle(const StcStyleFlag& flag)
@@ -316,14 +316,14 @@ void IWnd_stc::UpdateStyle(const StcStyleFlag& flag)
 
 void IWnd_stc::UpdateStyle(const String& lang)
 {
-	wxArrayString s=wxSplit(lang.c_str(),'.');
+	wxArrayString s=wxSplit(str2wx(lang),'.');
 	if(s.size()==0) return;
 
 	wxString ext=wxT("*.")+s.Last().Lower()+wxT(";");
 	for(size_t i=0;i<StcManager::current().langs.size();i++)
 	{
 		StcLangInfo& lf(StcManager::current().langs[i]);
-		if(lf.name==lang||wxString(lf.filepattern.c_str()).Find(ext)>=0)
+		if(lf.name==lang||str2wx(lf.filepattern).Find(ext)>=0)
 		{
 			tempp.nlang=i;
 			break;
@@ -357,7 +357,7 @@ void IWnd_stc::UpdateStyle()
 
 	StcLangInfo& lf(StcManager::current().langs[param.nlang]);
 
-	wxFont fontNr (param.nsize, wxMODERN, wxNORMAL, wxNORMAL,false,param.sface.c_str());
+	wxFont fontNr (param.nsize, wxMODERN, wxNORMAL, wxNORMAL,false,str2wx(param.sface));
     for (int Nr = 0; Nr < wxSTC_STYLE_LASTPREDEFINED; Nr++)
 	{
         StyleSetFont (Nr, fontNr);
@@ -424,7 +424,7 @@ void IWnd_stc::UpdateStyle()
 			StcLangInfo::StyleWords& s((*it).second);
 			StcStyleInfo& curType(StcManager::current().style[s.id]);
 
-			wxFont font (param.nsize, wxMODERN, wxNORMAL, wxNORMAL, false,curType.fontname.c_str());
+			wxFont font (param.nsize, wxMODERN, wxNORMAL, wxNORMAL, false,str2wx(curType.fontname));
 
 			StyleSetFont (Nr, font);
 			if (curType.foreground!=wxEmptyString) 
@@ -444,7 +444,7 @@ void IWnd_stc::UpdateStyle()
 			//StyleSetCase (Nr, curType.lettercase);
 			if (s.words!="") 
 			{
-				SetKeyWords (keywordnr, s.words.c_str());
+				SetKeyWords (keywordnr, str2wx(s.words));
 				keywordnr += 1;
 			}
 		}
@@ -462,9 +462,9 @@ void IWnd_stc::UpdateStyle()
 bool IWnd_stc::DoLoadFile(const wxString& file,int)
 {
 	StringBuffer<char> buff;
-	buff.load(file.c_str().AsChar());
+	buff.load(wx2str(file));
 
-	SetText(buff.c_str());
+	SetText(str2wx(buff));
 	EmptyUndoBuffer();
 	SetSavePoint();
 
@@ -477,9 +477,9 @@ bool IWnd_stc::DoSaveFile(const wxString& file,int)
 	wxString text=GetValue();
 
 	StringBuffer<char> buff;
-	buff=text.c_str().AsChar();
+	buff=wx2str(text);
 
-	buff.save(file.c_str().AsChar());
+	buff.save(wx2str(file));
 	SetSavePoint();
 
 	if(func) func();
@@ -827,7 +827,7 @@ bool ICmdProcTextEntryStc::TestSelection()
 	Target.SetTargetStart(p1);
 	Target.SetTargetEnd(Target.GetLastPosition());
 
-	if(Target.SearchInTarget(data.text_old.c_str())==-1)
+	if(Target.SearchInTarget(str2wx(data.text_old))==-1)
 	{
 		return false;
 	}
@@ -848,7 +848,7 @@ bool ICmdProcTextEntryStc::DoFind(ICmdParam& cmd)
 	Target.SetTargetStart(p1);
 	Target.SetTargetEnd(Target.GetLastPosition());
 
-	if(Target.SearchInTarget(data.text_old.c_str())==-1)
+	if(Target.SearchInTarget(str2wx(data.text_old))==-1)
 	{
 
 		if(cmd.param2==1) return false;
@@ -856,7 +856,7 @@ bool ICmdProcTextEntryStc::DoFind(ICmdParam& cmd)
 		Target.SetTargetStart(0);
 		Target.SetTargetEnd(Target.GetLastPosition());
 
-		if(Target.SearchInTarget(data.text_old.c_str())!=-1)
+		if(Target.SearchInTarget(str2wx(data.text_old))!=-1)
 		{
 			int rt=Wrapper::MsgsDialog("no more results, restart?",0);
 			if(rt!=IDefs::BTN_YES)
@@ -887,7 +887,7 @@ bool ICmdProcTextEntryStc::DoReplace(ICmdParam& cmd)
 	}
 
 	int pos=Target.GetTargetStart();	
-	int len=Target.ReplaceTarget(data.text_new.c_str());
+	int len=Target.ReplaceTarget(str2wx(data.text_new));
 
 	Target.SetInsertionPoint(pos+len);
 	Target.SetSelection(pos+len,pos+len);

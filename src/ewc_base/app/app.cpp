@@ -74,7 +74,7 @@ bool App::Init(int argc,char** argv)
 								const wxLogRecordInfo& info)
 			{
 	
-				ew::LogRecord rcd(msg.c_str().AsChar(),lv,0,LOGLEVEL_MESSAGE);
+				ew::LogRecord rcd(wx2str(msg),lv,0,LOGLEVEL_MESSAGE);
 
 				if(level==wxLOG_Warning) rcd.m_nLevel=LOGLEVEL_WARNING;
 				if(level==wxLOG_Error) rcd.m_nLevel=LOGLEVEL_ERROR;

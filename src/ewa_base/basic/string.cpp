@@ -43,7 +43,7 @@ inline void String::_do_assign(const char* p1,uintptr_t n)
 inline void String::_do_assign(const wchar_t* p1,uintptr_t n)
 {
 	StringBuffer<char> sb;
-	IConv::unicode_to_ansi(sb,p1,n);
+	IConv::unicode_to_utf8(sb,p1,n);
 
 	_do_assign(sb.data(),sb.size());
 }

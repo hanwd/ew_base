@@ -25,7 +25,7 @@ void IWnd_frame::OnPaneClose(wxAuiManagerEvent& evt)
 {
 	wxAuiPaneInfo* pPane=evt.GetPane();
 	if(!pPane) return;
-	String s=pPane->name.c_str().AsChar();
+	String s=wx2str(pPane->name);
 	EvtBase* p=WndManager::current().evtmgr.get_command(s);
 	if(p)
 	{
@@ -219,11 +219,11 @@ public:
 			String lb=m[i]->MakeLabel(EvtCommand::LABEL_MENUBAR);
 			if(ni<nc)
 			{
-				delete mb->Replace(ni,mu,lb.c_str());
+				delete mb->Replace(ni,mu,str2wx(lb));
 			}
 			else
 			{
-				mb->Append(mu,lb.c_str());
+				mb->Append(mu,str2wx(lb));
 			}
 			ni++;
 		}

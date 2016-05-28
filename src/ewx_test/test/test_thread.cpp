@@ -311,11 +311,4 @@ TEST_DEFINE(TEST_ThreadOther)
 	TEST_ASSERT(thrd.result==1024*1024);
 
 
-
-	//thrd.test(3,"atomic");
-	//TEST_ASSERT(thrd.result==1024*1024);
-
-	//thrd.test(4,"mutex");
-	//TEST_ASSERT(thrd.result==1024*1024);
-
 }

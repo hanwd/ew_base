@@ -45,7 +45,7 @@ public:
 	{
 		if(wd<0) wd=WndManager::current().conf.bmp_tool_size;
 		m_pGroup->m_aSubTbars.insert(this);
-		SetName(m_pGroup->m_sId.c_str());
+		SetName(str2wx(m_pGroup->m_sId));
 		this->SetToolBitmapSize(wxSize(wd,wd));
 	}
 
@@ -58,7 +58,7 @@ public:
 class HeMenuItemImpl : public wxMenuItem
 {
 public:
-	HeMenuItemImpl(HeMenuImpl* mu,EvtCommand* it):wxMenuItem(mu,it->m_nId,it->MakeLabel().c_str())
+	HeMenuItemImpl(HeMenuImpl* mu,EvtCommand* it):wxMenuItem(mu,it->m_nId,str2wx(it->MakeLabel()))
 	{
 		if(it->flags.get(EvtCommand::FLAG_CHECK))
 		{
@@ -87,14 +87,14 @@ class HeToolItemImpl : public wxToolBarToolBase
 public:
 
 	HeToolItemImpl(HeTbarImpl* tb,EvtCommand* it,wxControl* p)
-		:wxToolBarToolBase(tb,p,it->MakeLabel().c_str())
+		:wxToolBarToolBase(tb,p,str2wx(it->MakeLabel()))
 	{
 		_init(it);
 		m_kind=wxITEM_MAX;
 	}
 
 	HeToolItemImpl(wxToolBar* tb,EvtCommand* it)
-		:wxToolBarToolBase(tb,it->m_nId,it->MakeLabel().c_str())
+		:wxToolBarToolBase(tb,it->m_nId,str2wx(it->MakeLabel()))
 	{
 
 		this->SetToggle(it->flags.get(EvtCommand::FLAG_CHECK));
@@ -102,7 +102,7 @@ public:
 	}
 
 	HeToolItemImpl(wxToolBar* tb,EvtGroup* it)
-		:wxToolBarToolBase(tb,it->m_nId,it->MakeLabel().c_str())
+		:wxToolBarToolBase(tb,it->m_nId,str2wx(it->MakeLabel()))
 	{
 
 		this->SetToggle(it->flags.get(EvtCommand::FLAG_CHECK));

@@ -94,7 +94,7 @@ public:
 
 		if(!fc1) for(size_t i=1;i<m_pActive->aWidths.size();i++)
 		{
-			if(!m_pActive->aWindows[i]) SetStatusText(m_pActive->aStatusTexts[i].c_str(),i);
+			if(!m_pActive->aWindows[i]) SetStatusText(str2wx(m_pActive->aStatusTexts[i]),i);
 		}
 
 	}
@@ -103,12 +103,12 @@ public:
 	{
 		if(d<=0)
 		{
-			SetStatusText(s.c_str(),0);
+			SetStatusText(str2wx(s),0);
 		}
 		else if(m_pActive&&d<(int)m_pActive->aStatusTexts.size())
 		{
 			m_pActive->aStatusTexts[d]=s;
-			SetStatusText(s.c_str(),d);
+			SetStatusText(str2wx(s),d);
 		}
 	}
 
@@ -123,7 +123,7 @@ public:
 	EvtCommandWindowStatusBar(const String& n=_kT("StatusBar")):EvtCommandWindow(n),m_pStatusBar(NULL)
 	{
 		m_pStatusBar=new IWndStatusBar(WndModel::current().GetWindow());
-		m_pStatusBar->SetName(m_sId.c_str());
+		m_pStatusBar->SetName(str2wx(m_sId));
 		SetWindow(m_pStatusBar);
 	}
 

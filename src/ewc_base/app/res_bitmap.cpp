@@ -207,12 +207,12 @@ bool CallableBitmap::LoadFile(const arr_1t<String>& s)
 	{
 		if(s[i].find('.')<0)
 		{
-			AddBitmap(wxArtProvider::GetIcon(s[i].c_str(),wxART_MENU));
-			AddBitmap(wxArtProvider::GetIcon(s[i].c_str(),wxART_TOOLBAR));
+			AddBitmap(wxArtProvider::GetIcon(str2wx(s[i]),wxART_MENU));
+			AddBitmap(wxArtProvider::GetIcon(str2wx(s[i]),wxART_TOOLBAR));
 		}
 		else
 		{
-			if(!bmp.LoadFile(s[i].c_str(),wxBITMAP_TYPE_PNG)) return false;
+			if(!bmp.LoadFile(str2wx(s[i]),wxBITMAP_TYPE_PNG)) return false;
 			AddBitmap(bmp);
 		}
 	}

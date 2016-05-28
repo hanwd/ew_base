@@ -46,7 +46,7 @@ public:
 
 	virtual void GetValue(const itemtype& val,ICellInfo &cell) const
 	{
-		cell.variant=val.m_sMessage.c_str();
+		cell.variant=str2wx(val.m_sMessage);
 	}
 
 };
@@ -69,7 +69,7 @@ public:
 
 	virtual void GetValue(const itemtype& val,ICellInfo &cell) const
 	{
-		cell.variant=LogSource::current()[val.m_nSrc].c_str();
+		cell.variant=str2wx(LogSource::current()[val.m_nSrc]);
 	}
 
 };
@@ -134,7 +134,7 @@ public:
 
 	virtual void GetValue(const itemtype& val,ICellInfo &cell) const
 	{
-		cell.variant=val.m_tStamp.Format("%H:%M:%S").c_str();
+		cell.variant=str2wx(val.m_tStamp.Format("%H:%M:%S"));
 	}
 
 };
@@ -420,7 +420,7 @@ public:
 		//m_pListView->Connect(wxID_ANY,wxEVT_CHILD_FOCUS,wxChildFocusEventHandler(MyWindow::OnFocus));
 
 
-		m_pListView->SetName(m_sId.c_str());
+		m_pListView->SetName(str2wx(m_sId));
         m_pListView->AssociateModel( m_pListModel.get() );
 
 		m_pListView->SetSize(wxSize(480,240));

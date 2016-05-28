@@ -46,7 +46,7 @@ public:
 
 	wxString sprops(const String& n) const
 	{
-		return m_aSProperties[n].c_str();
+		return str2wx(m_aSProperties[n]);
 	}
 	
 	#define IWINPROPERTY_PROPERTY_EX(X)\

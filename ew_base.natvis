@@ -3,8 +3,27 @@
 <AutoVisualizer xmlns="http://schemas.microsoft.com/vstudio/debugger/natvis/2010">
 
 <Type Name="ew::String">
-    <DisplayString>{m_ptr,s}</DisplayString>
+    <DisplayString>{m_ptr,s8}</DisplayString>
 </Type>
+
+<Type Name="ew::Variant">
+    <DisplayString Condition="flag == 0">nil</DisplayString>
+    <DisplayString Condition="flag == 1">{data.bval}</DisplayString>
+    <DisplayString Condition="flag == 2">{data.ival}</DisplayString>
+    <DisplayString Condition="flag == 3">{data.dval}</DisplayString>
+    <DisplayString Condition="flag == -1">{data.pval}</DisplayString>
+    <Expand>
+       <Item Name="wrap" Condition="flag == -1">data.pval</Item> 
+    </Expand>	
+</Type>
+
+<Type Name="ew::CallableWrapT&lt;*&gt;">
+    <DisplayString>{value}</DisplayString>
+    <Expand>
+        <Item Name="value">value</Item>
+    </Expand>	
+</Type>
+
 
 <Type Name="ew::LitePtrT&lt;*&gt;">
     <AlternativeType Name="ew::DataPtrT&lt;*&gt;" />
@@ -34,7 +53,6 @@
     </Expand>
 </Type>
 
-
 <Type Name="ew::arr_1t&lt;*&gt;">
     <DisplayString>{{ size={impl.m_end1-impl.m_base} }}</DisplayString>
     <Expand>
@@ -46,6 +64,7 @@
         </ArrayItems>
     </Expand>
 </Type>
+
 
 <Type Name="ew::arr_xt&lt;*&gt;">
     <DisplayString>{{ size={impl.m_end1-impl.m_base} }}</DisplayString>
@@ -96,7 +115,9 @@
             <ValueNode>pBuffer[(pHeader-&gt;head.val+$i) &amp; pHeader-&gt;mask]</ValueNode>
         </IndexListItems>
     </Expand>
-
 </Type>
+
+
+
 
 </AutoVisualizer>

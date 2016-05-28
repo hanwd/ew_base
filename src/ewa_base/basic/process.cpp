@@ -160,9 +160,9 @@ public:
 	{
 		if(pi.hProcess!=NULL) return false;
 
-		STARTUPINFOA si= {sizeof(STARTUPINFO)};
+		STARTUPINFOW si= {sizeof(STARTUPINFO)};
 
-		StringBuffer<char> sb(s);
+		StringBuffer<wchar_t> sb(s);
 		sb.push_back(0);
 
 
@@ -175,7 +175,7 @@ public:
 
 		si.dwFlags = (h1!=NULL||h2!=NULL)?STARTF_USESTDHANDLES:0;
 		
-		bool flag=::CreateProcessA(NULL,sb.data(),NULL,NULL,(si.dwFlags&STARTF_USESTDHANDLES)?TRUE:FALSE,0,NULL,NULL,&si,&pi)!=FALSE;
+		bool flag=::CreateProcessW(NULL,sb.data(),NULL,NULL,(si.dwFlags&STARTF_USESTDHANDLES)?TRUE:FALSE,0,NULL,NULL,&si,&pi)!=FALSE;
 
 		::CloseHandle(h1);
 		::CloseHandle(h2);

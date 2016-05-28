@@ -34,13 +34,13 @@ class StringBufferHelperN
 public:
 	static void equal(StringBuffer<T>& h,const String& o)
 	{
-		IConv::ansi_to_unicode(h,o.c_str(),o.size());
+		IConv::utf8_to_unicode(h,o.c_str(),o.size());
 	}
 
 	static void eqadd(StringBuffer<T>& h,const String& o)
 	{
 		StringBuffer<T> tmp;
-		IConv::ansi_to_unicode(tmp,o.c_str(),o.size());
+		IConv::utf8_to_unicode(tmp,o.c_str(),o.size());
 		h+=tmp;
 	}
 };
@@ -128,10 +128,22 @@ bool StringBuffer<T>::save(const String& file,int type)
 			return ofs.Good();
 		}
 		StringBuffer<char> sb;
-		if(!IConv::unicode_to_ansi(sb,data(),size()))
+
+		if(sizeof(T)==2)
 		{
-			return false;
+			if(!IConv::unicode_to_ansi(sb,(uint16_t*)data(),size()))
+			{
+				return false;
+			}
 		}
+		else if(sizeof(T)==4)
+		{
+			if(!IConv::unicode_to_ansi(sb,(uint32_t*)data(),size()))
+			{
+				return false;
+			}
+		}
+
 		ofs.Write((char*)sb.data(),sb.size());
 		return ofs.Good();
 	}
@@ -156,7 +168,7 @@ bool StringBuffer<T>::save(const String& file,int type)
 		}
 		else if(sizeof(T)==sizeof(wchar_t))
 		{
-			if(!IConv::unicode_to_utf8(sb,data(),size()))
+			if(!IConv::unicode_to_utf8(sb,(wchar_t*)data(),size()))
 			{
 				return false;
 			}
@@ -269,20 +281,24 @@ bool StringBuffer<T>::load(const String& file,int type)
 
 		if(sizeof(T)==1)
 		{
-			if(!IConv::utf8_to_ansi(sb,kb.data(),nz))
-			{
-				return false;
-			}
+			//if(!IConv::utf8_to_ansi(sb,kb.data(),nz))
+			//{
+			//	return false;
+			//}
 			sb.swap(*(StringBuffer<char>*)this);
 			return true;
 		}
+		else if(sizeof(T)==2) 
+		{
+			return IConv::utf8_to_unicode(*(StringBuffer<uint16_t>*)this,kb.data(),nz);
+		}
+		if(sizeof(T)==4)
+		{
+			return IConv::utf8_to_unicode(*(StringBuffer<uint32_t>*)this,kb.data(),nz);
+		}
 		else
 		{
-			if(!IConv::utf8_to_unicode((*this),kb.data(),nz))
-			{
-				return false;
-			}
-			return true;
+			return false;
 		}
 
 	}
@@ -322,7 +338,7 @@ bool StringBuffer<T>::load(const String& file,int type)
 			return true;
 		}
 
-		if(!IConv::unicode_to_ansi(sb,kb.data(),kb.size()))
+		if(!IConv::unicode_to_utf8(sb,kb.data(),kb.size()))
 		{
 			return false;
 		}
@@ -361,7 +377,7 @@ bool StringBuffer<T>::load(const String& file,int type)
 			return true;
 		}
 
-		if(!IConv::unicode_to_ansi(sb,kb.data(),kb.size()))
+		if(!IConv::unicode_to_utf8(sb,kb.data(),kb.size()))
 		{
 			return false;
 		}
@@ -407,10 +423,10 @@ bool StringBuffer<T>::load(const String& file,int type)
 			i+=n;
 		}
 
-		if(t==1)
+		if(t==-1)
 		{
 			StringBuffer<char> kb;
-			if(!IConv::utf8_to_ansi(kb,sb.data(),sb.size()))
+			if(!IConv::gbk_to_utf8(kb,sb.data(),sb.size()))
 			{
 				return false;
 			}
@@ -422,12 +438,13 @@ bool StringBuffer<T>::load(const String& file,int type)
 	{
 		sb.swap(*(StringBuffer<char>*)this);
 	}
-	else
+	else if(sizeof(T)==2)
 	{
-		if(!IConv::ansi_to_unicode(*this,sb.data(),sb.size()))
-		{
-			return false;
-		}
+		return IConv::utf8_to_unicode(*(StringBuffer<uint16_t>*)this,sb.data(),sb.size());
+	}
+	else if(sizeof(T)==4)
+	{
+		return IConv::utf8_to_unicode(*(StringBuffer<uint32_t>*)this,sb.data(),sb.size());
 	}
 	return true;
 

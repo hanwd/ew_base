@@ -13,7 +13,7 @@
 #include <cerrno>
 #include <fcntl.h>
 #include <sys/ioctl.h>
-//#include <sys/stropts.h>
+
 
 #endif
 
@@ -62,7 +62,7 @@ public:
 		int tout=0;//NMPWAIT_WAIT_FOREVER;
 		int nnum=PIPE_UNLIMITED_INSTANCES;
 
-		HANDLE hPipe = CreateNamedPipeA(name.c_str(), PIPE_ACCESS_DUPLEX,
+		HANDLE hPipe = CreateNamedPipeW(IConv::to_wide(name).c_str(), PIPE_ACCESS_DUPLEX,
 										PIPE_TYPE_MESSAGE | PIPE_READMODE_MESSAGE | PIPE_WAIT,
 										nnum, 0, 0, tout, NULL);
 
@@ -99,7 +99,7 @@ public:
 		String name=make_pipename(name_);
 		(void)&impl;
 		if(t==0) t=1;
-		if (WaitNamedPipeA(name.c_str(), t) == FALSE)
+		if (WaitNamedPipeW(IConv::to_wide(name).c_str(), t) == FALSE)
 		{
 			return false;
 		}
@@ -109,7 +109,7 @@ public:
 	static bool open_namedpipe(impl_type& impl,const String& name_)
 	{
 		String name=make_pipename(name_);
-		HANDLE hPipe = CreateFileA(name.c_str(), GENERIC_READ | GENERIC_WRITE, 0,
+		HANDLE hPipe = CreateFileW(IConv::to_wide(name).c_str(), GENERIC_READ | GENERIC_WRITE, 0,
 								   NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
 
 		if(hPipe==INVALID_HANDLE_VALUE)

@@ -37,66 +37,71 @@ class DLLIMPEXP_EWA_BASE IConv
 {
 public:
 
-
-	static bool unicode_to_gbk(StringBuffer<unsigned char>& aa_,const uint16_t* pw_,size_t ln_);
-	static bool unicode_to_gbk(StringBuffer<unsigned char>& aa_,const uint32_t* pw_,size_t ln_);
-	static bool unicode_to_gbk(StringBuffer<unsigned char>& aa_,const unsigned char* pw_,size_t ln_)
+	static StringBuffer<wchar_t> to_wide(const String& s)
 	{
-		return false;
+		StringBuffer<wchar_t> sb;
+		utf8_to_unicode(sb,s.c_str(),s.size());
+		return sb;
 	}
 
-	static bool gbk_to_unicode(StringBuffer<uint16_t>& aw_,const unsigned char* pa_,size_t ln_);
-	static bool gbk_to_unicode(StringBuffer<uint32_t>& aw_,const unsigned char* pa_,size_t ln_);
-	static bool gbk_to_unicode(StringBuffer<unsigned char>& aw_,const unsigned char* pa_,size_t ln_)
+#ifdef EW_WINDOWS
+	static StringBuffer<char> to_ansi(const String& s)
 	{
-		return false;
+		StringBuffer<char> sb;
+		utf8_to_ansi(sb,s.c_str(),s.size());
+		return sb;
 	}
-
-	static bool unicode_to_utf8(StringBuffer<unsigned char>& aa_,const uint16_t* pw_,size_t ln_);
-	static bool unicode_to_utf8(StringBuffer<unsigned char>& aa_,const uint32_t* pw_,size_t ln_);
-	static bool unicode_to_utf8(StringBuffer<unsigned char>& aa_,const unsigned char* pw_,size_t ln_)
+	static String from_ansi(const char* s)
 	{
-		return false;
+		StringBuffer<char> sb;
+		ansi_to_utf8(sb,s,::strlen(s));
+		return sb.c_str();
 	}
+#else
+	static const String& to_ansi(const String& s){return s;}
+	static const String from_ansi(const char* s){return s;}
 
-	static bool utf8_to_unicode(StringBuffer<uint16_t>& aw_,const unsigned char* pa_,size_t ln_);
-	static bool utf8_to_unicode(StringBuffer<uint32_t>& aw_,const unsigned char* pa_,size_t ln_);
-	static bool utf8_to_unicode(StringBuffer<unsigned char>& aw_,const unsigned char* pa_,size_t ln_)
-	{
-		return false;
-	}
+#endif
 
+
+	static bool unicode_to_gbk(StringBuffer<uint8_t>& aa_,const uint16_t* pw_,size_t ln_);
+	static bool unicode_to_gbk(StringBuffer<uint8_t>& aa_,const uint32_t* pw_,size_t ln_);
+
+	static bool gbk_to_unicode(StringBuffer<uint16_t>& aw_,const uint8_t* pa_,size_t ln_);
+	static bool gbk_to_unicode(StringBuffer<uint32_t>& aw_,const uint8_t* pa_,size_t ln_);
+
+	static bool unicode_to_utf8(StringBuffer<uint8_t>& aa_,const uint16_t* pw_,size_t ln_);
+	static bool unicode_to_utf8(StringBuffer<uint8_t>& aa_,const uint32_t* pw_,size_t ln_);
+
+	static bool utf8_to_unicode(StringBuffer<uint16_t>& aw_,const uint8_t* pa_,size_t ln_);
+	static bool utf8_to_unicode(StringBuffer<uint32_t>& aw_,const uint8_t* pa_,size_t ln_);
 
 	template<typename WC>
 	static bool unicode_to_gbk(StringBuffer<char>& aa_,const WC* pw_,size_t ln_)
 	{
-		typedef typename char_impl<char>::type char_mbs;
 		typedef typename char_impl<WC>::type char_wcs;
-		return unicode_to_gbk((StringBuffer<char_mbs>&)aa_,(const char_wcs*)pw_,ln_);
+		return unicode_to_gbk((StringBuffer<uint8_t>&)aa_,(const char_wcs*)pw_,ln_);
 	}
 
 	template<typename WC>
 	static bool gbk_to_unicode(StringBuffer<WC>& aw_,const char* pa_,size_t ln_)
 	{
-		typedef typename char_impl<char>::type char_mbs;
 		typedef typename char_impl<WC>::type char_wcs;
-		return gbk_to_unicode((StringBuffer<char_wcs>&)aw_,(const char_mbs*)pa_,ln_);
+		return gbk_to_unicode((StringBuffer<char_wcs>&)aw_,(const uint8_t*)pa_,ln_);
 	}
 
 	template<typename WC>
 	static bool unicode_to_utf8(StringBuffer<char>& aa_,const WC* pw_,size_t ln_)
 	{
-		typedef typename char_impl<char>::type char_mbs;
 		typedef typename char_impl<WC>::type char_wcs;
-		return unicode_to_utf8((StringBuffer<char_mbs>&)aa_,(const char_wcs*)pw_,ln_);
+		return unicode_to_utf8((StringBuffer<uint8_t>&)aa_,(const char_wcs*)pw_,ln_);
 	}
 
 	template<typename WC>
 	static bool utf8_to_unicode(StringBuffer<WC>& aw_,const char* pa_,size_t ln_)
 	{
-		typedef typename char_impl<char>::type char_mbs;
 		typedef typename char_impl<WC>::type char_wcs;
-		return utf8_to_unicode((StringBuffer<char_wcs>&)aw_,(const char_mbs*)pa_,ln_);
+		return utf8_to_unicode((StringBuffer<char_wcs>&)aw_,(const uint8_t*)pa_,ln_);
 	}
 
 
@@ -121,11 +126,8 @@ public:
 	}
 
 	static bool utf8_to_ansi(StringBuffer<char>& aa_,const char* pa_,size_t ln_);
-
 	static bool ansi_to_utf8(StringBuffer<char>& aa_,const char* pa_,size_t ln_);
-
 	static bool utf8_to_gbk(StringBuffer<char>& aa_,const char* pa_,size_t ln_);
-
 	static bool gbk_to_utf8(StringBuffer<char>& aa_,const char* pa_,size_t ln_);
 };
 

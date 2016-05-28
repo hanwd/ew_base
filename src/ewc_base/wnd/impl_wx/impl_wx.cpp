@@ -24,19 +24,19 @@ String wx2str(const wxString& v)
 
 wxString str2wx(const String& v)
 {
-	return v.c_str();
+	return IConv::to_wide(v).c_str();
 }
 
 template<>
 String WxImpl<String>::get(const wxVariant& v)
 {
-	return v.GetString().c_str().AsChar();
+	return v.GetString().c_str().AsWChar();
 }
 
 template<>
 void WxImpl<String>::set(wxVariant& v,const String& s)
 {
-	v=s.c_str();
+	v=IConv::to_wide(s).c_str();
 }
 
 template<>

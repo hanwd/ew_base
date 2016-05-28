@@ -2,7 +2,7 @@
 #include "ewc_base/app/app.h"
 #include "ewc_base/wnd/wnd_model.h"
 #include "ewc_base/wnd/wnd_manager.h"
-
+#include "ewc_base/wnd/impl_wx/impl_wx.h"
 #include "ewc_base/plugin/plugin.h"
 #include "ewc_base/plugin/plugin_manager.h"
 #include "ewa_base/scripting/executor_proxy.h"

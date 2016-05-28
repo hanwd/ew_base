@@ -25,7 +25,7 @@ EW_ENTER
 int Wrapper::FileDialog(arr_1t<String>& files,int type,const String& title,const String& exts)
 {
 
-	wxString wxtitle(title.c_str());
+	wxString wxtitle(str2wx(title));
 	if(wxtitle=="")
 	{
 		wxtitle="Please select a file";
@@ -40,11 +40,11 @@ int Wrapper::FileDialog(arr_1t<String>& files,int type,const String& title,const
 	{
 		if(exts.find('|')<0)
 		{
-			wxexts+=(exts+"|"+exts+"|"+_hT("AllFiles")+"(*.*)|*.*").c_str();
+			wxexts+=str2wx(exts+"|"+exts+"|"+_hT("AllFiles")+"(*.*)|*.*");
 		}
 		else
 		{
-			wxexts+=(exts+"|"+_hT("AllFiles")+"(*.*)|*.*").c_str();
+			wxexts+=str2wx(exts+"|"+_hT("AllFiles")+"(*.*)|*.*");
 		}
 	}
 
@@ -54,7 +54,7 @@ int Wrapper::FileDialog(arr_1t<String>& files,int type,const String& title,const
 	::wxFileDialog dlg(ptopwindow,wxtitle,"","",wxexts,flag);
 	if(files.size()==1)
 	{
-		dlg.SetPath(files[0].c_str());
+		dlg.SetPath(str2wx(files[0]));
 	}
 
 	if(dlg.ShowModal()==wxID_OK)
@@ -64,7 +64,7 @@ int Wrapper::FileDialog(arr_1t<String>& files,int type,const String& title,const
 		dlg.GetPaths(wxfiles);
 		for(size_t i=0;i<wxfiles.size();i++)
 		{
-			files.append(wxfiles[i].c_str().AsChar());
+			files.append(wx2str(wxfiles[i]));
 		}
 		return IDefs::BTN_OK;
 	}
@@ -83,7 +83,7 @@ int Wrapper::MsgsDialog(const String& cont,int type,const String& title)
 	if(type&IDefs::BTN_CANCEL) fg|=wxCANCEL;
 	if(type&IDefs::BTN_OK) fg|=wxOK;
 
-	::wxMessageDialog dlg(NULL,cont.c_str(),title.c_str(),fg);
+	::wxMessageDialog dlg(NULL,str2wx(cont),str2wx(title),fg);
 	int ret=dlg.ShowModal();
 
 	if(ret==wxID_YES)
@@ -109,7 +109,7 @@ bool Wrapper::SetClipboardText(const String& s)
 {
 	wxClipboard* pcb=wxClipboard::Get();
 	if(!pcb||!pcb->Open()) return false;
-	pcb->SetData(new wxTextDataObject(s.c_str()));
+	pcb->SetData(new wxTextDataObject(str2wx(s)));
 	pcb->Close();
 	return true;
 }
@@ -120,7 +120,7 @@ bool Wrapper::GetClipboardText(String& s)
 	if(!pcb||!pcb->Open()) return false;
 	wxTextDataObject data;
 	pcb->GetData(data);
-	s=data.GetText().c_str().AsChar();
+	s=wx2str(data.GetText());
 	pcb->Close();
 	return true;
 }

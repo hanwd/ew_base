@@ -32,7 +32,7 @@ public:
 			{
 				String fn_temp=IView.fn.GetTempfile();
 				if(fn_temp=="") return false;
-				if(!Target.SaveFile(fn_temp.c_str()))
+				if(!Target.SaveFile(str2wx(fn_temp)))
 				{
 					return false;
 				}
@@ -137,7 +137,7 @@ public:
 		String fn=Target.fn.GetFilename();
 		if(fn!="")
 		{
-			m_pCanvas->LoadFile(fn.c_str());
+			m_pCanvas->LoadFile(str2wx(fn));
 		}
 
 		m_pCanvas->tempp=IWnd_stc::ms_param;

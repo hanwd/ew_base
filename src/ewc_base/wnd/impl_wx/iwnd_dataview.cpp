@@ -56,12 +56,12 @@ void IValueColumn::var2val(wxVariant& variant,bool& v) const
 
 void IValueColumn::var2val(wxVariant& variant, Variant& v) const
 {
-	v.reset<String>((const char*)variant.GetString().c_str());
+	v.reset<String>(wx2str(variant.GetString()));
 }
 
 void IValueColumn::val2var(wxVariant& variant,const String& v) const
 {
-	variant=v.c_str();
+	variant=str2wx(v);
 }
 
 void IValueColumn::val2var(wxVariant& variant,float v) const
@@ -102,7 +102,7 @@ void IValueColumn::val2var(wxVariant& variant,bool v) const
 
 void IValueColumn::val2var(wxVariant& variant, Variant& v) const
 {
-	variant = variant_cast<String>(v).c_str();
+	variant = str2wx(variant_cast<String>(v));
 }
 
 
@@ -319,7 +319,7 @@ wxDataViewColumn* IValueColumn::CreateDataViewColumn(IValueColumn& info,size_t n
 		render=new mvcListRender("string",flag,_nAlign);
 	}	
 
-	wxDataViewColumn *column = new wxDataViewColumn(info.name.c_str(),render,n,info.width);
+	wxDataViewColumn *column = new wxDataViewColumn(str2wx(info.name),render,n,info.width);
 
 	return column;
 }

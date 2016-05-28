@@ -267,8 +267,8 @@ void System::Exit(int v)
 
 String GetModulePathImpl()
 {
-	char buf[MAX_PATH]={0};
-	::GetModuleFileNameA(NULL,buf,MAX_PATH);
+	wchar_t buf[MAX_PATH]={0};
+	::GetModuleFileNameW(NULL,buf,MAX_PATH);
 	return buf;
 }
 
@@ -319,9 +319,9 @@ public:
 	bool Execute(const String& s)
 	{
 
-		STARTUPINFOA si= {sizeof(STARTUPINFO)};
+		STARTUPINFOW si= {sizeof(STARTUPINFO)};
 
-		StringBuffer<char> sb(s);
+		StringBuffer<wchar_t> sb(s);
 		sb.push_back(0);
 
 		HANDLE hReader0, hWriter0;
@@ -359,7 +359,7 @@ public:
 
 		si.dwFlags = STARTF_USESTDHANDLES;
 
-		if(!::CreateProcessA(NULL,sb.data(),NULL,NULL,TRUE,0,NULL,NULL,&si,&pi))
+		if(!::CreateProcessW(NULL,sb.data(),NULL,NULL,TRUE,0,NULL,NULL,&si,&pi))
 		{
 			System::LogTrace("System::Exectue:%s FAILED",s);
 			::CloseHandle(hWriter0);
@@ -424,12 +424,12 @@ bool System::Execute(const String& s, StringBuffer<char>& result)
 
 bool System::Execute(const String& s)
 {
-	STARTUPINFOA si= {sizeof(STARTUPINFO)};
+	STARTUPINFOW si= {sizeof(STARTUPINFO)};
 	PROCESS_INFORMATION pi;
-	StringBuffer<char> sb(s);
+	StringBuffer<wchar_t> sb(s);
 	sb.push_back(0);
 
-	if(!::CreateProcessA(NULL,sb.data(),NULL,NULL,FALSE,0,NULL,NULL,&si,&pi))
+	if(!::CreateProcessW(NULL,sb.data(),NULL,NULL,FALSE,0,NULL,NULL,&si,&pi))
 	{
 		System::LogTrace("System::Exectue:%s FAILED",s);
 		return false;
@@ -483,14 +483,14 @@ bool System::Execute(const String& s)
 
 #ifdef EW_WINDOWS
 
-char* win_strerror(int ret)
+String win_strerror(int ret)
 {
-	char* lpTStr(NULL);
-	FormatMessageA(FORMAT_MESSAGE_ALLOCATE_BUFFER|FORMAT_MESSAGE_FROM_SYSTEM,
+	wchar_t* lpTStr(NULL);
+	FormatMessageW(FORMAT_MESSAGE_ALLOCATE_BUFFER|FORMAT_MESSAGE_FROM_SYSTEM,
 				  NULL,
 				  ret,
 				  MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-				  (LPSTR)&lpTStr,
+				  (LPWSTR)&lpTStr,
 				  0x100,
 				  NULL);
 	return lpTStr;
@@ -503,7 +503,7 @@ inline void System_DoCheckErrno(const String& msg)
 	int ret=errno;
 	if(ret!=0)
 	{
-		System::LogTrace("%s failed, code(%d): %s",msg,ret,strerror(ret));
+		System::LogTrace("%s failed, code(%d): %s",msg,ret,IConv::from_ansi(strerror(ret)).c_str());
 	}
 }
 
@@ -569,20 +569,19 @@ public:
 		time_t tt=time(NULL);
 		char buf2[1024];
 		char buf1[256];
-		strftime (buf1,256,"%Y-%m-%d %H:%M:%S ",localtime(&tt));
+		::strftime (buf1,256,"%Y-%m-%d %H:%M:%S ",localtime(&tt));
 
 		::vsnprintf(buf2,1024,msg,arg);
 
 		if(fp_logfile!=NULL)
 		{
 			LockGuard<AtomicSpin> lock1(spin);
-			fprintf(fp_logfile,"%s %s:%s\n",buf1,GetMsgLevel(lv),buf2);
-			//fflush(fp_logfile);
+			::fprintf(fp_logfile,"%s %s:%s\n",buf1,GetMsgLevel(lv),buf2);
 		}
 		else
 		{
 			LockGuard<AtomicSpin> lock1(g_tSpinConsole);
-			printf("%s %s:%s\n",buf1,GetMsgLevel(lv),buf2);
+			::printf("%s %s:%s\n",buf1,GetMsgLevel(lv),buf2);
 		}
 
 		if(lv==LOGLEVEL_FATAL)
@@ -604,7 +603,7 @@ public:
 			return true;
 		}
 
-		fp_logfile=::fopen(fn,app?"a":"w");
+		fp_logfile=::fopen(IConv::to_ansi(fn).c_str(),app?"a":"w");
 		return fp_logfile!=NULL;
 	}
 
@@ -660,7 +659,7 @@ void KO_Policy_module::destroy(type& o)
 
 bool DllModule::Open(const String& dll)
 {
-	HMODULE p=::LoadLibraryA(dll.c_str());
+	HMODULE p=::LoadLibraryW(IConv::to_wide(dll).c_str());
 	if(!p)
 	{
 		return false;
@@ -847,7 +846,7 @@ bool System::SetCwd(const String& s)
 #endif
 }
 
-void PushFindItem(arr_1t<FindItem>& files,WIN32_FIND_DATAA& p)
+void PushFindItem(arr_1t<FindItem>& files,WIN32_FIND_DATAW& p)
 {
 	FindItem item;
 	item.filename=p.cFileName;
@@ -883,13 +882,13 @@ arr_1t<FindItem> System::FindAllFiles(const String& folder, const String& patter
 	}
 
 	FILE_ATTRIBUTE_DIRECTORY;
-	WIN32_FIND_DATAA p;
-	HANDLE h = FindFirstFileA(folder_pattern.c_str(), &p);
+	WIN32_FIND_DATAW p;
+	HANDLE h = FindFirstFileW(IConv::to_wide(folder_pattern).c_str(), &p);
 
 	if (h != INVALID_HANDLE_VALUE)
 	{
 		PushFindItem(files,p);
-		while (FindNextFileA(h, &p))
+		while (FindNextFileW(h, &p))
 			PushFindItem(files,p);
 	}
 #endif

@@ -122,14 +122,16 @@ bool StringBuffer<T>::save(const String& file,int type)
 	}
 	case FILE_TEXT_ANSI:
 	{
+
+		StringBuffer<char> sb;
 		if(sizeof(T)==1)
 		{
-			ofs.Write((char*)data(),size());
-			return ofs.Good();
+			if(!IConv::utf8_to_ansi(sb,(const char*)data(),size()))
+			{
+				return false;
+			}
 		}
-		StringBuffer<char> sb;
-
-		if(sizeof(T)==2)
+		else if(sizeof(T)==2)
 		{
 			if(!IConv::unicode_to_ansi(sb,(uint16_t*)data(),size()))
 			{
@@ -151,32 +153,32 @@ bool StringBuffer<T>::save(const String& file,int type)
 	case FILE_TEXT:
 	case FILE_TEXT_UTF8:
 	{
-#ifndef EW_WINDOWS
+
+		if(writebom)
+		{
+			ofs.Write((char*)bom_utf8,3);
+		}
+
 		if(sizeof(T)==1)
 		{
 			ofs.Write((char*)data(),size());
 			return ofs.Good();
 		}
-#endif
-		StringBuffer<char> sb;
-		if(sizeof(T)==1)
-		{
-			if(!IConv::ansi_to_utf8(sb,(const char*)data(),size()))
-			{
-				return false;
-			}
-		}
-		else if(sizeof(T)==sizeof(wchar_t))
-		{
-			if(!IConv::unicode_to_utf8(sb,(wchar_t*)data(),size()))
-			{
-				return false;
-			}
-		}
 
-		if(writebom)
+		StringBuffer<char> sb;
+		if(sizeof(T)==2)
 		{
-			ofs.Write((char*)bom_utf8,3);
+			if(!IConv::unicode_to_utf8(sb,(uint16_t*)data(),size()))
+			{
+				return false;
+			}
+		}
+		else if(sizeof(T)==4)
+		{
+			if(!IConv::unicode_to_utf8(sb,(uint32_t*)data(),size()))
+			{
+				return false;
+			}
 		}
 
 		ofs.Write(sb.data(),sb.size());
@@ -190,7 +192,7 @@ bool StringBuffer<T>::save(const String& file,int type)
 		StringBuffer<unsigned short> wb;
 		if(sizeof(T)==1)
 		{
-			if(!IConv::ansi_to_unicode(wb,(const char*)data(),size()))
+			if(!IConv::utf8_to_unicode(wb,(const char*)data(),size()))
 			{
 				return false;
 			}
@@ -281,10 +283,6 @@ bool StringBuffer<T>::load(const String& file,int type)
 
 		if(sizeof(T)==1)
 		{
-			//if(!IConv::utf8_to_ansi(sb,kb.data(),nz))
-			//{
-			//	return false;
-			//}
 			sb.swap(*(StringBuffer<char>*)this);
 			return true;
 		}

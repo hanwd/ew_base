@@ -2,12 +2,8 @@
 #include "ewc_base/wnd/wnd_maker.h"
 #include "ewc_base/app/app.h"
 
-#include "wx/app.h"
-#include "ewc_base/wnd/impl_wx/window.h"
 
 #ifdef EWC_BASE_DLL
-#include <msvc/wx/setup.h>
-
 
 BOOL APIENTRY DllMain(HANDLE hModule,DWORD ul_reason_for_call,LPVOID lpReserved)
 {
@@ -43,6 +39,7 @@ App& App::current()
 	return gInstance;
 }
 
+
 bool App::Init(int argc,char** argv)
 {
 	if(app_data.nInitCount++==0)
@@ -56,7 +53,7 @@ bool App::Init(int argc,char** argv)
 			return false;
 		}
 
-		wxInitAllImageHandlers();
+		//wxInitAllImageHandlers();
 
 		class WxLogRedirector : public wxLog
 		{

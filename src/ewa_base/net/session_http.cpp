@@ -257,7 +257,8 @@ void SessionHttp::_ParseRequestHeaders()
 		}
 		else
 		{
-			boundary="--"+String(p1+strlen("boundary="));
+			String boundary="--"+String(p1+strlen("boundary="));
+			multipart_formdata.reset(new MultiPartFormData(*this,boundary));
 		}
 	}
 }
@@ -320,100 +321,278 @@ void SessionHttp::OnSendCompleted(TempOlapPtr& q)
 
 }
 
-void SessionHttp::_ParseMultipartFormdata(char* p1,char* p2)
+MultiPartFormData::MultiPartFormData(SessionHttp& t,const String& s)
+	:Target(t)
+	,boundary(s)
+	,length_max(t.length)
+	,length_cur(0)
 {
-	String name;
-	String filename;
-	String type;
+	phase=-1;
+	length_tag=boundary.size();
+}
 
-	StringBuffer<char> result;
-	lines.resize(1);
+const char* MultiPartFormData::_find_boundary(const char* p1,const char* p2)
+{
 
-	char* pd=p1;
-	for(;pd!=p2;pd++)
+	for(;p1<p2;p1++)
 	{
-		if((*pd)!='\n') continue;
-		int n=lines.back();
-
-		pd[0]=0;
-		if(pd[-1]=='\r') pd[-1]=0;
-
-		int i=pd-p1+1;
-		lines.push_back(i);
-
-		if(i-n==2)
+		if(p1[0]!='\n'||p1[-1]!='\r') continue;
+		const char* pt;
+		if(p1[-2]!='-')
 		{
-			break;
+			pt=p1-length_tag-1;
+		}
+		else if(p1[-3]=='-')
+		{
+			pt=p1-length_tag-3;
+		}
+		else
+		{
+			p1+=length_tag;
+			continue;
 		}
 
-	}
-
-	if(pd==p2)
-	{
-		System::LogTrace("invalid multipart data");
-		return;
-	}
-
-	for(size_t j=0;j<lines.size();j++)
-	{
-		const char* s0=p1+lines[j];
-		const char* s1=strstr(s0,":");
-
-		if(s1==NULL) continue;
-		String key=String(s0,s1);
-		String value=String(s1+1);
-
-		if(key=="Content-Disposition")
+		if(memcmp(pt,boundary.c_str(),length_tag)==0)
 		{
-			arr_1t<String> kvs=string_split(value,";");
-			for(arr_1t<String>::iterator it=kvs.begin();it!=kvs.end();++it)
+			return pt;
+		}
+	}
+
+	return NULL;
+}
+
+void MultiPartFormData::_handle_phase1_line(const char* p1)
+{
+
+	const char* p2=strstr(p1,":");
+	if(p2==NULL) return;
+
+	String key=String(p1,p2);
+	String value=String(p2+1);
+
+	if(key=="Content-Disposition")
+	{
+		arr_1t<String> kvs=string_split(value,";");
+		for(arr_1t<String>::iterator it=kvs.begin();it!=kvs.end();++it)
+		{
+			int pe=(*it).find('=');
+			if(pe<=0) continue;
+			String n=string_trim((*it).substr(0,pe));
+			String v=(*it).substr(pe+2,(*it).size()-pe-3);
+
+			if(n=="name")
 			{
-				int pe=(*it).find('=');
-				if(pe<=0) continue;
-				String n=string_trim((*it).substr(0,pe));
-				String v=(*it).substr(pe+2,(*it).size()-pe-3);
-
-				if(n=="name")
-				{
-					name=v;
-				}
-				else if(n=="filename")
-				{
-					const char* fp=v.c_str();
-					for(const char* p=fp;*p;p++)
-					{
-						if(*p=='/'||*p=='\\') fp=p+1;
-					}
-					filename=fp;
-				}						
+				name=v;
 			}
+			else if(n=="filename")
+			{
+				const char* fp=v.c_str();
+				for(const char* p=fp;*p;p++)
+				{
+					if(*p=='/'||*p=='\\') fp=p+1;
+				}
+				filename=fp;
+			}						
 		}
-		else if(key=="Content-Type")
+	}
+	else if(key=="Content-Type")
+	{
+		type=string_trim(value);
+	}
+}
+
+
+void MultiPartFormData::_handle_phase1()
+{
+
+	char* ptmp=pcur;
+	for(;ptmp<pend;)
+	{
+		if(*ptmp++!='\n') continue;
+		if(ptmp-pcur==2)
 		{
-			type=string_trim(value);
-		}				
+			pcur=ptmp;
+			if(filename=="")
+			{
+				if(pcur==pend && length_cur==length_max)
+				{
+					phase=4;
+				}
+				else
+				{
+					phase=2;
+				}
+				return;
+			}
+
+			String tempfile=String::Format("%lld.%s",(Clock::now().val/1000ll),filename);
+			if(file.Open(tempfile,FileAccess::FLAG_WC))
+			{
+				phase=3;
+				file.Truncate(0);
+				VariantTable& tb(Target.query[name].ref<VariantTable>());
+				tb["type"].reset(type);
+				tb["filename"].reset(filename);
+				tb["tempfile"].reset(tempfile);
+			}
+			else
+			{
+				System::LogTrace("cannot open tempfile:%s",tempfile);
+				phase=5;
+			}
+			return;
+		}
+		else
+		{
+			ptmp[-2]=0;
+			_handle_phase1_line(pcur);
+			pcur=ptmp;
+		}
 	}
 
-	pd=p1+lines.back();
-
-	if(name=="")
+	if(pend-pcur>1024*4)
 	{
-
-	}
-	else if(type=="")
-	{
-		query[name].ref<String>().assign(pd,p2);
+		System::LogTrace("line too long");
+		phase=5;
+		return;
 	}
 	else
 	{
-		result.assign(pd,p2);
-		VariantTable& tb(query[name].ref<VariantTable>());;
-		tb["data"].reset(result);
-		tb["filename"].reset(filename);
-		tb["type"].reset(type);
+		phase=9;
 	}
 
 }
+
+void MultiPartFormData::_handle_phase2()
+{
+	StringBuffer<char>& sb(Target.sb);
+
+	const char* pt=_find_boundary(pcur+length_tag,pend);
+	if(pt==NULL)
+	{
+		phase+=8;
+		return;
+	}
+
+	int sz=pt-2-pcur;
+
+	Target.query[name].ref<String>().assign(pcur,pt-2);
+
+	pcur=(char*)pt+2;
+
+	//if(pend-pcur==2&&pcur[0]=='\r'&&pcur[1]=='\n')
+	//{
+	//	phase=4;
+	//	return;
+	//}
+
+	phase=0;
+
+}
+
+void MultiPartFormData::_handle_phase3()
+{
+	StringBuffer<char>& sb(Target.sb);
+
+	const char* pt=_find_boundary(pcur+length_tag,pend);
+	if(pt!=NULL)
+	{
+		int sz=pt-2-pcur;
+		file.Write(pcur,sz);
+		pcur=(char*)pt+2;
+		file.Close();
+		//if(pend-pcur==2&&pcur[0]=='\r'&&pcur[1]=='\n')
+		//{
+		//	phase=4;
+		//}
+		//else
+		{
+			phase=0;
+		}
+		return;
+	}
+
+	int sz=(pend-pcur-length_tag)&~4095;
+	if(sz>0) 
+	{
+		file.Write(pcur,sz);
+		pcur+=sz;
+	}
+	phase+=8;
+
+}
+
+void MultiPartFormData::HandleData(TempOlapPtr& q)
+{
+
+	StringBuffer<char>& sb(Target.sb);
+
+	if(phase<0)
+	{
+		phase=1;
+		length_cur=sb.size();
+	}
+	else
+	{
+		length_cur+=q->size;
+	}
+
+	pbeg=sb.data();
+	pend=sb.data()+sb.size();
+	pcur=pbeg;
+
+
+	while(1)
+	{
+		switch(phase)
+		{
+		case 0:
+			if(length_cur==length_max && pend-pcur==2&&pcur[0]=='\r'&&pcur[1]=='\n')
+			{
+				phase=4;
+			}
+			type="";
+			name="";
+			filename="";
+		case 1:
+			_handle_phase1();
+			break;
+		case 2:
+			_handle_phase2();
+			break;
+		case 3:
+			_handle_phase3();
+			break;
+		case 4:
+			Target.HandleRequest();
+			return;
+		case 9:
+		case 10:
+		case 11:
+
+			if(length_cur==length_max)
+			{
+				Target.HandleRequest();
+				if(pend-pcur>2)
+				{
+					System::LogTrace("unepected data end");
+				}
+				return;
+			}
+
+			sb.erase(sb.begin(),sb.begin()+(pcur-pbeg));
+			Target.AsyncRecv(q);
+			phase-=8;
+			return;
+		default:
+			Target.Disconnect();
+			return;
+		}
+	} 
+
+}
+
+
 
 void SessionHttp::OnRecvCompleted(TempOlapPtr& q)
 {
@@ -462,9 +641,17 @@ void SessionHttp::OnRecvCompleted(TempOlapPtr& q)
 		}	
 	}
 
-	if(phase!=1||method=="POST")
+	if(phase!=1||method!="POST")
 	{
 		System::LogTrace("invalid state at "__FUNCTION__);
+		Disconnect();
+		return;
+	}
+
+	if(multipart_formdata)
+	{
+		multipart_formdata->HandleData(q);
+		return;
 	}
 
 	if(length>0)
@@ -479,63 +666,8 @@ void SessionHttp::OnRecvCompleted(TempOlapPtr& q)
 	{
 		System::LogTrace("chunked at post?");
 	}
-	else 
-	{
-		HandleQuery(sb);
-	}
 
-	if(!boundary.empty())		
-	{
-		const char* p1=sb.c_str();
-		const char* p2=p1+sb.size();
-		intptr_t ln=boundary.size();
-
-		if(memcmp(p1,boundary.c_str(),ln)!=0)
-		{
-			Disconnect();
-			return;
-		}
-		p1+=ln+2;
-
-
-		const char* d1=p1;
-		const char* d2=p1;
-
-		while(d2<p2)
-		{
-			if(*d2++!='\n') continue;
-
-			if(d2-d1<=ln || memcmp(d1,boundary.c_str(),ln)!=0)
-			{
-				d1=d2;
-				continue;
-			}
-
-			_ParseMultipartFormdata((char*)p1,(char*)d1-2);
-
-			if(d2==p2)
-			{
-				if(d2-d1!=ln+4||d2[-2]!='\r'||d2[-3]!='-'||d2[-4]!='-')
-				{
-					System::LogTrace("invalid multipart formdata");
-				}
-			}
-			else
-			{
-				if(d2-d1!=ln+2||d2[-2]!='\r')
-				{
-					System::LogTrace("invalid multipart formdata");
-				}
-			}
-
-			p1=d1=d2;
-		}
-	}
-	else
-	{
-		HandleQuery(sb);
-	}
-
+	HandleQuery(sb);
 	HandleRequest();
 
 }

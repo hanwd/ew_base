@@ -556,20 +556,27 @@ public:
 };
 
 
-// EWScript
-const char* EwsWordlist1 =
+// EWSL
+const char* EwslWordlist1 =
     "break break2 case try catch throw class "
-    "continue continue2 default do else explicit "
+    "continue continue2 default do def else explicit "
     "false for for_each function in if implicit "
-    "global local "
+    "global local judge "
     "return "
-    "switch this meta throw true try "
-	"while ";
+    "self switch this meta throw true try "
+	"while "
+	"@ "
+	;
 
-const char* EwsWordlist2 =
-    "file";
+const char* EwslWordlist2 =
+    "math io os coroutine logger "
+    "integer double string complex boolean table nil "
+	"array array_integer array_double array_complex array_variant "
+	"pack unpack pcall map reduce  "
+	"eval exec load_var save_var load_txt save_txt "
+	;
 
-const char* EwsWordlist3 =
+const char* EwslWordlist3 =
     "a addindex addtogroup anchor arg attention author b brief bug c "
     "class code date def defgroup deprecated dontinclude e em endcode "
     "endhtmlonly endif endlatexonly endlink endverbatim enum example "
@@ -579,14 +586,15 @@ const char* EwsWordlist3 =
     "overload p page par param post pre ref relates remarks return "
     "retval sa section see showinitializer since skip skipline struct "
     "subsection test throw todo typedef union until var verbatim "
-    "verbinclude version warning weakgroup $ @ \"\" & < > # { }";
+    "verbinclude version warning weakgroup $ @ \"\" & < > # { }"
+	;
 
-class LangInfoEws : public StcLangInfo
+class LangInfoEwsl : public StcLangInfo
 {
 public:
 	typedef StcLangInfo basetype;
 
-	LangInfoEws():basetype(wxT("EWScript"),wxT("*.ews;"),wxSTC_LEX_CPP)
+	LangInfoEwsl():basetype(wxT("EWSL"),wxT("*.ewsl;"),wxSTC_LEX_CPP)
 	{
 		mapStyles[wxSTC_C_DEFAULT].set(StcManager::STYLE_DEFAULT);
 		mapStyles[wxSTC_C_COMMENT].set(StcManager::STYLE_COMMENT);
@@ -595,15 +603,15 @@ public:
 		mapStyles[wxSTC_C_COMMENTLINEDOC].set(StcManager::STYLE_COMMENT_DOC);
 
 		mapStyles[wxSTC_C_NUMBER].set(StcManager::STYLE_NUMBER);
-		mapStyles[wxSTC_C_WORD].set(StcManager::STYLE_KEYWORD1,EwsWordlist1);
+		mapStyles[wxSTC_C_WORD].set(StcManager::STYLE_KEYWORD1,EwslWordlist1);
 		mapStyles[wxSTC_C_STRING].set(StcManager::STYLE_STRING);
 		mapStyles[wxSTC_C_CHARACTER].set(StcManager::STYLE_CHARACTER);
 		mapStyles[wxSTC_C_UUID].set(StcManager::STYLE_UUID);
 		mapStyles[wxSTC_C_PREPROCESSOR].set(StcManager::STYLE_PREPROCESSOR);
 		mapStyles[wxSTC_C_OPERATOR].set(StcManager::STYLE_OPERATOR);
 		mapStyles[wxSTC_C_IDENTIFIER].set(StcManager::STYLE_IDENTIFIER);
-		mapStyles[wxSTC_C_WORD2].set(StcManager::STYLE_KEYWORD2,EwsWordlist2);
-		mapStyles[wxSTC_C_COMMENTDOCKEYWORD].set(StcManager::STYLE_KEYWORD3,EwsWordlist3);
+		mapStyles[wxSTC_C_WORD2].set(StcManager::STYLE_KEYWORD2,EwslWordlist2);
+		mapStyles[wxSTC_C_COMMENTDOCKEYWORD].set(StcManager::STYLE_KEYWORD3,EwslWordlist3);
 
 	}
 
@@ -703,7 +711,7 @@ StcManager::StcManager()
 {
 	langs.push_back(StcLangInfo());
 	langs.push_back(LangInfoCpp());
-	langs.push_back(LangInfoEws());
+	langs.push_back(LangInfoEwsl());
 	langs.push_back(LangInfoLua());
 	langs.push_back(LangInfoPython());
 	langs.push_back(LangInfoSql());
@@ -858,7 +866,7 @@ bool ICmdProcTextEntryStc::DoFind(ICmdParam& cmd)
 
 		if(Target.SearchInTarget(str2wx(data.text_old))!=-1)
 		{
-			int rt=Wrapper::MsgsDialog("no more results, restart?",0);
+			int rt=Wrapper::MsgsDialog(_hT("no more results, restart?"),IDefs::BTN_YES|IDefs::BTN_NO|IDefs::ICON_QUESTION);
 			if(rt!=IDefs::BTN_YES)
 			{
 				return false;
@@ -866,7 +874,7 @@ bool ICmdProcTextEntryStc::DoFind(ICmdParam& cmd)
 		}
 		else
 		{
-			Wrapper::MsgsDialog("no more results",0);
+			Wrapper::MsgsDialog(_hT("no more results!"),IDefs::ICON_MESSAGE|IDefs::BTN_OK);
 			return false;
 		}
 	}
@@ -903,7 +911,7 @@ bool ICmdProcTextEntryStc::DoReplaceAll(ICmdParam& cmd)
 	Target.SetInsertionPoint(0);
 	if(!TestSelection() && !DoFind(cmd))
 	{
-		Wrapper::MsgsDialog("no results",0);
+		Wrapper::MsgsDialog(_hT("no results"),0);
 		return false;
 	}
 
@@ -918,7 +926,7 @@ bool ICmdProcTextEntryStc::DoReplaceAll(ICmdParam& cmd)
 			
 	}
 	Target.EndUndoAction();
-	Wrapper::MsgsDialog(String::Format("%d results",n),0);
+	Wrapper::MsgsDialog(String::Format(_hT("%d results replaced"),n),0);
 	return true;
 }
 

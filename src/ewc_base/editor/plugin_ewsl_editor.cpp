@@ -122,7 +122,7 @@ public:
 		m_pCanvas=new EwslCaret(w,wp,iface);
 		m_pCanvas->func.bind(&MvcViewEwsl::OnStcChanged,this);
 
-		m_pCanvas->UpdateStyle(".ews");
+		m_pCanvas->UpdateStyle(".ewsl");
 		m_pCmdProc.reset(new ICmdProcTextCtrlEwsl(*m_pCanvas,*this));
 		return m_pCanvas;
 	}

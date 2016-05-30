@@ -127,7 +127,7 @@ bool CmdLineParser::parse(int argc, char** argv)
 			this_logger().PrintLn("empty option");
 			return false;
 		}
-		vargv.push_back(argv[i]);
+		vargv.push_back(IConv::from_ansi(argv[i]));
 	}
 
 	return parse(vargv);

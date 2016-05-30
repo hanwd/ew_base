@@ -15,7 +15,6 @@ public:
 
 	Variant parse(const String& json)
 	{
-
 		pchar = json.c_str();
 
 		Variant value;
@@ -226,8 +225,6 @@ public:
 			}
 		}
 
-
-
 		if (*pchar != '"')
 		{
 			return false;
@@ -268,16 +265,13 @@ public:
 					unsigned char c1 = lookup_table<lkt_number16b>::test(p[0]);
 					if (c1 == 0xFF) break;
 					val = c1;
-
 					unsigned char c2 = lookup_table<lkt_number16b>::test(p[1]);
 					if (c2 == 0xFF) break;
 					val = (val << 4) + c2;
-
 					unsigned char c3 = lookup_table<lkt_number16b>::test(p[2]);
 					if (c3 == 0xFF) break;
 					val = (val << 4) + c3;
 					unsigned char c4 = lookup_table<lkt_number16b>::test(p[3]);
-
 					if (c4 == 0xFF) break;
 					val = (val << 4) + c4;
 
@@ -303,7 +297,7 @@ public:
 		pchar++;
 
 		StringBuffer<char> char_sb;
-		IConv::unicode_to_ansi(char_sb, sb.data(), sb.size());
+		IConv::unicode_to_utf8(char_sb, sb.data(), sb.size());
 		name = char_sb;
 
 		return true;

@@ -17,10 +17,10 @@ EW_ENTER
 
 void FileAllFiles(const String& dir,arr_1t<String>& fns,const String& xxx="*")
 {
-	WIN32_FIND_DATAA FindFileData;
+	WIN32_FIND_DATAW FindFileData;
 	String fds=dir+"\\"+xxx;	
 
-	HANDLE hFind = FindFirstFileA(fds.c_str(), &FindFileData);
+	HANDLE hFind = FindFirstFileW(IConv::to_wide(fds).c_str(), &FindFileData);
 	while (hFind != INVALID_HANDLE_VALUE)
 	{
 		String fn=FindFileData.cFileName;
@@ -29,7 +29,7 @@ void FileAllFiles(const String& dir,arr_1t<String>& fns,const String& xxx="*")
 			fns.append(fn);
 		}
 
-		if (!FindNextFileA(hFind, &FindFileData))
+		if (!FindNextFileW(hFind, &FindFileData))
 		{
 			FindClose(hFind);
 			hFind = INVALID_HANDLE_VALUE;
@@ -450,12 +450,12 @@ public:
 		{
 			m_nSelection=id;
 		
-			auimgr.LoadPerspective(info.pers.c_str(),false);
+			auimgr.LoadPerspective(str2wx(info.pers),false);
 
 			wxAuiPaneInfoArray& arr(auimgr.GetAllPanes());
 			for(size_t i=0;i<arr.size();i++)
 			{
-				String pn=arr[i].name.c_str().AsChar();
+				String pn=wx2str(arr[i].name);
 				EvtBase* ib=EvtManager::current().get_command(pn);
 				if(!ib) continue;
 
@@ -509,13 +509,13 @@ public:
 
 		wxAuiManager& auimgr(*pmgr);
 
-		info.pers=auimgr.SavePerspective().c_str().AsChar();
+		info.pers=wx2str(auimgr.SavePerspective());
 		info.wnds.clear();
 
 		wxAuiPaneInfoArray& arr(auimgr.GetAllPanes());
 		for(size_t i=0;i<arr.size();i++)
 		{
-			String pn=arr[i].name.c_str().AsChar();
+			String pn=wx2str(arr[i].name);
 			EvtBase* ib=wm.evtmgr.get_command(pn);
 			if(!ib) continue;
 
@@ -724,7 +724,7 @@ public:
 	EvtCommandWindowMenuBar(const String& n=_kT("MenuBar")):EvtCommandWindow(n)
 	{
 		wxMenuBar* mb=new wxMenuBar;
-		mb->SetName(m_sId.c_str());
+		mb->SetName(str2wx(m_sId));
 		SetWindow(mb);
 	}
 

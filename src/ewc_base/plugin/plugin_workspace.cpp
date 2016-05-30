@@ -182,7 +182,7 @@ public:
 		ObjectNodeGroup* g=GetGroup();
 		if(!g) return true;
 
-		String s=::wxGetTextFromUser("folder name").c_str().AsChar();
+		String s=wx2str(::wxGetTextFromUser("folder name"));
 		if(s=="") return true;
 
 		IWnd_treectrl::m_tData.window->ExAppendNode(new ObjectNodeFolder(s),g);
@@ -240,7 +240,7 @@ public:
 		pWkspTree->ExAppendNode(new ObjectNodeFolder("folder1"));
 		pWkspTree->ExAppendNode(new ObjectNodeFolder("folder2"));
 
-		pWkspTree->SetName(m_sId.c_str());
+		pWkspTree->SetName(str2wx(m_sId));
 		pWkspTree->SetMinSize(wxSize(120,120));
 
 		SetWindow(pWkspTree);

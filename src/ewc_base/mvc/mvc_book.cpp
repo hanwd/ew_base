@@ -269,7 +269,7 @@ bool MvcBook::AttachView(MvcView* pView)
 	wxWindow* pCanvas=pView->CreateCanvas(m_pBook.get());
 	pView->SetCanvas(pCanvas);
 
-	bool flag=m_pBook->AddPage(pCanvas,pView->GetTitle().c_str(),true,-1);
+	bool flag=m_pBook->AddPage(pCanvas,str2wx(pView->GetTitle()),true,-1);
 
 	if(!flag)
 	{
@@ -301,7 +301,7 @@ void MvcBook::UpdateTitle()
 	String text=pView->GetTitle();
 	text+=f1?"*":"";
 
-	m_pBook->SetPageText(sel,text.c_str());
+	m_pBook->SetPageText(sel,str2wx(text));
 
 }
 

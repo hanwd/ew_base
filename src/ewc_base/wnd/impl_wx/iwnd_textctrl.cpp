@@ -194,7 +194,7 @@ bool ICmdProcTextEntryCtrl::TestSelection()
 		return false;
 	}
 
-	if(Target.GetStringSelection()==data.text_old.c_str())
+	if(Target.GetStringSelection()==str2wx(data.text_old))
 	{
 		return true;
 	}
@@ -220,7 +220,7 @@ bool ICmdProcTextEntryCtrl::DoFind(ICmdParam& cmd)
 	Target.SetSelection(p1,-1);
 	wxString v=Target.GetStringSelection();
 
-	long n=v.Find(data.text_old.c_str());
+	long n=v.Find(str2wx(data.text_old));
 	if(n<0)
 	{
 		Target.SelectNone();
@@ -247,7 +247,7 @@ bool ICmdProcTextEntryCtrl::DoReplace(ICmdParam& cmd)
 	long p1,p2(0);
 	Target.GetSelection(&p1,&p2);
 
-	Target.Replace(p1,p2,data.text_new.c_str());
+	Target.Replace(p1,p2,str2wx(data.text_new));
 	p2=p1+data.text_new.size();
 
 	Target.SetInsertionPoint(p2);

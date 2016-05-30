@@ -28,15 +28,21 @@ void GBKTable_init()
 	}
 }
 
+
+
+
 template<typename WC>
-bool IConv_unicode_to_gbk(StringBuffer<unsigned char>& aa_,const WC* pw_,size_t ln_)
+bool IConv_unicode_to_gbk(StringBuffer<uint8_t>& aa_,const WC* pw_,size_t ln_)
 {
 	GBKTable_init();
 
-	StringBuffer<unsigned char> dst;
-	dst.resize(ln_*sizeof(WC));
-	unsigned char* pa_=dst.data();
+	StringBuffer<uint8_t> dst;
+	dst.resize(ln_*2);
+
+	uint8_t* pa_=dst.data();
 	const WC* pw2=pw_+ln_;
+
+	int _n_invalid_count=0;
 
 	for(; pw_<pw2; pw_++)
 	{
@@ -48,6 +54,7 @@ bool IConv_unicode_to_gbk(StringBuffer<unsigned char>& aa_,const WC* pw_,size_t 
 
 		if(sizeof(WC)>2&&(pw_[0]&0xFFFF0000)!=0)
 		{
+			_n_invalid_count++;
 			System::LogWarning("IConv_unicode_to_gbk: unkown unicode character %x",(uint32_t)pw_[0]);
 
 			pa_[0]='?';
@@ -59,8 +66,8 @@ bool IConv_unicode_to_gbk(StringBuffer<unsigned char>& aa_,const WC* pw_,size_t 
 		WC val=g_uni_table[pw_[0]];
 		if(val!=0)
 		{
-			pa_[0]=(((unsigned char*)&val)[0]);
-			pa_[1]=(((unsigned char*)&val)[1]);
+			pa_[0]=(((uint8_t*)&val)[0]);
+			pa_[1]=(((uint8_t*)&val)[1]);
 			pa_+=2;
 		}
 		else
@@ -72,27 +79,27 @@ bool IConv_unicode_to_gbk(StringBuffer<unsigned char>& aa_,const WC* pw_,size_t 
 	dst.resize(la_);
 	dst.swap(aa_);
 
-	return true;
+	return _n_invalid_count==0;
 }
 
-bool IConv::unicode_to_gbk(StringBuffer<unsigned char>& aa_,const uint16_t* pw_,size_t ln_)
+bool IConv::unicode_to_gbk(StringBuffer<uint8_t>& aa_,const uint16_t* pw_,size_t ln_)
 {
 	return IConv_unicode_to_gbk<uint16_t>(aa_,pw_,ln_);
 }
 
-bool IConv::unicode_to_gbk(StringBuffer<unsigned char>& aa_,const uint32_t* pw_,size_t ln_)
+bool IConv::unicode_to_gbk(StringBuffer<uint8_t>& aa_,const uint32_t* pw_,size_t ln_)
 {
 	return IConv_unicode_to_gbk<uint32_t>(aa_,pw_,ln_);
 }
 
 template<typename WC>
-bool IConv_gbk_to_unicode(StringBuffer<WC>& aw_,const unsigned char* pa_,size_t ln_)
+bool IConv_gbk_to_unicode(StringBuffer<WC>& aw_,const uint8_t* pa_,size_t ln_)
 {
 	StringBuffer<WC> dst;
 	dst.resize(ln_);
 	WC* pw_=dst.data();
 
-	const unsigned char *pa2=pa_+ln_;
+	const uint8_t *pa2=pa_+ln_;
 
 	while(pa_<pa2)
 	{
@@ -103,7 +110,7 @@ bool IConv_gbk_to_unicode(StringBuffer<WC>& aw_,const unsigned char* pa_,size_t 
 			continue;
 		}
 
-		unsigned char ac=pa_[1];
+		uint8_t ac=pa_[1];
 		if(ac>=0x40&&ac<=0x7E)
 		{
 			unsigned b2=ac-0x40;
@@ -126,27 +133,27 @@ bool IConv_gbk_to_unicode(StringBuffer<WC>& aw_,const unsigned char* pa_,size_t 
 	return true;
 }
 
-bool IConv::gbk_to_unicode(StringBuffer<uint16_t>& aw_,const unsigned char* pa_,size_t ln_)
+bool IConv::gbk_to_unicode(StringBuffer<uint16_t>& aw_,const uint8_t* pa_,size_t ln_)
 {
 	return IConv_gbk_to_unicode(aw_,pa_,ln_);
 }
 
-bool IConv::gbk_to_unicode(StringBuffer<uint32_t>& aw_,const unsigned char* pa_,size_t ln_)
+bool IConv::gbk_to_unicode(StringBuffer<uint32_t>& aw_,const uint8_t* pa_,size_t ln_)
 {
 	return IConv_gbk_to_unicode(aw_,pa_,ln_);
 }
 
 template<typename WC>
-bool IConv_utf8_to_unicode(StringBuffer<WC>& aw_,const unsigned char* pa_,size_t ln_)
+bool IConv_utf8_to_unicode(StringBuffer<WC>& aw_,const uint8_t* pa_,size_t ln_)
 {
 	StringBuffer<WC> dst;
 	dst.resize(ln_);
 	WC *pw_=dst.data();
-	const unsigned char* pa2=pa_+ln_;
+	const uint8_t* pa2=pa_+ln_;
 
 	while(pa_<pa2)
 	{
-		unsigned char uc=*pa_;
+		uint8_t uc=*pa_;
 		if(uc<0x80)
 		{
 			*pw_++=uc;
@@ -180,24 +187,24 @@ bool IConv_utf8_to_unicode(StringBuffer<WC>& aw_,const unsigned char* pa_,size_t
 	return true;
 }
 
-bool IConv::utf8_to_unicode(StringBuffer<uint16_t>& aw_,const unsigned char* pa_,size_t ln_)
+bool IConv::utf8_to_unicode(StringBuffer<uint16_t>& aw_,const uint8_t* pa_,size_t ln_)
 {
 	return IConv_utf8_to_unicode(aw_,pa_,ln_);
 }
 
-bool IConv::utf8_to_unicode(StringBuffer<uint32_t>& aw_,const unsigned char* pa_,size_t ln_)
+bool IConv::utf8_to_unicode(StringBuffer<uint32_t>& aw_,const uint8_t* pa_,size_t ln_)
 {
 	return IConv_utf8_to_unicode(aw_,pa_,ln_);
 }
 
 
 template<typename WC>
-bool IConv_unicode_to_utf8(StringBuffer<unsigned char>& aa_,const WC* pw_,size_t ln_)
+bool IConv_unicode_to_utf8(StringBuffer<uint8_t>& aa_,const WC* pw_,size_t ln_)
 {
-	StringBuffer<unsigned char> dst;
+	StringBuffer<uint8_t> dst;
 
 	dst.resize(ln_*4);
-	unsigned char* pa_=dst.data();
+	uint8_t* pa_=dst.data();
 	const WC* pw2=pw_+ln_;
 
 	for(; pw_<pw2; pw_++)
@@ -247,12 +254,12 @@ bool IConv_unicode_to_utf8(StringBuffer<unsigned char>& aa_,const WC* pw_,size_t
 	return true;
 }
 
-bool IConv::unicode_to_utf8(StringBuffer<unsigned char>& aa_,const uint16_t* pw_,size_t ln_)
+bool IConv::unicode_to_utf8(StringBuffer<uint8_t>& aa_,const uint16_t* pw_,size_t ln_)
 {
 	return IConv_unicode_to_utf8(aa_,pw_,ln_);
 }
 
-bool IConv::unicode_to_utf8(StringBuffer<unsigned char>& aa_,const uint32_t* pw_,size_t ln_)
+bool IConv::unicode_to_utf8(StringBuffer<uint8_t>& aa_,const uint32_t* pw_,size_t ln_)
 {
 	return IConv_unicode_to_utf8(aa_,pw_,ln_);
 }

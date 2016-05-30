@@ -157,8 +157,8 @@ public:
 		System::LogTrace(s);
 
 #ifdef EW_MSVC
-		::OutputDebugStringA(s);
-		::OutputDebugStringA("\n");
+		::OutputDebugStringW(IConv::to_wide(s).c_str());
+		::OutputDebugStringW(L"\n");
 #endif
 
 	}

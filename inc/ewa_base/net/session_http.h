@@ -56,7 +56,43 @@ protected:
 	AtomicSpin spin;
 };
 
+class DLLIMPEXP_EWA_BASE MultiPartFormData : public ObjectData
+{
+public:
 
+	MultiPartFormData(SessionHttp& t,const String& s);
+
+	void HandleData(TempOlapPtr& q);
+
+	SessionHttp& Target;
+
+	String name;
+	String type;
+	String filename;
+	String boundary;
+
+	int length_max;
+	int length_cur;
+	int length_tag;
+
+	int phase;
+
+	File file;
+
+	const char* _find_boundary(const char* p1,const char* p2);
+
+	void _handle_phase1_line(const char* p1);
+
+	void _handle_phase1();
+	void _handle_phase2();
+	void _handle_phase3();
+
+
+	typedef char* mychar_ptr;
+	mychar_ptr pbeg;
+	mychar_ptr pend;
+	mychar_ptr pcur;
+};
 
 
 class DLLIMPEXP_EWA_BASE SessionHttp : public SessionClient
@@ -76,12 +112,11 @@ public:
 	String anchor;
 	int length;
 
-
-
 	int phase;
 	BitFlags flags;
 
-	String boundary;
+	//String boundary;
+	DataPtrT<MultiPartFormData> multipart_formdata;
 
 	typedef indexer_map<String,String> map_type;
 
@@ -112,7 +147,7 @@ public:
 	void Redirect(const String& url);
 
 protected:
-	void _ParseMultipartFormdata(char* p1,char* p2);
+
 	void _ParseRequestHeaders();
 
 	arr_1t<int> lines;

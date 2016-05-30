@@ -90,12 +90,6 @@ WndInfo* WndInfoManger::GetWndInfo(wxWindow* w)
 	return aVptrTable[*(void**)w];
 }
 
-//void WndInfoManger::Update(WndBuilder& builder,wxWindow* pwin)
-//{
-//	WndInfo* wi=WndInfoManger::current().GetWndInfo(pwin);
-//	if(!wi) return;
-//	wi->Update(builder,pwin);
-//}
 
 
 EW_LEAVE

@@ -87,12 +87,12 @@ EvtProxyArraySimpleT<String>::EvtProxyArraySimpleT(arr_1t<String>& v)
 
 		virtual bool SetValue(itemtype& val,const ICellInfo& cell)
 		{
-			val=cell.variant.GetString().c_str().AsChar();return true;
+			val=wx2str(cell.variant.GetString());return true;
 		}
 
 		virtual void GetValue(const itemtype& val,ICellInfo& cell) const
 		{
-			cell.variant=val.c_str();
+			cell.variant=str2wx(val);
 		}
 
 	};

@@ -119,7 +119,6 @@ public:
 		return m_nFlags;
 	}
 
-
 	void bind_cpu(int c1)
 	{
 		m_aBindCpu.push_back(c1);

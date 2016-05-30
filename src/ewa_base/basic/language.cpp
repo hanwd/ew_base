@@ -11,7 +11,6 @@
 
 EW_ENTER
 
-
 class const_char_pointer_map : public indexer_trait<const char*,const char*,int>
 {
 public:
@@ -28,19 +27,6 @@ public:
 	}
 };
 
-//template<unsigned N>
-//class lkt_white
-//{
-//public:
-//	static const int value=!(N==' '||N=='\t'||N=='\r'||N=='\n');
-//};
-//
-//template<unsigned N>
-//class lkt_string
-//{
-//public:
-//	static const int value=!(N=='\0'||N=='"');
-//};
 
 class LangData : public ObjectData
 {
@@ -274,14 +260,7 @@ public:
 			bt.append(v,::strlen(v)+1);
 		}
 
-		StringBuffer<char> bs;
-
-		if(!IConv::ansi_to_utf8(bs,bt.data(),bt.size()))
-		{
-			return false;
-		}
-
-		return bs.save(file);
+		return bt.save(file);
 	}
 
 };

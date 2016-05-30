@@ -186,7 +186,7 @@ wxMenu* EvtGroup::CreateMenu(HeMenuImpl* mu,bool prepare)
 		EvtCommand* vp=EvtManager::current()["Empty"].cast_command();
 		if(vp)
 		{
-			mu->Append(wxID_ANY,vp->MakeLabel().c_str())->Enable(false);
+			mu->Append(wxID_ANY,str2wx(vp->MakeLabel()))->Enable(false);
 		}
 	}
 
@@ -216,7 +216,7 @@ wxToolBar* EvtGroup::CreateTbar(wxWindow* pw,int wd)
 
 	flags.set(FLAG_CHECKED,!flags.get(FLAG_HIDE_UI));
 
-	tb->SetName(m_sId.c_str());
+	tb->SetName(str2wx(m_sId));
 
 	return tb;
 

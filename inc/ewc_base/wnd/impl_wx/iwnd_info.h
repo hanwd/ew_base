@@ -29,15 +29,6 @@ EW_ENTER
 
 class WndPropertyEx;
 
-inline String wx2str(const wxString& v)
-{
-	return v.c_str().AsChar();
-}
-
-inline wxString str2wx(const String& v)
-{
-	return v.c_str();
-}
 
 
 class WndInfo;

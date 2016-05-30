@@ -7,10 +7,13 @@
 #include "ewc_base/plugin/plugin_manager.h"
 #include "ewa_base/scripting/executor_proxy.h"
 
-#include <msvc/wx/setup.h>
+#include "ewc_base/wnd/wnd_info.h"
+#include "ewc_base/wnd/wnd_maker.h"
+
 
 #pragma comment(lib,"ewa_base.lib")
 #pragma comment(lib,"ewc_base.lib")
+
 
 int ew_main()
 {
@@ -22,6 +25,7 @@ int ew_main()
 	System::LogTrace("----  process enter   -------");
 
 	WndManager& wm(WndManager::current());
+
 
 // ×¢²á²å¼þ
 	wm.RegisterT<PluginMainWindow>();

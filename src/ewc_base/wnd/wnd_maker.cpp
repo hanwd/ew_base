@@ -86,7 +86,7 @@ wxSizerFlags MakeSizerFlag(const WndProperty& h)
 wxAuiPaneInfo MakePaneInfo(const WndProperty& h)
 {
 	wxAuiPaneInfo info;
-	wxString pane=h.pane().c_str();
+	wxString pane=str2wx(h.pane());
 	if(pane=="centerpane")
 	{
 		info.CenterPane();
@@ -147,7 +147,7 @@ WndMaker& WndMaker::row(const WndProperty& p)
 	}
 	else
 	{
-		wxStaticBox *box = new wxStaticBox(icur.hwnd, wxID_ANY, p.label().c_str());
+		wxStaticBox *box = new wxStaticBox(icur.hwnd, wxID_ANY, str2wx(p.label()));
 		return szr(new wxStaticBoxSizer(box,wxVERTICAL),p);
 	}
 }
@@ -162,7 +162,7 @@ WndMaker& WndMaker::col(const WndProperty& p)
 	}
 	else
 	{
-		wxStaticBox *box = new wxStaticBox(icur.hwnd, wxID_ANY, p.label().c_str());
+		wxStaticBox *box = new wxStaticBox(icur.hwnd, wxID_ANY, str2wx(p.label()));
 		return szr(new wxStaticBoxSizer(box,wxHORIZONTAL),p);
 	}
 }
@@ -268,7 +268,7 @@ WndMaker& WndMaker::end()
 			wxNotebook* book=dynamic_cast<wxNotebook*>(icur.hwnd);
 			if(book)
 			{
-				book->AddPage(itmp.hwnd,itmp.prop.page().c_str());
+				book->AddPage(itmp.hwnd,str2wx(itmp.prop.page()));
 			}
 			else
 			{

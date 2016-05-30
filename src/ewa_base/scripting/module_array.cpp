@@ -745,7 +745,7 @@ public:
 	
 		size_t j=0;
 
-		for(size_t i=0;i<n;i++)
+		for(int64_t i=0;i<n;i++)
 		{
 			if(i<*itn)
 			{

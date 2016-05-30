@@ -3,7 +3,9 @@
 
 #include "ewa_base.h"
 
-
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#endif
 
 #ifdef EWC_BASE_DLL
 #ifdef _MSC_VER

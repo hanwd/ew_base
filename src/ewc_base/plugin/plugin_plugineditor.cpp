@@ -42,7 +42,7 @@ PluginEditor::PluginEditor(WndManager& w,const String& s):basetype(w,s)
 int PluginEditorEx::MatchIndex(const String& fn)
 {
 	if(fn.length()<4) return 0;
-	String sExtension=fn.substr(fn.length()-4);
+	String sExtension="."+string_to_lower(string_split(fn,".").back());
 	if(m_aExtension.find(sExtension)==m_aExtension.end())
 	{
 		return 0;

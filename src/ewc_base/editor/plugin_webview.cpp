@@ -43,19 +43,10 @@ public:
 
 	wxWindow* CreateCanvas(wxWindow* w)
 	{
-		//wxString v1=str2wx();
 
-		m_pCanvas=new IWnd_webview(w,WndProperty());//wxWebView::New(w,wxID_ANY);
+		m_pCanvas=new IWnd_webview(w,WndProperty());
 		m_pCmdProc.reset(m_pCanvas->GetCmdProc());
-
-		//m_pCmdProc.reset(new ICmdProcWebView(*m_pCanvas,*this));
-
-		//StringBuffer<char> sb;
-		//sb.load(this->GetFilename());
-		//pCanvas->SetPage(sb.c_str(),"file:///E:/files/");
-
 		m_pCanvas->LoadURL(fn.GetFilename());
-
 		return m_pCanvas;
 	}
 
@@ -187,7 +178,7 @@ bool PluginWebView::OnAttach()
 	EvtManagerTop& ec(wm.evtmgr);
 
 	ec.link_a<String>("Webview.script");
-	ec.table["Webview.script"].reset<String>("");
+	ec.table["Webview.script"].ref<String>();
 
 	ec.append(new EvtCommand("Webview.Exec"));
 	ec.append(new EvtCommand("Webview.Clear"));

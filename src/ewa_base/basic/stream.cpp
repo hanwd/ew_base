@@ -256,8 +256,8 @@ bool Stream::Open(const String& filename_,int flag_)
 	StreamDataFile* streamfile=new StreamDataFile;
 	SetData(streamfile);
 
-	HANDLE hFile=(HANDLE)CreateFileA(
-					 fn.c_str(),
+	HANDLE hFile=(HANDLE)CreateFileW(
+					 IConv::to_wide(fn).c_str(),
 					 FileAccess::makeflag(flag_,GENERIC_READ,GENERIC_WRITE),
 					 FILE_SHARE_READ,
 					 NULL,

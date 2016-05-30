@@ -133,8 +133,8 @@ void EvtCommand::UpdateMenuItem(HeMenuItemImpl* item)
 	HeMenuImpl* mu=item->GetMenu();
 	if(!mu||&mu->wm!=&WndManager::current()) return;
 
-	item->SetHelp(m_sHelp.c_str());
-	item->SetItemLabel(MakeLabel(LABEL_MENU).c_str());
+	item->SetHelp(str2wx(m_sHelp));
+	item->SetItemLabel(str2wx(MakeLabel(LABEL_MENU)));
 	item->SetCheckable(flags.get(FLAG_CHECK));
 	item->Enable(!flags.get(FLAG_DISABLE));
 
@@ -155,9 +155,9 @@ void EvtCommand::UpdateToolItem(HeToolItemImpl* item)
 	HeTbarImpl* tb=item->GetToolBar();
 	if(!tb||&tb->wm!=&WndManager::current()) return;
 
-	item->SetShortHelp(MakeLabel().c_str());
-	item->SetLabel(MakeLabel(LABEL_TOOL).c_str());
-	item->SetLongHelp(m_sHelp.c_str());
+	item->SetShortHelp(str2wx(MakeLabel()));
+	item->SetLabel(str2wx(MakeLabel(LABEL_TOOL)));
+	item->SetLongHelp(str2wx(m_sHelp));
 
 	if(flags.get(FLAG_CHECK))
 	{
@@ -185,7 +185,7 @@ IWindowPtr EvtCommand::CreateWndsItem(IWindowPtr pw)
 
 	WndProperty wp;
 	wp.id(m_nId);
-	wp.label(m_sId.c_str());
+	wp.label(m_sId);
 
 	wxWindow* ctrl= WndInfoManger::current().Create("button",pw,wp);
 	if(!ctrl) return NULL;
@@ -325,7 +325,7 @@ IWindowPtr EvtCommandCtrl::CreateWndsItem(IWindowPtr pw)
 	wxWindow* pwin=WndInfoManger::current().Create(m_sCtrlType,pw,wp);
 	if(!pwin) return NULL;
 
-	pwin->SetName(m_sId.c_str());
+	pwin->SetName(str2wx(m_sId));
 	CreateValidator(pwin);
 	m_pWindow=pwin;
 	return pwin;
@@ -406,7 +406,7 @@ EvtCommandWindowSharedBook::EvtCommandWindowSharedBook(const String& n):EvtComma
 	{
 		WndProperty wp;
 		m_pWindow=new IWnd_bookbase(p,wp);
-		m_pWindow->SetName(n.c_str());
+		m_pWindow->SetName(str2wx(n));
 		SetWindow(m_pWindow);
 	}
 }

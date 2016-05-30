@@ -32,7 +32,9 @@ public:
 			{
 				String fn_temp=IView.fn.GetTempfile();
 				if(fn_temp=="") return false;
-				if(!Target.SaveFile(fn_temp.c_str()))
+				//StringBuffer<char> sb(wx2str(Target.GetText()));
+				//sb.save(fn_temp,FILE_TEXT_UTF8);
+				if(!Target.SaveFile(str2wx(fn_temp)))
 				{
 					return false;
 				}
@@ -137,7 +139,7 @@ public:
 		String fn=Target.fn.GetFilename();
 		if(fn!="")
 		{
-			m_pCanvas->LoadFile(fn.c_str());
+			m_pCanvas->LoadFile(str2wx(fn));
 		}
 
 		m_pCanvas->tempp=IWnd_stc::ms_param;
@@ -260,39 +262,6 @@ public:
 	}
 };
 
-//
-//class EvtStcWndMaker : public EvtCommand
-//{
-//public:
-//	typedef EvtCommand basetype;
-//
-//	PluginTextEditor& Target;
-//
-//
-//	EvtStcWndMaker(PluginTextEditor& t)
-//		:basetype("Stc.WndMaker")
-//		,Target(t)
-//	{
-//		
-//	}
-//
-//
-//	bool DoCmdExecute(ICmdParam& cmd)
-//	{
-//		IWnd_stc* p=Target.GetStc();
-//		if(!p) return false;
-//
-//		String pval=wx2str(p->GetValue());
-//
-//		Executor ewsl;
-//		ewsl.push(new CallableMaker());
-//		ewsl.set_global("km");
-//
-//		ewsl.execute(pval);			
-//		return true;
-//	}
-//};
-
 
 DataPtrT<MvcModel> PluginTextEditor::CreateSampleModel()
 {
@@ -375,7 +344,7 @@ bool PluginTextEditor::OnAttach()
 
 	ec.gp_beg(_kT("Text"));
 		ec.gp_add("TE.Lang");
-		//ec.gp_add(new EvtStcWndMaker(*this));
+
 		ec.gp_add("");
 		ec.gp_add(new EvtStcFlagT<IWnd_stc::FLAG_SYNTAX>(*this,_kT("TE.Syntax")));
 		ec.gp_add(new EvtStcFlagT<IWnd_stc::FLAG_FOLD>(*this,_kT("TE.Fold")));

@@ -25,8 +25,8 @@ bool File::Open(const String& filename_,int flag_)
 	String fn=fn_encode(filename_);
 	Close();
 
-	HANDLE hFile=(HANDLE)CreateFileA(
-					 fn.c_str(),
+	HANDLE hFile=(HANDLE)CreateFileW(
+					 IConv::to_wide(fn).c_str(),
 					 FileAccess::makeflag(flag_,GENERIC_READ,GENERIC_WRITE),
 					 FILE_SHARE_READ|FILE_SHARE_WRITE,
 					 NULL,
@@ -281,7 +281,7 @@ bool File::Rename(const String& oldname_,const String& newname_)
 	String oldname=fn_encode(oldname_);
 	String newname=fn_encode(newname_);
 
-	int bRet=::rename(oldname.c_str(),newname.c_str());
+	int bRet=::rename(IConv::to_ansi(oldname).c_str(),IConv::to_ansi(newname).c_str());
 
 	return bRet==0;
 }
@@ -289,7 +289,7 @@ bool File::Rename(const String& oldname_,const String& newname_)
 bool File::Remove(const String& filename_)
 {
 	String fn=fn_encode(filename_);
-	int bRet=::remove(fn.c_str());
+	int bRet=::remove(IConv::to_ansi(fn).c_str());
 	return bRet==0;
 }
 

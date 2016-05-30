@@ -31,6 +31,9 @@ DLLIMPEXP_EWA_BASE String string_replace(const String& str_src, const String& st
 DLLIMPEXP_EWA_BASE String string_unescape(const String& str_src);
 DLLIMPEXP_EWA_BASE String string_escape(const String& str_src);
 
+DLLIMPEXP_EWA_BASE String string_urlencode(const String& str_src);
+DLLIMPEXP_EWA_BASE String string_urldecode(const String& str_src);
+
 DLLIMPEXP_EWA_BASE int string_compare_no_case(const String& lhs, const String& rhs);
 
 enum

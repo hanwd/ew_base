@@ -375,7 +375,7 @@ void IWnd_treectrl::ExUpdate(ObjectNodeGroup* g)
 
 void IWnd_treectrl::ExDoAppendNode(ObjectNode* p,ObjectNodeGroup* g)
 {
-	wxString name(p->GetLabel().c_str());
+	wxString name(str2wx(p->GetLabel()));
 	ObjectTreeData* data=new ObjectTreeData(p,this);
 
 	int img1=-1;

@@ -172,8 +172,8 @@ class lkt_number16b
 {
 public:
 	static const unsigned char value1 = (N >= '0'&&N <= '9') ? (N - '0') : 0xFF;
-	static const unsigned char value2 = (N >= 'A'&&N <= 'Z') ? (N + 10 - 'A') : value1;
-	static const unsigned char value3 = (N >= 'a'&&N <= 'z') ? (N + 10 - 'a') : value2;
+	static const unsigned char value2 = (N >= 'A'&&N <= 'F') ? (N + 10 - 'A') : value1;
+	static const unsigned char value3 = (N >= 'a'&&N <= 'f') ? (N + 10 - 'a') : value2;
 	static const unsigned char value = value3;
 };
 

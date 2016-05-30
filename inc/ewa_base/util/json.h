@@ -8,6 +8,5 @@ EW_ENTER
 DLLIMPEXP_EWA_BASE Variant parse_json(const String& json);
 DLLIMPEXP_EWA_BASE void to_json(const Variant& json,StringBuffer<char>& sb);
 
-
 EW_LEAVE
 #endif

@@ -402,7 +402,7 @@ bool WndManager::LoadScript(const String& s)
 	try
 	{
 		Executor ewsl;
-		if(!ewsl.execute(sb.c_str()))
+		if(!ewsl.execute(sb))
 		{
 			Exception::XError("invalid script");
 		}

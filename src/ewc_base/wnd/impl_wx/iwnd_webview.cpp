@@ -29,7 +29,7 @@ public:
 			fg|=wxWEBVIEW_FIND_MATCH_CASE;
 		}
 
-		long pos=Target.Find(data.text_old.c_str(),fg);
+		long pos=Target.Find(str2wx(data.text_old),fg);
 		if(pos<0)
 		{
 			Wrapper::MsgsDialog("no more results",0);
@@ -223,13 +223,13 @@ IWnd_webview::IWnd_webview(wxWindow* p,const WndPropertyEx& h)
 
 void IWnd_webview::RunScript(const String& s)
 {
-	m_pImpl->RunScript(s.c_str());
+	m_pImpl->RunScript(str2wx(s));
 	return;
 }
 
 bool IWnd_webview::LoadURL(const String& s)
 {
-	m_pImpl->LoadURL(s.c_str());
+	m_pImpl->LoadURL(str2wx(s));
 	return true;
 }
 

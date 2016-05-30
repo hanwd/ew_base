@@ -58,7 +58,7 @@ void WndUpdator::tb_add(const String& s,int f)
 	pg->flags.add(EvtCommand::FLAG_CHECK);
 	pg->flags.set(EvtCommand::FLAG_CHECKED,tb->IsShown());
 
-	tb->SetName(s.c_str());
+	tb->SetName(str2wx(s));
 
 	pg->SetWindow(tb);
 

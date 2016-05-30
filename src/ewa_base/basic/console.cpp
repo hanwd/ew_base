@@ -72,35 +72,36 @@ void Console::Write(const String& s,int color)
 {
 	g_tSpinConsole.lock();
 
-	if(color<0)
-	{
-		std::cout<<s.c_str();
-	}
-	else
-	{
-		int oldcr=g_cConsoleColor;
-		ConsoleDoSetColor(color);
-		std::cout<<s.c_str();
-		ConsoleDoSetColor(oldcr);
-	}
 
+	int oldcr=g_cConsoleColor;
+	if(color<0) ConsoleDoSetColor(color);
+
+#ifdef EW_WINDOWS
+	::wprintf(IConv::to_wide(s).c_str());
+#else
+	::printf(s.c_str());
+#endif
+
+	if(color<0) ConsoleDoSetColor(oldcr);
 	g_tSpinConsole.unlock();
 }
 
 void Console::WriteLine(const String& s,int color)
 {
 	g_tSpinConsole.lock();
-	if(color<0)
-	{
-		std::cout<<s.c_str()<<std::endl;
-	}
-	else
-	{
-		int oldcr=g_cConsoleColor;
-		ConsoleDoSetColor(color);
-		std::cout<<s.c_str()<<std::endl;
-		ConsoleDoSetColor(oldcr);
-	}
+
+	int oldcr=g_cConsoleColor;
+	if(color<0) ConsoleDoSetColor(color);
+
+#ifdef EW_WINDOWS
+	::wprintf(IConv::to_wide(s).c_str());
+	::wprintf(L"\n");
+#else
+	::printf(s.c_str());
+	::printf(L"\n");
+#endif
+
+	if(color<0) ConsoleDoSetColor(oldcr);
 	g_tSpinConsole.unlock();
 }
 
@@ -113,7 +114,7 @@ String Console::ReadLine()
 	Console::Write(">> ");
 	std::cin.getline(buf,LINEBUF_SIZE,'\n');
 
-	return buf;
+	return IConv::from_ansi(buf);
 }
 
 

@@ -92,6 +92,55 @@ bool IConv::unicode_to_gbk(StringBuffer<uint8_t>& aa_,const uint32_t* pw_,size_t
 	return IConv_unicode_to_gbk<uint32_t>(aa_,pw_,ln_);
 }
 
+
+String IConv::from_unknown(const char* s)
+{
+	uint8_t* p=(uint8_t*)s;
+	size_t nz=::strlen(s);
+
+	int t=0;
+	int n=0;
+
+	for(size_t i=0; i<nz; i++)
+	{
+		unsigned c=p[i];
+		if(c<0x80) continue;
+		for(n=0; ((c<<=1)&0x80)>0; n++);
+		if(n>3||n==0)
+		{
+			t=-1;
+			break;
+		}
+
+		if(i+n>=nz)
+		{
+			t=-1;
+			break;
+		}
+
+		t=1;
+		for(int j=1; j<=n; j++)
+		{
+			if(((p[i+j])&0xC0)!=0x80)
+			{
+				t=-1;
+				break;
+			}
+		}
+		i+=n;
+	}
+
+	if(t==-1)
+	{
+		return from_gbk(s);
+	}
+	else
+	{
+		return s;
+	}
+
+}
+
 template<typename WC>
 bool IConv_gbk_to_unicode(StringBuffer<WC>& aw_,const uint8_t* pa_,size_t ln_)
 {

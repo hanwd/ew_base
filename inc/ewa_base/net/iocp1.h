@@ -24,7 +24,7 @@ public:
 class  DLLIMPEXP_EWA_BASE IocpObject : public CallableData
 {
 public:
-	virtual void touch(){}
+	virtual void idle_check(){}
 
 };
 

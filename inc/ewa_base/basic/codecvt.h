@@ -57,12 +57,21 @@ public:
 		ansi_to_utf8(sb,s,::strlen(s));
 		return sb.c_str();
 	}
+
 #else
 	static const String& to_ansi(const String& s){return s;}
 	static const String from_ansi(const char* s){return s;}
 
 #endif
 
+	static String from_gbk(const char* s)
+	{
+		StringBuffer<char> sb;
+		gbk_to_utf8(sb,s,::strlen(s));
+		return sb.c_str();
+	}
+
+	static String from_unknown(const char* s);
 
 	static bool unicode_to_gbk(StringBuffer<uint8_t>& aa_,const uint16_t* pw_,size_t ln_);
 	static bool unicode_to_gbk(StringBuffer<uint8_t>& aa_,const uint32_t* pw_,size_t ln_);

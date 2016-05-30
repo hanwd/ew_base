@@ -31,6 +31,7 @@ int IOCPPool::Register(Session* pkey)
 	int n=m_lkfqSessionAvailable.getq();
 	if(n<1) //LockFreeQueue<int>::invalid_value()) // max pkey reached
 	{
+		System::LogTrace("max session reached! connection refused");
 		return -1;
 	}
 
@@ -246,7 +247,7 @@ void IOCPPool::svc_checker()
 
 		for(bst_set<DataPtrT<IocpObject> >::iterator it=m_aObjects.begin();it!=m_aObjects.end();++it)
 		{
-			const_cast<DataPtrT<IocpObject>&>(*it)->touch();
+			const_cast<DataPtrT<IocpObject>&>(*it)->idle_check();
 		}
 
 		Thread::sleep_for(100);

@@ -391,7 +391,7 @@ void MultiPartFormData::_handle_phase1_line(const char* p1)
 				{
 					if(*p=='/'||*p=='\\') fp=p+1;
 				}
-				filename=fp;
+				filename=IConv::from_unknown(fp);
 			}						
 		}
 	}
@@ -736,7 +736,28 @@ public:
 };
 
 
-DataPtrT<CallableTableEx> http_server_objects(new CallableTableEx);
+class CallableFunctionAbondonSession : public CallableFunction
+{
+public:
+
+	virtual int __fun_call(Executor& ewsl,int pm)
+	{
+		ewsl.check_pmc(this,pm,1);
+		SessionData* p=dynamic_cast<SessionData*>(ewsl.ci0.nbx[1].kptr());
+		if(p) p->abondon();
+		ewsl.ci0.nbx[1].reset(p!=NULL);
+		return 1;
+	}
+};
+
+static DataPtrT<CallableTableEx> create_server_objects()
+{
+	DataPtrT<CallableTableEx> p=new CallableTableEx;
+	p->value["abondon_session"].reset(new CallableFunctionAbondonSession);
+	return p;
+}
+
+static DataPtrT<CallableTableEx> http_server_objects(create_server_objects());
 
 void SessionHttpEwsl::HandleContent(StringBuffer<char>& sb2)
 {

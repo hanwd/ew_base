@@ -241,43 +241,7 @@ String string_escape(const String& str_src)
 String string_urlencode(const String& str_src)
 {
 	StringBuffer<char> sb;
-
-
-	//StringBuffer<wchar_t> kb;
-	//IConv::ansi_to_unicode(kb,str_src.c_str(),str_src.size());
-
-
-
-	//for (const wchar_t* p = (const wchar_t*)kb.c_str(); *p;p++)
-	//{
-	//	if(*p>=256)
-	//	{
-	//		char buf[8];
-	//		sprintf(buf,"%0X",(int)*p);
-	//		sb.push_back('%');
-	//		sb.push_back('u');
-	//		sb.push_back(buf[0]);
-	//		sb.push_back(buf[1]);
-	//		sb.push_back(buf[2]);
-	//		sb.push_back(buf[3]);
-	//	}
-	//	else if (lookup_table<lkt_need_escape>::test(*p))
-	//	{
-	//		sb.push_back('%');
-	//		sb.push_back(lookup_table<lkt_10b_to_16b_char>::test((*p) >> 4));
-	//		sb.push_back(lookup_table<lkt_10b_to_16b_char>::test((*p) & 0x0F));
-	//	}
-	//	else
-	//	{
-	//		sb.push_back(*p);
-	//	}
-	//}
-	//return sb;
-
-	StringBuffer<char> kb;
-	IConv::ansi_to_utf8(kb,str_src.c_str(),str_src.size());
-
-	for (const unsigned char* p = (const unsigned char*)kb.c_str(); *p;p++)
+	for (const unsigned char* p = (const unsigned char*)str_src.c_str(); *p;p++)
 	{
 		if (lookup_table<lkt_need_escape>::test(*p))
 		{

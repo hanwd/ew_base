@@ -319,7 +319,7 @@ bool File::Rmdir(const String& dir_)
 	//dir.replace("/", "\\");
 
 	StringBuffer<char> sb;
-	System::Execute("cmd /c rmdir \""+dir+"\"",sb);
+	System::Execute("cmd /c rmdir /S /Q \""+dir+"\"",sb);
 	return true;
 }
 EW_LEAVE

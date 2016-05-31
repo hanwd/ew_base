@@ -276,6 +276,7 @@
     </Bscmake>
     <Link>
       <AdditionalLibraryDirectories>..\..\lib\$(Platform)\$(Configuration)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <PostBuildEvent>
       <Command>copy "$(TargetPath)"  "..\..\bin\"</Command>

@@ -55,6 +55,7 @@ void MpAllocGlobal::init()
 			k2=kn+1;
 		}
 	}
+
 }
 
 class MpFileLine

@@ -1,10 +1,91 @@
 
 #include "ewa_base/testing/test.h"
 #include "ewa_base/basic.h"
+#include "ewa_base/threading.h"
+
 #include <time.h>
 
 using namespace ew;
 
+template<typename ATOMIC_TYPE>
+class ThreadAtomic : public ThreadMulti
+{
+public:
+	ATOMIC_TYPE val;
+	void svc()
+	{
+		for(int i=0;i<1024*256;i++) val++;
+	}
+
+	void test()
+	{
+		val=0;
+		if(!activate(4)) return;
+		wait();
+		TEST_ASSERT(val==4*1024*256);
+	}
+};
+
+template<typename ATOMIC_TYPE>
+void test_atomic()
+{
+	ATOMIC_TYPE val;
+	TEST_ASSERT(val==0);
+
+	TEST_ASSERT(val++==0);
+	TEST_ASSERT(val==1);
+	TEST_ASSERT(++val==2);
+	TEST_ASSERT(val==2);
+
+	TEST_ASSERT(val--==2);
+	TEST_ASSERT(val==1);
+	TEST_ASSERT(--val==0);
+	TEST_ASSERT(val==0);
+
+	TEST_ASSERT(val.exchange(-1)==0);
+	TEST_ASSERT(val==-1);
+	ATOMIC_TYPE::type expected=2;
+
+	TEST_ASSERT(!val.compare_exchange(expected,-3));
+	TEST_ASSERT(val==-1);
+	TEST_ASSERT(expected==-1);
+
+	expected=val;
+	TEST_ASSERT(val.compare_exchange(expected,-3));
+	TEST_ASSERT(val==-3);
+
+
+	val=0;
+	TEST_ASSERT(val.fetch_add(3)==0);
+	TEST_ASSERT(val==3);
+	TEST_ASSERT(val.fetch_sub(3)==3);
+	TEST_ASSERT(val==0);
+
+
+	val=8;
+	TEST_ASSERT(val.fetch_or(9)==8);
+	TEST_ASSERT(val==9);
+	TEST_ASSERT(val.fetch_and(1)==9);
+	TEST_ASSERT(val.load()==1);	
+	TEST_ASSERT(val.fetch_xor(1)==1);
+	TEST_ASSERT(val==0);
+
+	val.store(10);
+	TEST_ASSERT(val.get()==10);
+
+	ThreadAtomic<ATOMIC_TYPE> thrd;
+	thrd.test();
+	
+}
+
+TEST_DEFINE(TEST_Atomic)
+{
+	test_atomic<AtomicInt32>();
+	test_atomic<AtomicUint32>();
+	test_atomic<AtomicInt64>();
+	test_atomic<AtomicUint64>();
+
+}
 
 TEST_DEFINE(TEST_String)
 {

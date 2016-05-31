@@ -14,12 +14,12 @@ EW_ENTER
 
 
 #ifdef EW_WINDOWS
-class KO_Policy_handle
+class DLLIMPEXP_EWA_BASE KO_Policy_handle
 {
 public:
 	typedef void* type;
 	typedef type const_reference;
-	static type invalid_value()
+	static inline type invalid_value()
 	{
 		return NULL;
 	}
@@ -27,12 +27,12 @@ public:
 	static type duplicate(type v,int h=0);
 };
 #else
-class KO_Policy_handle
+class DLLIMPEXP_EWA_BASE KO_Policy_handle
 {
 public:
 	typedef int type;
 	typedef type const_reference;
-	static type invalid_value()
+	static inline type invalid_value()
 	{
 		return -1;
 	}

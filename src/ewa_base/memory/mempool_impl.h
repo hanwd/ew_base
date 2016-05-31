@@ -19,6 +19,9 @@ void tc_gc(int level);
 
 static const size_t FixAllocUnits[]=
 {
+#ifdef EW_X86
+	4,
+#endif
 	8,16,24,32,48,64,96,128,192,256,384,512,1024,1024*2,1024*4,1024*8,
 	1024*16,1024*24,1024*32,1024*64,
 	SPLIT_UNIT_N(8),SPLIT_UNIT_N(6),SPLIT_UNIT_N(4),SPLIT_UNIT_N(3),SPLIT_UNIT_N(2),SPLIT_UNIT_N(1)
@@ -341,8 +344,13 @@ public:
 
 	~MpAllocGlobal();
 
+#ifdef EW_X86 
+	static const size_t sz_bits1=2;
+#else
 	static const size_t sz_bits1=3;
-	static const size_t sz_bits2=12;
+#endif
+
+	static const size_t sz_bits2=11;
 	static const size_t sz_bits3=20;
 
 	static const size_t sz_slot1=1<<sz_bits2;
@@ -364,7 +372,7 @@ public:
 
 	void gc(int level);
 
-	MpAllocSlot* get_slot(size_t n)
+	EW_FORCEINLINE MpAllocSlot* get_slot(size_t n)
 	{
 		if(n<=sz_slot1)
 		{
@@ -401,7 +409,7 @@ public:
 	void dealloc_real(void* p,MpAllocBucket& bk);
 	void* realloc_real(void* p,size_t n,MpAllocBucket& bk);
 
-	inline void* alloc(size_t n)
+	EW_FORCEINLINE  void* alloc(size_t n)
 	{
 		MpAllocSlot* psl=get_slot(n);
 		if(!psl)
@@ -419,8 +427,6 @@ public:
 
 	inline void* realloc(void* p,size_t n)
 	{
-
-
 		if(n==0)
 		{
 			dealloc(p);

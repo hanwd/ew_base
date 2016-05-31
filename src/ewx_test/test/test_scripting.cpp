@@ -281,7 +281,7 @@ TEST_DEFINE(TEST_Scripting_Executor2)
 
 // exception
 	ewsl.execute(
-"function fn_throw(){...=1,2,3;println('throw',...);throw ...;}"
+"function fn_throw(){...=1,2,3;println('throw',...);throw ...;};"
 "try"
 "{"
 "	println('before throw');"

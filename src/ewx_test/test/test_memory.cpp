@@ -7,15 +7,33 @@
 
 using namespace ew;
 
+template<typename MP>
 class ThreadTestMemPool : public ThreadMulti
 {
 public:
 
 	Logger logger;
 
+	void test(const String& msg)
+	{
+		int n=System::GetCpuCount();
+		if(n<2) n=2;
+
+		TimePoint tp1=Clock::now();
+		if(!activate(n)) return;
+
+		wait();
+		TimePoint tp2=Clock::now();
+
+		logger.LogMessage("%s:%g sec used",msg,(tp2-tp1)/TimeSpan::Seconds(1));
+
+	}
+
 	void svc()
 	{
 		arr_1t<void*> h;
+
+		MP& mp(MP::current());
 
 		size_t n=1024*64;
 		h.reserve(n*40);
@@ -27,17 +45,17 @@ public:
 		for(size_t i=0; i<n*4; i++)
 		{
 			size_t sz=((size_t)::rand())%memmax;
-			h.push_back(MemPoolPaging::current().allocate(sz));
+			h.push_back(mp.allocate(sz));
 		}
 
 		logger.LogMessage("thread rank[%d] allocate/deallocate memory randomly",rank());
 
-		for(size_t i=0; i<n*40; i++)
+		for(size_t i=0; i<n*80; i++)
 		{
 			if(rand()%2==0)
 			{
 				size_t sz=((size_t)::rand()%memmax);
-				h.push_back(MemPoolPaging::current().allocate(sz));
+				h.push_back(mp.allocate(sz));
 			}
 			else if(!h.empty())
 			{
@@ -45,7 +63,7 @@ public:
 				void *p=h[kk];
 				h[kk]=h.back();
 				h.pop_back();
-				MemPoolPaging::current().deallocate(p);
+				mp.deallocate(p);
 			}
 		}
 
@@ -53,7 +71,7 @@ public:
 
 		for(size_t i=0; i<h.size(); i++)
 		{
-			MemPoolPaging::current().deallocate(h[i]);
+			mp.deallocate(h[i]);
 		}
 	}
 };
@@ -67,10 +85,11 @@ TEST_DEFINE(TEST_Mempool)
 
 	TestMgr::current().logger.LogMessage("testing MemPool, %d threads allocate/deallocate together",n);
 
-	ThreadTestMemPool ht;
-	ht.activate(n);
+	ThreadTestMemPool<MemPoolPaging> mp;
+	mp.test("mempool");
 
-	ht.wait();
+	ThreadTestMemPool<MemPoolMalloc> ht;
+	ht.test("malloc");
 
 }
 

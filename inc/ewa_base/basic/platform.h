@@ -154,6 +154,28 @@ public:
 		}
 	}
 
+	type release()
+	{
+		if(!m_pCounter)
+		{
+			return P::invalid_value();
+		}
+
+		if(m_pCounter->DecUseCount())
+		{
+			m_pCounter=NULL;
+			type p=m_pHandle;
+			m_pHandle=P::invalid_value();
+			return p;
+		}
+		else
+		{
+			m_pHandle=P::invalid_value();
+			m_pCounter=NULL;
+			return P::invalid_value();
+		}
+	}
+
 	operator const_reference()
 	{
 		return m_pHandle;
@@ -249,6 +271,7 @@ public:
 		FLAG_CR=1<<3,
 		FLAG_APPEND=1<<4,
 		FLAG_EXEC=1<<5,
+		FLAG_TRUNCATE=1<<6,
 		FLAG_RWX=FLAG_RD|FLAG_WR|FLAG_EXEC,
 		FLAG_WC=FLAG_WR|FLAG_CR,
 		FLAG_WA=FLAG_WR|FLAG_APPEND,

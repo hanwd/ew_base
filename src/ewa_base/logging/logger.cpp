@@ -173,7 +173,7 @@ void Logger::Handle(LogRecord& o)
 	}
 	catch(...)
 	{
-		System::LogError("Unhandled exception caught in Logger::Handle");
+		System::LogError("Unhandled exception caught in "__FUNCTION__);
 	}
 }
 

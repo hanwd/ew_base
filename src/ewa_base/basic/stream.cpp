@@ -256,30 +256,15 @@ bool Stream::Open(const String& filename_,int flag_)
 	StreamDataFile* streamfile=new StreamDataFile;
 	SetData(streamfile);
 
-	HANDLE hFile=(HANDLE)CreateFileW(
-					 IConv::to_wide(fn).c_str(),
-					 FileAccess::makeflag(flag_,GENERIC_READ,GENERIC_WRITE),
-					 FILE_SHARE_READ,
-					 NULL,
-					 (flag_&FileAccess::FLAG_CR)?OPEN_ALWAYS:OPEN_EXISTING,
-					 NULL,
-					 NULL
-				 );
+	File file;
 
-
-	if (hFile == INVALID_HANDLE_VALUE)
+	if(!file.Open(filename_,flag_))
 	{
-		streamfile->flags.add(StreamData::FLAG_FAIL_BITS);
-		System::CheckError("File::Open error");
 		return false;
 	}
 
-	streamfile->native_handle(hFile);
-
-	if(flag_&FileAccess::FLAG_APPEND)
-	{
-		streamfile->Seek(0,SEEKTYPE_END);
-	}
+	File::impl_type& impl(reinterpret_cast<File::impl_type&>(file));
+	streamfile->native_handle(impl.release());
 
 	return true;
 }

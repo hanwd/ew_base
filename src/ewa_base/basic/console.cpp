@@ -19,6 +19,11 @@ AtomicSpin g_tSpinConsole;
 
 void ConsoleDoSetColor(int color)
 {
+	if(color<0||g_cConsoleColor==color)
+	{
+		return;
+	}
+
 	g_cConsoleColor=color;
 
 #ifdef EW_WINDOWS
@@ -74,7 +79,7 @@ void Console::Write(const String& s,int color)
 
 
 	int oldcr=g_cConsoleColor;
-	if(color<0) ConsoleDoSetColor(color);
+	ConsoleDoSetColor(color);
 
 #ifdef EW_WINDOWS
 	::wprintf(IConv::to_wide(s).c_str());
@@ -82,7 +87,7 @@ void Console::Write(const String& s,int color)
 	::printf(s.c_str());
 #endif
 
-	if(color<0) ConsoleDoSetColor(oldcr);
+	ConsoleDoSetColor(oldcr);
 	g_tSpinConsole.unlock();
 }
 
@@ -91,7 +96,7 @@ void Console::WriteLine(const String& s,int color)
 	g_tSpinConsole.lock();
 
 	int oldcr=g_cConsoleColor;
-	if(color<0) ConsoleDoSetColor(color);
+	ConsoleDoSetColor(color);
 
 #ifdef EW_WINDOWS
 	::wprintf(IConv::to_wide(s).c_str());
@@ -101,7 +106,7 @@ void Console::WriteLine(const String& s,int color)
 	::printf(L"\n");
 #endif
 
-	if(color<0) ConsoleDoSetColor(oldcr);
+	ConsoleDoSetColor(oldcr);
 	g_tSpinConsole.unlock();
 }
 

@@ -52,6 +52,11 @@ bool File::Open(const String& filename_,int flag_)
 		Seek(0,SEEKTYPE_END);
 	}
 
+	if(flag_&FileAccess::FLAG_TRUNCATE && flag_&FileAccess::FLAG_WR)
+	{
+		Truncate(0);
+	}
+
 	return true;
 }
 

@@ -88,8 +88,8 @@ TEST_DEFINE(TEST_Mempool)
 	ThreadTestMemPool<MemPoolPaging> mp;
 	mp.test("mempool");
 
-	ThreadTestMemPool<MemPoolMalloc> ht;
-	ht.test("malloc");
+	//ThreadTestMemPool<MemPoolMalloc> ht;
+	//ht.test("malloc");
 
 }
 

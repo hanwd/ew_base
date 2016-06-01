@@ -1,11 +1,11 @@
 #include "ewa_base.h"
-#include "map"
 
 int main(int argc,char** argv)
 {
 	using namespace ew;
 
 	mp_check_leak(1);
+
 	System::SetLogFile("ew.log",true);
 
 	System::LogTrace("----  process enter   -------");

@@ -830,6 +830,15 @@ String System::GetCwd()
 #endif
 }
 
+size_t System::Backtrace(void** stack,size_t frames)
+{
+#ifdef EW_WINDOWS
+	return CaptureStackBackTrace(0,frames,stack,NULL);
+#else
+	return backtrace(stack,frames);
+#endif
+}
+
 bool System::SetCwd(const String& s)
 {
 #ifdef EW_WINDOWS

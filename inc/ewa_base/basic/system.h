@@ -77,6 +77,8 @@ public:
 	static String GetCwd();
 	static bool SetCwd(const String& s);
 
+	static size_t Backtrace(void** stack,size_t frames);
+
 
 #define STRING_FORMAT_LEVEL(X,Y) DoLog(Y,X)
 

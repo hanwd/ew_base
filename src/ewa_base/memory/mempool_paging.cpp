@@ -131,26 +131,30 @@ public:
 	typedef bst_map<MpFileLine,set_type,std::less<MpFileLine>,FixedSizeAllocator<int> > map_type;
 
 	map_type mpLeakInfoMap;
-	char* pCache;
+
+	char* pBitmap;
+	char* pBuffer;
+
 	int nLeakCount;
 
 	MpAllocLeakDetector()
 	{
 		nLeakCount=0;
-		pCache=(char*)page_alloc(1024*1024);
+		pBitmap=(char*)page_alloc(1024*1024);
+		pBuffer=pBitmap+1024*512;
 	}
 
 	~MpAllocLeakDetector()
 	{
-		if(pCache)
+		if(pBitmap)
 		{
-			page_free(pCache,1024*1024);
+			page_free(pBitmap,1024*1024);
 		}
 	}
 
 	bool ok()
 	{
-		return pCache!=NULL;
+		return pBitmap!=NULL;
 	}
 
 	void OutputString(const char* s)
@@ -158,8 +162,8 @@ public:
 		System::LogTrace(s);
 
 #ifdef EW_MSVC
-		::OutputDebugStringW(IConv::to_wide(s).c_str());
-		::OutputDebugStringW(L"\n");
+		::OutputDebugStringA(s);
+		::OutputDebugStringA("\n");
 #endif
 
 	}
@@ -181,8 +185,8 @@ public:
 		{
 			nLeakCount++;
 
-			::sprintf(pCache,"mp_alloc:leak detected: %p,%d",p,(int)n);
-			OutputString(pCache);
+			::sprintf(pBuffer,"mp_alloc:leak detected: %p,%d",p,(int)n);
+			OutputString(pBuffer);
 		}
 	}
 
@@ -193,13 +197,13 @@ public:
 		if(sp->sl_slot)
 		{
 			MpAllocSlot& sl(*sp->sl_slot);
-			memset(pCache,0,sl.nd_nall);
+			memset(pBitmap,0,sl.nd_nall);
 			for(MpAllocNode* h=sp->nd_free;h;h=h->nd_next)
 			{
 				size_t d=(uintptr_t(h)-sp->sp_base)/sl.nd_size;
 				if(d<sl.nd_nall)
 				{
-					pCache[d]=1;
+					pBitmap[d]=1;
 				}
 				else
 				{
@@ -209,7 +213,7 @@ public:
 
 			for(size_t i=0;i<sl.nd_nall;i++)
 			{
-				if(pCache[i]!=0) continue;
+				if(pBitmap[i]!=0) continue;
 				leak((void*)(sp->sp_base+i*sl.nd_size),sl.nd_size);
 			}
 
@@ -234,8 +238,8 @@ public:
 		{
 			if(nLeakCount==0)
 			{
-				::sprintf(pCache,"mp_alloc:no leak detected");
-				OutputString(pCache);
+				::sprintf(pBuffer,"mp_alloc:no leak detected");
+				OutputString(pBuffer);
 			}
 			return;
 		}
@@ -252,7 +256,7 @@ public:
 				continue;
 			}
 
-			char* p1=pCache;
+			char* p1=pBuffer;
 			p1+=sprintf(p1,"mp_alloc:leak detected, file:%s, line: %d, count:%d {",(*it).first.file,(int)(*it).first.line,(int)(*it).second.size());
 
 			for(size_t i=0;;)
@@ -278,7 +282,7 @@ public:
 			*p1++='}';
 			*p1++='\0';
 
-			OutputString(pCache);
+			OutputString(pBuffer);
 		}
 	}
 };
@@ -341,6 +345,7 @@ MpAllocNode* MpAllocGlobal::dealloc_batch_nolock(MpAllocSlot& sl,MpAllocNode* fp
 
 		MpAllocNode* fn=fp;fp=fp->nd_next;
 		MpAllocBucket* pbk=pgmap.find_bucket(fn);
+
 
 		if(!pbk||pbk->get()->sl_slot!=&sl)
 		{
@@ -865,9 +870,9 @@ void* mp_realloc(void* p,size_t n)
 }
 
 
-void* mp_alloc(size_t n)
+void* mp_alloc(size_t n,const char* f,int l)
 {
-	void* p=mp_alloc_real(n);
+	void* p=mp_alloc_real(n,f,l);
 	if(!p)
 	{
 		errno=ENOMEM;
@@ -875,9 +880,10 @@ void* mp_alloc(size_t n)
 	return p;
 }
 
-void* mp_alloc(size_t n,const char* f,int l)
+
+void* mp_alloc(size_t n)
 {
-	void* p=mp_alloc_real(n,f,l);
+	void* p=mp_alloc_real(n);
 	if(!p)
 	{
 		errno=ENOMEM;

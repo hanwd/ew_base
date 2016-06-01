@@ -111,8 +111,7 @@ public:
 
 	static int32_t num()
 	{
-		int32_t  n=(*(AtomicInt32*)&ALLOC_NNUM)++;
-		return n;
+		return AtomicOps::fetch_add(&ALLOC_NNUM,1);
 	}
 };
 
@@ -443,6 +442,7 @@ public:
 			return realloc_real(p,n,*pbk);
 		}
 
+		System::LogTrace("mp_realloc(%p) failed, fallback to realloc",p);
 		return ::realloc(p,n);
 	}
 
@@ -529,8 +529,11 @@ inline void* mp_alloc_real(size_t n,const char* f,int l)
 	}
 }
 
+
+
 inline void* mp_alloc_real(size_t n)
 {
+
 
 #ifdef EW_CHECK_HEAP
 	return mp_alloc_real(n,"unknown file",-1);
@@ -551,6 +554,7 @@ inline void* mp_alloc_real(size_t n)
 
 inline void mp_free_real(void* p)
 {
+
 	MpAllocCachedNoLock* tc_data=tls_tc_data;
 	if(tc_data)
 	{

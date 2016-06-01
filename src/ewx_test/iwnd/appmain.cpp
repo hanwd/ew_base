@@ -20,10 +20,11 @@ int ew_main()
 	using namespace ew;
 
 	mp_check_leak(1);
+
 	System::SetLogFile("ew.log",true);
 
 	System::LogTrace("----  process enter   -------");
-
+	
 	WndManager& wm(WndManager::current());
 
 
@@ -80,11 +81,8 @@ int ew_main()
 
 	System::LogTrace("----  process leave   -------");
 	return 0;
+
 }
-
-using namespace ew;
-
-
 
 int main(int,char**)
 {

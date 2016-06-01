@@ -32,10 +32,10 @@ void EwslIface::OnExecuteDone(int param1)
 	iface->AppendText("\n");
 	for(size_t i=0;i<tmps.size();i++)
 	{
-		ExecutorState* q=dynamic_cast<ExecutorState*>(tmps[i].get());
+		LogCache* q=dynamic_cast<LogCache*>(tmps[i].get());
 		if(!q) continue;
 
-		res.reset(q);
+		DataPtrT<LogCache> res(q);
 
 		bool last_ln = true;
 
@@ -97,7 +97,7 @@ void EwslIface::DoExecuteCmds()
 			break;
 		}
 
-		DataPtrT<ExecutorState> dat(new ExecutorState);
+		DataPtrT<LogCache> dat(new LogCache);
 		Logger logger;
 		logger.reset(dat.get());
 		{

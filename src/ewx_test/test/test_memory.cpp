@@ -36,7 +36,7 @@ public:
 		MP& mp(MP::current());
 
 		size_t n=1024*64;
-		h.reserve(n*40);
+		h.reserve(n*10);
 
 		size_t memmax=256;
 
@@ -50,7 +50,7 @@ public:
 
 		logger.LogMessage("thread rank[%d] allocate/deallocate memory randomly",rank());
 
-		for(size_t i=0; i<n*80; i++)
+		for(size_t i=0; i<n*40; i++)
 		{
 			if(rand()%2==0)
 			{

@@ -720,7 +720,9 @@ public:
 		value["uri"].reset(o.uri);
 		value["method"].reset(o.method);
 		value["anchor"].reset(o.anchor);
+		value["clientip"].reset(o.sk_local.peer.host());
 		value["query"].ref<VariantTable>().swap(o.query);
+
 	}
 };
 

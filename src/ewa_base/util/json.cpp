@@ -11,6 +11,8 @@ public:
 	typedef CallableWrapT<VariantTable> table_type;
 	typedef CallableWrapT<arr_xt<Variant> > array_type;
 
+	bool unescape_value;
+
 	const char* pchar;
 
 	Variant parse(const String& json)
@@ -233,6 +235,7 @@ public:
 		if (flag == 0)
 		{
 			name.assign(p1, pchar++);
+			if(unescape_value) name=string_unescape(name);
 			return true;
 		}
 
@@ -298,6 +301,7 @@ public:
 
 		StringBuffer<char> char_sb;
 		IConv::unicode_to_utf8(char_sb, sb.data(), sb.size());
+
 		name = char_sb;
 
 		return true;
@@ -376,9 +380,11 @@ public:
 
 };
 
-Variant parse_json(const String& json)
+Variant parse_json(const String& json,bool unescape_value)
 {
 	JsonParser parser;
+	parser.unescape_value=unescape_value;
+
 	return parser.parse(json);
 }
 

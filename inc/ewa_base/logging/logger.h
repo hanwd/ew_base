@@ -111,6 +111,7 @@ class DLLIMPEXP_EWA_BASE LoggerSwap : public Logger, private NonCopyable
 {
 public:
 	LoggerSwap();
+	LoggerSwap(LogTarget* p);
 	LoggerSwap(Logger& logger);
 	~LoggerSwap();
 };

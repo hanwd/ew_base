@@ -113,6 +113,16 @@ void LogPtr::Handle(const LogRecord& o)
 	if(m_refData) m_refData->Handle(o);
 }
 
+void LogCache::Serialize(Serializer& ar)
+{
+	ar & aRecords;
+}
 
+void LogCache::Handle(const LogRecord& o)
+{
+	aRecords.push_back(o);
+}
+
+IMPLEMENT_OBJECT_INFO(LogCache,ObjectInfo);
 
 EW_LEAVE

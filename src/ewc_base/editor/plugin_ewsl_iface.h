@@ -34,7 +34,7 @@ protected:
 
 	AtomicSpin spin;
 	Executor ewsl;
-	DataPtrT<ExecutorState> res;
+	//DataPtrT<LogCache> res;
 
 };
 

@@ -9,89 +9,55 @@
 
 EW_ENTER
 
-class DLLIMPEXP_EWA_BASE ObjectRequestCommand : public ObjectData
+class DLLIMPEXP_EWA_BASE RpcHandler : public CallableObject
 {
 public:
 
-	ObjectRequestCommand(intptr_t n=0):nRequest(n){}
+	virtual int __getindex(Executor& ewsl,const String& cmd);
 
-	ObjectRequestCommand(const arr_1t<String>& s,intptr_t n=0):nRequest(n),aRequest(s)
+	Variant Handle(const String& cmd,Variant req);
+
+	Variant Handle(const String& cmd,const String& sreq)
 	{
-
+		Variant req(sreq);
+		return Handle(cmd,req);
 	}
 
-	ObjectRequestCommand(const String& s,intptr_t n=0):nRequest(n)
+	Variant Handle(const String& cmd)
 	{
-		aRequest.push_back(s);
+		Variant req;
+		return Handle(cmd,req);
 	}
 
-	intptr_t nRequest;
-	arr_1t<String> aRequest;
+	virtual Variant DoHandle(const String& cmd,Variant& req) =0;
 
-	void Serialize(Serializer& ar);
+	virtual Variant berror(const String& msg);
+	virtual Variant bmessage(const String& msg);
+	virtual Variant bresult(Variant& result);
+	virtual Variant bunknown(const String& cmd,Variant&);
+	virtual Variant bexception(const String& cmd,std::exception& e);
 
-	DECLARE_OBJECT_INFO(ObjectRequestCommand,ObjectInfo);
 };
 
 
-class DLLIMPEXP_EWA_BASE ObjectProxy : public ObjectData
+class DLLIMPEXP_EWA_BASE RpcHandlerEx : public RpcHandler
 {
 public:
-	virtual DataPtrT<ObjectData> handle_req(const DataPtrT<ObjectData>& req)=0;
+	typedef Functor<Variant(Variant&)> functor;
+
+	virtual Variant DoHandle(const String& cmd,Variant& req);
+	
+	indexer_map<String,functor> aHandlers; 
 };
 
-
-class DLLIMPEXP_EWA_BASE ExecutorState : public LogTarget
-{
-public:
-	arr_1t<LogRecord> aRecords;
-
-	void Serialize(Serializer& ar);
-	virtual void Handle(const LogRecord& o);
-
-	DECLARE_OBJECT_INFO(ExecutorState,ObjectInfo);
-};
-
-
-
-class DLLIMPEXP_EWA_BASE ObjectProxyExecutor : public ObjectProxy
+class DLLIMPEXP_EWA_BASE RpcHandlerEwsl : public RpcHandler
 {
 public:
 
-	ObjectProxyExecutor();
+	RpcHandlerEwsl();
 
-	virtual DataPtrT<ObjectData> handle_req(const DataPtrT<ObjectData>& req);
-
-	DataPtrT<ObjectData> handle_req(const String& cmd);
-	DataPtrT<ObjectData> handle_req(const arr_1t<String>& cmd);
-
+	virtual Variant DoHandle(const String& cmd,Variant& req);
 	Executor ewsl;
-
-protected:
-	DataPtrT<ExecutorState> m_pResponse;
-};
-
-
-class DLLIMPEXP_EWA_BASE ObjectProxyHolder : public ObjectT<ObjectProxy>
-{
-public:
-
-	DataPtrT<ObjectData> handle_req(const DataPtrT<ObjectData>& req);
-	DataPtrT<ObjectData> handle_req(const String& str);
-	DataPtrT<ObjectData> handle_req(const arr_1t<String>& str);
-
-private:
-	SerializerBuffer ar;
-
-};
-
-
-
-class DLLIMPEXP_EWA_BASE ExecutorProxy : public ObjectProxyHolder
-{
-public:
-	typedef ObjectProxyHolder basetype;
-	ExecutorProxy();
 };
 
 

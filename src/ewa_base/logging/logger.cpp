@@ -315,6 +315,12 @@ LoggerSwap::LoggerSwap()
 	swap(this_logger());
 }
 
+LoggerSwap::LoggerSwap(LogTarget* p)
+{
+	reset(p?p:new LogNull);
+	swap(this_logger());
+}
+
 LoggerSwap::LoggerSwap(Logger& logger):Logger(logger)
 {
 	swap(this_logger());

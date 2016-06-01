@@ -25,12 +25,15 @@ bool File::Open(const String& filename_,int flag_)
 	String fn=fn_encode(filename_);
 	Close();
 
+	DWORD option=(flag_&FileAccess::FLAG_CR)?OPEN_ALWAYS:OPEN_EXISTING;
+	if(flag_&FileAccess::FLAG_TRUNCATE)	option|=TRUNCATE_EXISTING;
+
 	HANDLE hFile=(HANDLE)CreateFileW(
 					 IConv::to_wide(fn).c_str(),
 					 FileAccess::makeflag(flag_,GENERIC_READ,GENERIC_WRITE),
 					 FILE_SHARE_READ|FILE_SHARE_WRITE,
 					 NULL,
-					 (flag_&FileAccess::FLAG_CR)?OPEN_ALWAYS:OPEN_EXISTING,
+					 option,
 					 NULL,
 					 NULL
 				 );
@@ -50,11 +53,6 @@ bool File::Open(const String& filename_,int flag_)
 	if(flag_&FileAccess::FLAG_APPEND)
 	{
 		Seek(0,SEEKTYPE_END);
-	}
-
-	if(flag_&FileAccess::FLAG_TRUNCATE && flag_&FileAccess::FLAG_WR)
-	{
-		Truncate(0);
 	}
 
 	return true;

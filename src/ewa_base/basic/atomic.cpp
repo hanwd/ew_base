@@ -24,47 +24,47 @@ EW_ENTER
 
 typedef volatile long* EW_ATOMIC_INT32_POINTER;
 
-int32_t AtomicImpl<4>::fetch_add(volatile type* p,type v)
+int32_t AtomicHelper<4>::fetch_add(volatile type* p,type v)
 {
 	return InterlockedExchangeAdd((EW_ATOMIC_INT32_POINTER)p,v);
 }
 
-int32_t AtomicImpl<4>::fetch_sub(volatile type* p,type v)
+int32_t AtomicHelper<4>::fetch_sub(volatile type* p,type v)
 {
 	return InterlockedExchangeAdd((EW_ATOMIC_INT32_POINTER)p,-v);
 }
 
-int32_t AtomicImpl<4>::fetch_and(volatile type* p,type v)
+int32_t AtomicHelper<4>::fetch_and(volatile type* p,type v)
 {
 	return _InterlockedAnd((EW_ATOMIC_INT32_POINTER)p,v);
 }
 
-int32_t AtomicImpl<4>::fetch_or(volatile type* p,type v)
+int32_t AtomicHelper<4>::fetch_or(volatile type* p,type v)
 {
 	return _InterlockedOr((EW_ATOMIC_INT32_POINTER)p,v);
 }
 
-int32_t AtomicImpl<4>::fetch_xor(volatile type* p,type v)
+int32_t AtomicHelper<4>::fetch_xor(volatile type* p,type v)
 {
 	return _InterlockedXor((EW_ATOMIC_INT32_POINTER)p,v);
 }
 
-int32_t AtomicImpl<4>::exchange(volatile type* p,type v)
+int32_t AtomicHelper<4>::exchange(volatile type* p,type v)
 {
 	return InterlockedExchange((EW_ATOMIC_INT32_POINTER)p,v);
 }
 
-int32_t AtomicImpl<4>::store(volatile type* p,type v)
+int32_t AtomicHelper<4>::store(volatile type* p,type v)
 {
 	return InterlockedExchange((EW_ATOMIC_INT32_POINTER)p,v);
 }
 
-int32_t AtomicImpl<4>::load(volatile const type* p)
+int32_t AtomicHelper<4>::load(volatile const type* p)
 {
 	return *p;
 }
 
-bool AtomicImpl<4>::compare_exchange(volatile type* p,type& c,type v)
+bool AtomicHelper<4>::compare_exchange(volatile type* p,type& c,type v)
 {
 	type t=InterlockedCompareExchange((EW_ATOMIC_INT32_POINTER)p,v,c);
 	if(t!=c)
@@ -80,47 +80,47 @@ bool AtomicImpl<4>::compare_exchange(volatile type* p,type& c,type v)
 
 typedef volatile LONGLONG* EW_ATOMIC_INT64_POINTER;
 
-int64_t AtomicImpl<8>::fetch_add(volatile type* p,type v)
+int64_t AtomicHelper<8>::fetch_add(volatile type* p,type v)
 {
 	return InterlockedExchangeAdd64((EW_ATOMIC_INT64_POINTER)p,v);
 }
 
-int64_t AtomicImpl<8>::fetch_sub(volatile type* p,type v)
+int64_t AtomicHelper<8>::fetch_sub(volatile type* p,type v)
 {
 	return InterlockedExchangeAdd64((EW_ATOMIC_INT64_POINTER)p,-v);
 }
 
-int64_t AtomicImpl<8>::fetch_and(volatile type* p,type v)
+int64_t AtomicHelper<8>::fetch_and(volatile type* p,type v)
 {
 	return _InterlockedAnd64((EW_ATOMIC_INT64_POINTER)p,v);
 }
 
-int64_t AtomicImpl<8>::fetch_or(volatile type* p,type v)
+int64_t AtomicHelper<8>::fetch_or(volatile type* p,type v)
 {
 	return _InterlockedOr64((EW_ATOMIC_INT64_POINTER)p,v);
 }
 
-int64_t AtomicImpl<8>::fetch_xor(volatile type* p,type v)
+int64_t AtomicHelper<8>::fetch_xor(volatile type* p,type v)
 {
 	return _InterlockedXor64((EW_ATOMIC_INT64_POINTER)p,v);
 }
 
-int64_t AtomicImpl<8>::exchange(volatile type* p,type v)
+int64_t AtomicHelper<8>::exchange(volatile type* p,type v)
 {
 	return InterlockedExchange64((EW_ATOMIC_INT64_POINTER)p,v);
 }
 
-int64_t AtomicImpl<8>::store(volatile type* p,type v)
+int64_t AtomicHelper<8>::store(volatile type* p,type v)
 {
 	return InterlockedExchange64((EW_ATOMIC_INT64_POINTER)p,v);
 }
 
-int64_t AtomicImpl<8>::load(volatile const type* p)
+int64_t AtomicHelper<8>::load(volatile const type* p)
 {
 	return *p;
 }
 
-bool AtomicImpl<8>::compare_exchange(volatile type* p,type& c,type v)
+bool AtomicHelper<8>::compare_exchange(volatile type* p,type& c,type v)
 {
 	type t=InterlockedCompareExchange64((EW_ATOMIC_INT64_POINTER)p,v,c);
 	if(t!=c)
@@ -136,47 +136,47 @@ bool AtomicImpl<8>::compare_exchange(volatile type* p,type& c,type v)
 
 #else
 
-int32_t AtomicImpl<4>::fetch_add(volatile type* p,type v)
+int32_t AtomicHelper<4>::fetch_add(volatile type* p,type v)
 {
 	return __sync_fetch_and_add(&val,v);
 }
 
-int32_t AtomicImpl<4>::fetch_sub(volatile type* p,type v)
+int32_t AtomicHelper<4>::fetch_sub(volatile type* p,type v)
 {
 	return __sync_fetch_and_sub(&val,v);
 }
 
-int32_t AtomicImpl<4>::fetch_and(volatile type* p,type v)
+int32_t AtomicHelper<4>::fetch_and(volatile type* p,type v)
 {
 	return __sync_fetch_and_and(&val,v);
 }
 
-int32_t AtomicImpl<4>::fetch_or(volatile type* p,type v)
+int32_t AtomicHelper<4>::fetch_or(volatile type* p,type v)
 {
 	return __sync_fetch_and_or(&val,v);
 }
 
-int32_t AtomicImpl<4>::fetch_xor(volatile type* p,type v)
+int32_t AtomicHelper<4>::fetch_xor(volatile type* p,type v)
 {
 	return __sync_fetch_and_xor(&val,v);
 }
 
-int32_t AtomicImpl<4>::exchange(volatile type* p,type v)
+int32_t AtomicHelper<4>::exchange(volatile type* p,type v)
 {
 	return __sync_lock_test_and_set(&val,v);
 }
 
-int32_t AtomicImpl<4>::store(volatile type* p,type v)
+int32_t AtomicHelper<4>::store(volatile type* p,type v)
 {
 	return __sync_lock_test_and_set(&val,v);
 }
 
-int32_t AtomicImpl<4>::load(volatile const type* p)
+int32_t AtomicHelper<4>::load(volatile const type* p)
 {
 	return *p;
 }
 
-bool AtomicImpl<4>::compare_exchange(volatile type* p,type& expected,type v)
+bool AtomicHelper<4>::compare_exchange(volatile type* p,type& expected,type v)
 {
 	T old=__sync_val_compare_and_swap(p,expected,v);
 	if(old==expected) return true;
@@ -185,47 +185,47 @@ bool AtomicImpl<4>::compare_exchange(volatile type* p,type& expected,type v)
 }
 
 
-int64_t AtomicImpl<8>::fetch_add(volatile type* p,type v)
+int64_t AtomicHelper<8>::fetch_add(volatile type* p,type v)
 {
 	return __sync_fetch_and_add(&val,v);
 }
 
-int64_t AtomicImpl<8>::fetch_sub(volatile type* p,type v)
+int64_t AtomicHelper<8>::fetch_sub(volatile type* p,type v)
 {
 	return __sync_fetch_and_sub(&val,v);
 }
 
-int64_t AtomicImpl<8>::fetch_and(volatile type* p,type v)
+int64_t AtomicHelper<8>::fetch_and(volatile type* p,type v)
 {
 	return __sync_fetch_and_and(&val,v);
 }
 
-int64_t AtomicImpl<8>::fetch_or(volatile type* p,type v)
+int64_t AtomicHelper<8>::fetch_or(volatile type* p,type v)
 {
 	return __sync_fetch_and_or(&val,v);
 }
 
-int64_t AtomicImpl<8>::fetch_xor(volatile type* p,type v)
+int64_t AtomicHelper<8>::fetch_xor(volatile type* p,type v)
 {
 	return __sync_fetch_and_xor(&val,v);
 }
 
-int64_t AtomicImpl<8>::exchange(volatile type* p,type v)
+int64_t AtomicHelper<8>::exchange(volatile type* p,type v)
 {
 	return __sync_lock_test_and_set(&val,v);
 }
 
-int64_t AtomicImpl<8>::store(volatile type* p,type v)
+int64_t AtomicHelper<8>::store(volatile type* p,type v)
 {
 	return __sync_lock_test_and_set(&val,v);
 }
 
-int64_t AtomicImpl<8>::load(volatile const type* p)
+int64_t AtomicHelper<8>::load(volatile const type* p)
 {
 	return *p;
 }
 
-bool AtomicImpl<8>::compare_exchange(volatile type* p,type& expected,type v)
+bool AtomicHelper<8>::compare_exchange(volatile type* p,type& expected,type v)
 {
 	T old=__sync_val_compare_and_swap(p,expected,v);
 	if(old==expected) return true;
@@ -236,8 +236,8 @@ bool AtomicImpl<8>::compare_exchange(volatile type* p,type& expected,type v)
 #endif
 
 
-template class AtomicImpl<4>;
-template class AtomicImpl<8>;
+template class AtomicHelper<4>;
+template class AtomicHelper<8>;
 
 
 

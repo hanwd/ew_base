@@ -2,46 +2,9 @@
 #define __H_EW_BASIC_ATOMIC__
 
 #include "ewa_base/config.h"
-
+#include "ewa_base/basic/atomic_detail.h"
 
 EW_ENTER
-
-template<int N>
-class DLLIMPEXP_EWA_BASE AtomicImpl;
-
-template<>
-class DLLIMPEXP_EWA_BASE AtomicImpl<4>
-{
-public:
-	typedef int32_t type;
-	static type fetch_add(volatile type* p,type v);
-	static type fetch_sub(volatile type* p,type v);
-	static type fetch_and(volatile type* p,type v);
-	static type fetch_or(volatile type* p,type v);
-	static type fetch_xor(volatile type* p,type v);
-	static type exchange(volatile type* p,type v);
-	static type store(volatile type* p,type v);
-	static type load(volatile const type* p);
-	static bool compare_exchange(volatile type* p,type& c,type v);
-};
-
-template<>
-class DLLIMPEXP_EWA_BASE AtomicImpl<8>
-{
-public:
-	typedef int64_t type;
-	static type fetch_add(volatile type* p,type v);
-	static type fetch_sub(volatile type* p,type v);
-	static type fetch_and(volatile type* p,type v);
-	static type fetch_or(volatile type* p,type v);
-	static type fetch_xor(volatile type* p,type v);
-	static type exchange(volatile type* p,type v);
-	static type store(volatile type* p,type v);
-	static type load(volatile const type* p);
-	static bool compare_exchange(volatile type* p,type& c,type v);
-};
-
-
 
 
 class AtomicOps
@@ -51,50 +14,50 @@ public:
 	template<typename T>
 	static EW_FORCEINLINE T fetch_add(volatile T* p,T v)
 	{
-		typedef AtomicImpl<sizeof(T)> impl;
-		return impl::fetch_add((volatile impl::type*)p,v);
+		typedef AtomicHelper<sizeof(T)> helper;
+		return helper::fetch_add((volatile helper::type*)p,v);
 	}
 
 	template<typename T>
 	static EW_FORCEINLINE T fetch_sub(volatile T* p,T v)
 	{
-		typedef AtomicImpl<sizeof(T)> impl;
-		return impl::fetch_sub((volatile impl::type*)p,v);
+		typedef AtomicHelper<sizeof(T)> helper;
+		return helper::fetch_sub((volatile helper::type*)p,v);
 	}
 
 	template<typename T>
 	static EW_FORCEINLINE T fetch_and(volatile T* p,T v)
 	{
-		typedef AtomicImpl<sizeof(T)> impl;
-		return impl::fetch_and((volatile impl::type*)p,v);
+		typedef AtomicHelper<sizeof(T)> helper;
+		return helper::fetch_and((volatile helper::type*)p,v);
 	}
 
 	template<typename T>
 	static EW_FORCEINLINE T fetch_or(volatile T* p,T v)
 	{
-		typedef AtomicImpl<sizeof(T)> impl;
-		return impl::fetch_or((volatile impl::type*)p,v);
+		typedef AtomicHelper<sizeof(T)> helper;
+		return helper::fetch_or((volatile helper::type*)p,v);
 	}
 
 	template<typename T>
 	static EW_FORCEINLINE T fetch_xor(volatile T* p,T v)
 	{
-		typedef AtomicImpl<sizeof(T)> impl;
-		return impl::fetch_xor((volatile impl::type*)p,v);
+		typedef AtomicHelper<sizeof(T)> helper;
+		return helper::fetch_xor((volatile helper::type*)p,v);
 	}
 
 	template<typename T>
 	static EW_FORCEINLINE T exchange(volatile T* p,T v)
 	{
-		typedef AtomicImpl<sizeof(T)> impl;
-		return impl::exchange((volatile impl::type*)p,v);
+		typedef AtomicHelper<sizeof(T)> helper;
+		return helper::exchange((volatile helper::type*)p,v);
 	}
 
 	template<typename T>
 	static EW_FORCEINLINE bool compare_exchange(volatile T* p,T& expected,T v)
 	{
-		typedef AtomicImpl<sizeof(T)> impl;
-		return impl::compare_exchange((volatile impl::type*)p,v);
+		typedef AtomicHelper<sizeof(T)> helper;
+		return helper::compare_exchange((volatile helper::type*)p,v);
 	}
 };
 
@@ -105,32 +68,32 @@ class DLLIMPEXP_EWA_BASE AtomicIntT
 public:
 
 	typedef T type;
-	typedef AtomicImpl<sizeof(type)> impl;
+	typedef AtomicHelper<sizeof(type)> helper;
 
 	EW_FORCEINLINE AtomicIntT(){val=0;}
 
 	EW_FORCEINLINE AtomicIntT(T v):val(v) {}
 
 	// fetch_add performs value=value+v and return original value
-	EW_FORCEINLINE type fetch_add(type v){return impl::fetch_add((volatile impl::type*)&val,v);}
+	EW_FORCEINLINE type fetch_add(type v){return helper::fetch_add((volatile helper::type*)&val,v);}
 
 	// fetch_sub performs value=value-v and return original value
-	EW_FORCEINLINE type fetch_sub(type v){return impl::fetch_sub((volatile impl::type*)&val,v);}
+	EW_FORCEINLINE type fetch_sub(type v){return helper::fetch_sub((volatile helper::type*)&val,v);}
 
 	// fetch_and performs value=value&v and return original value
-	EW_FORCEINLINE type fetch_and(type v){return impl::fetch_and((volatile impl::type*)&val,v);}
+	EW_FORCEINLINE type fetch_and(type v){return helper::fetch_and((volatile helper::type*)&val,v);}
 
 	// fetch_or performs value=value|v and return original value
-	EW_FORCEINLINE type fetch_or(type v){return impl::fetch_or((volatile impl::type*)&val,v);}
+	EW_FORCEINLINE type fetch_or(type v){return helper::fetch_or((volatile helper::type*)&val,v);}
 
 	// fetch_xor performs value=value^v and return original value
-	EW_FORCEINLINE type fetch_xor(type v){return impl::fetch_xor((volatile impl::type*)&val,v);}
+	EW_FORCEINLINE type fetch_xor(type v){return helper::fetch_xor((volatile helper::type*)&val,v);}
 
 	// exchange value and v and return original value
-	EW_FORCEINLINE type exchange(type v){return impl::exchange((volatile impl::type*)&val,v);}
+	EW_FORCEINLINE type exchange(type v){return helper::exchange((volatile helper::type*)&val,v);}
 
 	// if value==expected then value=v return true else expected=value and return false.
-	EW_FORCEINLINE bool compare_exchange(type& expected,type v){return impl::compare_exchange((volatile impl::type*)&val,*(impl::type*)&expected,v);}
+	EW_FORCEINLINE bool compare_exchange(type& expected,type v){return helper::compare_exchange((volatile helper::type*)&val,*(helper::type*)&expected,v);}
 
 	EW_FORCEINLINE T operator++(){return fetch_add(1)+1;}
 	EW_FORCEINLINE T operator++(int){return fetch_add(1);}
@@ -141,10 +104,10 @@ public:
 	EW_FORCEINLINE void set(T v){val=v;}
 
 	// load return value
-	EW_FORCEINLINE T load() const{return impl::load((volatile impl::type*)&val);}
+	EW_FORCEINLINE T load() const{return helper::load((volatile helper::type*)&val);}
 
 	// store performs value=v;
-	EW_FORCEINLINE void store(type v){impl::store((volatile impl::type*)&val,v);}
+	EW_FORCEINLINE void store(type v){helper::store((volatile helper::type*)&val,v);}
 
 	EW_FORCEINLINE AtomicIntT& operator=(T v){ val=v; return *this; }
 	EW_FORCEINLINE operator T() const { return val; }

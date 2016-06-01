@@ -29,6 +29,7 @@
   <ItemGroup>
     <ClInclude Include="..\..\inc\ewa_base\basic.h" />
     <ClInclude Include="..\..\inc\ewa_base\basic\atomic.h" />
+    <ClInclude Include="..\..\inc\ewa_base\basic\atomic_detail.h" />
     <ClInclude Include="..\..\inc\ewa_base\basic\bitflags.h" />
     <ClInclude Include="..\..\inc\ewa_base\basic\clock.h" />
     <ClInclude Include="..\..\inc\ewa_base\basic\cmdline.h" />

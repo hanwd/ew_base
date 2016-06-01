@@ -1,9 +1,3 @@
-// Copyright 2014, Wenda han.  All rights reserved.
-// https://github.com/vhwd/ew6_base
-//
-/// Use of this source code is governed by Apache License
-// that can be found in the License file.
-// Author: Wenda Han.
 
 #include "ewa_base/config.h"
 

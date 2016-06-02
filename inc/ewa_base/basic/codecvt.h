@@ -44,6 +44,13 @@ public:
 		return sb;
 	}
 
+	static StringBuffer<char> to_gbk(const String& s)
+	{
+		StringBuffer<char> sb;
+		utf8_to_gbk(sb,s.c_str(),s.size());
+		return sb;
+	}
+
 #ifdef EW_WINDOWS
 	static StringBuffer<char> to_ansi(const String& s)
 	{

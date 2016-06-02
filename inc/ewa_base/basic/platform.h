@@ -181,6 +181,11 @@ public:
 		return m_pHandle;
 	}
 
+	const_reference get()
+	{
+		return m_pHandle;
+	}
+
 	bool ok()
 	{
 		return m_pCounter!=NULL;

@@ -99,8 +99,8 @@ void Console::WriteLine(const String& s,int color)
 	ConsoleDoSetColor(color);
 
 #ifdef EW_WINDOWS
-	::wprintf(IConv::to_wide(s).c_str());
-	::wprintf(L"\n");
+	::printf(IConv::to_ansi(s).c_str());
+	::printf("\n");
 #else
 	::printf(s.c_str());
 	::printf(L"\n");

@@ -69,6 +69,12 @@ public:
 
 	bool Open(const String& filename_,int op=FileAccess::FLAG_RD);
 
+	bool SaveToFile(const String& filename_);
+	bool LoadFromFile(const String& filename_);
+
+	bool SaveToBuffer(StringBuffer<char>& sb);
+	bool LoadFromBuffer(StringBuffer<char>& sb);
+
 };
 
 

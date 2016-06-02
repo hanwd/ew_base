@@ -62,7 +62,30 @@ int32_t Stream::Read(char* buf,size_t len)
 int32_t Stream::Write(const char* buf,size_t len)
 {
 	if(!m_refData) return -1;
-	return m_refData->Write(buf,len);
+	int writed=0;
+	int rc;
+
+	while(len>0)
+	{
+		rc=m_refData->Write(buf,len);
+		if(rc>0)
+		{
+			buf+=rc;
+			len-=rc;
+			writed+=rc;
+		}
+		else if(rc==0)
+		{
+			return writed;
+		}
+		else
+		{
+			return -1;
+		}
+	};
+
+	return writed;
+
 }
 
 void Stream::Flush()
@@ -249,6 +272,102 @@ String fn_encode(const String& oldname_)
 	return oldname_;
 }
 
+
+bool Stream::SaveToBuffer(StringBuffer<char>& sb)
+{
+	if(!Good()) return false;
+
+	char buffer[1024*32];
+	while(1)
+	{
+		int rc=Read(buffer,sizeof(buffer));
+		if(rc>0)
+		{
+			sb.append(buffer,rc);
+		}
+		else if(rc==0)
+		{
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
+
+	return false;
+}
+
+bool Stream::LoadFromBuffer(StringBuffer<char>& sb)
+{
+	if(!Good()) return false;
+	Write(sb.data(),sb.size());
+	return true;
+}
+
+
+bool Stream::LoadFromFile(const String& filename_)
+{
+	if(!Good()) return false;
+
+	File file;
+	if(!file.Open(filename_,FileAccess::FLAG_RD))
+	{
+		return false;
+	}
+
+	char buffer[1024*32];
+	while(1)
+	{
+		int rc=file.Read(buffer,sizeof(buffer));
+		if(rc>0)
+		{
+			Write(buffer,rc);
+		}
+		else if(rc==0)
+		{
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
+
+	return false;
+}
+
+bool Stream::SaveToFile(const String& filename_)
+{
+	if(!Good()) return false;
+
+	File file;
+	if(!file.Open(filename_,FileAccess::FLAG_WC|FileAccess::FLAG_TRUNCATE))
+	{
+		return false;
+	}
+
+	char buffer[1024*32];
+	while(1)
+	{
+		int rc=Read(buffer,sizeof(buffer));
+		if(rc>0)
+		{
+			file.Write(buffer,rc);
+		}
+		else if(rc==0)
+		{
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
+
+	return false;
+}
+
 bool Stream::Open(const String& filename_,int flag_)
 {
 	String fn=fn_encode(filename_);
@@ -260,6 +379,7 @@ bool Stream::Open(const String& filename_,int flag_)
 
 	if(!file.Open(filename_,flag_))
 	{
+		streamfile->flags.add(StreamData::FLAG_FAIL_BITS);
 		return false;
 	}
 

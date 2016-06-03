@@ -74,7 +74,7 @@ public:
 	CallableFunctionStringBaseT(const String &n) :CallableFunction(n){}
 	static int do_apply(Executor& ewsl, Variant& v)
 	{
-		String s0=variant_cast<String>(v);
+		String& s0(v.get<String>());
 		P::g(ewsl.ci0.nbx[1], s0);
 		return 1;
 	}
@@ -373,7 +373,7 @@ public:
 	int __fun_call(Executor& ewsl, int pm)
 	{
 		if(pm==0) ewsl.kerror("invalid param");
-		String s0=variant_cast<String>(ewsl.ci1.nbp[StackState1::SBASE_THIS]);
+		String &s0(ewsl.ci1.nbp[StackState1::SBASE_THIS].get<String>());
 		return do_apply(ewsl,s0,ewsl.ci0.nbx+1,pm);
 	}
 

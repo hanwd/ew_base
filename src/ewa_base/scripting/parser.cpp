@@ -704,16 +704,26 @@ DataPtrT<TNode_statement> read_node_handler<TNode_statement>::g(Parser& parser)
 	}
 	else if(parser.pcur[0].type==TOK_SHARP)
 	{
-		DataPtrT<TNode_statement_macro> s(new TNode_statement_macro);
-		q=s.get();
 
 		int32_t nline=parser.pcur->line;
 		++parser.pcur;
 
 		if(nline!=parser.pcur->line||(!parser.test(TOK_KEY) && !parser.test(TOK_ID)))
 		{
+			if(nline==parser.pcur->line && parser.test(TOK_OP,"!"))
+			{
+				while(parser.pcur && parser.pcur->line==nline)
+				{
+					++parser.pcur;
+				}
+				return new TNode_statement_nil;
+			}
+
 			parser.kexpected("id");
 		}
+
+		DataPtrT<TNode_statement_macro> s(new TNode_statement_macro);
+		q=s.get();
 
 		s->token=parser.pcur[-1];
 

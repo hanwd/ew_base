@@ -163,6 +163,30 @@ public:
 	DECLARE_OBJECT_INFO(CallableWrapT,ObjectInfo);
 };
 
+
+
+template<>
+class DLLIMPEXP_EWA_BASE CallableWrapT<Stream> : public CallableDataBaseT<Stream>
+{
+public:
+	typedef CallableDataBaseT<Stream> basetype;
+	using basetype::value;
+
+	CallableWrapT():basetype(){}
+	CallableWrapT(const Stream& v):basetype(v){}
+
+	virtual CallableMetatable* GetMetaTable();
+
+	virtual CallableData* DoClone(ObjectCloneState&){return this;}
+
+	StringBuffer<char> buffer;
+
+	bool getline(String& val);
+
+	DECLARE_OBJECT_INFO(CallableWrapT,ObjectInfo);
+
+};
+
 template<>
 class DLLIMPEXP_EWA_BASE CallableWrapT<VariantTable>;
 

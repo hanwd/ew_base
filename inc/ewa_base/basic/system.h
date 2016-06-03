@@ -8,23 +8,11 @@
 #include "ewa_base/basic/platform.h"
 #include "ewa_base/basic/bitflags.h"
 #include "ewa_base/basic/stream.h"
+#include "ewa_base/basic/file.h"
 
 #define EW_FUNCTION_TRACER(lv) FunctionTracer __function_tracer(__FUNCTION__,lv);
 
 EW_ENTER
-
-class DLLIMPEXP_EWA_BASE FindItem
-{
-public:
-	enum
-	{
-		IS_FOLDER=1<<0,
-	};
-	String filename;
-	uint64_t filesize;
-	BitFlags flags;
-};
-
 
 class DLLIMPEXP_EWA_BASE System
 {
@@ -63,10 +51,6 @@ public:
 
 	static String GetUsername();
 	static String GetEnv(const String& name,const String& value_if_not_found="");
-
-	static arr_1t<FindItem> FindAllFiles(const String& folder, const String& pattern = "*.*");
-
-	static bool FileExists(const String& fn,int t=3);
 
 	static bool IsPathSep(char ch);
 	static char GetPathSep();

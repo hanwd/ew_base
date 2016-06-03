@@ -784,7 +784,7 @@ public:
 		ewsl.check_pmc(this,pm,1);
 		String file=variant_cast<String>(ewsl.ci0.nbx[1]);
 		StringBuffer<char> sb;
-		if(!sb.load(file,FILE_TEXT))
+		if(!sb.load(file,FILE_TYPE_TEXT))
 		{
 			ewsl.kerror("invalid filename");
 		}
@@ -813,7 +813,7 @@ public:
 		}
 
 		StringBuffer<char> sb;
-		if(!sb.load(*p,FILE_TEXT))
+		if(!sb.load(*p,FILE_TYPE_TEXT))
 		{
 			ewsl.kerror("invalid jsonfile");
 			return 0;
@@ -849,7 +849,7 @@ public:
 		SerializerFile ar;
 
 		arr_1t<Variant> var;
-		if(ar.file.Open(*p,FileAccess::FLAG_RD))
+		if(ar.file.Open(*p,FLAG_FILE_RD))
 		{
 			ar.reader() & var;			
 		}
@@ -889,7 +889,7 @@ public:
 		arr_1t<Variant> var;
 		var.assign(ewsl.ci0.nbx + 2, pm - 1);
 
-		if(ar.file.Open(*p,FileAccess::FLAG_WC))
+		if(ar.file.Open(*p,FLAG_FILE_WC))
 		{
 			ar.writer() & var;			
 		}

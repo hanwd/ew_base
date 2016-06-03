@@ -18,6 +18,7 @@
 #include "ewa_base/basic/object_ex.h"
 #include "ewa_base/basic/pointer.h"
 #include "ewa_base/basic/file.h"
+#include "ewa_base/basic/fso.h"
 #include "ewa_base/basic/lockguard.h"
 
 

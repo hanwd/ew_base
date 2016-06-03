@@ -519,6 +519,9 @@
     <ClInclude Include="..\..\inc\ewa_base\basic\atomic_detail.h">
       <Filter>include\basic</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\inc\ewa_base\basic\fso.h">
+      <Filter>include\basic</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\ewa_base\basic\atomic.cpp">
@@ -831,6 +834,15 @@
       <Filter>source\net</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\ewa_base\scripting\callable_buffer.cpp">
+      <Filter>source\scripting</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewa_base\basic\fso.cpp">
+      <Filter>source\basic</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewa_base\scripting\module_stream.cpp">
+      <Filter>source\scripting</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewa_base\scripting\module_fslocal.cpp">
       <Filter>source\scripting</Filter>
     </ClCompile>
   </ItemGroup>

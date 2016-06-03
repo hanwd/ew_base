@@ -57,11 +57,11 @@ int page_protect(void* p,size_t n,int f)
 {
 	DWORD flag_old;
 	DWORD flag_new=0;
-	if(f&FileAccess::FLAG_WR)
+	if(f&FLAG_FILE_WR)
 	{
 		flag_new=PAGE_READWRITE;
 	}
-	else if(f&FileAccess::FLAG_RD)
+	else if(f&FLAG_FILE_RD)
 	{
 		flag_new=PAGE_READONLY;
 	}
@@ -70,7 +70,7 @@ int page_protect(void* p,size_t n,int f)
 		flag_new=PAGE_NOACCESS;
 	}
 
-	if(f&FileAccess::FLAG_EXEC)
+	if(f&FLAG_FILE_EXEC)
 	{
 		flag_new=flag_new<<4;
 	}
@@ -79,16 +79,16 @@ int page_protect(void* p,size_t n,int f)
 	f=0;
 	if(flag_old&0xF0)
 	{
-		f|=FileAccess::FLAG_EXEC;
+		f|=FLAG_FILE_EXEC;
 		flag_old>>=4;
 	}
 	if(flag_old==PAGE_READWRITE)
 	{
-		f|=FileAccess::FLAG_RW;
+		f|=FLAG_FILE_RW;
 	}
 	else if(flag_old==PAGE_READONLY)
 	{
-		f|=FileAccess::FLAG_RD;
+		f|=FLAG_FILE_RD;
 	}
 
 	return f;
@@ -128,15 +128,15 @@ DLLIMPEXP_EWA_BASE int page_protect(void* p,size_t n,int f)
 	int flag_old;
 	int flag_new=0;
 
-	if(f&FileAccess::FLAG_WR)
+	if(f&FLAG_FILE_WR)
 	{
 		flag_new|=PROT_WRITE;
 	}
-	if(f&FileAccess::FLAG_RD)
+	if(f&FLAG_FILE_RD)
 	{
 		flag_new|=PROT_READ;
 	}
-	if(f&FileAccess::FLAG_EXEC)
+	if(f&FLAG_FILE_EXEC)
 	{
 		flag_new|=PROT_EXEC;
 	}
@@ -147,15 +147,15 @@ DLLIMPEXP_EWA_BASE int page_protect(void* p,size_t n,int f)
 
 	if(flag_old&PROT_WRITE)
 	{
-		f|=FileAccess::FLAG_RW;
+		f|=FLAG_FILE_RW;
 	}
 	if(flag_old&PROT_READ)
 	{
-		f|=FileAccess::FLAG_RD;
+		f|=FLAG_FILE_RD;
 	}
 	if(flag_old&PROT_EXEC)
 	{
-		f|=FileAccess::FLAG_EXEC;
+		f|=FLAG_FILE_EXEC;
 	}
 	return f;
 

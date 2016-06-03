@@ -38,230 +38,9 @@ EW_ENTER
 DEFINE_OBJECT_NAME(std::complex<float32_t>,"c32");
 DEFINE_OBJECT_NAME(std::complex<float64_t>,"c64");
 
-class DLLIMPEXP_EWA_BASE SerializerReader;
-class DLLIMPEXP_EWA_BASE SerializerWriter;
-
 typedef uint32_t intarr_t;
 
-class DLLIMPEXP_EWA_BASE Serializer : private NonCopyable
-{
-protected:
 
-	Serializer(int t);
-
-public:
-
-	struct internal_head{void Serialize(Serializer& ar){ar.handle_head();}};
-	struct internal_tail{void Serialize(Serializer& ar){ar.handle_tail();}};
-
-	static internal_head head;
-	static internal_tail tail;
-
-	enum
-	{
-		READER=1,
-		WRITER=2,
-	};
-
-	enum
-	{
-		PTRTAG_CLS		=-3,		//class pointer (but NOT Object)
-		PTRTAG_POD		=-2,		//POD pointer
-		PTRTAG_OBJ		=-1,		//Object and its derived class pointer
-		PTRTAG_NIL		= 0,		//NULL pointer
-		PTRTAG_CACHED	= 1,
-	};
-
-	enum
-	{
-		FLAG_ENCODING_UTF8	=1<<0,
-		FLAG_OFFSET_TABLE	=1<<1,
-	};
-
-	virtual ~Serializer() {}
-
-	bool is_reader(){return type==READER;}
-	bool is_writer(){return type==WRITER;}
-
-	virtual void errstr(const String& msg);
-	virtual void errver();
-	virtual bool good() const;
-
-	virtual Serializer& tag(char ch)=0;
-	virtual Serializer& tag(const char* msg)=0;
-
-	virtual int local_version(int v)=0;
-	virtual int size_count(int n)=0;
-
-	inline int size_count(size_t n){return size_count(int(n));}
-
-	virtual String object_type(const String& name)=0;
-
-	int global_version();
-	void global_version(int v);
-
-	virtual void close() {}
-
-	BitFlags flags;
-
-	virtual bool seek(int64_t){return false;}
-	virtual int64_t tell(){return -1;}
-
-	virtual SerializerWriter& writer();
-	virtual SerializerReader& reader();
-
-	virtual Serializer& handle_head()=0;
-	virtual Serializer& handle_tail()=0;
-
-protected:
-	const int32_t type;
-	int32_t gver;
-
-};
-
-
-
-class DLLIMPEXP_EWA_BASE CachedObjectManager
-{
-public:
-
-	CachedObjectManager(){clear();}
-
-	class PtrOffset
-	{
-	public:
-		int64_t lo;
-		int64_t hi;
-	};
-
-	class PtrLoader
-	{
-	public:
-
-		enum
-		{
-			IS_LOADED		=1<<0,
-		};
-
-		DataPtrT<ObjectData> m_ptr;
-		BitFlags flags;
-	};
-
-
-	arr_1t<PtrOffset> aOffset;
-	arr_1t<PtrLoader> aLoader;
-	indexer_map<ObjectData*,int32_t> aObject;
-
-	void clear();
-
-	void save_ptr(SerializerWriter& ar,ObjectData* ptr,bool write_index=false);
-	ObjectData* load_ptr(SerializerReader& ar,int pos);
-
-	void handle_pending(SerializerWriter& ar);
-	void handle_pending(SerializerReader& ar,bool use_seek=false);
-
-	ObjectData* read_object(SerializerReader& ar,int val);
-
-	Object* create(const String& name);
-
-	arr_1t<int32_t> pendings;
-
-};
-
-
-
-class DLLIMPEXP_EWA_BASE SerializerEx : public Serializer
-{
-protected:
-
-	SerializerEx(int t);
-
-public:
-
-	void clear()
-	{
-		cached_objects.clear();
-	}
-
-	CachedObjectManager cached_objects;
-
-};
-
-
-
-class DLLIMPEXP_EWA_BASE SerializerReader : public SerializerEx
-{
-public:
-	SerializerReader():SerializerEx(READER) {}
-
-	virtual bool seek(int64_t p){return reader_seek(p);}
-	virtual int64_t tell(){return reader_tell();}
-
-	virtual bool reader_seek(int64_t){return false;}
-	virtual int64_t reader_tell(){return -1;}
-
-	virtual size_t recv(char* data,size_t size)=0;
-	void checked_recv(char* data,size_t size);
-
-	virtual String object_type(const String& name);
-
-	virtual SerializerReader& tag(char ch);
-	virtual SerializerReader& tag(const char* msg);
-
-	virtual int local_version(int v);
-	virtual int size_count(int);
-
-	virtual void close(){reader_close();}
-	virtual bool good(){return reader_good();}
-	virtual void reader_close(){}
-	virtual bool reader_good(){return true;}
-
-	ObjectData* read_object(int val);
-
-	virtual SerializerReader& handle_head();
-	virtual SerializerReader& handle_tail();
-
-};
-
-class DLLIMPEXP_EWA_BASE SerializerWriter : public SerializerEx
-{
-public:
-
-	SerializerWriter():SerializerEx(WRITER) {}
-
-	virtual bool seek(int64_t p){return writer_seek(p);}
-	virtual int64_t tell(){return writer_tell();}
-
-	virtual bool writer_seek(int64_t){return false;}
-	virtual int64_t writer_tell(){return -1;}
-
-	virtual size_t send(const char* data,size_t size)=0;
-	void checked_send(const char* data,size_t size);
-
-	String object_type(const String& name);
-
-	virtual SerializerWriter& tag(char ch);
-	virtual SerializerWriter& tag(const char* msg);
-
-	virtual int local_version(int v);
-	virtual int size_count(int);
-
-	virtual void close(){writer_close();}
-	virtual bool good(){return writer_good();}
-	virtual void writer_close(){}
-	virtual bool writer_good(){return true;}
-
-	virtual SerializerWriter& handle_head();
-	virtual SerializerWriter& handle_tail();
-
-};
-
-class DLLIMPEXP_EWA_BASE SerializerDuplex : protected SerializerReader, protected SerializerWriter
-{
-public:
-	SerializerWriter& writer(){return *this;}
-	SerializerReader& reader(){return *this;}
-};
 
 
 template<typename T>
@@ -341,11 +120,11 @@ public:
 	static const int value=tl::is_pod<T>::value;
 	static void g(SerializerReader& ar,T& val)
 	{
-		ar.checked_recv((char*)&val,sizeof(T));
+		ar.recv_checked((char*)&val,sizeof(T));
 	}
 	static void g(SerializerWriter& ar,T& val)
 	{
-		ar.checked_send((char*)&val,sizeof(T));
+		ar.send_checked((char*)&val,sizeof(T));
 	}
 };
 
@@ -375,12 +154,12 @@ class serial_arr_handler_impl<A,T,true>
 public:
 	static void g(SerializerReader& ar,T* ptr,intarr_t s)
 	{
-		ar.recv((char*)ptr,sizeof(T)*s);
+		ar.recv_checked((char*)ptr,sizeof(T)*s);
 	}
 
 	static void g(SerializerWriter& ar,T* ptr,intarr_t s)
 	{
-		ar.send((char*)ptr,sizeof(T)*s);
+		ar.send_checked((char*)ptr,sizeof(T)*s);
 	}
 };
 
@@ -553,7 +332,7 @@ public:
 
 		if(sval>=A::PTRTAG_CACHED)
 		{
-			ObjectData* dptr=ar.cached_objects.load_ptr(ar,sval);
+			ObjectData* dptr=ar.cached_objects().load_ptr(ar,sval);
 			val=dynamic_cast<pointer>((Object*)dptr);
 			if(!val)
 			{
@@ -567,7 +346,7 @@ public:
 			return;
 		}
 
-		Object* obj=ar.cached_objects.create(ar.object_type(""));
+		Object* obj=ar.cached_objects().create(ar.object_type(""));
 		if(!obj)
 		{
 			ar.errstr("CANNOT_CREATE_OBJECT");
@@ -609,7 +388,7 @@ public:
 		ObjectData* dptr(dynamic_cast<ObjectData*>(val));
 		if(dptr)
 		{
-			ar.cached_objects.save_ptr(ar,dptr,true);
+			ar.cached_objects().save_ptr(ar,dptr,true);
 		}
 		else
 		{
@@ -857,7 +636,7 @@ public:
 		uint32_t d[8];
 		arr_xt_dims x;
 
-		ar.checked_recv((char*)d,sizeof(d));
+		ar.recv_checked((char*)d,sizeof(d));
 		for(int i=0;i<6;i++)
 		{
 			d[7]=d[7]^d[i];
@@ -890,7 +669,7 @@ public:
 		d[6]=val.size();
 		d[7]=d[7]^d[6];
 
-		ar.checked_send((char*)d,sizeof(d));
+		ar.send_checked((char*)d,sizeof(d));
 		serial_arr_handler<A,T>::g(ar,val.data(),d[6]);
 	}
 };

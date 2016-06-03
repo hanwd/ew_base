@@ -101,12 +101,12 @@ static const unsigned char bom_utf32_be[]= {0x00,0x00,0xFE,0xFF};
 template<typename T>
 bool StringBuffer<T>::save(const String& file,int type)
 {
-	bool writebom=(type&FILE_TEXT_BOM)!=0;
-	type=type&FILE_MASK;
+	bool writebom=(type&FILE_TYPE_TEXT_BOM)!=0;
+	type=type&FILE_TYPE_MASK;
 
 	File ofs;
 
-	if(!ofs.Open(file,FileAccess::FLAG_WR|FileAccess::FLAG_CR))
+	if(!ofs.Open(file,FLAG_FILE_WR|FLAG_FILE_CR))
 	{
 		return false;
 	}
@@ -115,12 +115,12 @@ bool StringBuffer<T>::save(const String& file,int type)
 
 	switch(type)
 	{
-	case FILE_BINARY:
+	case FILE_TYPE_BINARY:
 	{
 		ofs.Write((char*)data(),sizeof(T)*size());
 		return ofs.Good();
 	}
-	case FILE_TEXT_ANSI:
+	case FILE_TYPE_TEXT_ANSI:
 	{
 
 		StringBuffer<char> sb;
@@ -150,8 +150,8 @@ bool StringBuffer<T>::save(const String& file,int type)
 		return ofs.Good();
 	}
 	break;
-	case FILE_TEXT:
-	case FILE_TEXT_UTF8:
+	case FILE_TYPE_TEXT:
+	case FILE_TYPE_TEXT_UTF8:
 	{
 
 		if(writebom)
@@ -185,8 +185,8 @@ bool StringBuffer<T>::save(const String& file,int type)
 		return ofs.Good();
 	}
 	break;
-	case FILE_TEXT_UTF16_BE:
-	case FILE_TEXT_UTF16_LE:
+	case FILE_TYPE_TEXT_UTF16_BE:
+	case FILE_TYPE_TEXT_UTF16_LE:
 	{
 
 		StringBuffer<unsigned short> wb;
@@ -207,7 +207,7 @@ bool StringBuffer<T>::save(const String& file,int type)
 		}
 
 
-		if(type==FILE_TEXT_UTF16_BE)
+		if(type==FILE_TYPE_TEXT_UTF16_BE)
 		{
 			char* p=(char*)wb.data();
 			for(size_t i=0; i<wb.size(); i++)
@@ -218,7 +218,7 @@ bool StringBuffer<T>::save(const String& file,int type)
 
 		if(writebom)
 		{
-			ofs.Write((char*)(type==FILE_TEXT_UTF16_BE?bom_utf16_be:bom_utf16_le),2);
+			ofs.Write((char*)(type==FILE_TYPE_TEXT_UTF16_BE?bom_utf16_be:bom_utf16_le),2);
 		}
 
 		ofs.Write((char*)wb.data(),wb.size()*2);
@@ -242,7 +242,7 @@ bool StringBuffer<T>::load(const String& file,int type)
 
 	File ifs;
 
-	type=type&FILE_MASK;
+	type=type&FILE_TYPE_MASK;
 
 	if(!ifs.Open(file))
 	{
@@ -251,7 +251,7 @@ bool StringBuffer<T>::load(const String& file,int type)
 	}
 	size_t sz=ifs.Size();
 
-	if(type==FILE_BINARY)
+	if(type==FILE_TYPE_BINARY)
 	{
 		if(sz%sizeof(T)!=0)
 		{

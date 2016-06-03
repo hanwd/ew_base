@@ -280,7 +280,7 @@ void SessionHttp::OnSendCompleted(TempOlapPtr& q)
 	char *p1=buf+16;
 	int s1=CHUNKED_BUFFER_SIZE-18;
 
-	int32_t sz=chunked_stream.Read(p1,s1);
+	int sz=chunked_stream.recv(p1,s1);
 	if(sz>0)
 	{
 		char* p2=p1+sz;
@@ -426,7 +426,7 @@ void MultiPartFormData::_handle_phase1()
 			}
 
 			String tempfile=String::Format("httpd_temp/%lld.%s",(Clock::now().val/1000ll),filename);
-			if(file.Open(tempfile,FileAccess::FLAG_WC))
+			if(file.Open(tempfile,FLAG_FILE_WC))
 			{
 				phase=3;
 				file.Truncate(0);
@@ -686,22 +686,30 @@ void SessionHttp::Redirect(const String& url)
 
 void SessionHttp::HandleFile(StringBuffer<char>& sb2,const String& filepath)
 {
-	if(chunked_stream.Open(filepath,FileAccess::FLAG_RD))
+	if(chunked_stream.open(filepath,FLAG_FILE_RD))
 	{
 
-		int64_t sz=chunked_stream.Size();
-		if(sz>1024*4)
+		int64_t sz=chunked_stream.reader().sizeg();
+		if(sz<0)
+		{
+			System::LogError("invalid file size");
+			Disconnect();
+			return;
+		}
+
+		if(sz>1024*8)
 		{
 			flags.add(FLAG_RESPONSE_CHUNKED);
 			return;
 		}
 
 		sb2.resize(sz);
-		int32_t s1=chunked_stream.Read(sb2.data(),sz);
+		int s1=chunked_stream.recv(sb2.data(),sz);
 		if(s1==sz)
 		{
 			return;
 		}
+
 		System::LogTrace("invalid stream read");
 		sb2.clear();
 

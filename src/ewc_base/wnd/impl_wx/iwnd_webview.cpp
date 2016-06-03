@@ -70,7 +70,7 @@ public:
 			else
 			{
 				File fp;
-				if(!fp.Open(cmd.extra,FileAccess::FLAG_CR|FileAccess::FLAG_WR))
+				if(!fp.Open(cmd.extra,FLAG_FILE_CR|FLAG_FILE_WR))
 				{
 					return false;
 				}

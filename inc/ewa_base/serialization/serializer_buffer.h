@@ -52,8 +52,8 @@ public:
 		return lbuf.last();
 	}
 
-	size_t send(const char* data,size_t size);
-	size_t recv(char* data,size_t size);
+	int send(const char* data,int size);
+	int recv(char* data,int size);
 
 protected:
 	

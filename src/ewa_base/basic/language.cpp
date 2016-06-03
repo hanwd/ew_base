@@ -90,7 +90,7 @@ public:
 		m_aCont.clear();
 
 		StringBuffer<char> vt;
-		if(!vt.load(file,FILE_TEXT))
+		if(!vt.load(file,FILE_TYPE_TEXT))
 		{
 			return false;
 		}

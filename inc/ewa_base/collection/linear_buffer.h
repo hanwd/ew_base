@@ -167,7 +167,7 @@ public:
 		_xbuf();
 	}
 
-	bool load(const String& file,int t=FILE_TEXT)
+	bool load(const String& file,int t=FILE_TYPE_TEXT)
 	{
 		if(!aBuff.load(file,t)) return false;
 		_xbuf();

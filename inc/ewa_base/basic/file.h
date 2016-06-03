@@ -2,14 +2,25 @@
 #define __H_EW_BASIC_FILE__
 
 #include "ewa_base/basic/string.h"
-#include "ewa_base/basic/stream.h"
+#include "ewa_base/basic/bitflags.h"
 
 EW_ENTER
+
+class DLLIMPEXP_EWA_BASE FileItem
+{
+public:
+	enum
+	{
+		IS_FOLDER=1<<0,
+	};
+	String filename;
+	uint64_t filesize;
+	BitFlags flags;
+};
 
 class DLLIMPEXP_EWA_BASE File
 {
 public:
-
 
 	class impl_type : public KO_Handle<KO_Policy_handle>
 	{
@@ -23,16 +34,11 @@ public:
 		BitFlags flags;
 	};
 
-	static bool Rename(const String& oldname_,const String& newname_);
-	static bool Remove(const String& filename_);
-	static bool Mkdir(const String& dir_);
-	static bool Rmdir(const String& dir_);
-
 	File();
-	File(const String& filename_,int op=FileAccess::FLAG_RD);
+	File(const String& filename_,int op=FLAG_FILE_RD);
 	~File();
 
-	bool Open(const String& filename_,int op=FileAccess::FLAG_RD);
+	bool Open(const String& filename_,int op=FLAG_FILE_RD);
 	void Close();
 
 	int64_t Size();
@@ -65,7 +71,7 @@ public:
 
 	bool Good()
 	{
-		return !impl.flags.get(StreamData::FLAG_FAIL_BITS);
+		return !impl.flags.get(FLAG_READER_FAILBIT|FLAG_WRITER_FAILBIT);
 	}
 
 private:

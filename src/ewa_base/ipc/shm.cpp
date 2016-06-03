@@ -29,7 +29,7 @@ public:
 
 		HANDLE hMapFile;
 
-		if(flag_&FileAccess::FLAG_CR)
+		if(flag_&FLAG_FILE_CR)
 		{
 			FileAccess::LargeInteger tmp;
 			tmp.dval=size_;
@@ -88,7 +88,7 @@ public:
 
 		KO_Handle<KO_Policy_handle> m_pExtraHandle;
 
-		if(size_!=0 && (flag_&FileAccess::FLAG_WR)==0)
+		if(size_!=0 && (flag_&FLAG_FILE_WR)==0)
 		{
 			return false;
 		}
@@ -98,7 +98,7 @@ public:
 						 FileAccess::makeflag(flag_,GENERIC_READ,GENERIC_WRITE),
 						 FileAccess::makeflag(flag_,FILE_SHARE_READ,FILE_SHARE_WRITE),
 						 NULL,
-						 (flag_&FileAccess::FLAG_CR)?OPEN_ALWAYS:OPEN_EXISTING,
+						 (flag_&FLAG_FILE_CR)?OPEN_ALWAYS:OPEN_EXISTING,
 						 NULL,
 						 NULL
 					 );
@@ -130,7 +130,7 @@ public:
 		HANDLE hMapFile = CreateFileMapping(
 							  m_pExtraHandle,
 							  NULL,                   // Default security attributes
-							  flag_&FileAccess::FLAG_WR?PAGE_READWRITE:PAGE_READONLY,
+							  flag_&FLAG_FILE_WR?PAGE_READWRITE:PAGE_READONLY,
 							  tmp.d[1],               // High-order DWORD of file mapping max size
 							  tmp.d[0],               // Low-order DWORD of file mapping max size
 							  NULL
@@ -197,9 +197,9 @@ public:
 	{
 		int acc=0;
 
-		if(flag_&FileAccess::FLAG_WR)
+		if(flag_&FLAG_FILE_WR)
 		{
-			if(flag_&FileAccess::FLAG_RD)
+			if(flag_&FLAG_FILE_RD)
 			{
 				acc|=O_RDWR;
 			}
@@ -223,7 +223,7 @@ public:
 		if(!name_.empty())
 		{
 			int oflag=shm_fileflag(flag_);
-			if(flag_&FileAccess::FLAG_CR)
+			if(flag_&FLAG_FILE_CR)
 			{
 				oflag|=O_CREAT;
 			}
@@ -236,7 +236,7 @@ public:
 			}
 			hfd.reset(fd);
 
-			if(flag_&FileAccess::FLAG_CR)
+			if(flag_&FLAG_FILE_CR)
 			{
 				ftruncate(fd,size_);
 			}
@@ -279,7 +279,7 @@ public:
 		int fd=::open(name_.c_str(),shm_fileflag(flag_),0777);
 		if(fd<0)
 		{
-			if((flag_&FileAccess::FLAG_CR)==0||size_==0)
+			if((flag_&FLAG_FILE_CR)==0||size_==0)
 			{
 				return false;
 			}
@@ -370,7 +370,7 @@ bool SharedMem::Create(const String& name_,size_t size_,int flag_)
 {
 	ShareMem_detail::shm_close(impl);
 
-	if(!ShareMem_detail::shm_create(impl,name_,size_,flag_|FileAccess::FLAG_CR))
+	if(!ShareMem_detail::shm_create(impl,name_,size_,flag_|FLAG_FILE_CR))
 	{
 		return false;
 	}

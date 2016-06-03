@@ -71,8 +71,8 @@ String LogTarget::Format(const LogRecord& o) const
 
 LogFile::LogFile(const String& filename,bool app)
 {
-	int flag=FileAccess::FLAG_WR|FileAccess::FLAG_CR;
-	if(app) flag|=FileAccess::FLAG_APPEND;
+	int flag=FLAG_FILE_WR|FLAG_FILE_CR;
+	if(app) flag|=FLAG_FILE_APPEND;
 	fp.Open(filename,flag);
 	if(!app)
 	{

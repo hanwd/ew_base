@@ -920,7 +920,7 @@ void mp_free_with_page_protect(void* p)
 		MpAllocSpan* sp=pbk->get();
 		size_t nd_size=sp->sl_slot?sp->sl_slot->nd_size:sp->sp_size;
 		EW_ASSERT(nd_size>=pagesize && nd_size%pagesize==0);
-		page_protect(p,nd_size,FileAccess::FLAG_RW);
+		page_protect(p,nd_size,FLAG_FILE_RW);
 	}
 	mp_free_real(p);
 }

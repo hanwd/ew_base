@@ -55,6 +55,9 @@ public:
 template<typename P>
 class KO_Base
 {
+public:
+	RefCounter* counter(){return m_pCounter;}
+
 protected:
 	typedef typename P::type type;
 	typedef typename P::const_reference const_reference;
@@ -62,7 +65,6 @@ protected:
 	KO_Base() :m_pHandle(P::invalid_value()), m_pCounter(NULL){}
 	KO_Base(const KO_Base& o) :m_pHandle(o.m_pHandle), m_pCounter(o.m_pCounter){}
 
-protected:
 	type m_pHandle;
 	mutable RefCounter* m_pCounter;
 };
@@ -112,6 +114,23 @@ public:
 		}
 
 		return *this;
+	}
+
+	template<typename P2>
+	void reset(const_reference v,KO_Base<P2>& c)
+	{
+		EW_ASSERT(c.counter()!=NULL);
+		EW_ASSERT(v!=P::invalid_value());
+
+		if (m_pCounter && m_pCounter->DecUseCount())
+		{
+			m_pCounter = NULL;
+			P::destroy(m_pHandle);
+		}
+
+		m_pHandle=v;		
+		m_pCounter=c.counter();
+		m_pCounter->IncUseCount();	
 	}
 
 	void reset(const_reference v)
@@ -265,35 +284,63 @@ public:
 	}
 };
 
+
+enum
+{
+	SEEKTYPE_BEG,
+	SEEKTYPE_CUR,
+	SEEKTYPE_END
+};
+
+enum
+{
+	FLAG_READER_FAILBIT=1<<0,
+	FLAG_WRITER_FAILBIT=1<<1,
+
+};
+
+enum
+{
+	FLAG_FILE_RD=1<<0,
+	FLAG_FILE_WR=1<<1,
+	FLAG_FILE_RW=FLAG_FILE_RD|FLAG_FILE_WR,
+	FLAG_FILE_CR=1<<3,
+	FLAG_FILE_APPEND=1<<4,
+	FLAG_FILE_EXEC=1<<5,
+	FLAG_FILE_TRUNCATE=1<<6,
+
+	FLAG_FILE_RWX=FLAG_FILE_RD|FLAG_FILE_WR|FLAG_FILE_EXEC,
+	FLAG_FILE_WC=FLAG_FILE_WR|FLAG_FILE_CR,
+	FLAG_FILE_WA=FLAG_FILE_WR|FLAG_FILE_APPEND,
+
+	FILE_TYPE_TEXT_BOM		=1<<10,
+	FILE_TYPE_BINARY		=0<<11,
+	FILE_TYPE_TEXT			=1<<11,
+	FILE_TYPE_TEXT_ANSI		=2<<11,
+	FILE_TYPE_TEXT_UTF8		=3<<11,
+	FILE_TYPE_TEXT_UTF16_BE	=4<<11,
+	FILE_TYPE_TEXT_UTF16_LE	=5<<11,
+	FILE_TYPE_MASK			=7<<11,
+
+};
+
+
 class FileAccess
 {
 public:
-	enum
-	{
-		FLAG_RD=1<<0,
-		FLAG_WR=1<<1,
-		FLAG_RW=FLAG_RD|FLAG_WR,
-		FLAG_CR=1<<3,
-		FLAG_APPEND=1<<4,
-		FLAG_EXEC=1<<5,
-		FLAG_TRUNCATE=1<<6,
-		FLAG_RWX=FLAG_RD|FLAG_WR|FLAG_EXEC,
-		FLAG_WC=FLAG_WR|FLAG_CR,
-		FLAG_WA=FLAG_WR|FLAG_APPEND,
-	};
 
 	static int makeflag(int flag,int fr,int fw,int ex=0)
 	{
 		int acc=0;
-		if(flag&FLAG_RD)
+		if(flag&FLAG_FILE_RD)
 		{
 			acc|=fr;
 		}
-		if(flag&FLAG_WR)
+		if(flag&FLAG_FILE_WR)
 		{
 			acc|=fw;
 		}
-		if(flag&FLAG_EXEC)
+		if(flag&FLAG_FILE_EXEC)
 		{
 			acc|=ex;
 		}
@@ -309,6 +356,7 @@ public:
 #endif
 
 };
+
 
 EW_LEAVE
 #endif

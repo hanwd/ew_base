@@ -51,8 +51,8 @@ public:
 				String fn_temp=IView.fn.GetTempfile();
 				if(fn_temp=="") return false;
 
-				File::Remove(cmd.extra);
-				File::Rename(fn_temp,cmd.extra);
+				FSLocal::current().Remove(cmd.extra);
+				FSLocal::current().Rename(fn_temp,cmd.extra);
 
 				IView.fn.SetFilename(cmd.extra);
 				Target.SetSavePoint();

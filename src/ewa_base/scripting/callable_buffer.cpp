@@ -53,7 +53,7 @@ public:
 	{
 		ewsl.check_pmc(this, pm,1,2);
 		String filename=ewsl.make_path(variant_cast<String>(ewsl.ci0.nbx[1]));
-		int type=pm>1?variant_cast<int>(ewsl.ci0.nbx[2]):FILE_BINARY;
+		int type=pm>1?variant_cast<int>(ewsl.ci0.nbx[2]):FILE_TYPE_BINARY;
 		bool flag=ewsl.ci1.nbp[StackState1::SBASE_THIS].ref<StringBuffer<T> >().save(filename,type);
 		ewsl.ci0.nbx[1].reset(flag);
 		return 1;	
@@ -73,7 +73,7 @@ public:
 	{
 		ewsl.check_pmc(this, pm,1,2);
 		String filename=ewsl.make_path(variant_cast<String>(ewsl.ci0.nbx[1]));
-		int type=pm>1?variant_cast<int>(ewsl.ci0.nbx[2]):FILE_BINARY;
+		int type=pm>1?variant_cast<int>(ewsl.ci0.nbx[2]):FILE_TYPE_BINARY;
 
 		bool flag=ewsl.ci1.nbp[StackState1::SBASE_THIS].ref<StringBuffer<T> >().load(filename,type);
 		ewsl.ci0.nbx[1].reset(flag);

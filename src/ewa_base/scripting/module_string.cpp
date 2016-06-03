@@ -402,6 +402,8 @@ void init_module_string()
 	gi.add_inner<CallableMetatableT<String> >();
 	gi.add_inner<CallableMetatableT<StringBuffer<char> > >();
 
+	gi.add_inner<CallableMetatableT<Stream> >();
+
 	gi.add_inner<CallableFunctionStringLength>();
 	gi.add_inner<CallableFunctionStringUpper>();
 	gi.add_inner<CallableFunctionStringLower>();

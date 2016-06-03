@@ -37,6 +37,7 @@
     <ClInclude Include="..\..\inc\ewa_base\basic\console.h" />
     <ClInclude Include="..\..\inc\ewa_base\basic\exception.h" />
     <ClInclude Include="..\..\inc\ewa_base\basic\file.h" />
+    <ClInclude Include="..\..\inc\ewa_base\basic\fso.h" />
     <ClInclude Include="..\..\inc\ewa_base\basic\functor.h" />
     <ClInclude Include="..\..\inc\ewa_base\basic\functor_detail.h" />
     <ClInclude Include="..\..\inc\ewa_base\basic\hashing.h" />
@@ -181,6 +182,7 @@
     <ClCompile Include="..\..\src\ewa_base\basic\console.cpp" />
     <ClCompile Include="..\..\src\ewa_base\basic\exception.cpp" />
     <ClCompile Include="..\..\src\ewa_base\basic\file.cpp" />
+    <ClCompile Include="..\..\src\ewa_base\basic\fso.cpp" />
     <ClCompile Include="..\..\src\ewa_base\basic\hashing.cpp" />
     <ClCompile Include="..\..\src\ewa_base\basic\language.cpp" />
     <ClCompile Include="..\..\src\ewa_base\basic\object.cpp" />
@@ -240,11 +242,13 @@
     <ClCompile Include="..\..\src\ewa_base\scripting\modules.cpp" />
     <ClCompile Include="..\..\src\ewa_base\scripting\module_array.cpp" />
     <ClCompile Include="..\..\src\ewa_base\scripting\module_coroutine.cpp" />
+    <ClCompile Include="..\..\src\ewa_base\scripting\module_fslocal.cpp" />
     <ClCompile Include="..\..\src\ewa_base\scripting\module_io.cpp" />
     <ClCompile Include="..\..\src\ewa_base\scripting\module_logger.cpp" />
     <ClCompile Include="..\..\src\ewa_base\scripting\module_math.cpp" />
     <ClCompile Include="..\..\src\ewa_base\scripting\module_number.cpp" />
     <ClCompile Include="..\..\src\ewa_base\scripting\module_os.cpp" />
+    <ClCompile Include="..\..\src\ewa_base\scripting\module_stream.cpp" />
     <ClCompile Include="..\..\src\ewa_base\scripting\module_string.cpp" />
     <ClCompile Include="..\..\src\ewa_base\scripting\module_table.cpp" />
     <ClCompile Include="..\..\src\ewa_base\scripting\parser.cpp" />

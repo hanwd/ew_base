@@ -35,7 +35,7 @@ const XmlDocument& XmlDocument::operator=(const XmlDocument& src)
 bool XmlDocument::LoadXml(const String& s)
 {
 	XmlParser parser(*this);
-	return parser.LoadXml(s,FILE_TEXT);
+	return parser.LoadXml(s,FILE_TYPE_TEXT);
 }
 
 bool XmlDocument::LoadStr(const char* pstr_,size_t size_)

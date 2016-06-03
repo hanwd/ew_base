@@ -853,10 +853,10 @@ void CG_GGVar::import(const String& lib,bool reload)
 			String path=libpaths[i];
 			if(path=="") continue;
 
-			arr_1t<FindItem> files=System::FindAllFiles(path,lib+".*");
+			arr_1t<FileItem> files=FSLocal::current().FindFilesEx(path,lib+".*");
 			if(files.empty()) continue;
 
-			is_folder=files[0].flags.get(FindItem::IS_FOLDER);
+			is_folder=files[0].flags.get(FileItem::IS_FOLDER);
 			libfile=System::AdjustPath(path,true)+files[0].filename;
 			break;
 		}

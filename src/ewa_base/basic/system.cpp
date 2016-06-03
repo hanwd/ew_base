@@ -280,37 +280,37 @@ const String& System::GetModulePath()
 
 #ifdef EW_WINDOWS
 
-class StreamDataProcess : public StreamData
+class SerializerReaderProcess : public SerializerReader
 {
 public:
 	HANDLE hReader, hWriter;
 	PROCESS_INFORMATION pi;
 
-	int32_t Read(char* buf,size_t len)
+	int recv(char* buf,int len)
 	{
 		DWORD nRead(0);
 		if(::ReadFile(hReader,buf,len,&nRead,NULL)==FALSE)
 		{
-			flags.add(FLAG_READ_FAIL_BIT);
+			flags.add(FLAG_READER_FAILBIT);
 			System::CheckError("File::Read Error");
 			return -1;
 		}
 		return nRead;
 	}
 
-	int32_t Write(const char* buf,size_t len)
+	int send(const char* buf,int len)
 	{
 		DWORD nWrite(0);
 		if(::WriteFile(hWriter,buf,len,&nWrite,NULL)==FALSE)
 		{
-			flags.add(FLAG_WRITE_FAIL_BIT);
+			flags.add(FLAG_WRITER_FAILBIT);
 			System::CheckError("File::Write Error");
 			return -1;
 		}
 		return nWrite;
 	}
 
-	StreamDataProcess()
+	SerializerReaderProcess()
 	{
 		hReader=hWriter=NULL;
 		ZeroMemory(&pi,sizeof(pi));
@@ -374,7 +374,7 @@ public:
 
 	}
 
-	~StreamDataProcess()
+	~SerializerReaderProcess()
 	{
 		::CloseHandle(pi.hProcess);
 		::CloseHandle(pi.hThread);
@@ -388,13 +388,17 @@ Stream System::ExecuteRedirect(const String& s,bool* status)
 
 	System::LogTrace("System::Exectue:%s", s);
 
-	StreamDataProcess* stream=new StreamDataProcess;
-	Stream stream_impl(stream);
+	AutoPtrT<SerializerReaderProcess> proc(new SerializerReaderProcess);
 
-	if(stream->Execute(s))
+	Stream stream;
+
+
+	if(proc->Execute(s))
 	{
 		if(status) *status=true;
-		return stream_impl;
+		stream.assign(proc.release(),NULL);
+
+		return stream;
 	}
 	else
 	{
@@ -407,14 +411,18 @@ bool System::Execute(const String& s, StringBuffer<char>& result)
 {
 	bool flag(false);
 	Stream stream=ExecuteRedirect(s,&flag);
+
 	if(!flag) return false;
-	char buf[1024*4];
-	while(1)
-	{
-		int rc=stream.Read(buf,sizeof(buf));
-		if(rc<=0) break;
-		result.append(buf,rc);
-	}
+
+	stream.write_to_buffer(result);
+
+	//char buf[1024*4];
+	//while(1)
+	//{
+	//	int rc=stream.Read(buf,sizeof(buf));
+	//	if(rc<=0) break;
+	//	result.append(buf,rc);
+	//}
 	return true;
 
 }
@@ -855,54 +863,5 @@ bool System::SetCwd(const String& s)
 #endif
 }
 
-void PushFindItem(arr_1t<FindItem>& files,WIN32_FIND_DATAW& p)
-{
-	FindItem item;
-	item.filename=p.cFileName;
-	item.filesize=(uint64_t(p.nFileSizeHigh)<<32)|p.nFileSizeLow;
-	item.flags.set(FindItem::IS_FOLDER,(p.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY)!=0);
-	if(item.filename=="."||item.filename=="..") return;
-	files.push_back(item);
-}
-
-bool System::FileExists(const String& fn,int t)
-{
-	arr_1t<FindItem> _items=FindAllFiles(fn,"");
-	if(_items.empty()) return false;
-	return ((_items[0].flags.get(FindItem::IS_FOLDER)?2:1)&t)!=0;
-}
-
-
-arr_1t<FindItem> System::FindAllFiles(const String& folder, const String& pattern)
-{
-	arr_1t<FindItem> files;
-
-#ifdef EW_WINDOWS
-
-
-	String folder_pattern;
-	if(pattern!="")
-	{
-		folder_pattern = AdjustPath(folder,true)+pattern;
-	}
-	else
-	{
-		folder_pattern = folder;
-	}
-
-	FILE_ATTRIBUTE_DIRECTORY;
-	WIN32_FIND_DATAW p;
-	HANDLE h = FindFirstFileW(IConv::to_wide(folder_pattern).c_str(), &p);
-
-	if (h != INVALID_HANDLE_VALUE)
-	{
-		PushFindItem(files,p);
-		while (FindNextFileW(h, &p))
-			PushFindItem(files,p);
-	}
-#endif
-
-	return files;
-}
 
 EW_LEAVE

@@ -13,18 +13,6 @@
 
 EW_ENTER
 
-enum
-{
-	FILE_BINARY,
-	FILE_TEXT,
-	FILE_TEXT_ANSI,
-	FILE_TEXT_UTF8,
-	FILE_TEXT_UTF16_BE,
-	FILE_TEXT_UTF16_LE,
-
-	FILE_MASK=(1<<10)-1,
-	FILE_TEXT_BOM=1<<10
-};
 
 
 template<typename T>
@@ -79,8 +67,8 @@ public:
 	}
 	StringBuffer& operator+=(const String& o);
 
-	bool load(const String& file,int t=FILE_TEXT);
-	bool save(const String& file,int t=FILE_TEXT);
+	bool load(const String& file,int t=FILE_TYPE_TEXT);
+	bool save(const String& file,int t=FILE_TYPE_TEXT);
 
 	T* c_str();
 	const T* c_str() const;

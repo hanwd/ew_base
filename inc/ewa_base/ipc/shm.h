@@ -53,15 +53,15 @@ public:
 		return impl.m_pAddr;
 	}
 	// Create/Open shared memory with given name and given size.
-	bool Create(const String& name_,size_t size_,int flag_=FileAccess::FLAG_RW);
-	bool Open(const String& name_,size_t size_,int flag_=FileAccess::FLAG_RW);
+	bool Create(const String& name_,size_t size_,int flag_=FLAG_FILE_RW);
+	bool Open(const String& name_,size_t size_,int flag_=FLAG_FILE_RW);
 
 	// mapping a file to memory, zero size_ means using the real file size, if not zero, the file will be truncated to size_.
 	// if need to create a new file, size_ must be specified and FLAG_CR flag must be provided.
-	bool OpenFile(const String& file_,size_t size_=0,int flag_=FileAccess::FLAG_RW);
+	bool OpenFile(const String& file_,size_t size_=0,int flag_=FLAG_FILE_RW);
 
 	// just allocate memory, not mapping to any file.
-	bool Alloc(size_t size,int flag_=FileAccess::FLAG_RW);
+	bool Alloc(size_t size,int flag_=FLAG_FILE_RW);
 
 	// Close shared memory.
 	void Close();

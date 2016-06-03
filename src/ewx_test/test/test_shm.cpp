@@ -12,7 +12,7 @@ TEST_DEFINE(TEST_Shm)
 	String filetext="helloworld";
 
 	// create a file and write some text
-	TEST_ASSERT(sm1.OpenFile("shm_sample.txt",1024,FileAccess::FLAG_RW|FileAccess::FLAG_CR));
+	TEST_ASSERT(sm1.OpenFile("shm_sample.txt",1024,FLAG_FILE_RW|FLAG_FILE_CR));
 	if(sm1.data())
 	{
 		strcpy(sm1.data(),filetext.c_str());
@@ -21,7 +21,7 @@ TEST_DEFINE(TEST_Shm)
 	TEST_ASSERT(sm1.data()==NULL);
 
 	// open the file and read the text
-	TEST_ASSERT(sm2.OpenFile("shm_sample.txt",0,FileAccess::FLAG_RD));
+	TEST_ASSERT(sm2.OpenFile("shm_sample.txt",0,FLAG_FILE_RD));
 	if(sm1.data() && sm2.data())
 	{
 		TEST_ASSERT(strcmp(sm2.data(),filetext.c_str())==0);
@@ -31,8 +31,8 @@ TEST_DEFINE(TEST_Shm)
 
 	// open SharedMem with a name;
 
-	TEST_ASSERT_MSG(sm1.Open("local_shm",1024,FileAccess::FLAG_RD|FileAccess::FLAG_WR|FileAccess::FLAG_CR),"ShmOpen");
-	TEST_ASSERT_MSG(sm2.Open("local_shm",1024,FileAccess::FLAG_RD|FileAccess::FLAG_WR),"ShmOpen");
+	TEST_ASSERT_MSG(sm1.Open("local_shm",1024,FLAG_FILE_RD|FLAG_FILE_WR|FLAG_FILE_CR),"ShmOpen");
+	TEST_ASSERT_MSG(sm2.Open("local_shm",1024,FLAG_FILE_RD|FLAG_FILE_WR),"ShmOpen");
 	char* p1=sm1.data();
 	char* p2=sm2.data();
 

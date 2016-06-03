@@ -4,32 +4,32 @@ EW_ENTER
 
 
 
-class DLLIMPEXP_EWA_BASE StreamDataPipe : public StreamData
+class DLLIMPEXP_EWA_BASE StreamDataPipe : public SerializerReader
 {
 public:
 
-	virtual int32_t Read(char* buf,size_t len)
+	virtual int recv(char* buf,int len)
 	{
-		if(flags.get(FLAG_READ_FAIL_BIT)) return -1;
+		if(flags.get(FLAG_READER_FAILBIT)) return -1;
 
 		DWORD nRead(0);
 		if(::ReadFile(hReader,buf,len,&nRead,NULL)==FALSE)
 		{
-			flags.add(FLAG_READ_FAIL_BIT);
+			flags.add(FLAG_READER_FAILBIT);
 			System::CheckError("File::Read Error");
 			return -1;
 		}
 		return nRead;
 	}
 
-	virtual int32_t Write(const char* buf,size_t len)
+	virtual int send(const char* buf,int len)
 	{
-		if(flags.get(FLAG_WRITE_FAIL_BIT)) return -1;
+		if(flags.get(FLAG_WRITER_FAILBIT)) return -1;
 
 		DWORD nWrite(0);
 		if(::WriteFile(hWriter,buf,len,&nWrite,NULL)==FALSE)
 		{
-			flags.add(FLAG_WRITE_FAIL_BIT);
+			flags.add(FLAG_WRITER_FAILBIT);
 			System::CheckError("File::Write Error");
 			return -1;
 		}
@@ -81,9 +81,9 @@ public:
 
 		hReader.close();
 		hWriter.close();
-		hStream.SetData(NULL);
+		hStream.close();
 
-		DataPtrT<StreamDataPipe> hPipe(new StreamDataPipe);
+		AutoPtrT<StreamDataPipe> hPipe(new StreamDataPipe);
 
 		HANDLE h1,h2;
 		if(::CreatePipe(&h1,&h2,NULL,0))
@@ -107,7 +107,7 @@ public:
 			hWriter.close();
 		}
 
-		hStream.SetData(hPipe.get());
+		hStream.assign(hPipe.release(),NULL);
 		return true;
 	}
 
@@ -149,7 +149,7 @@ public:
 	{
 		hReader.close();
 		hWriter.close();
-		hStream.Close();
+		hStream.close();
 		::CloseHandle(pi.hThread);
 		::CloseHandle(pi.hProcess);
 		pi.hThread=NULL;

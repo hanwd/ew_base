@@ -467,7 +467,8 @@ public:
 		
 		dir=System::MakePath(dir,ewsl.get_cwd());
 
-		arr_1t<FindItem> files=System::FindAllFiles(dir);
+		arr_1t<FileItem> files=FSLocal::current().FindFilesEx(dir);
+
 		arr_xt<Variant> result;
 		result.resize(files.size());
 
@@ -536,7 +537,7 @@ public:
 	{
 		ewsl.check_pmc(this,pm,1);
 		String fp=variant_cast<String>(ewsl.ci0.nbx[1]);
-		return ERRNO_HandleResult(ewsl,File::Remove(System::MakePath(fp,ewsl.get_cwd())));
+		return ERRNO_HandleResult(ewsl,FSLocal::current().Remove(System::MakePath(fp,ewsl.get_cwd())));
 		
 	}
 	DECLARE_OBJECT_CACHED_INFO(CallableFunctionRemove, ObjectInfo);
@@ -555,7 +556,7 @@ public:
 		ewsl.check_pmc(this,pm,2);
 		String fp1=System::MakePath(variant_cast<String>(ewsl.ci0.nbx[1]),ewsl.get_cwd());
 		String fp2=System::MakePath(variant_cast<String>(ewsl.ci0.nbx[2]),ewsl.get_cwd());
-		return ERRNO_HandleResult(ewsl,File::Rename(fp1,fp2));
+		return ERRNO_HandleResult(ewsl,FSLocal::current().Rename(fp1,fp2));
 	}
 	DECLARE_OBJECT_CACHED_INFO(CallableFunctionRename, ObjectInfo);
 };
@@ -595,12 +596,12 @@ public:
 		ewsl.check_pmc(this,pm,1);
 
 		String fp=variant_cast<String>(ewsl.ci0.nbx[1]);
-		if(!System::FileExists(fp,2))
+		if(FSLocal::current().FileExists(fp)!=2)
 		{
 			Exception::XError("invalid folder");
 		}
 
-		arr_1t<FindItem> items=System::FindAllFiles(fp);
+		arr_1t<FileItem> items=FSLocal::current().FindFilesEx(fp);
 
 		arr_xt<Variant> & tb(ewsl.ci0.nbx[1].ref<arr_xt<Variant> >());
 		tb.resize(items.size());
@@ -633,7 +634,7 @@ public:
 	{
 		ewsl.check_pmc(this,pm,1);
 		String fp=variant_cast<String>(ewsl.ci0.nbx[1]);
-		ewsl.ci0.nbx[1].reset(File::Mkdir(System::MakePath(fp,ewsl.get_cwd())));
+		ewsl.ci0.nbx[1].reset(FSLocal::current().Mkdir(System::MakePath(fp,ewsl.get_cwd())));
 		return 1;	
 	}
 	DECLARE_OBJECT_CACHED_INFO(CallableFunctionMkdir, ObjectInfo);
@@ -650,7 +651,7 @@ public:
 	{
 		ewsl.check_pmc(this,pm,1);
 		String fp=variant_cast<String>(ewsl.ci0.nbx[1]);
-		ewsl.ci0.nbx[1].reset(File::Rmdir(System::MakePath(fp,ewsl.get_cwd())));
+		ewsl.ci0.nbx[1].reset(FSLocal::current().Rmdir(System::MakePath(fp,ewsl.get_cwd())));
 		return 1;	
 	}
 	DECLARE_OBJECT_CACHED_INFO(CallableFunctionRmdir, ObjectInfo);

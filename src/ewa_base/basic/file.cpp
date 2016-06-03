@@ -15,7 +15,10 @@
 
 EW_ENTER
 
-String fn_encode(const String& oldname_);
+String fn_encode(const String& oldname_)
+{
+	return oldname_;
+}
 
 
 #ifdef EW_WINDOWS
@@ -25,8 +28,8 @@ bool File::Open(const String& filename_,int flag_)
 	String fn=fn_encode(filename_);
 	Close();
 
-	DWORD option=(flag_&FileAccess::FLAG_CR)?OPEN_ALWAYS:OPEN_EXISTING;
-	if(flag_&FileAccess::FLAG_TRUNCATE)	option|=TRUNCATE_EXISTING;
+	DWORD option=(flag_&FLAG_FILE_CR)?OPEN_ALWAYS:OPEN_EXISTING;
+	if(flag_&FLAG_FILE_TRUNCATE) option|=TRUNCATE_EXISTING;
 
 	HANDLE hFile=(HANDLE)CreateFileW(
 					 IConv::to_wide(fn).c_str(),
@@ -43,14 +46,14 @@ bool File::Open(const String& filename_,int flag_)
 	{
 		System::CheckError("File::Open error");
 
-		impl.flags.add(StreamData::FLAG_FAIL_BITS);
+		impl.flags.add(FLAG_READER_FAILBIT|FLAG_WRITER_FAILBIT);
 		return false;
 	}
 
-	impl.flags.del(StreamData::FLAG_FAIL_BITS);
+	impl.flags.del(FLAG_READER_FAILBIT|FLAG_WRITER_FAILBIT);
 	impl.reset(hFile);
 
-	if(flag_&FileAccess::FLAG_APPEND)
+	if(flag_&FLAG_FILE_APPEND)
 	{
 		Seek(0,SEEKTYPE_END);
 	}
@@ -70,7 +73,7 @@ int32_t File::Read(char* buf,size_t len)
 	DWORD nRead(0);
 	if(::ReadFile(impl,buf,len,&nRead,NULL)==FALSE)
 	{
-		impl.flags.add(StreamData::FLAG_READ_FAIL_BIT);
+		impl.flags.add(FLAG_READER_FAILBIT);
 		System::CheckError("File::Read Error");
 		return -1;
 	}
@@ -82,7 +85,7 @@ int32_t File::Write(const char* buf,size_t len)
 	DWORD nWrite(0);
 	if(::WriteFile(impl,buf,len,&nWrite,NULL)==FALSE)
 	{
-		impl.flags.add(StreamData::FLAG_WRITE_FAIL_BIT);
+		impl.flags.add(FLAG_WRITER_FAILBIT);
 		System::CheckError("File::Write Error");
 		return -1;
 	}
@@ -146,9 +149,9 @@ static int shm_fileflag(int flag_)
 {
 	int acc=0;
 
-	if(flag_&FileAccess::FLAG_WR)
+	if(flag_&FLAG_FILE_WR)
 	{
-		if(flag_&FileAccess::FLAG_RD)
+		if(flag_&FLAG_FILE_RD)
 		{
 			acc|=O_RDWR;
 		}
@@ -168,7 +171,7 @@ bool File::Open(const String& filename_,int flag_)
 	int fd=::open(filename.c_str(),shm_fileflag(flag_),0777);
 	if(fd<0)
 	{
-		if((flag_&FileAccess::FLAG_CR)!=0)
+		if((flag_&FLAG_FILE_CR)!=0)
 		{
 			fd=::open(filename.c_str(),shm_fileflag(flag_)|O_CREAT,0777);
 		}
@@ -184,7 +187,7 @@ bool File::Open(const String& filename_,int flag_)
 	impl.m_bGood=true;
 	impl.reset(fd);
 
-	if(flag_&FileAccess::FLAG_APPEND)
+	if(flag_&FLAG_FILE_APPEND)
 	{
 		Seek(0,SEEKTYPE_END);
 	}
@@ -279,50 +282,5 @@ void File::Close()
 	impl.close();
 }
 
-bool File::Rename(const String& oldname_,const String& newname_)
-{
-	String oldname=fn_encode(oldname_);
-	String newname=fn_encode(newname_);
 
-	int bRet=::rename(IConv::to_ansi(oldname).c_str(),IConv::to_ansi(newname).c_str());
-
-	return bRet==0;
-}
-
-bool File::Remove(const String& filename_)
-{
-	String fn=fn_encode(filename_);
-	int bRet=::remove(IConv::to_ansi(fn).c_str());
-	return bRet==0;
-}
-
-bool File::Mkdir(const String& dir_)
-{
-	if(dir_.find('\"')>=0)
-	{
-		return false;
-	}
-
-	String dir(dir_);
-	//dir.replace("/", "\\");
-
-	StringBuffer<char> sb;
-	System::Execute("cmd /c mkdir \""+dir+"\"",sb);
-	return true;
-}
-
-bool File::Rmdir(const String& dir_)
-{
-	if(dir_.find('\"')>=0)
-	{
-		return false;
-	}
-
-	String dir(dir_);
-	//dir.replace("/", "\\");
-
-	StringBuffer<char> sb;
-	System::Execute("cmd /c rmdir /S /Q \""+dir+"\"",sb);
-	return true;
-}
 EW_LEAVE

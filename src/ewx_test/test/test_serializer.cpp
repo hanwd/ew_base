@@ -53,8 +53,7 @@ public:
 TEST_DEFINE(TEST_Serializer)
 {
 
-	StreamSerializer<SerializerReader> reader;
-	StreamSerializer<SerializerWriter> writer;
+	Stream stream;
 
 	sample_data dat[2];
 
@@ -77,27 +76,27 @@ TEST_DEFINE(TEST_Serializer)
 
 	dat[0].ivals[3]=32;
 
-	writer.open("test_serializer.dat");
+	stream.open("test_serializer.dat",FLAG_FILE_WC|FLAG_FILE_TRUNCATE);
 	try
 	{
-		writer & Serializer::head & dat[0] & Serializer::tail;
+		stream.writer() & Serializer::head & dat[0] & Serializer::tail;
 	}
 	catch(...)
 	{
 		TEST_ASSERT_MSG(false,"serializer write file failed!");
 	}
-	writer.close();
+	stream.close();
 
-	reader.open("test_serializer.dat");
+	stream.open("test_serializer.dat");
 	try
 	{
-		reader & Serializer::head & dat[1] & Serializer::tail;
+		stream.reader() & Serializer::head & dat[1] & Serializer::tail;
 	}
 	catch(...)
 	{
 		TEST_ASSERT_MSG(false,"serializer read file failed!");
 	}
-	reader.close();
+	stream.close();
 
 	TEST_ASSERT(dat[1].aInts==dat[0].aInts);
 	TEST_ASSERT(dat[1].aMaps==dat[0].aMaps);
@@ -150,7 +149,7 @@ TEST_DEFINE(TEST_SerializerSeek)
 
 	SerializerFile sf;
 
-	if(sf.file.Open("seekable.dat",FileAccess::FLAG_WC))
+	if(sf.file.Open("seekable.dat",FLAG_FILE_WC))
 	{
 
 		SerializerWriter &writer(sf.writer());
@@ -171,7 +170,7 @@ TEST_DEFINE(TEST_SerializerSeek)
 	}
 	sf.file.Close();
 
-	if(sf.file.Open("seekable.dat",FileAccess::FLAG_RD))
+	if(sf.file.Open("seekable.dat",FLAG_FILE_RD))
 	{
 		DataPtrT<float_string> p1;
 		DataPtrT<float_string> p2;

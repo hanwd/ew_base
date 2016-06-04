@@ -6,22 +6,22 @@ EW_ENTER
 
 int SerializerFile::send(const char* data,int size)
 {
-	return file.Write(data,size);
+	return file.write(data,size);
 }
 
 int SerializerFile::recv(char* data,int size)
 {
-	return file.Read(data,size);
+	return file.read(data,size);
 }
 
 void SerializerFile::close()
 {
-	file.Close();
+	file.close();
 }
 
 bool SerializerFile::good()
 {
-	return file.Good();
+	return file.good();
 }
 
 EW_LEAVE

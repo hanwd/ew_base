@@ -36,6 +36,19 @@
     </Expand>
 </Type>
 
+<Type Name="ew::SharedPtrT&lt;*&gt;">
+    <DisplayString Condition="m_pHandle == 0">null</DisplayString>
+    <DisplayString Condition="m_pHandle != 0">{*m_pHandle}</DisplayString>
+
+    <DisplayString>[ptr] {m_pHandle}</DisplayString>
+	
+    <Expand>
+        <Item Name="[ptr]">m_pHandle</Item>    
+		<Item Name="[counter]">m_pCounter</Item>	
+    </Expand>
+</Type>
+
+
 
 
 <Type Name="ew::rac_iterator&lt;*&gt;">

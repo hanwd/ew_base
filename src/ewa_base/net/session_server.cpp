@@ -21,13 +21,13 @@ bool SessionServer::Listen(const String& ip,int port)
 	}
 
 	sk_local.addr.service(ip,port);
-	if(!sk_local.sock.Listen(sk_local.addr))
+	if(!sk_local.sock.listen(sk_local.addr))
 	{
 		logger.LogError("Listen failed on %s:%d",sk_local.addr.host(),sk_local.addr.port());
 		return false;
 	}
 
-	sk_local.sock.Block(false);
+	sk_local.sock.block(false);
 
 #ifdef _MSC_VER
 	DWORD dwBytes;
@@ -83,7 +83,7 @@ void SessionServer::Disconnect()
 
 void SessionServer::Close()
 {
-	sk_local.sock.Close();
+	sk_local.sock.close();
 }
 
 
@@ -109,7 +109,7 @@ bool SessionServer::WaitForAccept()
 
 	MyOverLapped& idat(olap_wait_for_accept);
 
-	sk_remote.sock.Ensure(Socket::TCP);
+	sk_remote.sock.ensure(Socket::TCP);
 
 	int bRet = lpfnAcceptEx(
 				   sk_local.sock,
@@ -151,7 +151,7 @@ void SessionServer::OnRecvReady()
 
 	for(;;)
 	{
-		sk_remote.sock.Ensure(Socket::TCP);
+		sk_remote.sock.ensure(Socket::TCP);
 		if(!sk_local.sock.Accept(sk_remote.sock,sk_remote.peer))
 		{
 			break;
@@ -184,8 +184,8 @@ void SessionServer::OnRecvReady()
 
 	for(;;)
 	{
-		sk_remote.sock.Ensure(Socket::TCP);
-		if(!sk_local.sock.Accept(sk_remote.sock,sk_remote.peer))
+		sk_remote.sock.ensure(Socket::TCP);
+		if(!sk_local.sock.accept(sk_remote.sock,sk_remote.peer))
 		{
 			break;
 		}
@@ -201,7 +201,7 @@ void SessionServer::OnRecvReady()
 
 void SessionServer::NewSession(PerIO_socket& sk)
 {
-	sk.sock.Shutdown();
+	sk.sock.shutdown();
 }
 
 

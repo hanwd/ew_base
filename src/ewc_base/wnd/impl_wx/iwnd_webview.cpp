@@ -70,12 +70,12 @@ public:
 			else
 			{
 				File fp;
-				if(!fp.Open(cmd.extra,FLAG_FILE_CR|FLAG_FILE_WR))
+				if(!fp.open(cmd.extra,FLAG_FILE_CR|FLAG_FILE_WR))
 				{
 					return false;
 				}
 				String pagesrc=wx2str(Target.GetPageSource());
-				int ret=fp.Write(pagesrc.c_str(),pagesrc.size());
+				int ret=fp.write(pagesrc.c_str(),pagesrc.size());
 				if(ret<0) return false;
 
 				return true;

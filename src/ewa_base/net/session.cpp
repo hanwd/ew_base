@@ -115,12 +115,12 @@ void Session::Disconnect()
 	}
 
 #ifdef EW_WINDOWS
-	sk_local.sock.Shutdown();
-	sk_local.sock.Close();
+	sk_local.sock.shutdown();
+	sk_local.sock.close();
 	m_nPendingRecv.fetch_add(1);
 	PostQueuedCompletionStatus(hiocp->native_handle(),0,(ULONG_PTR)this,NULL);
 #else
-	sk_local.sock.Shutdown();
+	sk_local.sock.shutdown();
 #endif
 
 	TempOlapPtr q;

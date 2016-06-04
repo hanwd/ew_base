@@ -27,123 +27,123 @@ Socket::~Socket()
 
 }
 
-bool Socket::IsConnected()
+bool Socket::is_connected()
 {
 	return socket_detail::is_connected(impl);
 }
 
-int Socket::Send(const char* buf,int len)
+int Socket::send(const char* buf,int len)
 {
 	return socket_detail::send(impl,buf,len);
 }
 
-int Socket::Recv(char* buf,int len)
+int Socket::recv(char* buf,int len)
 {
 	return socket_detail::recv(impl,buf,len);
 }
 
-int Socket::Send(const char* buf,int len,const IPAddress& addr)
+int Socket::send(const char* buf,int len,const IPAddress& addr)
 {
 	return socket_detail::send(impl,buf,len,addr);
 }
 
-int Socket::Recv(char* buf,int len,IPAddress& addr)
+int Socket::recv(char* buf,int len,IPAddress& addr)
 {
 	return socket_detail::recv(impl,buf,len,addr);
 }
 
-int Socket::SendMsg(const char* buf,int len)
+int Socket::send_all(const char* buf,int len)
 {
 	return socket_detail::send_msg(impl,buf,len);
 }
 
-int Socket::RecvMsg(char* buf,int len)
+int Socket::recv_all(char* buf,int len)
 {
 	return socket_detail::recv_msg(impl,buf,len);
 }
 
-int Socket::Peek(char* buf,int len)
+int Socket::peek(char* buf,int len)
 {
 	return socket_detail::peek(impl,buf,len);
 }
 
-void Socket::Block(bool f)
+void Socket::block(bool f)
 {
 	socket_detail::block(impl,f);
 }
 
-void Socket::ReuseAddress(bool f)
+void Socket::reuse_address(bool f)
 {
 	socket_detail::reuseaddr(impl,f);
 }
 
-void Socket::Shutdown(int t)
+void Socket::shutdown(int t)
 {
 	socket_detail::shutdown(impl,t);
 }
 
-void Socket::Ensure(int t)
+void Socket::ensure(int t)
 {
 	socket_detail::ensure(impl,t);
 }
 
-bool Socket::Connect(const String& ip,int port)
+bool Socket::connect(const String& ip,int port)
 {
 	IPAddress addr;
 	addr.service(ip,port);
-	return Connect(addr);
+	return connect(addr);
 }
 
-bool Socket::Connect(const IPAddress& addr)
+bool Socket::connect(const IPAddress& addr)
 {
 	return socket_detail::connect(impl,addr);
 }
 
-bool Socket::Accept(Socket& sock)
+bool Socket::accept(Socket& sock)
 {
 	IPAddress addr;
 	return socket_detail::accept(impl,sock.impl,addr);
 }
 
-bool Socket::Accept(Socket& sock,IPAddress& addr)
+bool Socket::accept(Socket& sock,IPAddress& addr)
 {
 	return socket_detail::accept(impl,sock.impl,addr);
 }
 
-bool Socket::Bind(const String& ip,int port)
+bool Socket::bind(const String& ip,int port)
 {
 	IPAddress addr(ip,port);
-	return Bind(addr);
+	return bind(addr);
 }
 
-bool Socket::Bind(const IPAddress& addr)
+bool Socket::bind(const IPAddress& addr)
 {
 	return socket_detail::bind(impl,addr);
 }
 
-bool Socket::GetPeerAddr(IPAddress& addr)
+bool Socket::get_peer(IPAddress& addr)
 {
 	return socket_detail::getpeername(impl,addr);
 }
 
-bool Socket::GetSockAddr(IPAddress& addr)
+bool Socket::get_addr(IPAddress& addr)
 {
 	return socket_detail::getsockname(impl,addr);
 }
 
-bool Socket::Listen()
+bool Socket::listen()
 {
 	return socket_detail::listen(impl);
 }
 
-bool Socket::Listen(const IPAddress& addr)
+bool Socket::listen(const IPAddress& addr)
 {
-	if(!Bind(addr))
+	if(!bind(addr))
 	{
 		return false;
 	}
 
-	if(!Listen())
+	if(!listen())
 	{
 		return false;
 	}
@@ -151,18 +151,18 @@ bool Socket::Listen(const IPAddress& addr)
 	return true;
 }
 
-bool Socket::Listen(const String& ip,int port)
+bool Socket::listen(const String& ip,int port)
 {
 	IPAddress addr(ip,port);
-	return Listen(addr);
+	return listen(addr);
 }
 
-void Socket::Close()
+void Socket::close()
 {
-	impl.close();
+	impl.reset();
 }
 
-void Socket::Reset()
+void Socket::reset()
 {
 	socket_detail::create(impl,impl.protocol);
 }

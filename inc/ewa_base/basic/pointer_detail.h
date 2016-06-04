@@ -106,9 +106,7 @@ namespace detail
 
 		inline void swap(BasePtrT& p)
 		{
-			T* tmp(m_ptr);
-			m_ptr=p.m_ptr;
-			p.m_ptr=tmp;
+			std::swap(m_ptr,p.m_ptr);
 		}
 
 		inline void reset(pointer p)
@@ -134,20 +132,25 @@ namespace detail
 
 		inline T &operator*()
 		{
+			EW_ASSERT(m_ptr!=NULL);
 			return *m_ptr;
 		}
 
 		inline const T &operator*() const
 		{
+			EW_ASSERT(m_ptr!=NULL);
 			return *m_ptr;
 		}
 
 		inline pointer operator->()
 		{
+			EW_ASSERT(m_ptr!=NULL);
 			return m_ptr;
 		}
+
 		inline const T* operator->() const
 		{
+			EW_ASSERT(m_ptr!=NULL);
 			return m_ptr;
 		}
 

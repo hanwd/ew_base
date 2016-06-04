@@ -39,15 +39,15 @@ public:
 		}
 		else
 		{
-			reader.close();
-			writer.close();
+			reader.reset();
+			writer.reset();
 		}
 		return flag;
 	}
 
 	static void close_pipe(impl_type& impl)
 	{
-		impl.close();
+		impl.reset();
 	}
 
 	static String make_pipename(const String& name_)
@@ -78,7 +78,7 @@ public:
 
 	static bool accept_namedpipe(impl_type& impl)
 	{
-		BOOL r= ConnectNamedPipe((HANDLE)impl, NULL);
+		BOOL r= ConnectNamedPipe((HANDLE)impl.get(), NULL);
 		if(r!=FALSE) return true;
 		int e=GetLastError();
 		if(e==ERROR_PIPE_CONNECTED)
@@ -91,7 +91,7 @@ public:
 
 	static void disconnect_namedpipe(impl_type& impl)
 	{
-		DisconnectNamedPipe((HANDLE)impl);
+		DisconnectNamedPipe((HANDLE)impl.get());
 	}
 
 	static bool connect_namedpipe(impl_type& impl,const String& name_,DWORD t)
@@ -123,7 +123,7 @@ public:
 	static int read_pipe(impl_type& impl,char* buf_,int len_)
 	{
 		DWORD dwLen;
-		if(ReadFile((HANDLE)impl, buf_, len_, &dwLen, NULL)!=FALSE)
+		if(ReadFile((HANDLE)impl.get(), buf_, len_, &dwLen, NULL)!=FALSE)
 		{
 			return dwLen;
 		}
@@ -136,7 +136,7 @@ public:
 	static int write_pipe(impl_type& impl,const char* buf_,int len_)
 	{
 		DWORD dwLen;
-		if(WriteFile((HANDLE)impl, buf_, len_, &dwLen, NULL)!=FALSE)
+		if(WriteFile((HANDLE)impl.get(), buf_, len_, &dwLen, NULL)!=FALSE)
 		{
 			return dwLen;
 		}

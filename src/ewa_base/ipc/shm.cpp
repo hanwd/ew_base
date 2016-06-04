@@ -128,7 +128,7 @@ public:
 		size_=tmp.dval;
 
 		HANDLE hMapFile = CreateFileMapping(
-							  m_pExtraHandle,
+							  m_pExtraHandle.get(),
 							  NULL,                   // Default security attributes
 							  flag_&FLAG_FILE_WR?PAGE_READWRITE:PAGE_READONLY,
 							  tmp.d[1],               // High-order DWORD of file mapping max size
@@ -171,7 +171,7 @@ public:
 			return;
 		}
 
-		impl.m_pHandle.close();
+		impl.m_pHandle.reset();
 		if(UnmapViewOfFile(impl.m_pAddr)==0)
 		{
 			System::CheckError("UnmapViewOfFile");

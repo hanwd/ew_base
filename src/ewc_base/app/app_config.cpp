@@ -10,7 +10,7 @@ EW_ENTER
 bool AppConfig::Load(const String& s)
 {
 	SerializerFile ar;
-	if(!ar.file.Open(s,FLAG_FILE_RD))
+	if(!ar.file.open(s,FLAG_FILE_RD))
 	{
 		return false;
 	}
@@ -30,7 +30,7 @@ bool AppConfig::Load(const String& s)
 bool AppConfig::Save(const String& s)
 {
 	SerializerFile ar;
-	if(!ar.file.Open(s,FLAG_FILE_WR|FLAG_FILE_CR))
+	if(!ar.file.open(s,FLAG_FILE_WR|FLAG_FILE_CR))
 	{
 		return false;
 	}

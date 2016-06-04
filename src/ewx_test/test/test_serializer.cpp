@@ -149,7 +149,7 @@ TEST_DEFINE(TEST_SerializerSeek)
 
 	SerializerFile sf;
 
-	if(sf.file.Open("seekable.dat",FLAG_FILE_WC))
+	if(sf.file.open("seekable.dat",FLAG_FILE_WC))
 	{
 
 		SerializerWriter &writer(sf.writer());
@@ -168,9 +168,9 @@ TEST_DEFINE(TEST_SerializerSeek)
 		writer & Serializer::head & p1 & p2 & p3 & Serializer::tail;
 
 	}
-	sf.file.Close();
+	sf.file.close();
 
-	if(sf.file.Open("seekable.dat",FLAG_FILE_RD))
+	if(sf.file.open("seekable.dat",FLAG_FILE_RD))
 	{
 		DataPtrT<float_string> p1;
 		DataPtrT<float_string> p2;

@@ -11,7 +11,6 @@ EW_ENTER
 
 class ProcessImpl;
 
-
 class DLLIMPEXP_EWA_BASE Process : public Object
 {
 public:
@@ -43,7 +42,9 @@ public:
 
 protected:
 
-	KO_Handle<KO_Policy_pointer<ProcessImpl> > impl;
+	ProcessImpl& impl();
+
+	DataPtrT<ObjectData> m_impl;
 };
 
 

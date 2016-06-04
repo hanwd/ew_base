@@ -22,61 +22,55 @@ class DLLIMPEXP_EWA_BASE File
 {
 public:
 
-	class impl_type : public KO_Handle<KO_Policy_handle>
-	{
-	public:
-		typedef KO_Handle<KO_Policy_handle> basetype;
-		void swap(impl_type& o)
-		{
-			basetype::swap(o);
-			std::swap(flags,o.flags);
-		}
-		BitFlags flags;
-	};
 
 	File();
 	File(const String& filename_,int op=FLAG_FILE_RD);
 	~File();
 
-	bool Open(const String& filename_,int op=FLAG_FILE_RD);
-	void Close();
+	bool open(const String& filename_,int op=FLAG_FILE_RD);
+	void close();
 
-	int64_t Size();
+	int64_t size();
 
-	int32_t Read(char* buf,size_t len);
-	int32_t Write(const char* buf,size_t len);
+	int32_t read(char* buf,size_t len);
+	int32_t write(const char* buf,size_t len);
 
-	int64_t Seek(int64_t pos,int t);
-	int64_t Tell();
+	int64_t seek(int64_t pos,int t);
+	int64_t tell();
 
-	void Rewind();
+	void rewind();
 
-	void Flush();
-	void Truncate(size_t size_);
+	void flush();
+	void truncate(size_t size_);
 
-	bool Eof();
+	bool eof();
 
-	void swap(impl_type& o){impl.swap(o);}
-	void swap(File& o){impl.swap(o.impl);}
 
-	impl_type::type native_handle()
+	void swap(File& o)
 	{
-		return impl;
+		impl.swap(o.impl);
+		std::swap(flags,o.flags);
 	}
 
-	bool Ok()
+	KO_Handle<KO_Policy_handle>::type native_handle()
+	{
+		return impl.get();
+	}
+
+	bool ok()
 	{
 		return impl.ok();
 	}
 
-	bool Good()
+	bool good()
 	{
-		return !impl.flags.get(FLAG_READER_FAILBIT|FLAG_WRITER_FAILBIT);
+		return !flags.get(FLAG_READER_FAILBIT|FLAG_WRITER_FAILBIT);
 	}
 
 private:
 
-	impl_type impl;
+	KO_Handle<KO_Policy_handle> impl;
+	BitFlags flags;
 
 };
 

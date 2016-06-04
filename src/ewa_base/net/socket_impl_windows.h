@@ -15,7 +15,7 @@ public:
 
 	static sock_type g(impl_type& impl)
 	{
-		impl_type::type p=impl;
+		impl_type::type p=impl.get();
 		return (sock_type)p;
 	}
 
@@ -31,7 +31,7 @@ public:
 		}
 		else
 		{
-			impl.close();
+			impl.reset();
 			return false;
 		}
 	}
@@ -41,7 +41,7 @@ public:
 		if (!impl.ok()) return false;
 		int optval;
 		int optlen = sizeof(int);
-		int ret = getsockopt(impl, SOL_SOCKET, SO_ERROR, (char*)&optval, &optlen);
+		int ret = getsockopt(impl.get(), SOL_SOCKET, SO_ERROR, (char*)&optval, &optlen);
 		return (!ret && !optval);
 	}
 
@@ -55,7 +55,7 @@ public:
 		if(impl.ok())
 		{
 			if(t==impl.protocol) return true;
-			impl.close();
+			impl.reset();
 		}
 
 		return create(impl,t);

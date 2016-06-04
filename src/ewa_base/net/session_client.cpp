@@ -32,13 +32,13 @@ bool SessionClient::Connect(const String& ip,int port)
 	}
 	sk_local.peer.service(ip,port);
 
-	if(!sk_local.sock.Connect(sk_local.peer))
+	if(!sk_local.sock.connect(sk_local.peer))
 	{
 		this_logger().LogError("connect error");
 		return false;
 	}
 
-	sk_local.sock.GetSockAddr(sk_local.addr);
+	sk_local.sock.get_addr(sk_local.addr);
 
 	return true;
 
@@ -57,7 +57,7 @@ SessionEcho::~SessionEcho()
 
 void SessionEcho::OnSendReady()
 {
-	int r=sk_local.sock.Send(&mybuf[mypos],mylen-mypos);
+	int r=sk_local.sock.send(&mybuf[mypos],mylen-mypos);
 	if(r<=0)
 	{
 		Disconnect();
@@ -76,7 +76,7 @@ void SessionEcho::OnSendReady()
 
 void SessionEcho::OnRecvReady()
 {
-	mylen=sk_local.sock.Recv(&mybuf[0],1024);
+	mylen=sk_local.sock.recv(&mybuf[0],1024);
 
 	if(mylen<=0)
 	{
@@ -84,7 +84,7 @@ void SessionEcho::OnRecvReady()
 		return;
 	}
 	
-	mypos=sk_local.sock.Send(&mybuf[0],mylen);
+	mypos=sk_local.sock.send(&mybuf[0],mylen);
 	if(mypos<0)
 	{
 		Disconnect();

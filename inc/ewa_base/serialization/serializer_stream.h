@@ -20,12 +20,12 @@ public:
 
 	int64_t seek(int64_t p,int t)
 	{
-		return file.Seek(p,t);
+		return file.seek(p,t);
 	}
 
-	void flush(){file.Flush();}
+	void flush(){file.flush();}
 
-	int64_t tell(){return file.Tell();}
+	int64_t tell(){return file.tell();}
 
 	int send(const char* data,int size);
 	int recv(char* data,int size);

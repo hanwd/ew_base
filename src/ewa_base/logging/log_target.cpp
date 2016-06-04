@@ -73,10 +73,10 @@ LogFile::LogFile(const String& filename,bool app)
 {
 	int flag=FLAG_FILE_WR|FLAG_FILE_CR;
 	if(app) flag|=FLAG_FILE_APPEND;
-	fp.Open(filename,flag);
+	fp.open(filename,flag);
 	if(!app)
 	{
-		fp.Truncate(0);
+		fp.truncate(0);
 	}
 }
 
@@ -101,9 +101,9 @@ void LogFile::Handle(const LogRecord& o)
 		return;
 	}
 
-	fp.Write(s.c_str(),s.size());
-	fp.Write("\r\n",2);
-	fp.Flush();
+	fp.write(s.c_str(),s.size());
+	fp.write("\r\n",2);
+	fp.flush();
 
 
 }

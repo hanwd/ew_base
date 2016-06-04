@@ -4,7 +4,7 @@ EW_ENTER
 
 
 
-class DLLIMPEXP_EWA_BASE StreamDataPipe : public SerializerReader
+class DLLIMPEXP_EWA_BASE SerializerReaderPipe : public SerializerReader
 {
 public:
 
@@ -13,7 +13,7 @@ public:
 		if(flags.get(FLAG_READER_FAILBIT)) return -1;
 
 		DWORD nRead(0);
-		if(::ReadFile(hReader,buf,len,&nRead,NULL)==FALSE)
+		if(::ReadFile(hReader.get(),buf,len,&nRead,NULL)==FALSE)
 		{
 			flags.add(FLAG_READER_FAILBIT);
 			System::CheckError("File::Read Error");
@@ -27,7 +27,7 @@ public:
 		if(flags.get(FLAG_WRITER_FAILBIT)) return -1;
 
 		DWORD nWrite(0);
-		if(::WriteFile(hWriter,buf,len,&nWrite,NULL)==FALSE)
+		if(::WriteFile(hWriter.get(),buf,len,&nWrite,NULL)==FALSE)
 		{
 			flags.add(FLAG_WRITER_FAILBIT);
 			System::CheckError("File::Write Error");
@@ -39,7 +39,7 @@ public:
 	KO_Handle<KO_Policy_handle> hReader, hWriter;
 };
 
-class ProcessImpl
+class ProcessImpl : public ObjectData
 {
 public:
 	BitFlags flags;
@@ -71,7 +71,7 @@ public:
 			return false;
 		}
 		hWriter=h;
-		hReader.close();
+		hReader.reset();
 		return true;
 	}
 
@@ -79,11 +79,11 @@ public:
 	{
 		if(pi.hProcess!=NULL) return false;
 
-		hReader.close();
-		hWriter.close();
+		hReader.reset();
+		hWriter.reset();
 		hStream.close();
 
-		AutoPtrT<StreamDataPipe> hPipe(new StreamDataPipe);
+		SharedPtrT<SerializerReaderPipe> hPipe(new SerializerReaderPipe);
 
 		HANDLE h1,h2;
 		if(::CreatePipe(&h1,&h2,NULL,0))
@@ -103,11 +103,11 @@ public:
 		}
 		else
 		{
-			hPipe->hReader.close();
-			hWriter.close();
+			hPipe->hReader.reset();
+			hWriter.reset();
 		}
 
-		hStream.assign(hPipe.release(),NULL);
+		hStream.assign_reader(hPipe);
 		return true;
 	}
 
@@ -147,8 +147,8 @@ public:
 
 	void Close()
 	{
-		hReader.close();
-		hWriter.close();
+		hReader.reset();
+		hWriter.reset();
 		hStream.close();
 		::CloseHandle(pi.hThread);
 		::CloseHandle(pi.hProcess);
@@ -166,8 +166,8 @@ public:
 		sb.push_back(0);
 
 
-		HANDLE h1=KO_Policy_handle::duplicate(hReader,TRUE);
-		HANDLE h2=KO_Policy_handle::duplicate(hWriter,TRUE);
+		HANDLE h1=KO_Policy_handle::duplicate(hReader.get(),TRUE);
+		HANDLE h2=KO_Policy_handle::duplicate(hWriter.get(),TRUE);
 
 		si.hStdOutput = h2;
 		si.hStdError = h2;
@@ -199,68 +199,65 @@ Process::Process()
 }
 
 
+ProcessImpl& Process::impl()
+{
+	if(!m_impl)
+	{
+		m_impl.reset(new ProcessImpl);
+	}
+	return static_cast<ProcessImpl&>(*m_impl);
+}
+
 bool Process::Redirect()
 {
-	if(!impl.ok()) impl.reset(new ProcessImpl);
-	return ((ProcessImpl*)impl)->Redirect();
+	return impl().Redirect();
 }
 
 bool Process::Redirect(KO_Handle<KO_Policy_handle> h)
 {
-	if(!impl.ok()) impl.reset(new ProcessImpl);
-	return ((ProcessImpl*)impl)->Redirect(h);
+	return impl().Redirect(h);
 }
 
 bool Process::Execute(const String& cmd)
 {
-	if(!impl.ok()) impl.reset(new ProcessImpl);
-	return ((ProcessImpl*)impl)->Execute(cmd);
+	return impl().Execute(cmd);
 }
 
 Stream Process::GetStream()
 {
-	if(!impl.ok()) return Stream();
-	return ((ProcessImpl*)impl)->hStream;
+	if(!m_impl) return Stream();
+	return impl().hStream;
 }
 
 
 void Process::Wait()
 {
-	if(!impl.ok()) return;
-	((ProcessImpl*)impl)->Wait();
+	if(!m_impl) return;
+	impl().Wait();
 }
 
 bool Process::GetExitCode(int* code)
 {
-	if(!impl.ok()) return false;
-	return ((ProcessImpl*)impl)->GetExitCode(code);
+	if(!m_impl) return false;
+	return impl().GetExitCode(code);
 }
 
 bool Process::WaitFor(int ms)
 {
-	if(!impl.ok()) return true;
-	return ((ProcessImpl*)impl)->WaitFor(ms);
+	if(!m_impl) return true;
+	return impl().WaitFor(ms);
 }
 
 void Process::Close()
 {
-	impl.close();
+	m_impl.reset(NULL);
 }
 
 void Process::Kill(int r)
 {
-	if(!impl.ok()) return;
-	((ProcessImpl*)impl)->Kill(r);
+	if(!m_impl) return;
+	impl().Kill(r);
 }
-
-template<>
-void KO_Policy_pointer<ProcessImpl>::destroy(type& o)
-{
-	delete o;
-	o=NULL;
-}
-
-template class KO_Policy_pointer<ProcessImpl>;
 
 
 EW_LEAVE

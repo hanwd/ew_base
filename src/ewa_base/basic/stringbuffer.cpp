@@ -106,19 +106,19 @@ bool StringBuffer<T>::save(const String& file,int type)
 
 	File ofs;
 
-	if(!ofs.Open(file,FLAG_FILE_WR|FLAG_FILE_CR))
+	if(!ofs.open(file,FLAG_FILE_WR|FLAG_FILE_CR))
 	{
 		return false;
 	}
 
-	ofs.Truncate(0);
+	ofs.truncate(0);
 
 	switch(type)
 	{
 	case FILE_TYPE_BINARY:
 	{
-		ofs.Write((char*)data(),sizeof(T)*size());
-		return ofs.Good();
+		ofs.write((char*)data(),sizeof(T)*size());
+		return ofs.good();
 	}
 	case FILE_TYPE_TEXT_ANSI:
 	{
@@ -146,8 +146,8 @@ bool StringBuffer<T>::save(const String& file,int type)
 			}
 		}
 
-		ofs.Write((char*)sb.data(),sb.size());
-		return ofs.Good();
+		ofs.write((char*)sb.data(),sb.size());
+		return ofs.good();
 	}
 	break;
 	case FILE_TYPE_TEXT:
@@ -156,13 +156,13 @@ bool StringBuffer<T>::save(const String& file,int type)
 
 		if(writebom)
 		{
-			ofs.Write((char*)bom_utf8,3);
+			ofs.write((char*)bom_utf8,3);
 		}
 
 		if(sizeof(T)==1)
 		{
-			ofs.Write((char*)data(),size());
-			return ofs.Good();
+			ofs.write((char*)data(),size());
+			return ofs.good();
 		}
 
 		StringBuffer<char> sb;
@@ -181,8 +181,8 @@ bool StringBuffer<T>::save(const String& file,int type)
 			}
 		}
 
-		ofs.Write(sb.data(),sb.size());
-		return ofs.Good();
+		ofs.write(sb.data(),sb.size());
+		return ofs.good();
 	}
 	break;
 	case FILE_TYPE_TEXT_UTF16_BE:
@@ -218,11 +218,11 @@ bool StringBuffer<T>::save(const String& file,int type)
 
 		if(writebom)
 		{
-			ofs.Write((char*)(type==FILE_TYPE_TEXT_UTF16_BE?bom_utf16_be:bom_utf16_le),2);
+			ofs.write((char*)(type==FILE_TYPE_TEXT_UTF16_BE?bom_utf16_be:bom_utf16_le),2);
 		}
 
-		ofs.Write((char*)wb.data(),wb.size()*2);
-		return ofs.Good();
+		ofs.write((char*)wb.data(),wb.size()*2);
+		return ofs.good();
 
 	}
 	break;
@@ -244,12 +244,12 @@ bool StringBuffer<T>::load(const String& file,int type)
 
 	type=type&FILE_TYPE_MASK;
 
-	if(!ifs.Open(file))
+	if(!ifs.open(file))
 	{
 		this_logger().LogError("Cannot open file: %s",file);
 		return false;
 	}
-	size_t sz=ifs.Size();
+	size_t sz=ifs.size();
 
 	if(type==FILE_TYPE_BINARY)
 	{
@@ -261,7 +261,7 @@ bool StringBuffer<T>::load(const String& file,int type)
 
 		size_t size=sz/sizeof(T);
 		resize(size);
-		ifs.Read((char*)data(),sz);
+		ifs.read((char*)data(),sz);
 
 		return true;
 
@@ -269,17 +269,17 @@ bool StringBuffer<T>::load(const String& file,int type)
 
 
 	unsigned char bom[4]= {1,1,1,1};
-	ifs.Read((char*)bom,4);
+	ifs.read((char*)bom,4);
 
 	StringBuffer<char> sb;
 	if(bom[0]==0xEF && bom[1]==0xBB && bom[2]==0xBF) // UTF8
 	{
 		size_type df=3;
-		ifs.Seek(df,SEEKTYPE_BEG);
+		ifs.seek(df,SEEKTYPE_BEG);
 		size_type nz=sz-df;
 		StringBuffer<char> kb;
 		kb.resize(nz);
-		ifs.Read((char*)kb.data(),nz);
+		ifs.read((char*)kb.data(),nz);
 
 		if(sizeof(T)==1)
 		{
@@ -309,11 +309,11 @@ bool StringBuffer<T>::load(const String& file,int type)
 		}
 
 		size_type df=2;
-		ifs.Seek(df,SEEKTYPE_BEG);
+		ifs.seek(df,SEEKTYPE_BEG);
 		size_type nz=sz-df;
 		StringBuffer<unsigned short> kb;
 		kb.resize(nz>>1);
-		ifs.Read((char*)kb.data(),nz);
+		ifs.read((char*)kb.data(),nz);
 
 		// CE D2
 		// 11 62;
@@ -351,11 +351,11 @@ bool StringBuffer<T>::load(const String& file,int type)
 		}
 
 		size_type df=4;
-		ifs.Seek(df,SEEKTYPE_BEG);
+		ifs.seek(df,SEEKTYPE_BEG);
 		size_type nz=sz-df;
 		StringBuffer<unsigned int> kb;
 		kb.resize(nz>>2);
-		ifs.Read((char*)kb.data(),nz);
+		ifs.read((char*)kb.data(),nz);
 
 		uint32_t tag=*(uint32_t*)bom;
 
@@ -383,10 +383,10 @@ bool StringBuffer<T>::load(const String& file,int type)
 	else
 	{
 		size_type df=0;
-		ifs.Seek(df,SEEKTYPE_BEG);
+		ifs.seek(df,SEEKTYPE_BEG);
 		size_type nz=sz-df;
 		sb.resize(nz);
-		ifs.Read((char*)sb.data(),nz);
+		ifs.read((char*)sb.data(),nz);
 
 		unsigned char* p=(unsigned char*)sb.data();
 		int t=0;

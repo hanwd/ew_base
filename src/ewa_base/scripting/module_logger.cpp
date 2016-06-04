@@ -96,7 +96,7 @@ public:
 			LogFile* p=new LogFile(file,app);
 			this_logger().reset(p);
 
-			flag=p->Good();
+			flag=p->good();
 
 		}
 		else

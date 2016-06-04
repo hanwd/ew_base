@@ -849,7 +849,7 @@ public:
 		SerializerFile ar;
 
 		arr_1t<Variant> var;
-		if(ar.file.Open(*p,FLAG_FILE_RD))
+		if(ar.file.open(*p,FLAG_FILE_RD))
 		{
 			ar.reader() & var;			
 		}
@@ -889,7 +889,7 @@ public:
 		arr_1t<Variant> var;
 		var.assign(ewsl.ci0.nbx + 2, pm - 1);
 
-		if(ar.file.Open(*p,FLAG_FILE_WC))
+		if(ar.file.open(*p,FLAG_FILE_WC))
 		{
 			ar.writer() & var;			
 		}

@@ -10,6 +10,8 @@
 
 EW_ENTER
 
+class DLLIMPEXP_EWA_BASE File;
+class DLLIMPEXP_EWA_BASE Socket;
 
 class DLLIMPEXP_EWA_BASE SerializerReader;
 class DLLIMPEXP_EWA_BASE SerializerWriter;
@@ -72,7 +74,7 @@ public:
 	int global_version();
 	void global_version(int v);
 
-	virtual void close() {}
+	virtual void close(){}
 
 	BitFlags flags;
 
@@ -139,19 +141,11 @@ public:
 class DLLIMPEXP_EWA_BASE SerializerEx : public Serializer
 {
 protected:
-
 	SerializerEx(int t);
 
 public:
 
-	CachedObjectManager& cached_objects()
-	{
-		if(!p_cached_objects)
-		{
-			p_cached_objects.reset(new CachedObjectManager);
-		}
-		return *p_cached_objects;
-	}
+	CachedObjectManager& cached_objects();
 
 protected:
 	DataPtrT<CachedObjectManager> p_cached_objects;
@@ -231,7 +225,7 @@ public:
 
 	virtual int64_t seek(int64_t p,int t){return-1;}
 	virtual int64_t tell(){return seek(0,SEEKTYPE_CUR);}
-	virtual int64_t size(){return seek(0,SEEKTYPE_END);}
+	virtual int64_t size();
 
 	virtual int64_t seekg(int64_t p,int t){return seek(p,t);}
 	virtual int64_t tellg(){return tell();}
@@ -246,10 +240,6 @@ public:
 };
 
 
-
-class DLLIMPEXP_EWA_BASE File;
-class DLLIMPEXP_EWA_BASE Socket;
-
 class DLLIMPEXP_EWA_BASE Stream
 {
 public:
@@ -260,8 +250,9 @@ public:
 	void assign(File& file);
 	void assign(Socket& socket);
 
-	void assign(SerializerDuplex* p);
-	void assign(SerializerReader* p1,SerializerWriter* p2);
+	void assign(SharedPtrT<SerializerDuplex> p);
+	void assign_reader(SharedPtrT<SerializerReader> p1);
+	void assign_writer(SharedPtrT<SerializerWriter> p2);
 
 	int64_t seekg(int64_t p,int t);
 	int64_t tellg();
@@ -296,17 +287,14 @@ public:
 	void Serialize(Serializer& ar){ar.errstr("stream cannot be serialized!");}
 
 protected:
-	KO_Handle<KO_Policy_pointer<SerializerReader> > hReader;
-	KO_Handle<KO_Policy_pointer<SerializerWriter> > hWriter;
+	SharedPtrT<SerializerReader> hReader;
+	SharedPtrT<SerializerWriter> hWriter;
 };
 
 template<> class hash_t<Stream>
 {
 public:
-	inline uint32_t operator()(const Stream&)
-	{
-		return -1;
-	}
+	inline uint32_t operator()(const Stream&){return -1;}
 };
 
 inline bool operator==(const Stream& lhs,const Stream& rhs){return &lhs==&rhs;}

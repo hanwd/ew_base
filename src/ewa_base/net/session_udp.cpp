@@ -228,8 +228,8 @@ bool SessionUDP::Bind(IPAddress& addr)
 	}
 
 	sk_local.addr=addr;
-	sk_local.sock.Ensure(Socket::UDP);
-	if(!sk_local.sock.Bind(addr))
+	sk_local.sock.ensure(Socket::UDP);
+	if(!sk_local.sock.bind(addr))
 	{
 		return false;
 	}
@@ -245,8 +245,8 @@ bool SessionUDP::Connect(const String& ip,int port)
 	}
 
 	sk_local.peer.service(ip,port);
-	sk_local.sock.Ensure(Socket::UDP);
-	if(!sk_local.sock.Connect(sk_local.peer))
+	sk_local.sock.ensure(Socket::UDP);
+	if(!sk_local.sock.connect(sk_local.peer))
 	{
 		return false;
 	}

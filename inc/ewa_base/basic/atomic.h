@@ -318,18 +318,17 @@ class DLLIMPEXP_EWA_BASE RefCounter : public mp_obj
 {
 public:
 
-	AtomicUint64 m_count;
+	AtomicUint64 m_refcount;
 
 	static const uint64_t WEAK_TAG = uint64_t(1) << 32;
 	static const uint64_t MASK_TAG = WEAK_TAG - 1;
 
-
-	EW_FORCEINLINE RefCounter() :m_count(0){}
-
+	EW_FORCEINLINE RefCounter() :m_refcount(0){}
+	EW_FORCEINLINE RefCounter(int n) :m_refcount(n){}
 
 	EW_FORCEINLINE bool Lock()
 	{
-		AtomicUint32& n = *(AtomicUint32*)&m_count;
+		AtomicUint32& n = *(AtomicUint32*)&m_refcount;
 		while (1)
 		{
 			uint32_t expected = n;
@@ -341,14 +340,19 @@ public:
 		}
 	}
 
+	EW_FORCEINLINE int GetUseCount()
+	{
+		return *(AtomicUint32*)&m_refcount;
+	}
+
 	EW_FORCEINLINE void IncUseCount()
 	{
-		m_count.fetch_add(1);
+		m_refcount.fetch_add(1);
 	}
 
 	EW_FORCEINLINE bool DecUseCount()
 	{
-		int64_t val = m_count.fetch_sub(1);
+		int64_t val = m_refcount.fetch_sub(1);
 		if (val == 1)
 		{
 			delete this;
@@ -358,12 +362,12 @@ public:
 
 	EW_FORCEINLINE void IncWeakCount()
 	{
-		m_count.fetch_add(WEAK_TAG);
+		m_refcount.fetch_add(WEAK_TAG);
 	}
 
 	EW_FORCEINLINE void DecWeakCount()
 	{
-		if (m_count.fetch_sub(WEAK_TAG) == WEAK_TAG)
+		if (m_refcount.fetch_sub(WEAK_TAG) == WEAK_TAG)
 		{
 			delete this;
 		}

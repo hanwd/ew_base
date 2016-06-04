@@ -47,7 +47,7 @@ public:
 
 	KO_Policy_handle::type native_handle()
 	{
-		return hIOCPhandler;
+		return hIOCPhandler.get();
 	}
 
 	int Register(Session* session);

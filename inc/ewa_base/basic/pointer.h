@@ -120,109 +120,92 @@ public:
 };
 
 
-template<typename T>
-class KO_Pointer
-{
-public:
-	typedef T* type;
-	typedef type const_reference;
-	static type invalid_value(){return NULL;}
-	static void destroy(type& o){ delete o; }
-};
 
 template<typename T>
-class SharedPtrT
+class WeakPtrT;
+
+template<typename T>
+class SharedPtrT : public KO_Handle<KO_Policy_pointer<T> >
 {
 public:
+
+	typedef T element_type;
+	typedef KO_Handle<KO_Policy_pointer<T> > basetype;
+
+	friend class WeakPtrT<T>;
 
 	typedef T* pointer;
 	typedef const T* const_pointer;
+	typedef T& reference;
+	typedef const T& const_reference;
 
-	SharedPtrT(pointer p = NULL)
+	explicit SharedPtrT(pointer p = NULL) : basetype(p){}
+	SharedPtrT(const basetype& o) :basetype(o){}
+	SharedPtrT(const SharedPtrT& o) :basetype(o){}
+
+	template<typename X>
+	SharedPtrT(const SharedPtrT<X>& o)
 	{
-		handle.reset(p);
-	}
-
-	SharedPtrT(const SharedPtrT& o) :handle(o.handle)
-	{
-
-	}
-
-	SharedPtrT(const KO_Handle<KO_Pointer<T> >& o) :handle(o)
-	{
-
-	}
-
-	void reset(pointer p)
-	{
-		handle.reset(p);
+		basetype::reset((X*)o.get(),o.counter());
 	}
 	
 	pointer get()
 	{
-		return handle;
+		return m_pHandle;
 	}
 
 	const_pointer get() const
 	{
-		return handle;
+		return m_pHandle;
 	}
 
 	pointer operator->()
 	{
-		return get();
+		EW_ASSERT(m_pHandle!=NULL);
+		return m_pHandle;
 	}
 
 	const_pointer operator->() const
 	{
-		return get();
+		EW_ASSERT(m_pHandle!=NULL);
+		return m_pHandle;
 	}
 
 	operator bool() const
 	{
-		return get() != NULL;
+		return m_pHandle != NULL;
 	}
 
-	void swap(SharedPtrT& o)
+	reference operator*()
 	{
-		handle.swap(o);
+		EW_ASSERT(m_pHandle!=NULL);
+		return *m_pHandle;
 	}
 
-	mutable KO_Handle<KO_Pointer<T> > handle;
+	const_reference operator*() const
+	{
+		EW_ASSERT(m_pHandle!=NULL);
+		return *m_pHandle;
+	}
+
 };
 
 template<typename T>
-class WeakPtrT
+class WeakPtrT : public KO_Weak<KO_Policy_pointer<T> >
 {
 public:
+	typedef T element_type;
+	typedef KO_Weak<KO_Policy_pointer<T> > basetype;
 
 	WeakPtrT(){}
-	WeakPtrT(const SharedPtrT<T>& o) :handle(o.handle){}
-	WeakPtrT(const WeakPtrT<T>& o) :handle(o.handle){}
-
-	WeakPtrT& operator=(const SharedPtrT<T>& o)
-	{
-		handle = o.handle;
-		return *this;
-	}
-
-	WeakPtrT& operator=(const WeakPtrT<T>& o)
-	{
-		handle = o.handle;
-		return *this;
-	}
+	WeakPtrT(const SharedPtrT<T>& o) :basetype(o){}
+	WeakPtrT(const WeakPtrT<T>& o) :basetype(o){}
 
 	SharedPtrT<T> lock()
 	{
-		return handle.lock();
+		return basetype::lock();
 	}
 
-	void swap(WeakPtrT& o)
-	{
-		handle.swap(o);
-	}
-
-	mutable KO_Weak<KO_Pointer<T> > handle;
 };
 
 
@@ -281,6 +264,22 @@ protected:
 	{\
 		return lhs X rhs.get();\
 	}\
+	template<typename T>\
+	inline bool operator X(const SharedPtrT<T>& lhs,const SharedPtrT<T>& rhs)\
+	{\
+		return lhs.get() X rhs.get();\
+	}\
+	template<typename T>\
+	inline bool operator X(const SharedPtrT<T>& lhs,T* rhs)\
+	{\
+		return lhs.get() X rhs;\
+	}\
+	template<typename T>\
+	inline bool operator X(T* lhs,const SharedPtrT<T>& rhs)\
+	{\
+		return lhs X rhs.get();\
+	}\
+
 
 EW_BASEPTRT_REL_OP(==)
 EW_BASEPTRT_REL_OP(!=)

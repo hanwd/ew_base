@@ -67,53 +67,53 @@ public:
 	Socket();
 	~Socket();
 
-	void Ensure(int t=TCP);
+	void ensure(int t=TCP);
 
-	bool Bind(const IPAddress& addr);
-	bool Bind(const String& ip,int port);
+	bool bind(const IPAddress& addr);
+	bool bind(const String& ip,int port);
 
 	// server
-	bool Listen();
-	bool Listen(const IPAddress& addr);
-	bool Listen(const String& ip,int port);
+	bool listen();
+	bool listen(const IPAddress& addr);
+	bool listen(const String& ip,int port);
 
-	bool Accept(Socket& sock);
-	bool Accept(Socket& sock,IPAddress& addr);
+	bool accept(Socket& sock);
+	bool accept(Socket& sock,IPAddress& addr);
 
 	// client
-	bool Connect(const String& ip,int port);
-	bool Connect(const IPAddress& addr);
+	bool connect(const String& ip,int port);
+	bool connect(const IPAddress& addr);
 
 
-	int Send(const char* buf,int len);
-	int Recv(char* buf,int len);
+	int send(const char* buf,int len);
+	int recv(char* buf,int len);
 
-	int Peek(char* buf,int len);
+	int peek(char* buf,int len);
 
-	int SendMsg(const char* buf,int len);
-	int RecvMsg(char* buf,int len);
+	int send_all(const char* buf,int len);
+	int recv_all(char* buf,int len);
 
 	// udp send/recv
-	int Send(const char* buf,int len,const IPAddress& addr);
-	int Recv(char* buf,int len,IPAddress& addr);
+	int send(const char* buf,int len,const IPAddress& addr);
+	int recv(char* buf,int len,IPAddress& addr);
 
-	bool IsConnected();
+	bool is_connected();
 
-	bool GetPeerAddr(IPAddress& addr);
-	bool GetSockAddr(IPAddress& addr);
+	bool get_peer(IPAddress& addr);
+	bool get_addr(IPAddress& addr);
 
-	void Shutdown(int t=-1);
-	void Close();
+	void shutdown(int t=-1);
+	void close();
 
-	void Block(bool f);
-	void ReuseAddress(bool f);
+	void block(bool f);
+	void reuse_address(bool f);
 
 	operator impl_type::const_reference()
 	{
-		return impl;
+		return impl.get();
 	}
 
-	void Reset(impl_type::const_reference s)
+	void reset(impl_type::const_reference s)
 	{
 		impl.reset(s);
 	}
@@ -123,11 +123,11 @@ public:
 		impl.swap(s.impl);
 	}
 
-	void Reset();
+	void reset();
 
 	impl_type::type native_handle()
 	{
-		return impl;
+		return impl.get();
 	}
 
 private:

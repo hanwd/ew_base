@@ -12,17 +12,14 @@
 
 EW_ENTER
 
-
 #ifdef EW_WINDOWS
+
 class DLLIMPEXP_EWA_BASE KO_Policy_handle
 {
 public:
 	typedef void* type;
 	typedef type const_reference;
-	static inline type invalid_value()
-	{
-		return NULL;
-	}
+	static inline type invalid_value(){return NULL;}
 	static void destroy(type& o);
 	static type duplicate(type v,int h=0);
 };
@@ -48,7 +45,7 @@ public:
 	typedef T* type;
 	typedef type const_reference;
 	static type invalid_value(){return NULL;}
-	static void destroy(type& o);
+	static void destroy(type& o){delete o;o=NULL;}
 };
 
 
@@ -56,32 +53,48 @@ template<typename P>
 class KO_Base
 {
 public:
-	RefCounter* counter(){return m_pCounter;}
+
+	RefCounter* counter() const {return m_pCounter;}
+
+	int use_count() const
+	{
+		return m_pCounter? m_pCounter->GetUseCount():0;
+	}
 
 protected:
 	typedef typename P::type type;
 	typedef typename P::const_reference const_reference;
 
-	KO_Base() :m_pHandle(P::invalid_value()), m_pCounter(NULL){}
+	KO_Base():m_pHandle(P::invalid_value()), m_pCounter(NULL){}
 	KO_Base(const KO_Base& o) :m_pHandle(o.m_pHandle), m_pCounter(o.m_pCounter){}
 
 	type m_pHandle;
 	mutable RefCounter* m_pCounter;
 };
 
+template<typename P>
+class KO_Weak;
+
 
 template<typename P>
 class KO_Handle : public KO_Base<P>
 {
 public:
+
+	friend class KO_Weak<P>;
+
 	typedef KO_Base<P> basetype;
 	typedef typename P::type type;
 	typedef typename P::const_reference const_reference;
 
 	KO_Handle(){}
-	KO_Handle(const_reference v)
+	explicit KO_Handle(const_reference v)
 	{
-		reset(v);
+		if(v!=P::invalid_value())
+		{
+			m_pCounter=new RefCounter(1);
+			m_pHandle=v;
+		}	
 	}
 
 	KO_Handle(const KO_Handle& o) :basetype(o)
@@ -94,82 +107,64 @@ public:
 
 	KO_Handle& operator=(const KO_Handle& o)
 	{
-		if(m_pCounter==o.m_pCounter)
-		{
-			return *this;
-		}
-
-		if (m_pCounter && m_pCounter->DecUseCount())
-		{
-			m_pCounter = NULL;
-			P::destroy(m_pHandle);
-		}
-
-		m_pHandle=o.m_pHandle;
-		m_pCounter=o.m_pCounter;
-
-		if(m_pCounter)
-		{
-			m_pCounter->IncUseCount();
-		}
-
+		reset(o.m_pHandle,o.m_pCounter);
 		return *this;
 	}
 
-	template<typename P2>
-	void reset(const_reference v,KO_Base<P2>& c)
+
+	void reset(const_reference v,RefCounter* p)
 	{
-		EW_ASSERT(c.counter()!=NULL);
-		EW_ASSERT(v!=P::invalid_value());
+		if(m_pCounter==p)
+		{
+			m_pHandle=v;
+			return;
+		}
 
 		if (m_pCounter && m_pCounter->DecUseCount())
 		{
-			m_pCounter = NULL;
 			P::destroy(m_pHandle);
 		}
-
+	
 		m_pHandle=v;		
-		m_pCounter=c.counter();
-		m_pCounter->IncUseCount();	
+		m_pCounter=p;
+
+		if(m_pCounter)
+		{
+			m_pCounter->IncUseCount();	
+		}
+
 	}
 
 	void reset(const_reference v)
 	{
 		if (m_pCounter && m_pCounter->DecUseCount())
 		{
-			m_pCounter = NULL;
 			P::destroy(m_pHandle);
 		}
 
+		m_pCounter=NULL;
 		m_pHandle=v;
 
 		if(v!=P::invalid_value())
 		{
-			m_pCounter=new RefCounter();
-			m_pCounter->IncUseCount();
+			m_pCounter=new RefCounter(1);
 		}
 
 	}
 
-	bool close()
+	void reset()
 	{
-		if(!m_pCounter)
-		{
-			return false;
-		}
+		if(!m_pCounter) return;
 
 		if(m_pCounter->DecUseCount())
 		{
 			P::destroy(m_pHandle);
 			m_pCounter=NULL;
-			m_pHandle=P::invalid_value();
-			return true;
 		}
 		else
 		{
 			m_pHandle=P::invalid_value();
 			m_pCounter=NULL;
-			return false;
 		}
 	}
 
@@ -195,10 +190,15 @@ public:
 		}
 	}
 
-	operator const_reference()
+	bool unique() const
 	{
-		return m_pHandle;
+		return use_count()==1;
 	}
+
+	//operator const_reference()
+	//{
+	//	return m_pHandle;
+	//}
 
 	const_reference get()
 	{
@@ -212,7 +212,7 @@ public:
 
 	~KO_Handle()
 	{
-		close();
+		reset();
 	}
 
 	void swap(KO_Handle& o)
@@ -241,18 +241,24 @@ public:
 			m_pCounter->IncWeakCount();
 		}
 	}
+	~KO_Weak()
+	{
+		reset();
+	}
 
 	KO_Weak& operator=(const KO_Base<P>& p)
 	{
-		if (m_pCounter == p.m_pCounter) return *this;
+		if (m_pCounter == p.m_pCounter)
+		{
+			return *this;
+		}
 
 		if (m_pCounter)
 		{
 			m_pCounter->DecWeakCount();
 		}
 
-		m_pHandle = o.m_pHandle;
-		m_pCounter=o.m_pCounter;
+		basetype::operator=(p);
 
 		if (m_pCounter)
 		{
@@ -262,6 +268,10 @@ public:
 		return *this;
 	}
 
+	bool expired() const
+	{
+		return !m_pCounter || m_pCounter->GetUseCount()==0;
+	}
 
 	KO_Handle<P> lock()
 	{
@@ -271,18 +281,29 @@ public:
 		}
 
 		KO_Handle<P> handle;
+
 		handle.m_pHandle = m_pHandle;
 		handle.m_pCounter=m_pCounter;
 
 		return handle;
 	}
 
-	void swap(KO_Handle& o)
+	void reset()
+	{
+		if(m_pCounter)
+		{
+			m_pCounter->DecWeakCount();
+			m_pCounter=NULL;
+		}
+	}
+
+	void swap(KO_Weak& o)
 	{
 		std::swap(m_pHandle, o.m_pHandle);
 		std::swap(m_pCounter, o.m_pCounter);
 	}
 };
+
 
 
 enum

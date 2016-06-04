@@ -388,7 +388,7 @@ Stream System::ExecuteRedirect(const String& s,bool* status)
 
 	System::LogTrace("System::Exectue:%s", s);
 
-	AutoPtrT<SerializerReaderProcess> proc(new SerializerReaderProcess);
+	SharedPtrT<SerializerReaderProcess> proc(new SerializerReaderProcess);
 
 	Stream stream;
 
@@ -396,7 +396,7 @@ Stream System::ExecuteRedirect(const String& s,bool* status)
 	if(proc->Execute(s))
 	{
 		if(status) *status=true;
-		stream.assign(proc.release(),NULL);
+		stream.assign_reader(proc);
 
 		return stream;
 	}
@@ -419,7 +419,7 @@ bool System::Execute(const String& s, StringBuffer<char>& result)
 	//char buf[1024*4];
 	//while(1)
 	//{
-	//	int rc=stream.Read(buf,sizeof(buf));
+	//	int rc=stream.read(buf,sizeof(buf));
 	//	if(rc<=0) break;
 	//	result.append(buf,rc);
 	//}
@@ -655,7 +655,7 @@ void System::DoLog(int lv,const char* msg,...)
 
 void DllModule::Close()
 {
-	impl.close();
+	impl.reset();
 }
 
 #ifdef EW_WINDOWS

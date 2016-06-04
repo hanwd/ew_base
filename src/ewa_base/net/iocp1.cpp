@@ -41,12 +41,12 @@ int IOCPPool::Register(Session* pkey)
 		return -1;
 	}
 
-	pkey->sk_local.sock.Block(false);
+	pkey->sk_local.sock.block(false);
 	pkey->hiocp.reset(this);
 	pkey->tpLast=accounter.tTimeStamp;
 
 #ifdef EW_WINDOWS
-	CreateIoCompletionPort(*(HANDLE*)&pkey->sk_local.sock, hIOCPhandler, (ULONG_PTR)pkey, 0);
+	CreateIoCompletionPort(*(HANDLE*)&pkey->sk_local.sock, hIOCPhandler.get(), (ULONG_PTR)pkey, 0);
 	pkey->state.store(Session::STATE_OK);
 #else
 	pkey->tmp_send.reset(NULL);
@@ -135,7 +135,7 @@ IOCPPool::IOCPPool(const String& name_,int maxconn_):m_sName(name_)
 
 bool IOCPPool::activate(int n)
 {
-	if(!hIOCPhandler)
+	if(!hIOCPhandler.get())
 	{
 		return false;
 	}
@@ -312,7 +312,7 @@ void IOCPPool::svc_del(int n)
 #endif
 
 	pkey->state.store(Session::STATE_READY);
-	pkey->sk_local.sock.Close();
+	pkey->sk_local.sock.close();
 	pkey->OnDisconnected();
 	m_aSessions[n].reset(NULL);
 	m_lkfqSessionAvailable.putq(n);
@@ -456,7 +456,7 @@ void IOCPPool::svc_worker()
 	while(!test_canceled())
 	{
 
-		bRet = GetQueuedCompletionStatus(hIOCPhandler, &BytesTransferred, (PULONG_PTR)&pkey, (LPOVERLAPPED*)&pdat,100);
+		bRet = GetQueuedCompletionStatus(hIOCPhandler.get(), &BytesTransferred, (PULONG_PTR)&pkey, (LPOVERLAPPED*)&pdat,100);
 		if(bRet == 0)
 		{
 			int r=::WSAGetLastError();
@@ -534,7 +534,7 @@ void IOCPPool::HandleSend(Session& ikey)
 
 		if(q->type==MyOverLapped::ACTION_UDP_SEND)
 		{
-			int bRet=ikey.sk_local.sock.Send(q->dbuf[0].buf,q->dbuf[0].len,q->peer);
+			int bRet=ikey.sk_local.sock.send(q->dbuf[0].buf,q->dbuf[0].len,q->peer);
 			if(bRet>0)
 			{
 				q->size=bRet;
@@ -559,7 +559,7 @@ void IOCPPool::HandleSend(Session& ikey)
 		for(;;)
 		{
 
-			int bRet=ikey.sk_local.sock.Send(q->dbuf[0].buf+q->size,q->dbuf[0].len-q->size);
+			int bRet=ikey.sk_local.sock.send(q->dbuf[0].buf+q->size,q->dbuf[0].len-q->size);
 			if(bRet<0)
 			{
 				if(errno==EAGAIN)
@@ -625,7 +625,7 @@ void IOCPPool::HandleRecv(Session& ikey)
 
 		if(q->type==MyOverLapped::ACTION_UDP_RECV)
 		{
-			int bRet=ikey.sk_local.sock.Recv(q->dbuf[0].buf,q->dbuf[0].len,q->peer);
+			int bRet=ikey.sk_local.sock.recv(q->dbuf[0].buf,q->dbuf[0].len,q->peer);
 			if(bRet>0)
 			{
 				q->size=bRet;
@@ -655,7 +655,7 @@ void IOCPPool::HandleRecv(Session& ikey)
 		for(;;)
 		{
 
-			int bRet=ikey.sk_local.sock.Recv(q->dbuf[0].buf+q->size,q->dbuf[0].len-q->size);
+			int bRet=ikey.sk_local.sock.recv(q->dbuf[0].buf+q->size,q->dbuf[0].len-q->size);
 			if(bRet<0)
 			{
 				if(errno==EAGAIN)

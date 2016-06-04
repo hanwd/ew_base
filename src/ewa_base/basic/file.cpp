@@ -23,10 +23,10 @@ String fn_encode(const String& oldname_)
 
 #ifdef EW_WINDOWS
 
-bool File::Open(const String& filename_,int flag_)
+bool File::open(const String& filename_,int flag_)
 {
 	String fn=fn_encode(filename_);
-	Close();
+	close();
 
 	DWORD option=(flag_&FLAG_FILE_CR)?OPEN_ALWAYS:OPEN_EXISTING;
 	if(flag_&FLAG_FILE_TRUNCATE) option|=TRUNCATE_EXISTING;
@@ -46,67 +46,67 @@ bool File::Open(const String& filename_,int flag_)
 	{
 		System::CheckError("File::Open error");
 
-		impl.flags.add(FLAG_READER_FAILBIT|FLAG_WRITER_FAILBIT);
+		flags.add(FLAG_READER_FAILBIT|FLAG_WRITER_FAILBIT);
 		return false;
 	}
 
-	impl.flags.del(FLAG_READER_FAILBIT|FLAG_WRITER_FAILBIT);
+	flags.del(FLAG_READER_FAILBIT|FLAG_WRITER_FAILBIT);
 	impl.reset(hFile);
 
 	if(flag_&FLAG_FILE_APPEND)
 	{
-		Seek(0,SEEKTYPE_END);
+		seek(0,SEEKTYPE_END);
 	}
 
 	return true;
 }
 
-int64_t File::Size()
+int64_t File::size()
 {
 	FileAccess::LargeInteger tmp;
-	tmp.d[0]=::GetFileSize(impl,&tmp.d[1]);
+	tmp.d[0]=::GetFileSize(impl.get(),&tmp.d[1]);
 	return tmp.dval;
 }
 
-int32_t File::Read(char* buf,size_t len)
+int32_t File::read(char* buf,size_t len)
 {
 	DWORD nRead(0);
-	if(::ReadFile(impl,buf,len,&nRead,NULL)==FALSE)
+	if(::ReadFile(impl.get(),buf,len,&nRead,NULL)==FALSE)
 	{
-		impl.flags.add(FLAG_READER_FAILBIT);
+		flags.add(FLAG_READER_FAILBIT);
 		System::CheckError("File::Read Error");
 		return -1;
 	}
 	return nRead;
 }
 
-int32_t File::Write(const char* buf,size_t len)
+int32_t File::write(const char* buf,size_t len)
 {
 	DWORD nWrite(0);
-	if(::WriteFile(impl,buf,len,&nWrite,NULL)==FALSE)
+	if(::WriteFile(impl.get(),buf,len,&nWrite,NULL)==FALSE)
 	{
-		impl.flags.add(FLAG_WRITER_FAILBIT);
+		flags.add(FLAG_WRITER_FAILBIT);
 		System::CheckError("File::Write Error");
 		return -1;
 	}
 	return nWrite;
 }
 
-bool File::Eof()
+bool File::eof()
 {
-	return Size()==Tell();
+	return size()==tell();
 }
 
-int64_t File::Tell()
+int64_t File::tell()
 {
-	return Seek(0,SEEKTYPE_CUR);
+	return seek(0,SEEKTYPE_CUR);
 }
 
-int64_t File::Seek(int64_t pos,int t)
+int64_t File::seek(int64_t pos,int t)
 {
 	LARGE_INTEGER li;
 	li.QuadPart=pos;
-	li.LowPart = SetFilePointer (impl,
+	li.LowPart = SetFilePointer (impl.get(),
 								 li.LowPart,
 								 &li.HighPart,
 								 t);
@@ -121,23 +121,23 @@ int64_t File::Seek(int64_t pos,int t)
 }
 
 
-void File::Rewind()
+void File::rewind()
 {
-	Seek(0,SEEKTYPE_BEG);
+	seek(0,SEEKTYPE_BEG);
 }
 
-void File::Flush()
+void File::flush()
 {
-	if(!::FlushFileBuffers(impl))
+	if(!::FlushFileBuffers(impl.get()))
 	{
 		System::CheckError("File::Flush Error");
 	}
 }
 
-void File::Truncate(size_t size_)
+void File::truncate(size_t size_)
 {
-	Seek(size_,SEEKTYPE_BEG);
-	if(!SetEndOfFile(impl))
+	seek(size_,SEEKTYPE_BEG);
+	if(!SetEndOfFile(impl.get()))
 	{
 		System::CheckError("File::Truncate Error");
 	}
@@ -164,7 +164,7 @@ static int shm_fileflag(int flag_)
 	return acc;
 }
 
-bool File::Open(const String& filename_,int flag_)
+bool File::open(const String& filename_,int flag_)
 {
 	String filename=fn_encode(filename_);
 
@@ -178,24 +178,24 @@ bool File::Open(const String& filename_,int flag_)
 
 		if(fd<0)
 		{
+			flags.add(FLAG_WRITER_FAILBIT|FLAG_READER_FAILBIT);
 			System::CheckError("File::Open Error");
-			impl.m_bGood=false;
 			return false;
 		}
 	}
 
-	impl.m_bGood=true;
+	flags.clr(0);
 	impl.reset(fd);
 
 	if(flag_&FLAG_FILE_APPEND)
 	{
-		Seek(0,SEEKTYPE_END);
+		seek(0,SEEKTYPE_END);
 	}
 
 	return true;
 }
 
-int64_t File::Size()
+int64_t File::size()
 {
 	struct stat statbuf;
 	if(fstat(impl,&statbuf)<0)
@@ -209,57 +209,57 @@ int64_t File::Size()
 
 
 
-int32_t File::Read(char* buf,size_t len)
+int32_t File::read(char* buf,size_t len)
 {
 	int nLen= ::read(impl,buf,len);
 	if(nLen<0)
 	{
 		System::CheckError("File::Read Error");
-		impl.m_bGood=false;
+		flags.add(FLAG_READER_FAILBIT);
 	}
 	return nLen;
 }
 
-int32_t File::Write(const char* buf,size_t len)
+int32_t File::write(const char* buf,size_t len)
 {
 	int nLen=::write(impl,buf,len);
 	if(nLen<0)
 	{
 		System::CheckError("File::Write Error");
-		impl.m_bGood=false;
+		flags.add(FLAG_WRITER_FAILBIT);
 	}
 	return nLen;
 }
 
-bool File::Eof()
+bool File::eof()
 {
-	return Size()==Tell();
+	return size()==tell();
 }
 
-int64_t File::Tell()
+int64_t File::tell()
 {
-	return Seek(0,SEEKTYPE_CUR);
+	return seek(0,SEEKTYPE_CUR);
 }
 
-int64_t File::Seek(int64_t pos,int t)
+int64_t File::seek(int64_t pos,int t)
 {
 	return lseek(impl,pos,t);
 }
 
 
-void File::Rewind()
+void File::rewind()
 {
-	Seek(0,SEEKTYPE_BEG);
+	seek(0,SEEKTYPE_BEG);
 }
 
-void File::Flush()
+void File::flush()
 {
-	::fsync(impl);
+	::fsync(impl.get());
 }
 
-void File::Truncate(size_t size_)
+void File::truncate(size_t size_)
 {
-	Seek(size_,SEEKTYPE_BEG);
+	seek(size_,SEEKTYPE_BEG);
 	ftruncate(impl,size_);
 }
 
@@ -269,17 +269,18 @@ File::File(){}
 
 File::File(const String& filename_,int op)
 {
-	Open(filename_,op);
+	open(filename_,op);
 }
 
 File::~File()
 {
-	Close();
+	close();
 }
 
-void File::Close()
+void File::close()
 {
-	impl.close();
+	impl.reset();
+	flags.clr(0);
 }
 
 

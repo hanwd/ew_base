@@ -426,10 +426,10 @@ void MultiPartFormData::_handle_phase1()
 			}
 
 			String tempfile=String::Format("httpd_temp/%lld.%s",(Clock::now().val/1000ll),filename);
-			if(file.Open(tempfile,FLAG_FILE_WC))
+			if(file.open(tempfile,FLAG_FILE_WC))
 			{
 				phase=3;
-				file.Truncate(0);
+				file.truncate(0);
 				VariantTable& tb(Target.query[name].ref<VariantTable>());
 				tb["type"].reset(type);
 				tb["filename"].reset(filename);
@@ -498,24 +498,18 @@ void MultiPartFormData::_handle_phase3()
 	if(pt!=NULL)
 	{
 		int sz=pt-2-pcur;
-		file.Write(pcur,sz);
+		file.write(pcur,sz);
 		pcur=(char*)pt+2;
-		file.Close();
-		//if(pend-pcur==2&&pcur[0]=='\r'&&pcur[1]=='\n')
-		//{
-		//	phase=4;
-		//}
-		//else
-		{
-			phase=0;
-		}
+		file.close();
+		phase=0;
+
 		return;
 	}
 
 	int sz=(pend-pcur-length_tag)&~4095;
 	if(sz>0) 
 	{
-		file.Write(pcur,sz);
+		file.write(pcur,sz);
 		pcur+=sz;
 	}
 	phase+=8;
@@ -832,7 +826,7 @@ void SessionHttpEwsl::HandleContent(StringBuffer<char>& sb2)
 
 void SessionHttpServer::NewSession(PerIO_socket& sk)
 {
-	sk.sock.Block(false);
+	sk.sock.block(false);
 	DataPtrT<SessionHttpEwsl> kjobd_worker(new SessionHttpEwsl(Target));
 	kjobd_worker->sk_local.swap(sk);
 	StartSession(kjobd_worker.get(),hiocp);

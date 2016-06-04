@@ -121,6 +121,14 @@ SerializerEx::SerializerEx(int t)
 
 }
 
+CachedObjectManager& SerializerEx::cached_objects()
+{
+	if(!p_cached_objects)
+	{
+		p_cached_objects.reset(new CachedObjectManager);
+	}
+	return *p_cached_objects;
+}
 
 class serial_header
 {
@@ -580,6 +588,21 @@ int64_t SerializerWriter::sizep()
 	return z1;
 }
 
+
+int64_t SerializerDuplex::size()	
+{
+	int64_t sz=tell();
+	if(sz<0) return -1;
+	int64_t z1=seek(0,SEEKTYPE_END);
+	if(z1<0) return -1;
+	int64_t z2=seek(sz,SEEKTYPE_BEG);
+	if(z1!=z2)
+	{
+		System::LogError("seek failed");
+	}
+	return z1;
+}
+
 SerializerDuplex& SerializerDuplex::invalid_duplex_serializer()
 {
 	static class X : public SerializerDuplex
@@ -598,13 +621,13 @@ SerializerDuplex& SerializerDuplex::invalid_duplex_serializer()
 
 bool Stream::write_to_file(const String& fp,int flag)
 {
-	if(!hReader.ok())
+	if(!hReader)
 	{
 		return false;
 	}
 
 	File file;
-	if(!file.Open(fp,FLAG_FILE_WC|flag))
+	if(!file.open(fp,FLAG_FILE_WC|flag))
 	{
 		return false;
 	}
@@ -615,7 +638,7 @@ bool Stream::write_to_file(const String& fp,int flag)
 		int rc=hReader.get()->recv(buffer,sizeof(buffer));
 		if(rc>0)
 		{
-			if(file.Write(buffer,rc)!=rc)
+			if(file.write(buffer,rc)!=rc)
 			{
 				return false;
 			}
@@ -635,7 +658,7 @@ bool Stream::write_to_file(const String& fp,int flag)
 
 bool Stream::write_to_writer(SerializerWriter& wr)
 {
-	if(!hReader.ok())
+	if(!hReader)
 	{
 		return false;
 	}
@@ -666,7 +689,7 @@ bool Stream::write_to_writer(SerializerWriter& wr)
 
 bool Stream::write_to_buffer(StringBuffer<char>& sb)
 {
-	if(!hReader.ok())
+	if(!hReader)
 	{
 		return false;
 	}
@@ -702,13 +725,13 @@ bool Stream::write_to_buffer(StringBuffer<char>& sb)
 bool Stream::read_from_file(const String& fp)
 {
 
-	if(!hWriter.ok())
+	if(!hWriter)
 	{
 		return false;
 	}
 
 	File file;
-	if(!file.Open(fp,FLAG_FILE_RD))
+	if(!file.open(fp,FLAG_FILE_RD))
 	{
 		return false;
 	}
@@ -716,7 +739,7 @@ bool Stream::read_from_file(const String& fp)
 	char buffer[1024*32];
 	while(1)
 	{
-		int rc=file.Read(buffer,sizeof(buffer));
+		int rc=file.read(buffer,sizeof(buffer));
 		if(rc>0)
 		{
 			if(!hWriter.get()->send_all(buffer,rc))
@@ -739,7 +762,7 @@ bool Stream::read_from_file(const String& fp)
 
 bool Stream::read_from_reader(SerializerReader& rd)
 {
-	if(!hWriter.ok())
+	if(!hWriter)
 	{
 		return false;
 	}
@@ -770,7 +793,7 @@ bool Stream::read_from_reader(SerializerReader& rd)
 
 bool Stream::read_from_buffer(StringBuffer<char>& sb)
 {
-	if(!hWriter.ok())
+	if(!hWriter)
 	{
 		return false;
 	}
@@ -782,7 +805,7 @@ bool Stream::read_from_buffer(StringBuffer<char>& sb)
 bool Stream::open(const String& fp,int fg)
 {
 	File file;
-	if(!file.Open(fp,fg))
+	if(!file.open(fp,fg))
 	{
 		close();
 		return false;
@@ -795,7 +818,7 @@ bool Stream::open(const String& fp,int fg)
 bool Stream::connect(const String& ip,int port)
 {
 	Socket socket;
-	if(!socket.Connect(ip,port))
+	if(!socket.connect(ip,port))
 	{
 		return false;
 	}
@@ -806,35 +829,32 @@ bool Stream::connect(const String& ip,int port)
 
 void Stream::assign(File& file)
 {
-	SerializerDuplex* p=new SerializerFile(file);
-	assign(p);
+	assign(SharedPtrT<SerializerDuplex>(new SerializerFile(file)));
 }
 
 void Stream::assign(Socket& socket)
 {
-	SerializerDuplex* p=new SerializerSocket(socket);
-	assign(p);
+	assign(SharedPtrT<SerializerDuplex>(new SerializerSocket(socket)));
 }
 
-void Stream::assign(SerializerDuplex* p)
+void Stream::assign(SharedPtrT<SerializerDuplex> p)
 {
 	if(!p) return;
-	hReader.reset(&p->reader());
-	hWriter.reset(&p->writer(),hReader);
+	hReader.reset(&p->reader(),p.counter());
+	hWriter.reset(&p->writer(),p.counter());
 }
-void Stream::assign(SerializerReader* p1,SerializerWriter* p2)
+
+
+void Stream::assign_reader(SharedPtrT<SerializerReader> p1)
 {
-	hReader.reset(p1);
-	SerializerDuplex* p=dynamic_cast<SerializerDuplex*>(p1);
-	if(p && &p->writer()==p2)
-	{
-		hWriter.reset(p2,hReader);
-	}
-	else
-	{
-		hWriter.reset(p2);
-	}
+	hReader=p1;
 }
+
+void Stream::assign_writer(SharedPtrT<SerializerWriter> p1)
+{
+	hWriter=p1;	
+}
+
 
 int64_t Stream::seekg(int64_t p,int t)
 {
@@ -886,34 +906,20 @@ bool Stream::recv_all(char* buf,int len)
 	return reader().recv_all(buf,len);
 }
 
-template<>
-void KO_Policy_pointer<SerializerReader>::destroy(type& o)
-{
-	delete o;
-	o=NULL;
-}
-
-template<>
-void KO_Policy_pointer<SerializerWriter>::destroy(type& o)
-{
-	delete o;
-	o=NULL;
-}
-
 SerializerReader& Stream::reader()
 {
-	return hReader.ok()?*hReader:SerializerDuplex::invalid_duplex_serializer().reader();
+	return hReader ? *hReader : SerializerDuplex::invalid_duplex_serializer().reader();
 }
 
 SerializerWriter& Stream::writer()
 {
-	return hWriter.ok()?*hWriter:SerializerDuplex::invalid_duplex_serializer().writer();
+	return hWriter ? *hWriter : SerializerDuplex::invalid_duplex_serializer().writer();
 }
 
 void Stream::close()
 {
-	hReader.close();
-	hWriter.close();
+	hReader.reset();
+	hWriter.reset();
 }
 
 

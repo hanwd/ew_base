@@ -642,7 +642,7 @@ public:
 
 		SerializerFile ar;
 
-		if(!ar.file.Open(fn,FLAG_FILE_WR|FLAG_FILE_CR))
+		if(!ar.file.open(fn,FLAG_FILE_WR|FLAG_FILE_CR))
 		{
 
 		}
@@ -673,7 +673,7 @@ public:
 
 		SerializerFile ar;
 
-		if(!ar.file.Open(fn,FLAG_FILE_RD))
+		if(!ar.file.open(fn,FLAG_FILE_RD))
 		{
 
 		}

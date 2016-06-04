@@ -245,12 +245,12 @@ DataPtrT<HttpResponse> HttpRequest::Execute()
 
 
 	Socket socket;
-	if (!socket.Connect(prop["Host"], port))
+	if (!socket.connect(prop["Host"], port))
 	{
 		return NULL;
 	}
 
-	int sz=socket.Send(sb.c_str(),sb.size());
+	int sz=socket.send(sb.c_str(),sb.size());
 	if(sz!=(int)sb.size())
 	{
 		sz=sz;
@@ -264,7 +264,7 @@ DataPtrT<HttpResponse> HttpRequest::Execute()
 
 	for(;;)
 	{	
-		int len=socket.Recv(buf.data(),buf.size());
+		int len=socket.recv(buf.data(),buf.size());
 
 		if(len<0)
 		{
@@ -277,13 +277,13 @@ DataPtrT<HttpResponse> HttpRequest::Execute()
 
 		if(sb.empty())
 		{
-			socket.Shutdown(1);
+			socket.shutdown(1);
 		}
 
 		sb.append(buf.data(),len);
 	}
 
-	socket.Shutdown();
+	socket.shutdown();
 
 	//sb.save("http_res.txt");
 

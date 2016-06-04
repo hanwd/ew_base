@@ -425,3 +425,108 @@ TEST_DEFINE(TEST_Object)
 	delete myobj;
 
 };
+
+
+
+template<typename T>
+class Counter
+{
+public:
+	Counter(){m_nCount++;}
+	Counter(const Counter&){m_nCount++;}
+	~Counter(){m_nCount--;}
+
+	static int m_nCount;
+};
+
+template<typename T>
+int Counter<T>::m_nCount=0;
+
+
+class Object1 : public Object
+{
+public:
+	Counter<Object1> impl;
+};
+
+class Object2 : public Object1
+{
+public:
+	Counter<Object2> impl;
+};
+
+
+TEST_DEFINE(TEST_Pointer)
+{
+
+	TEST_ASSERT(Counter<Object1>::m_nCount==0);
+	TEST_ASSERT(Counter<Object2>::m_nCount==0);
+
+	AutoPtrT<Object1> p1(new Object2);
+	TEST_ASSERT(Counter<Object1>::m_nCount==1);
+	TEST_ASSERT(Counter<Object2>::m_nCount==1);
+
+	AutoPtrT<Object1> p2(new Object1);
+	TEST_ASSERT(Counter<Object1>::m_nCount==2);
+	TEST_ASSERT(Counter<Object2>::m_nCount==1);
+
+	p1.reset(p2.release());
+	TEST_ASSERT(p2.get()==NULL);
+	TEST_ASSERT(Counter<Object1>::m_nCount==1);
+	TEST_ASSERT(Counter<Object2>::m_nCount==0);
+
+	p1.reset(NULL);
+	TEST_ASSERT(Counter<Object1>::m_nCount==0);
+	TEST_ASSERT(Counter<Object2>::m_nCount==0);
+
+	arr_1t<Object1*> aObjects;
+	for(size_t i=0;i<1024;i++)
+	{
+		aObjects.push_back(new Object1);
+		TEST_ASSERT(Counter<Object1>::m_nCount==aObjects.size());
+	}
+	std::for_each(aObjects.begin(),aObjects.end(),[](Object1* p)
+	{
+		delete p;
+	});
+	aObjects.clear();
+
+	TEST_ASSERT(Counter<Object1>::m_nCount==0);
+
+	SharedPtrT<Object2> p3;
+	TEST_ASSERT(p3==NULL);
+
+	p3.reset(new Object2);
+	TEST_ASSERT(Counter<Object1>::m_nCount==1);
+	TEST_ASSERT(Counter<Object2>::m_nCount==1);
+	TEST_ASSERT(p3.use_count()==1);
+	TEST_ASSERT(p3.unique());
+
+	WeakPtrT<Object1> p4(p3);
+
+	TEST_ASSERT(Counter<Object1>::m_nCount==1);
+	TEST_ASSERT(Counter<Object2>::m_nCount==1);
+	TEST_ASSERT(p3.use_count()==1);
+	TEST_ASSERT(!p4.expired());
+
+	SharedPtrT<Object1> p5=p4.lock();
+	TEST_ASSERT(Counter<Object1>::m_nCount==1);
+	TEST_ASSERT(Counter<Object2>::m_nCount==1);
+	TEST_ASSERT(p3.use_count()==2);
+	TEST_ASSERT(p5.get()!=NULL);
+
+	p3.reset();
+	TEST_ASSERT(Counter<Object1>::m_nCount==1);
+	TEST_ASSERT(Counter<Object2>::m_nCount==1);
+	p5.reset();
+	TEST_ASSERT(Counter<Object1>::m_nCount==0);
+	TEST_ASSERT(Counter<Object2>::m_nCount==0);
+
+	SharedPtrT<Object1> p6=p4.lock();
+	TEST_ASSERT(p6.get()==NULL);
+	TEST_ASSERT(p4.expired());
+
+	p4.reset();
+
+}
+

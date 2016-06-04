@@ -68,7 +68,7 @@ public:
 	~LogFile();
 
 	virtual void Handle(const LogRecord&);
-	bool Good(){return fp.Good();}
+	bool good(){return fp.good();}
 
 protected:
 	File fp;

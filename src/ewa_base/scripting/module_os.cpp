@@ -556,7 +556,7 @@ public:
 		ewsl.check_pmc(this,pm,2);
 		String fp1=System::MakePath(variant_cast<String>(ewsl.ci0.nbx[1]),ewsl.get_cwd());
 		String fp2=System::MakePath(variant_cast<String>(ewsl.ci0.nbx[2]),ewsl.get_cwd());
-		return ERRNO_HandleResult(ewsl,FSLocal::current().Rename(fp1,fp2));
+		return ERRNO_HandleResult(ewsl,FSLocal::current().Rename(fp1,fp2,0));
 	}
 	DECLARE_OBJECT_CACHED_INFO(CallableFunctionRename, ObjectInfo);
 };
@@ -651,7 +651,7 @@ public:
 	{
 		ewsl.check_pmc(this,pm,1);
 		String fp=variant_cast<String>(ewsl.ci0.nbx[1]);
-		ewsl.ci0.nbx[1].reset(FSLocal::current().Rmdir(System::MakePath(fp,ewsl.get_cwd())));
+		ewsl.ci0.nbx[1].reset(FSLocal::current().Rmdir(System::MakePath(fp,ewsl.get_cwd()),0));
 		return 1;	
 	}
 	DECLARE_OBJECT_CACHED_INFO(CallableFunctionRmdir, ObjectInfo);

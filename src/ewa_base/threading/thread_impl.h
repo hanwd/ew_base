@@ -44,6 +44,8 @@ public:
 	AutoPtrT<CoroutineMain> cort_ptr;
 	Logger thrd_log;
 
+	String last_error;
+
 	CoroutineMain& cort_main()
 	{
 		if(!cort_ptr)

@@ -13,7 +13,7 @@ EW_ENTER
 
 void OnAssertFailure(const char* msg,const char* file,long line)
 {
-	System::LogTrace("assert_failure: %s at %s:%d\n",msg,file,line);
+	System::LogTrace("ASSERT_FAILURE: %s at %s:%d\n",msg,file,line);
 	System::DebugBreak();
 }
 

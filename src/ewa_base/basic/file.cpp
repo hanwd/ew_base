@@ -45,7 +45,6 @@ bool File::open(const String& filename_,int flag_)
 	if (hFile == INVALID_HANDLE_VALUE)
 	{
 		System::CheckError("File::Open error");
-
 		flags.add(FLAG_READER_FAILBIT|FLAG_WRITER_FAILBIT);
 		return false;
 	}

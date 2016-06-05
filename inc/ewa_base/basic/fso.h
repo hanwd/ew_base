@@ -19,16 +19,16 @@ public:
 
 	virtual bool UploadFromBuffer(const String& fp,StringBuffer<char>& sb,int flag);
 
-	virtual bool FindFiles(const String& fp,arr_1t<FileItem>& items,const String& pattern="")=0;
+	virtual bool FindFiles(const String& fp,arr_1t<FileItem>& items,const String& pattern)=0;
 
-	virtual arr_1t<FileItem> FindFilesEx(const String& fp,const String& pattern="");
+	arr_1t<FileItem> FindFilesEx(const String& fp,const String& pattern="*.*");
 
 	virtual int FileExists(const String& fp);
 
 	virtual bool Mkdir(const String& fp)=0;
-	virtual bool Rmdir(const String& fp)=0;
+	virtual bool Rmdir(const String& fp,int flag)=0;
 
-	virtual bool Rename(const String& fp_old,const String& fp_new)=0;
+	virtual bool Rename(const String& fp_old,const String& fp_new,int flag)=0;
 
 	virtual bool Remove(const String& fp_del)=0;
 
@@ -54,9 +54,9 @@ public:
 
 	virtual bool Mkdir(const String& fp);
 
-	virtual bool Rmdir(const String& fp);
+	virtual bool Rmdir(const String& fp,int flag);
 
-	virtual bool Rename(const String& fp_old,const String& fp_new);
+	virtual bool Rename(const String& fp_old,const String& fp_new,int flag);
 
 	virtual bool Remove(const String& fp_del);
 

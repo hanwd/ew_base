@@ -29,7 +29,7 @@ public:
 
 	Stream GetStream();
 
-	void Kill(int r=0);
+	bool Kill(int r=0);
 
 
 	void Wait();

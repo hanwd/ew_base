@@ -52,7 +52,7 @@ public:
 				if(fn_temp=="") return false;
 
 				FSLocal::current().Remove(cmd.extra);
-				FSLocal::current().Rename(fn_temp,cmd.extra);
+				FSLocal::current().Rename(fn_temp,cmd.extra,0);
 
 				IView.fn.SetFilename(cmd.extra);
 				Target.SetSavePoint();

@@ -49,7 +49,7 @@ public:
 	{
 
 		FLAG_OFFSET_TABLE	=1<<8,
-		FLAG_ENCODING_UTF8	=1<<9,
+
 	};
 
 	virtual ~Serializer() {}

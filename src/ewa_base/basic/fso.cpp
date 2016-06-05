@@ -133,22 +133,21 @@ bool FSLocal::UploadFromBuffer(const String& fp,StringBuffer<char>& sb,int flag)
 
 bool FSLocal::Mkdir(const String& fp)
 {
-	if(fp.find('\"')>=0)
-	{
-		return false;
-	}
 
-	String dir(fp);
+	BOOL ret=CreateDirectoryW(IConv::to_wide(fp).c_str(),NULL);
+	return ret!=FALSE;
 
-	StringBuffer<char> sb;
-	System::Execute("cmd /c mkdir \""+dir+"\"",sb);
-	return true;
 }
 
-bool FSLocal::Rmdir(const String& fp)
+bool FSLocal::Rmdir(const String& fp,int flag)
 {
+
+	//BOOL ret=::RemoveDirectoryW(IConv::to_wide(fp).c_str());
+	//return ret!=FALSE;
+
 	if(fp.find('\"')>=0)
 	{
+		System::SetLastError("Invalid Directory");
 		return false;
 	}
 
@@ -156,19 +155,35 @@ bool FSLocal::Rmdir(const String& fp)
 
 	StringBuffer<char> sb;
 	System::Execute("cmd /c rmdir /S /Q \""+dir+"\"",sb);
+
+	if(!sb.empty())
+	{
+		System::SetLastError(IConv::from_gbk(sb.c_str()));
+		return false;
+	}
+
 	return true;
 }
 
-bool FSLocal::Rename(const String& fp_old,const String& fp_new)
+bool FSLocal::Rename(const String& fp_old,const String& fp_new,int flag)
 {
-	int bRet=::rename(IConv::to_ansi(fp_old).c_str(),IConv::to_ansi(fp_new).c_str());
-	return bRet==0;
+	DWORD dwflag=MOVEFILE_COPY_ALLOWED ;
+	if(flag!=0)	dwflag|=MOVEFILE_REPLACE_EXISTING;
+
+	BOOL ret=::MoveFileExW(IConv::to_wide(fp_old).c_str(),IConv::to_wide(fp_new).c_str(),dwflag);
+	return ret!=0;
+
+	//int bRet=::rename(IConv::to_ansi(fp_old).c_str(),IConv::to_ansi(fp_new).c_str());
+	//return bRet==0;
 }
 
 bool FSLocal::Remove(const String& fp)
 {
-	int bRet=::remove(IConv::to_ansi(fp).c_str());
-	return bRet==0;
+	BOOL ret=DeleteFileW(IConv::to_wide(fp).c_str());
+	return ret!=FALSE;
+
+	//int bRet=::remove(IConv::to_ansi(fp).c_str());
+	//return bRet==0;
 }
 
 Stream FSLocal::Download(const String& fp)

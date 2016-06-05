@@ -292,7 +292,7 @@ bool IConv_unicode_to_utf8(StringBuffer<uint8_t>& aa_,const WC* pw_,size_t ln_)
 		}
 		else
 		{
-			System::LogWarning("IConv_unicode_to_utf8: unkown unicode character %x",(uint32_t)code);
+			System::SetLastError(String::Format("IConv_unicode_to_utf8: unkown unicode character %x",(uint32_t)code));
 			return false;
 		}
 	}

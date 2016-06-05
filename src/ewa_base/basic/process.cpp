@@ -56,10 +56,10 @@ public:
 	}
 
 
-	void Kill(int r)
+	bool Kill(int r)
 	{
-		if(pi.hProcess==NULL) return;
-		::TerminateProcess(pi.hProcess,r);
+		if(pi.hProcess==NULL) return true;
+		return ::TerminateProcess(pi.hProcess,r)!=FALSE;
 	}
 
 
@@ -253,10 +253,10 @@ void Process::Close()
 	m_impl.reset(NULL);
 }
 
-void Process::Kill(int r)
+bool Process::Kill(int r)
 {
-	if(!m_impl) return;
-	impl().Kill(r);
+	if(!m_impl) return true;
+	return impl().Kill(r);
 }
 
 

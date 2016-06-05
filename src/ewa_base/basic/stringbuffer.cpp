@@ -106,12 +106,12 @@ bool StringBuffer<T>::save(const String& file,int type)
 
 	File ofs;
 
-	if(!ofs.open(file,FLAG_FILE_WR|FLAG_FILE_CR))
+	if(!ofs.open(file,FLAG_FILE_WC|FLAG_FILE_TRUNCATE))
 	{
 		return false;
 	}
 
-	ofs.truncate(0);
+	//ofs.truncate(0);
 
 	switch(type)
 	{
@@ -227,8 +227,7 @@ bool StringBuffer<T>::save(const String& file,int type)
 	}
 	break;
 	default:
-
-		this_logger().LogError("Invalid type in StringBuffer<T>::save");
+		System::SetLastError("Invalid type in StringBuffer<T>::save");
 		return false;
 	};
 
@@ -246,7 +245,6 @@ bool StringBuffer<T>::load(const String& file,int type)
 
 	if(!ifs.open(file))
 	{
-		this_logger().LogError("Cannot open file: %s",file);
 		return false;
 	}
 	size_t sz=ifs.size();
@@ -255,7 +253,7 @@ bool StringBuffer<T>::load(const String& file,int type)
 	{
 		if(sz%sizeof(T)!=0)
 		{
-			this_logger().LogError("Invalid filesize: %u",sz);
+			System::SetLastError("Invalid filesize");
 			return false;
 		}
 
@@ -296,6 +294,7 @@ bool StringBuffer<T>::load(const String& file,int type)
 		}
 		else
 		{
+			System::SetLastError("Unkown Type for StringBuffer");
 			return false;
 		}
 
@@ -304,7 +303,7 @@ bool StringBuffer<T>::load(const String& file,int type)
 	{
 		if((sz&0x1)!=0)
 		{
-			System::LogTrace("Invalid UTF-16 filesize: %u",sz);
+			System::SetLastError("Invalid UTF-16 Filesize");
 			return false;
 		}
 
@@ -346,7 +345,7 @@ bool StringBuffer<T>::load(const String& file,int type)
 	{
 		if((sz&0x3)!=0)
 		{
-			System::LogTrace("Invalid UTF-32 filesize:%u",sz);
+			System::SetLastError("Invalid UTF-32 Filesize");
 			return false;
 		}
 

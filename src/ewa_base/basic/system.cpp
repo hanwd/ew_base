@@ -4,6 +4,7 @@
 #include "ewa_base/basic/atomic.h"
 #include "ewa_base/basic/stringbuffer.h"
 #include "ewa_base/util/strlib.h"
+#include "../threading/thread_impl.h"
 
 #ifdef EW_WINDOWS
 #include <direct.h>
@@ -391,8 +392,6 @@ Stream System::ExecuteRedirect(const String& s,bool* status)
 	SharedPtrT<SerializerReaderProcess> proc(new SerializerReaderProcess);
 
 	Stream stream;
-
-
 	if(proc->Execute(s))
 	{
 		if(status) *status=true;
@@ -415,14 +414,6 @@ bool System::Execute(const String& s, StringBuffer<char>& result)
 	if(!flag) return false;
 
 	stream.write_to_buffer(result);
-
-	//char buf[1024*4];
-	//while(1)
-	//{
-	//	int rc=stream.read(buf,sizeof(buf));
-	//	if(rc<=0) break;
-	//	result.append(buf,rc);
-	//}
 	return true;
 
 }
@@ -520,7 +511,23 @@ void System::CheckErrno(const String& msg)
 	System_DoCheckErrno(msg);
 }
 
+void System::SetLastError(const String& msg)
+{
+	::SetLastError(-1);
+	ThreadImpl::this_data().last_error=msg;
+}
 
+String System::GetLastError()
+{
+#ifdef EW_WINDOWS
+	int ret=::GetLastError();
+	if(ret==-1) return ThreadImpl::this_data().last_error;
+	return ret==0?"":win_strerror(ret);
+#else
+	int ret=errno;
+	return ret==0?"":IConv::from_ansi(strerror(ret));
+#endif
+}
 
 void System::CheckError(const String& msg)
 {
@@ -529,7 +536,8 @@ void System::CheckError(const String& msg)
 	int ret=::GetLastError();
 	if(ret!=0)
 	{
-		System::LogTrace("%s failed, code(%d): %s",msg,ret,win_strerror(ret));
+		String errstr=win_strerror(ret);
+		System::LogTrace("%s failed, code(%d): %s",msg,ret,errstr);
 	}
 #else
 	System_DoCheckErrno(msg);
@@ -589,7 +597,14 @@ public:
 		else
 		{
 			LockGuard<AtomicSpin> lock1(g_tSpinConsole);
-			::printf("%s %s:%s\n",buf1,GetMsgLevel(lv),buf2);
+			try
+			{
+				::printf("%s %s:%s\n",buf1,GetMsgLevel(lv),IConv::to_ansi(buf2).c_str());
+			}
+			catch(...)
+			{
+				::printf("%s %s:%s\n",buf1,GetMsgLevel(lv),buf2);
+			}
 		}
 
 		if(lv==LOGLEVEL_FATAL)
@@ -830,13 +845,25 @@ String System::MakePath(const String& file,const String& path)
 String System::GetCwd()
 {
 #ifdef EW_WINDOWS
-	 char path[_MAX_PATH];
-	 return _getcwd(path,_MAX_PATH);
+	static const int BUFFER_LENGTH=1024*2;
+	wchar_t path[BUFFER_LENGTH];
+	DWORD rc=::GetCurrentDirectoryW(BUFFER_LENGTH,path);
+	return path;
 #else
 	char buffer[MAXPATH];
 	return getcwd(buffer,MAXPATH);
 #endif
 }
+
+bool System::SetCwd(const String& s)
+{
+#ifdef EW_WINDOWS
+	return ::SetCurrentDirectoryW(IConv::to_wide(s).c_str())!=FALSE;
+#else
+
+#endif
+}
+
 
 size_t System::Backtrace(void** stack,size_t frames)
 {
@@ -847,21 +874,7 @@ size_t System::Backtrace(void** stack,size_t frames)
 #endif
 }
 
-bool System::SetCwd(const String& s)
-{
-#ifdef EW_WINDOWS
 
-	if((_chdir(s.c_str()))==0)
-	{
-		return true;
-	}
-	
-	return false;
-
-#else
-
-#endif
-}
 
 
 EW_LEAVE

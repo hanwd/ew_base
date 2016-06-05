@@ -42,6 +42,9 @@ public:
 	static void CheckErrno(const String& s);
 	static void CheckError(const String& s);
 
+	static void SetLastError(const String& msg);
+	static String GetLastError();
+
 	static void Update();
 
 	static int64_t GetMemTotalPhys();

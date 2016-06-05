@@ -46,71 +46,10 @@ void Serializer::errver()
 	errstr("invalid_version");
 }
 
-//bool Serializer::good() const
-//{
-//	return true;
-//}
-
-template<typename A>
-void serial_helper_func<A,String>::g(SerializerReader &ar,type &val)
-{
-	int n=ar.size_count(val.size());
-
-	arr_1t<char> vect;
-	vect.resize(n);
-
-	ar.recv_checked(vect.data(),n);
-
-	if(ar.flags.get(Serializer::FLAG_ENCODING_UTF8))
-	{
-		StringBuffer<char> sb;
-		if(!IConv::utf8_to_ansi(sb,vect.data(),vect.size()))
-		{
-			ar.errstr("invalid string");
-		}
-		val=sb;
-	}
-	else
-	{
-		val.assign(vect.data(),n);
-	}
-
-}
-
-template<typename A>
-void serial_helper_func<A,String>::g(SerializerWriter &ar,type &val)
-{
-	const char *p;
-	int n;
-
-	if(ar.flags.get(Serializer::FLAG_ENCODING_UTF8))
-	{
-		StringBuffer<char> sb;
-		if(!IConv::ansi_to_utf8(sb,val.c_str(),val.size()))
-		{
-			ar.errstr("invalid string");
-			return;
-		}
-		p=sb.data();
-		n=ar.size_count(sb.size());
-		if(n>0)	ar.send_checked((char *)p,n);
-	}
-	else
-	{
-		p=val.c_str();
-		n=ar.size_count(val.size());
-		if(n>0)	ar.send_checked((char *)p,n);
-	}
-
-}
-
-template class DLLIMPEXP_EWA_BASE serial_helper_func<SerializerWriter,String>;
-template class DLLIMPEXP_EWA_BASE serial_helper_func<SerializerReader,String>;
 
 Serializer::Serializer(int t)
 	:type(t)
 {
-	flags.clr(FLAG_ENCODING_UTF8);
 	gver=0;
 }
 

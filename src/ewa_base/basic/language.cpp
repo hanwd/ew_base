@@ -1,4 +1,4 @@
-#include "ewa_base/basic/language.h"
+
 #include "ewa_base/basic/string.h"
 #include "ewa_base/basic/stringbuffer.h"
 #include "ewa_base/basic/system.h"
@@ -7,6 +7,10 @@
 #include "ewa_base/ipc/shm.h"
 #include "ewa_base/basic/pointer.h"
 #include "ewa_base/basic/codecvt.h"
+#include "ewa_base/basic/fso.h"
+#include "ewa_base/basic/language.h"
+
+#include "system_data.h"
 
 
 EW_ENTER
@@ -154,6 +158,8 @@ public:
 
 	arr_1t<DataPtrT<LangData> > aDatas;
 
+	String sLanguage;
+
 	indexer_map<const char*,const char*,def_allocator,const_char_pointer_map> mapStrings;
 
 	void Clear()
@@ -268,57 +274,67 @@ public:
 
 bool Language::AddCatalog(const indexer_map<String,String>& mp)
 {
-	return ((LanguageImpl*)impl)->AddCatalog(mp);
+	return ((LanguageImpl*)m_pimpl.get())->AddCatalog(mp);
 }
 
 bool Language::GetCatalog(indexer_map<String,String>& mp)
 {
-	return ((LanguageImpl*)impl)->GetCatalog(mp);
+	return ((LanguageImpl*)m_pimpl.get())->GetCatalog(mp);
 }
 
 bool Language::AddCatalog(const String& file)
 {
-	return ((LanguageImpl*)impl)->AddCatalog(file);
+	return ((LanguageImpl*)m_pimpl.get())->AddCatalog(file);
 }
 
 bool Language::Save(const String& file)
 {
-	return ((LanguageImpl*)impl)->SaveMo(file);
+	return ((LanguageImpl*)m_pimpl.get())->SaveMo(file);
 }
 
 void Language::Clear()
 {
-	((LanguageImpl*)impl)->Clear();
+	((LanguageImpl*)m_pimpl.get())->Clear();
 }
 
 Language::Language()
 {
-	impl=new LanguageImpl;
-	((LanguageImpl*)impl)->IncRef();
+	m_pimpl.reset(new LanguageImpl);
 }
 
-Language::~Language()
-{
-	((LanguageImpl*)impl)->DecRef();
-}
-
-void Language::Ref(Language& lang)
-{
-	if(impl==lang.impl) return;
-
-	((LanguageImpl*)impl)->DecRef();
-	impl=lang.impl;
-	((LanguageImpl*)impl)->IncRef();
-}
 
 const String& Language::Translate(const String& msg) const
 {
-	return ((const LanguageImpl*)impl)->Translate(msg);
+	return ((const LanguageImpl*)m_pimpl.get())->Translate(msg);
 }
 
 const String& Language::Translate(const String& msg,const String& def) const
 {
-	return ((const LanguageImpl*)impl)->Translate(msg,def);
+	return ((const LanguageImpl*)m_pimpl.get())->Translate(msg,def);
+}
+
+
+bool Language::SetLanguage(const String& s)
+{
+	LanguageImpl& impl(*(LanguageImpl*)m_pimpl.get());
+	impl.sLanguage=s;
+	impl.Clear();
+	bool flag=impl.AddCatalog("languages\\"+s+"\\default.po");
+	_language_updated();
+	return flag;
+
+}
+
+String Language::GetLanguage()
+{
+	return ((LanguageImpl*)m_pimpl.get())->sLanguage;
+}
+
+Language& Language::operator=(const Language& o)
+{
+	m_pimpl=o.m_pimpl;
+	_language_updated();
+	return *this;
 }
 
 Language& Language::current()
@@ -328,14 +344,47 @@ Language& Language::current()
 }
 
 
-DLLIMPEXP_EWA_BASE const String& Translate(const String& msg)
+void Language::_language_updated()
+{
+	if(this!=&current()) return;
+
+	SystemData& sdata(SystemData::current());
+	sdata.sLanguage=GetLanguage();
+#ifdef EW_WINDOWS
+	sdata.nLangId=string_to_lower(sdata.sLanguage)=="english"?MAKELANGID(LANG_ENGLISH, SUBLANG_DEFAULT):0;
+#endif
+}
+
+arr_1t<String> Language::GetLanguages()
+{
+	String langdir=System::GetModulePath()+"/languages";
+	arr_1t<FileItem> items=FSLocal::current().FindFilesEx(langdir);
+
+	arr_1t<String> langs;
+	langs.push_back("English");
+
+	for(size_t i=0;i<items.size();i++)
+	{
+		if(!items[i].flags.get(FileItem::IS_FOLDER)) continue;
+		if(items[i].filename.c_str()[0]=='.') continue;
+		if(string_to_lower(items[i].filename)=="english") continue;
+		langs.push_back(items[i].filename);		
+	}
+	
+	return langs;
+}
+
+
+
+const String& Translate(const String& msg)
 {
 	return Language::current().Translate(msg);
 }
 
-DLLIMPEXP_EWA_BASE const String& Translate(const String& msg,const String& def)
+const String& Translate(const String& msg,const String& def)
 {
 	return Language::current().Translate(msg,def);
 }
+
 
 EW_LEAVE

@@ -25,7 +25,7 @@ bool FSObject::DownloadToFile(const String& fp,const String& localfile,int flag)
 	return stream.write_to_file(localfile,flag);
 }
 
-bool FSObject::UploadFromFile(const String& fp,const String& localfile,int flag)
+bool FSObject::UploadFromFile(const String& localfile,const String& fp,int flag)
 {
 	Stream stream=Upload(fp,flag);
 	return stream.read_from_file(localfile);
@@ -37,7 +37,7 @@ bool FSObject::DownloadToBuffer(const String& fp,StringBuffer<char>& sb)
 	return stream.write_to_buffer(sb);
 }
 
-bool FSObject::UploadFromBuffer(const String& fp,StringBuffer<char>& sb,int flag)
+bool FSObject::UploadFromBuffer(StringBuffer<char>& sb,const String& fp,int flag)
 {
 	Stream stream=Upload(fp,flag);
 	return stream.read_from_buffer(sb);
@@ -109,11 +109,11 @@ bool FSLocal::DownloadToFile(const String& fp,const String& localfile,int flag)
 
 }
 
-bool FSLocal::UploadFromFile(const String& fp,const String& localfile,int flag)
+bool FSLocal::UploadFromFile(const String& localfile,const String& fp,int flag)
 {
 	if(flag&FLAG_FILE_APPEND)
 	{
-		return FSObject::UploadFromFile(fp,localfile,flag);
+		return FSObject::UploadFromFile(localfile,fp,flag);
 	}
 	else
 	{
@@ -126,7 +126,7 @@ bool FSLocal::DownloadToBuffer(const String& fp,StringBuffer<char>& sb)
 	return sb.load(fp,FILE_TYPE_BINARY);
 }
 
-bool FSLocal::UploadFromBuffer(const String& fp,StringBuffer<char>& sb,int flag)
+bool FSLocal::UploadFromBuffer(StringBuffer<char>& sb,const String& fp,int flag)
 {
 	return sb.save(fp,FILE_TYPE_BINARY|flag);
 }
@@ -154,7 +154,15 @@ bool FSLocal::Rmdir(const String& fp,int flag)
 	String dir(fp);
 
 	StringBuffer<char> sb;
-	System::Execute("cmd /c rmdir /S /Q \""+dir+"\"",sb);
+	if(flag==0)
+	{
+		System::Execute("cmd /c rmdir \""+dir+"\"",sb);	
+	}
+	else
+	{
+		System::Execute("cmd /c rmdir /S /Q \""+dir+"\"",sb);		
+	}
+
 
 	if(!sb.empty())
 	{

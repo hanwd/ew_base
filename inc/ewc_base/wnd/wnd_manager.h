@@ -59,7 +59,7 @@ public:
 
 	CmdProcHolderT<Object> cmdptr;
 
-	Language lang;
+	Language& lang;
 
 	IDat_wndconfig conf;
 

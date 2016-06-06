@@ -6,6 +6,8 @@
 #include "ewa_base/util/strlib.h"
 #include "../threading/thread_impl.h"
 
+#include "system_data.h"
+
 #ifdef EW_WINDOWS
 #include <direct.h>
 #else
@@ -31,8 +33,6 @@ BOOL APIENTRY DllMain(HANDLE hModule,DWORD ul_reason_for_call,LPVOID lpReserved)
 	EW_UNUSED(ul_reason_for_call);
 	EW_UNUSED(lpReserved);
 
-	//ew::System::LogTrace("dll_main: %d",(int)ul_reason_for_call);
-
 	return TRUE;
 }
 #endif
@@ -40,166 +40,45 @@ BOOL APIENTRY DllMain(HANDLE hModule,DWORD ul_reason_for_call,LPVOID lpReserved)
 
 EW_ENTER
 
-class SystemInfo
-{
-public:
-
-	int64_t m_nMemTotalPhys;
-	int64_t m_nMemAvailPhys;
-	int64_t m_nMemTotalVirtual;
-	int64_t m_nMemAvailVirtual;
-	int64_t m_nMemTotalPageFile;
-	int64_t m_nMemAvailPageFile;
-
-	int m_nCpuCount;
-	int m_nCacheLine;
-	int m_nPageSize;
-
-	void update();
-
-	static SystemInfo& current()
-	{
-		static SystemInfo si;
-		return si;
-	}
-
-	SystemInfo();
-
-};
-
-
-#ifdef EW_MSVC
-
-SystemInfo::SystemInfo()
-{
-
-	SYSTEM_INFO info;
-	GetSystemInfo(&info);
-	m_nPageSize=info.dwPageSize;
-	m_nCpuCount=info.dwNumberOfProcessors;
-
-	size_t line_size = 0;
-	DWORD buffer_size = 0;
-	DWORD i = 0;
-	SYSTEM_LOGICAL_PROCESSOR_INFORMATION * buffer = 0;
-
-	GetLogicalProcessorInformation(0, &buffer_size);
-
-	EW_ASSERT(buffer_size<4096);
-
-	char _local_buffer[4096];
-	buffer = (SYSTEM_LOGICAL_PROCESSOR_INFORMATION *) _local_buffer;
-
-	GetLogicalProcessorInformation(&buffer[0], &buffer_size);
-
-	for (i = 0; i != buffer_size / sizeof(SYSTEM_LOGICAL_PROCESSOR_INFORMATION); ++i)
-	{
-		if (buffer[i].Relationship == RelationCache && buffer[i].Cache.Level == 1)
-		{
-			line_size = buffer[i].Cache.LineSize;
-			break;
-		}
-	}
-
-	m_nCacheLine=(int)line_size;
-
-	update();
-}
-
-#elif defined(EW_LINUX)
-
-SystemInfo::SystemInfo()
-{
-
-	m_nPageSize=sysconf(_SC_PAGE_SIZE);;
-	m_nCpuCount=sysconf(_SC_NPROCESSORS_ONLN);
-	m_nCacheLine=-1;
-
-	FILE * p = 0;
-	p = fopen("/sys/devices/system/cpu/cpu0/cache/index0/coherency_line_size", "r");
-
-	if (p)
-	{
-		fscanf(p, "%d", &m_nCacheLine);
-		fclose(p);
-	}
-
-	update();
-
-}
-#else
-
-SystemInfo::SystemInfo()
-{
-}
-
-#endif
-
-
-#ifdef EW_MSVC
-
-void SystemInfo::update()
-{
-	MEMORYSTATUSEX ms;
-	ms.dwLength=sizeof(MEMORYSTATUSEX);
-	GlobalMemoryStatusEx(&ms);
-
-	m_nMemTotalPhys=ms.ullTotalPhys;
-	m_nMemAvailPhys=ms.ullAvailPhys;
-	m_nMemTotalVirtual=ms.ullTotalVirtual;
-	m_nMemAvailVirtual=ms.ullAvailVirtual;
-	m_nMemTotalPageFile=ms.ullTotalPageFile;
-	m_nMemAvailPageFile=ms.ullAvailPageFile;
-
-}
-#else
-
-void SystemInfo::update()
-{
-
-}
-
-#endif // EW_MSVC
-
 
 int64_t System::GetMemTotalPhys()
 {
-	return SystemInfo::current().m_nMemTotalPhys;
+	return SystemData::current().m_nMemTotalPhys;
 }
 
 int64_t System::GetMemAvailPhys()
 {
-	return SystemInfo::current().m_nMemAvailPhys;
+	return SystemData::current().m_nMemAvailPhys;
 }
 
 int64_t System::GetMemTotalVirtual()
 {
-	return SystemInfo::current().m_nMemTotalVirtual;
+	return SystemData::current().m_nMemTotalVirtual;
 }
 
 int64_t System::GetMemAvailVirtual()
 {
-	return SystemInfo::current().m_nMemAvailVirtual;
+	return SystemData::current().m_nMemAvailVirtual;
 }
 
 void System::Update()
 {
-	SystemInfo::current().update();
+	SystemData::current().update_system_info();
 }
 
 int System::GetCpuCount()
 {
-	return SystemInfo::current().m_nCpuCount;
+	return SystemData::current().m_nCpuCount;
 }
 
 int System::GetPageSize()
 {
-	return SystemInfo::current().m_nPageSize;
+	return SystemData::current().m_nPageSize;
 }
 
 int System::GetCacheLineSize()
 {
-	return SystemInfo::current().m_nCacheLine;
+	return SystemData::current().m_nCacheLine;
 }
 
 String System::GetEnv(const String& name,const String& value_if_not_found)
@@ -292,6 +171,11 @@ public:
 		DWORD nRead(0);
 		if(::ReadFile(hReader,buf,len,&nRead,NULL)==FALSE)
 		{
+			if(::GetLastError()==0x6d) // pipe closed
+			{
+				return 0;
+			}
+
 			flags.add(FLAG_READER_FAILBIT);
 			System::CheckError("File::Read Error");
 			return -1;
@@ -480,52 +364,68 @@ bool System::Execute(const String& s)
 #endif
 
 
-#ifdef EW_WINDOWS
-
-String win_strerror(int ret)
-{
-	wchar_t* lpTStr(NULL);
-	FormatMessageW(FORMAT_MESSAGE_ALLOCATE_BUFFER|FORMAT_MESSAGE_FROM_SYSTEM,
-				  NULL,
-				  ret,
-				  MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-				  (LPWSTR)&lpTStr,
-				  0x100,
-				  NULL);
-	return lpTStr;
-}
-
-#endif
-
-inline void System_DoCheckErrno(const String& msg)
+void System::CheckErrno(const String& msg)
 {
 	int ret=errno;
 	if(ret!=0)
 	{
-		System::LogTrace("%s failed, code(%d): %s",msg,ret,IConv::from_ansi(strerror(ret)).c_str());
-	}
-}
-
-void System::CheckErrno(const String& msg)
-{
-	System_DoCheckErrno(msg);
+		String errmsg=ret==-1?ThreadImpl::this_data().last_error:IConv::from_ansi(strerror(ret));
+		System::LogTrace("%s failed, code(%d): %s",msg,ret,errmsg);
+	}	
 }
 
 void System::SetLastError(const String& msg)
 {
+
+#ifdef EW_WINDOWS
 	::SetLastError(-1);
+#endif
+
+	errno=-1;
+
 	ThreadImpl::this_data().last_error=msg;
 }
 
 String System::GetLastError()
 {
 #ifdef EW_WINDOWS
+
 	int ret=::GetLastError();
-	if(ret==-1) return ThreadImpl::this_data().last_error;
-	return ret==0?"":win_strerror(ret);
+	if(ret==-1)
+	{
+		return ThreadImpl::this_data().last_error;
+	}
+	else if(ret!=0)
+	{
+		wchar_t* _lpError(NULL);
+
+		bool lang_en=false;
+		DWORD langid=SystemData::current().nLangId;
+
+		DWORD msglen=FormatMessageW(FORMAT_MESSAGE_ALLOCATE_BUFFER|FORMAT_MESSAGE_FROM_SYSTEM,
+							NULL,
+							ret,
+							langid,
+							(LPWSTR)&_lpError,
+							0x100,
+							NULL);
+		EW_UNUSED(msglen);
+		return _lpError;
+	}
+
+	return "";
+
 #else
 	int ret=errno;
-	return ret==0?"":IConv::from_ansi(strerror(ret));
+	if(ret==-1)
+	{
+		return ThreadImpl::this_data().last_error;
+	}
+	else if(ret!=0)
+	{
+		return strerror(ret);
+	}
+	return "";
 #endif
 }
 
@@ -536,11 +436,11 @@ void System::CheckError(const String& msg)
 	int ret=::GetLastError();
 	if(ret!=0)
 	{
-		String errstr=win_strerror(ret);
+		String errstr=GetLastError();
 		System::LogTrace("%s failed, code(%d): %s",msg,ret,errstr);
 	}
 #else
-	System_DoCheckErrno(msg);
+	System::CheckErrno(msg);
 #endif
 }
 

@@ -122,7 +122,11 @@ public:
 	static type g(CallableData* v)
 	{
 		type n(0);
-		if(!v) return n;
+		if(!v)
+		{
+			Exception::XError("nil cannot be cast to number");
+		}
+
 		if(!v->ToValue(n))
 		{
 			Exception::XBadCast();

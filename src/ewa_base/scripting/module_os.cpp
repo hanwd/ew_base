@@ -415,6 +415,29 @@ public:
 IMPLEMENT_OBJECT_INFO(CallableFunctionGetEnv, ObjectInfo);
 
 
+class CallableFunctionLastError : public CallableFunction
+{
+public:
+	CallableFunctionLastError() :CallableFunction("os.lasterror",0){}
+	virtual int __fun_call(Executor& ewsl, int pm)
+	{
+		ewsl.check_pmc(this, pm, 0,1);
+		String lasterror=System::GetLastError();
+		if(pm==1)
+		{
+			String p = variant_cast<String>(ewsl.ci0.nbx[1]);
+			System::SetLastError(p);
+		}
+		ewsl.ci0.nbx[1].reset(lasterror);
+		return 1;
+	}
+	DECLARE_OBJECT_CACHED_INFO(CallableFunctionLastError, ObjectInfo);
+};
+IMPLEMENT_OBJECT_INFO(CallableFunctionLastError, ObjectInfo);
+
+
+
+
 class CallableFunctionGetCwd : public CallableFunction
 {
 public:
@@ -521,7 +544,7 @@ static int ERRNO_HandleResult(Executor& ewsl,bool flag)
 	else
 	{
 		ewsl.ci0.nbx[1].reset(false);
-		ewsl.ci0.nbx[2].reset(::strerror(errno));
+		ewsl.ci0.nbx[2].reset(System::GetLastError());
 		return 2;
 	}
 }
@@ -666,6 +689,7 @@ void init_module_os()
 	gi.add_inner<CallableFunctionSleep>();
 	gi.add_inner<CallableFunctionShell>();
 	gi.add_inner<CallableFunctionGetEnv>();
+	gi.add_inner<CallableFunctionLastError>();
 
 	gi.add_inner<CallableFunctionGetCwd>();
 	gi.add_inner<CallableFunctionSetCwd>();

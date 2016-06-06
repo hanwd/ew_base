@@ -2,17 +2,19 @@
 #define __H_EW_BASIC_LANGUAGE__
 
 #include "ewa_base/config.h"
+#include "ewa_base/basic/pointer.h"
+#include "ewa_base/basic/object.h"
 #include "ewa_base/collection/indexer_map.h"
 
 EW_ENTER
 
 class DLLIMPEXP_EWA_BASE String;
 
-class DLLIMPEXP_EWA_BASE Language : public NonCopyable
+class DLLIMPEXP_EWA_BASE Language
 {
 public:
 	Language();
-	~Language();
+	Language& operator=(const Language& o);
 
 	// Init with a file, po file or files that saved by Language::Save
 	bool AddCatalog(const String& file);
@@ -23,19 +25,23 @@ public:
 
 	bool Save(const String& file);
 
-	// Translate string
 	const String& Translate(const String& msg) const;
 
 	const String& Translate(const String& msg,const String& def) const;
 
 	void Clear();
 
-	void Ref(Language& lang);
+	bool SetLanguage(const String& s);
+
+	String GetLanguage();
 
 	static Language& current();
 
+	static arr_1t<String> GetLanguages();
+
 private:
-	void* impl;
+	DataPtrT<ObjectData> m_pimpl;
+	void _language_updated();
 };
 
 EW_LEAVE

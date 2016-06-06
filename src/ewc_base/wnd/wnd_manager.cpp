@@ -68,6 +68,7 @@ WndManager::WndManager()
 	,plugin(m_pImpl->plugin)
 	,logptr(*m_pImpl->plogptr)
 	,app(App::current())
+	,lang(Language::current())
 {
 	model.SetData(m_pImpl->pmodel.get());
 }
@@ -183,7 +184,8 @@ void WndManager::Activate()
 
 	g_pCurrentApp=this;
 	Logger::def(&logptr);
-	Language::current().Ref(lang);
+
+	Language::current()=lang;
 
 }
 

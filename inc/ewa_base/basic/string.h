@@ -3,7 +3,7 @@
 
 #include "ewa_base/config.h"
 #include "ewa_base/basic/hashing.h"
-#include "ewa_base/basic/language.h"
+//#include "ewa_base/basic/language.h"
 #include "ewa_base/basic/string_detail.h"
 
 

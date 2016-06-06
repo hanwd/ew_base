@@ -82,7 +82,7 @@ void Console::Write(const String& s,int color)
 	ConsoleDoSetColor(color);
 
 #ifdef EW_WINDOWS
-	::wprintf(IConv::to_wide(s).c_str());
+	::printf(IConv::to_ansi(s).c_str());
 #else
 	::printf(s.c_str());
 #endif

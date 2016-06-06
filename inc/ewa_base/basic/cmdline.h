@@ -40,6 +40,19 @@ public:
 	size_t GetParamCount();
 	String& GetParam(size_t i = 0);
 
+
+	typedef bst_map<String, String>::iterator option_iterator;
+	option_iterator options_begin()
+	{
+		return m_aOptions.begin();
+	}
+
+	option_iterator options_end()
+	{
+		return m_aOptions.end();
+	}
+
+
 private:
 
 	class OptionType

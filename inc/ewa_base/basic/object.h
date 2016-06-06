@@ -4,6 +4,7 @@
 
 #include "ewa_base/basic/atomic.h"
 #include "ewa_base/basic/string.h"
+#include "ewa_base/collection/indexer_map.h"
 
 #define DECLARE_OBJECT_INFO(TYPE,INFO)	\
 	public:\

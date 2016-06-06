@@ -13,29 +13,29 @@
 #include <wx/frame.h>
 
 EW_ENTER
-
-
-void FileAllFiles(const String& dir,arr_1t<String>& fns,const String& xxx="*")
-{
-	WIN32_FIND_DATAW FindFileData;
-	String fds=dir+"\\"+xxx;	
-
-	HANDLE hFind = FindFirstFileW(IConv::to_wide(fds).c_str(), &FindFileData);
-	while (hFind != INVALID_HANDLE_VALUE)
-	{
-		String fn=FindFileData.cFileName;
-		if(fn!="."&&fn!="..")
-		{
-			fns.append(fn);
-		}
-
-		if (!FindNextFileW(hFind, &FindFileData))
-		{
-			FindClose(hFind);
-			hFind = INVALID_HANDLE_VALUE;
-		}
-	}
-}
+//
+//
+//void FileAllFiles(const String& dir,arr_1t<String>& fns,const String& xxx="*")
+//{
+//	WIN32_FIND_DATAW FindFileData;
+//	String fds=dir+"\\"+xxx;	
+//
+//	HANDLE hFind = FindFirstFileW(IConv::to_wide(fds).c_str(), &FindFileData);
+//	while (hFind != INVALID_HANDLE_VALUE)
+//	{
+//		String fn=FindFileData.cFileName;
+//		if(fn!="."&&fn!="..")
+//		{
+//			fns.append(fn);
+//		}
+//
+//		if (!FindNextFileW(hFind, &FindFileData))
+//		{
+//			FindClose(hFind);
+//			hFind = INVALID_HANDLE_VALUE;
+//		}
+//	}
+//}
 
 class EvtLanguages : public EvtGroup
 {
@@ -103,8 +103,10 @@ public:
 
 		OnCfgEvent(-1);
 
-		wm.lang.Clear();
-		wm.lang.AddCatalog("languages\\"+sLanguage+"\\default.po");
+		wm.lang.SetLanguage(sLanguage);
+
+		//wm.lang.Clear();
+		//wm.lang.AddCatalog("languages\\"+sLanguage+"\\default.po");
 
 		wxWindow* pwin=wm.model.GetWindow();
 
@@ -178,8 +180,9 @@ public:
 // languages 目录下，每个文件夹认为是一种语言
 void EvtLanguages::InitLanguages()
 {
-	FileAllFiles("languages",aLanguages);
+	//FileAllFiles("languages",aLanguages);
 
+	aLanguages=Language::GetLanguages();
 
 	EvtManager& ec(wm.evtmgr);	
 	ec.gp_beg(this);

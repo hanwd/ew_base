@@ -161,6 +161,7 @@
     <ClInclude Include="..\..\inc\ewa_base\xml\xml_base.h" />
     <ClInclude Include="..\..\inc\ewa_base\xml\xml_document.h" />
     <ClInclude Include="..\..\inc\ewa_base\xml\xml_node.h" />
+    <ClInclude Include="..\..\src\ewa_base\basic\system_data.h" />
     <ClInclude Include="..\..\src\ewa_base\memory\mempool_impl.h" />
     <ClInclude Include="..\..\src\ewa_base\net\socket_impl_detail.h" />
     <ClInclude Include="..\..\src\ewa_base\net\socket_impl_linux.h" />
@@ -194,6 +195,7 @@
     <ClCompile Include="..\..\src\ewa_base\basic\stringbuffer.cpp" />
     <ClCompile Include="..\..\src\ewa_base\basic\string_impl.cpp" />
     <ClCompile Include="..\..\src\ewa_base\basic\system.cpp" />
+    <ClCompile Include="..\..\src\ewa_base\basic\system_data.cpp" />
     <ClCompile Include="..\..\src\ewa_base\collection\collection.cpp" />
     <ClCompile Include="..\..\src\ewa_base\ewa_base.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>

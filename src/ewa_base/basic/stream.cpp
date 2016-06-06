@@ -3,6 +3,15 @@
 EW_ENTER
 
 
+inline void set_invalid_stream_error()
+{
+#ifdef EW_WINDOWS
+	::SetLastError(6);
+#endif
+
+	errno=5;
+}
+
 Serializer::internal_head Serializer::head;
 Serializer::internal_tail Serializer::tail;
 
@@ -94,12 +103,14 @@ public:
 int SerializerReader::recv(char* data,int size)
 {
 	flags.add(FLAG_READER_FAILBIT);
+	set_invalid_stream_error();
 	return -1;
 }
 
 int SerializerWriter::send(const char* data,int size)
 {
 	flags.add(FLAG_WRITER_FAILBIT);
+	set_invalid_stream_error();
 	return -1;
 }
 
@@ -562,6 +573,7 @@ bool Stream::write_to_file(const String& fp,int flag)
 {
 	if(!hReader)
 	{
+		 set_invalid_stream_error();;
 		return false;
 	}
 
@@ -586,10 +598,8 @@ bool Stream::write_to_file(const String& fp,int flag)
 		{
 			return true;
 		}
-		else
-		{
-			return false;
-		}
+		
+		break;
 	}
 
 	return false;
@@ -599,6 +609,7 @@ bool Stream::write_to_writer(SerializerWriter& wr)
 {
 	if(!hReader)
 	{
+		 set_invalid_stream_error();;
 		return false;
 	}
 
@@ -630,6 +641,7 @@ bool Stream::write_to_buffer(StringBuffer<char>& sb)
 {
 	if(!hReader)
 	{
+		 set_invalid_stream_error();;
 		return false;
 	}
 
@@ -666,6 +678,7 @@ bool Stream::read_from_file(const String& fp)
 
 	if(!hWriter)
 	{
+		set_invalid_stream_error();
 		return false;
 	}
 
@@ -690,10 +703,8 @@ bool Stream::read_from_file(const String& fp)
 		{
 			return true;
 		}
-		else
-		{
-			return false;
-		}
+		
+		break;
 	}
 
 	return false;
@@ -703,6 +714,7 @@ bool Stream::read_from_reader(SerializerReader& rd)
 {
 	if(!hWriter)
 	{
+		 set_invalid_stream_error();;
 		return false;
 	}
 
@@ -734,6 +746,7 @@ bool Stream::read_from_buffer(StringBuffer<char>& sb)
 {
 	if(!hWriter)
 	{
+		 set_invalid_stream_error();;
 		return false;
 	}
 

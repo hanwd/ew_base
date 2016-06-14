@@ -2,11 +2,63 @@
 #include "ewa_base/scripting/callable_array.h"
 #include "ewa_base/scripting/parser_nodes.h"
 #include "ewa_base/scripting/executor.h"
-#include "ewa_base/util/strlib.h"
 #include "ewa_base/scripting/callable_iterator.h"
+#include "ewa_base/util/strlib.h"
 
 EW_ENTER
 
+
+int CallableMetatable::__metatable_call1(Executor&,const String&)
+{
+	return 0;
+}
+
+int CallableMetatable::__metatable_call2(Executor& ewsl,const String& op)
+{
+	typedef bool (CallableMetatable::*funcall2)(Variant&, Variant&, Variant&);
+
+	static class metatable_op_map : public indexer_map<String,funcall2>
+	{
+	public:
+		metatable_op_map()
+		{
+			indexer_map<String,funcall2>& mp(*this);
+
+			mp["math.add"]=&CallableMetatable::__add;
+			mp["math.sub"]=&CallableMetatable::__sub;
+			mp["math.mul"]=&CallableMetatable::__mul;
+			mp["math.div"]=&CallableMetatable::__div;
+
+			mp["math.dot_mul"]=&CallableMetatable::__dot_mul;
+			mp["math.dot_div"]=&CallableMetatable::__dot_div;
+
+			mp["rel.eq"]=&CallableMetatable::__eq;
+			mp["rel.ne"]=&CallableMetatable::__ne;
+			mp["rel.gt"]=&CallableMetatable::__gt;
+			mp["rel.ge"]=&CallableMetatable::__ge;
+			mp["rel.lt"]=&CallableMetatable::__lt;
+			mp["rel.le"]=&CallableMetatable::__le;
+
+		}
+
+	}op_map;
+
+	int id=op_map.find1(op);
+	if(id<0) return 0;
+
+	Variant& v1(ewsl.ci1.nsp[-1]);
+	Variant& v2(ewsl.ci1.nsp[-0]);
+
+	funcall2 fun=op_map.get(id).second;
+
+	if((this->*fun)(v1,v1,v2))
+	{
+		--ewsl.ci1.nsp;
+		return 1;
+	}
+
+	return 0;
+}
 
 template<int M>
 class DLLIMPEXP_EWA_BASE CallableDataIteratorClassT : public CallableDataIterator1

@@ -31,9 +31,8 @@ struct DLLIMPEXP_EWA_BASE pl_base0
 	static inline const std::complex<double>& k(const dcomplex& v){return v;}
 	template<typename T> static inline T k(T v){return v;}
 
-	static inline bool metatable_call(CallableMetatable*, Variant&,Variant&, Variant&){ return false; }
-
-	static inline bool metatable_call_var(Variant& r, Variant& v1, Variant& v2){return false;}
+	static inline int metatable_call1_var(Variant&, Variant&){return 0;}
+	static inline int metatable_call2_var(Variant&, Variant&, Variant&){return 0;}
 
 
 	static const op_info& info();
@@ -409,11 +408,6 @@ struct DLLIMPEXP_EWA_BASE pl_add : public pl_base2_num
 	template<typename T1,typename T2>
 	static typename rebind<T1,T2>::type g(const T1& v1,const T2& v2){return v1+v2;}
 
-	static inline bool metatable_call(CallableMetatable* mt, Variant& r,Variant& v1, Variant& v2)
-	{ 
-		return mt->__add(r,v1,v2);;
-	}
-
 	static const op_info& info();
 };
 
@@ -422,11 +416,6 @@ struct DLLIMPEXP_EWA_BASE pl_sub : public pl_base2_num
 	template<typename T1,typename T2>
 	static typename rebind<T1,T2>::type g(const T1& v1,const T2& v2){return v1-v2;}
 
-	static inline bool metatable_call(CallableMetatable* mt, Variant& r, Variant& v1, Variant& v2)
-	{
-		return mt->__sub(r, v1, v2);;
-	}
-
 	static const op_info& info();
 };
 
@@ -434,11 +423,6 @@ struct DLLIMPEXP_EWA_BASE pl_mul : public pl_base2_num
 {
 	template<typename T1,typename T2>
 	static typename rebind<T1,T2>::type g(const T1& v1,const T2& v2){return v1*v2;}
-
-	static inline bool metatable_call(CallableMetatable* mt, Variant& r, Variant& v1, Variant& v2)
-	{
-		return mt->__mul(r, v1, v2);;
-	}
 
 	static const op_info& info();
 };
@@ -506,11 +490,6 @@ struct DLLIMPEXP_EWA_BASE pl_mat_mul : public pl_base2_mat
 		return EW_MOVE(result);
 	}
 
-	static inline bool metatable_call(CallableMetatable* mt, Variant& r, Variant& v1, Variant& v2)
-	{
-		return mt->__mul(r, v1, v2);;
-	}
-
 	static const op_info& info();
 };
 
@@ -518,11 +497,6 @@ struct DLLIMPEXP_EWA_BASE pl_div : public pl_base2_num
 {
 	template<typename T1,typename T2>
 	static typename rebind<T1,T2>::type g(const T1& v1,const T2& v2){return v1/v2;}
-
-	static inline bool metatable_call(CallableMetatable* mt, Variant& r, Variant& v1, Variant& v2)
-	{
-		return mt->__div(r, v1, v2);;
-	}
 
 	static const op_info& info();
 };
@@ -565,11 +539,6 @@ struct DLLIMPEXP_EWA_BASE pl_mat_div : public pl_base2_mat
 		arr_xt<type> result;
 		Exception::XError("matrix_div_not_implement");
 		return EW_MOVE(result);
-	}
-
-	static inline bool metatable_call(CallableMetatable* mt, Variant& r, Variant& v1, Variant& v2)
-	{
-		return mt->__div(r, v1, v2);;
 	}
 
 	static const op_info& info();
@@ -727,11 +696,6 @@ struct DLLIMPEXP_EWA_BASE pl_eq : public pl_base2_rel
 	template<typename T1,typename T2>
 	static inline typename rebind<T1,T2>::type g(const T1& v1,const T2& v2){return pl_base2_relT<T1,T2>::eq(v1,v2);}
 
-	static inline bool metatable_call(CallableMetatable* mt, Variant& r, Variant& v1, Variant& v2)
-	{
-		return mt->__eq(r, v1, v2);;
-	}
-
 	static const op_info& info();
 };
 
@@ -743,11 +707,6 @@ struct DLLIMPEXP_EWA_BASE pl_ne : public pl_base2_rel
 	template<typename T1,typename T2>
 	static inline typename rebind<T1,T2>::type g(const T1& v1,const T2& v2){return pl_base2_relT<T1,T2>::ne(v1,v2);}
 
-	static inline bool metatable_call(CallableMetatable* mt, Variant& r, Variant& v1, Variant& v2)
-	{
-		return mt->__ne(r, v1, v2);;
-	}
-
 	static const op_info& info();
 };
 
@@ -755,11 +714,6 @@ struct DLLIMPEXP_EWA_BASE pl_gt : public pl_base2_rel
 {
 	template<typename T1,typename T2>
 	static inline typename rebind<T1,T2>::type g(const T1& v1,const T2& v2){return pl_base2_relT<T1,T2>::gt(v1,v2);}
-
-	static inline bool metatable_call(CallableMetatable* mt, Variant& r, Variant& v1, Variant& v2)
-	{
-		return mt->__gt(r, v1, v2);;
-	}
 
 	static const op_info& info();
 };
@@ -769,11 +723,6 @@ struct DLLIMPEXP_EWA_BASE pl_ge : public pl_base2_rel
 	template<typename T1,typename T2>
 	static inline typename rebind<T1,T2>::type g(const T1& v1,const T2& v2){return pl_base2_relT<T1,T2>::ge(v1,v2);}
 
-	static inline bool metatable_call(CallableMetatable* mt, Variant& r, Variant& v1, Variant& v2)
-	{
-		return mt->__ge(r, v1, v2);;
-	}
-
 	static const op_info& info();
 };
 
@@ -782,11 +731,6 @@ struct DLLIMPEXP_EWA_BASE pl_lt : public pl_base2_rel
 	template<typename T1,typename T2>
 	static inline typename rebind<T1,T2>::type g(const T1& v1,const T2& v2){return pl_base2_relT<T1,T2>::lt(v1,v2);}
 
-	static inline bool metatable_call(CallableMetatable* mt, Variant& r, Variant& v1, Variant& v2)
-	{
-		return mt->__lt(r, v1, v2);;
-	}
-
 	static const op_info& info();
 };
 
@@ -794,11 +738,6 @@ struct DLLIMPEXP_EWA_BASE pl_le : public pl_base2_rel
 {
 	template<typename T1,typename T2>
 	static inline typename rebind<T1,T2>::type g(const T1& v1,const T2& v2){return pl_base2_relT<T1,T2>::le(v1,v2);}
-
-	static inline bool metatable_call(CallableMetatable* mt, Variant& r, Variant& v1, Variant& v2)
-	{
-		return mt->__le(r, v1, v2);;
-	}
 
 	static const op_info& info();
 };
@@ -835,10 +774,6 @@ struct DLLIMPEXP_EWA_BASE pl_bw_shl : public pl_base2_bw
 	static int64_t g(int64_t x,int64_t y){return x<<y;}
 	static const op_info& info();
 
-	static inline bool metatable_call(CallableMetatable* mt, Variant& r, Variant& v1, Variant& v2)
-	{
-		return mt->__shl(r, v1, v2);;
-	}
 };
 
 struct DLLIMPEXP_EWA_BASE pl_bw_shr : public pl_base2_bw
@@ -846,10 +781,6 @@ struct DLLIMPEXP_EWA_BASE pl_bw_shr : public pl_base2_bw
 	static int64_t g(int64_t x,int64_t y){return x>>y;}
 	static const op_info& info();
 
-	static inline bool metatable_call(CallableMetatable* mt, Variant& r, Variant& v1, Variant& v2)
-	{
-		return mt->__shr(r, v1, v2);;
-	}
 };
 
 

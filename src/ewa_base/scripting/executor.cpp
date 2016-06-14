@@ -408,71 +408,57 @@ void Executor::_vm_run2(int k)
 			while(Executor_stackframe_leave(ewsl,cip->p1)) cip=ewsl.ci0.nip++;
 			return;
 		case XOP1_NEG:
-			pl1_call<pl_neg>::g(ci1.nsp[0],ci1.nsp[0]);
+			pl1_call<pl_neg>::g(*this);
 			break;
 		case XOP1_BITWISE_NOT:
-			pl1_call<pl_bw_not>::g(ci1.nsp[0],ci1.nsp[0]);
+			pl1_call<pl_bw_not>::g(*this);
 			break;
 		case XOP1_NOT:
 			ci1.nsp[0].reset(!pl_cast<bool>::g(ci1.nsp[0]));
 			break;
 		case XOP2_ADD:
-			pl2_call<pl_add>::k(ci1.nsp[-1], ci1.nsp[-1], ci1.nsp[0]);
-			--ci1.nsp;
+			pl2_call<pl_add>::k(*this);
 			break;
 		case XOP2_SUB:
-			pl2_call<pl_sub>::k(ci1.nsp[-1],ci1.nsp[-1],ci1.nsp[0]);
-			--ci1.nsp;
+			pl2_call<pl_sub>::k(*this);;
 			break;
 		case XOP2_DOT_MUL:
-			pl2_call<pl_arr_mul>::k(ci1.nsp[-1],ci1.nsp[-1],ci1.nsp[0]);
-			--ci1.nsp;
+			pl2_call<pl_arr_mul>::k(*this);;
 			break;
 		case XOP2_MUL:
-			pl2_call<pl_mat_mul>::k(ci1.nsp[-1],ci1.nsp[-1],ci1.nsp[0]);
-			--ci1.nsp;
+			pl2_call<pl_mat_mul>::k(*this);;
 			break;
 		case XOP2_DOT_DIV:
 			// int div int may return double if needed, so do NOT use fast version (pl2_call<...>::k)
-			pl2_call<pl_arr_div>::g(ci1.nsp[-1],ci1.nsp[-1],ci1.nsp[0]);
-			--ci1.nsp;
+			pl2_call<pl_arr_div>::g(*this);;
 			break;
 		case XOP2_DIV:
 			// int div int may return double if needed, so do NOT use fast version (pl2_call<...>::k)
-			pl2_call<pl_mat_div>::g(ci1.nsp[-1],ci1.nsp[-1],ci1.nsp[0]);
-			--ci1.nsp;
+			pl2_call<pl_mat_div>::g(*this);;
 			break;
 		case XOP2_MOD:
-			pl2_call<pl_mod>::k(ci1.nsp[-1],ci1.nsp[-1],ci1.nsp[0]);
-			--ci1.nsp;
+			pl2_call<pl_mod>::k(*this);;
 			break;
 		case XOP2_DOT_POW:
-			pl2_call<pl_arr_pow>::g(ci1.nsp[-1],ci1.nsp[-1],ci1.nsp[0]);
-			--ci1.nsp;
+			pl2_call<pl_arr_pow>::g(*this);;
 			break;
 		case XOP2_POW:
-			pl2_call<pl_mat_pow>::g(ci1.nsp[-1],ci1.nsp[-1],ci1.nsp[0]);
-			--ci1.nsp;
+			pl2_call<pl_mat_pow>::g(*this);;
 			break;
 		case XOP2_BITWISE_AND:
-			pl2_call<pl_bw_and>::k(ci1.nsp[-1],ci1.nsp[-1],ci1.nsp[0]);
-			--ci1.nsp;
+			pl2_call<pl_bw_and>::k(*this);;
 			break;
 		case XOP2_BITWISE_OR:
-			pl2_call<pl_bw_or>::k(ci1.nsp[-1],ci1.nsp[-1],ci1.nsp[0]);
-			--ci1.nsp;
+			pl2_call<pl_bw_or>::k(*this);;
 			break;
 		case XOP2_BITWISE_XOR:
-			pl2_call<pl_bw_xor>::k(ci1.nsp[-1],ci1.nsp[-1],ci1.nsp[0]);
-			--ci1.nsp;
+			pl2_call<pl_bw_xor>::k(*this);;
 			break;
 		case XOP2_SHIFT_L:
-			pl2_call<pl_bw_shl>::k(ci1.nsp[-1],ci1.nsp[-1],ci1.nsp[0]);
-			--ci1.nsp;
+			pl2_call<pl_bw_shl>::k(*this);;
 			break;
 		case XOP2_SHIFT_R:
-			pl2_call<pl_bw_shr>::k(ci1.nsp[-1],ci1.nsp[-1],ci1.nsp[0]);
-			--ci1.nsp;
+			pl2_call<pl_bw_shr>::k(*this);;
 			break;
 		case XOP2_AND:
 			ci1.nsp[-1].reset<bool>(pl_cast<bool>::k(ci1.nsp[-1])&&pl_cast<bool>::k(ci1.nsp[0]));
@@ -487,32 +473,26 @@ void Executor::_vm_run2(int k)
 			--ci1.nsp;
 			break;
 		case XOP2_LT:
-			pl2_call<pl_lt>::k(ci1.nsp[-1],ci1.nsp[-1],ci1.nsp[0]);
-			--ci1.nsp;
+			pl2_call<pl_lt>::k(*this);;
 			break;
 		case XOP2_GT:
-			pl2_call<pl_gt>::k(ci1.nsp[-1],ci1.nsp[-1],ci1.nsp[0]);
-			--ci1.nsp;
+			pl2_call<pl_gt>::k(*this);;
 			break;
 		case XOP2_LE:
-			pl2_call<pl_le>::k(ci1.nsp[-1],ci1.nsp[-1],ci1.nsp[0]);
-			--ci1.nsp;
+			pl2_call<pl_le>::k(*this);;
 			break;
 		case XOP2_GE:
-			pl2_call<pl_ge>::k(ci1.nsp[-1],ci1.nsp[-1],ci1.nsp[0]);
-			--ci1.nsp;
+			pl2_call<pl_ge>::k(*this);;
 			break;
 		case XOP2_EQ:
-			pl2_call<pl_eq>::g(ci1.nsp[-1],ci1.nsp[-1],ci1.nsp[0]);
-			--ci1.nsp;
+			pl2_call<pl_eq>::g(*this);;
 			break;
 		case XOP2_SAME:
 			ci1.nsp[-1].reset<bool>(ci1.nsp[-1].kptr() !=NULL && ci1.nsp[-1].kptr()==ci1.nsp[0].kptr());
 			--ci1.nsp;
 			break;
 		case XOP2_NE:
-			pl2_call<pl_ne>::g(ci1.nsp[-1],ci1.nsp[-1],ci1.nsp[0]);
-			--ci1.nsp;
+			pl2_call<pl_ne>::g(*this);;
 			break;
 		case XOP2_CAT:
 			ci1.nsp[-1].reset(pl_cast<String>::g(ci1.nsp[-1])+pl_cast<String>::g(ci1.nsp[0]));
@@ -532,7 +512,6 @@ void Executor::_vm_run2(int k)
 			break;
 		case XOP_GET_GGVAR:
 			push(tb0.get(cip->p2).second);
-			//push(tb0[variant_handler<String>::raw(ci0.dat[cip->p1])]);
 			break;
 		case XOP_GET_SBASE:
 			push(ci1.nbp[cip->p1]);

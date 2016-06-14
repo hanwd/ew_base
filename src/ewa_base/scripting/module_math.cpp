@@ -54,10 +54,10 @@ class PL1_func : public CallableFunction
 public:
 	typedef typename pl1_call<P>::lk lk;
 
-	static void variant_call(Variant& r,Variant& v1)
+	static int variant_call(Executor &ewsl,Variant& v1)
 	{
 		int n=down_cast_variant_type(v1);
-		return lk::test(n)(r,v1);	
+		return lk::test(n)(ewsl,v1);	
 	}
 
 	PL1_func():CallableFunction(P::info().name,P::info().flag)
@@ -69,10 +69,8 @@ public:
 	virtual int __fun_call(Executor& ewsl,int n)
 	{
 		ewsl.check_pmc(this,n,1);
-
 		Variant &v(*ewsl.ci1.nsp);
-		pl1_call<P>::g(v,v);
-		return 1;
+		return pl1_call<P>::g(ewsl);
 	}
 };
 
@@ -86,10 +84,10 @@ public:
 
 	typedef typename pl2_call<P>::lk lk;
 
-	static void variant_call(Variant& r,Variant& v1,Variant& v2)
+	static int variant_call(Executor& ewsl,Variant& v1,Variant& v2)
 	{
 		int n=(down_cast_variant_type(v1)<<4)|down_cast_variant_type(v2);
-		return lk::test(n)(r,v1,v2);	
+		return lk::test(n)(ewsl,v1,v2);	
 	}
 
 	PL2_func():CallableFunction(P::info().name,P::info().flag)
@@ -107,11 +105,7 @@ public:
 	virtual int __fun_call(Executor& ewsl,int n)
 	{
 		ewsl.check_pmc(this,n,2);
-
-		Variant &v2(ewsl.ci1.nsp[0]);
-		Variant &v1(ewsl.ci1.nsp[-1]);
-		pl2_call<P>::g(v1,v1,v2);
-		return 1;
+		return pl2_call<P>::g(ewsl);
 	}
 };
 
@@ -126,7 +120,7 @@ public:
 template<typename P> typename PLX_func<P>::infotype  PLX_func<P>::sm_info("EWSL_PLX_func#" + P::info().name);
 
 
-void int_div_hook_int_int(Variant &r, Variant& v1, Variant& v2)
+int int_div_hook_int_int(Executor &ewsl, Variant& v1, Variant& v2)
 {
 	int64_t n1=variant_handler<int64_t>::raw(v1);
 	int64_t n2=variant_handler<int64_t>::raw(v2);
@@ -137,18 +131,20 @@ void int_div_hook_int_int(Variant &r, Variant& v1, Variant& v2)
 	}
 	if(n1%n2==0)
 	{
-		r.reset(n1/n2);
+		ewsl.ci1.nsp[-1].reset(n1/n2);
 	}
 	else
 	{
-		r.reset(double(n1)/double(n2));
+		ewsl.ci1.nsp[-1].reset(double(n1)/double(n2));
 	}
+	return 1;
 }
 
 template<bool F>
-static void value_direct(Variant &r, Variant&,Variant&)
+static int value_direct(Executor &, Variant& v1,Variant&)
 {
-	r.reset(F);
+	v1.reset(F);
+	return 1;
 }
 
 void init_module_math()

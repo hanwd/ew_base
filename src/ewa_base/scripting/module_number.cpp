@@ -22,13 +22,12 @@ int CallableMetatableT<dcomplex>::__fun_call(Executor& ewsl, int pm)
 	else if(pm==1)
 	{
 		Variant z;z.reset(0.0);
-		pl2_call<pl_cpx>::g(ewsl.ci0.nbx[1],ewsl.ci0.nbx[1],z);
-		return 1;
+		ewsl.push(z);
+		return pl2_call<pl_cpx>::g(ewsl);
 	}
 	else if(pm==2)
 	{
-		pl2_call<pl_cpx>::g(ewsl.ci0.nbx[1],ewsl.ci0.nbx[1],ewsl.ci0.nbx[2]);
-		return 1;
+		return pl2_call<pl_cpx>::g(ewsl);
 	}
 
 	return CallableData::__fun_call(ewsl,pm);

@@ -30,13 +30,20 @@ public:
 
 	int __setindex(Executor& ewsl,const String&);
 	int __setarray(Executor& ewsl,int pm);
+
 	virtual int __fun_call(Executor&,int);
+
+	virtual int __metatable_call1(Executor&,const String&);
+	virtual int __metatable_call2(Executor&,const String&);
 
 
 	virtual bool __add(Variant&, Variant&, Variant&){ return false; }
 	virtual bool __sub(Variant&, Variant&, Variant&){ return false; }
 	virtual bool __mul(Variant&, Variant&, Variant&){ return false; }
 	virtual bool __div(Variant&, Variant&, Variant&){ return false; }
+
+	virtual bool __dot_mul(Variant&, Variant&, Variant&){ return false; }
+	virtual bool __dot_div(Variant&, Variant&, Variant&){ return false; }
 
 	virtual bool __gt(Variant&, Variant&, Variant&){ return false; }
 	virtual bool __lt(Variant&, Variant&, Variant&){ return false; }

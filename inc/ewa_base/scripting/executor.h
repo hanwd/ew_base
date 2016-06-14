@@ -34,12 +34,6 @@ public:
 	EW_FORCEINLINE void push(const T& v=T()){ (*++ci1.nsp).reset(v); }
 #endif
 
-	//template<typename T>
-	//EW_FORCEINLINE typename tl::enable_if_c<tl::is_convertible<T,CallableData> >::type push(const DataPtrT<T>& v)
-	//{
-	//	(*++ci1.nsp).kptr((CallableData*)v.get());
-	//}
-
 	void popq_ref(Variant& d);
 	void popq(Variant& d);
 
@@ -57,15 +51,13 @@ public:
 	template<typename P>
 	void call1()
 	{
-		pl1_call<P>::g(ci1.nsp[0],ci1.nsp[0]);
-		--ci1.nsp;
+		pl1_call<P>::g(*this);
 	}
 
 	template<typename P>
 	void call2()
 	{
-		pl2_call<P>::g(ci1.nsp[-1],ci1.nsp[-1],ci1.nsp[0]);
-		--ci1.nsp;
+		pl2_call<P>::g(*this);
 	}
 
 	bool callx(int n,int k=1);

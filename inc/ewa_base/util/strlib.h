@@ -25,6 +25,7 @@ String string_join(T t1,T t2,const String& br)
 
 DLLIMPEXP_EWA_BASE arr_1t<String> string_split(const String& s, const String& b);
 DLLIMPEXP_EWA_BASE arr_1t<String> string_lines(const String& s);
+DLLIMPEXP_EWA_BASE arr_1t<String> string_words(const String& s);
 
 DLLIMPEXP_EWA_BASE String string_replace(const String& str_src, const String& str_old, const String& str_new);
 

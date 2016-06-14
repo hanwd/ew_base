@@ -80,6 +80,7 @@ Variant RpcHandler::bexception(const String& cmd,std::exception& e)
 Variant RpcHandlerEx::DoHandle(const String& cmd,Variant& req)
 {
 	int id=aHandlers.find1(cmd);
+
 	if(id<0||!aHandlers.get(id).second)
 	{
 		return bunknown(cmd,req);

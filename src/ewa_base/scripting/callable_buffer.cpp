@@ -8,7 +8,12 @@ EW_ENTER
 template<typename T> 
 typename CallableWrapT<StringBuffer<T> >::infotype 
 CallableWrapT<StringBuffer<T> >::sm_info(ObjectNameT<StringBuffer<T> >::MakeName("CallableWrap"));
-
+template<typename T>
+bool CallableWrapT<StringBuffer<T> >::ToValue(String& s,int) const
+{
+	s=value;
+	return true;
+}
 
 template<typename T>
 class CallableFunctionBufferClearT : public CallableFunction

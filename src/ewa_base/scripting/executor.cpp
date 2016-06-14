@@ -141,6 +141,18 @@ Executor::Executor(size_t stack_size)
 
 }
 
+void Executor::reset()
+{
+
+	co_this=co_main;
+	co_main->nState=CallableCoroutine::STATE_RUNNING;
+
+	ci0=co_main->ci0;
+	ci1=co_main->ci1;
+
+	ci0.nip=NULL;
+}
+
 Executor::Executor(const Executor& o)
 	:tb0(CG_GGVar::current())
 	,tb1(tb1_internal)

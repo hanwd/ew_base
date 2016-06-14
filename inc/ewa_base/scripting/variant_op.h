@@ -513,10 +513,10 @@ template<typename P>
 class pl2_dispatch_base
 {
 public:
-	static void value(Variant&,Variant&,Variant&)
-	{
-		Exception::XError(String::Format("bad argument to %s",P::info().name));
-	}
+	//static void value(Variant&,Variant&,Variant&)
+	//{
+	//	Exception::XError(String::Format("bad argument to %s",P::info().name));
+	//}
 };
 
 template<typename P>
@@ -542,13 +542,6 @@ class pl2_dispatch : public pl2_dispatch_meta<P>
 {
 public:
 
-	//typedef pl2_dispatch_meta<P> basetype;
-
-	//static const unsigned N1 = N >> 4;
-	//static const unsigned N2 = N & 0xF;
-
-	//typedef typename flag_type<N1>::type type1;
-	//typedef typename flag_type<N2>::type type2;
 
 };
 
@@ -696,6 +689,21 @@ public:
 		return lk::test(n)(r,v1,v2);
 	}
 
+	static EW_FORCEINLINE void g(Executor& ewsl)
+	{
+		Variant& v1(ewsl.ci1.nsp[-1]);
+		Variant& v2(ewsl.ci1.nsp[-0]);
+		unsigned n=(v1.type()<<4)|v2.type();
+		if(lk::cmap[n]==&pl2_dispatch_meta<P>::value)
+		{
+			pl2_dispatch_meta<P>::value(v1,v1,v2);
+		}
+		else
+		{
+			return lk::cmap[n](v1,v1,v2);		
+		}
+
+	}
 
 	static EW_FORCEINLINE void k(Variant& r,Variant& v1,Variant& v2)
 	{

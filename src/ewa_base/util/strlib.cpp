@@ -4,6 +4,39 @@
 EW_ENTER
 
 
+arr_1t<String> string_words(const String& s)
+{
+
+	const char* p=s.c_str();
+	bool last_is_not_white=false;
+	arr_1t<size_t> pos;
+	//pos.push_back(0);
+
+	size_t n=s.size();
+
+	for(size_t i=0;i<n;i++)
+	{
+		if(::isspace(p[i]))
+		{
+			last_is_not_white=true;
+		}
+		else if(last_is_not_white)
+		{
+			pos.push_back(i);
+			last_is_not_white=false;
+		}
+	}
+	pos.push_back(n);
+	arr_1t<String> columns;
+	for(size_t i=1;i<pos.size();i++)
+	{
+		columns.push_back(string_trim(String(p+pos[i-1],p+pos[i])));
+	}
+
+	return columns;
+
+}
+
 arr_1t<String> string_lines(const String& s)
 {
 	arr_1t<String> a;

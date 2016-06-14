@@ -67,15 +67,42 @@ struct pl_string_reverse
 	}
 };
 
+
+struct pl_string_lines
+{
+	static inline void g(Variant& r, const String& v)
+	{
+		arr_1t<String> arr=ew::string_lines(v);
+		arr_xt<Variant>& vxt(r.ref<arr_xt<Variant> >());
+		std::for_each(arr.begin(),arr.end(),[&vxt](const String& s)
+		{
+			vxt.push_back(Variant(s));
+		});
+	}
+};
+
+
+struct pl_string_words
+{
+	static inline void g(Variant& r, const String& v)
+	{
+		arr_1t<String> arr=ew::string_words(v);
+		arr_xt<Variant>& vxt(r.ref<arr_xt<Variant> >());
+		std::for_each(arr.begin(),arr.end(),[&vxt](const String& s)
+		{
+			vxt.push_back(Variant(s));
+		});
+	}
+};
+
 template<typename P>
 class CallableFunctionStringBaseT : public CallableFunction
 {
 public:
 	CallableFunctionStringBaseT(const String &n) :CallableFunction(n){}
-	static int do_apply(Executor& ewsl, Variant& v)
+	static int do_apply(Executor& ewsl, const String& v)
 	{
-		String& s0(v.get<String>());
-		P::g(ewsl.ci0.nbx[1], s0);
+		P::g(ewsl.ci0.nbx[1], v);
 		return 1;
 	}
 };
@@ -89,7 +116,7 @@ public:
 	int __fun_call(Executor& ewsl, int pm)
 	{
 		ewsl.check_pmc(this, pm, 1);
-		return do_apply(ewsl, ewsl.ci0.nbx[1]);
+		return do_apply(ewsl, variant_cast<String>(ewsl.ci0.nbx[1]));
 	}
 };
 
@@ -104,7 +131,7 @@ public:
 	int __fun_call(Executor& ewsl, int pm)
 	{
 		ewsl.check_pmc(this, pm, 0);
-		return basetype::do_apply(ewsl, ewsl.ci1.nbp[StackState1::SBASE_THIS]);
+		return basetype::do_apply(ewsl, ewsl.ci1.nbp[StackState1::SBASE_THIS].get<String>());
 	}
 };
 
@@ -185,6 +212,40 @@ public:
 	DECLARE_OBJECT_CACHED_INFO(CallableFunctionStringReverse, ObjectInfo);
 };
 IMPLEMENT_OBJECT_INFO(CallableFunctionStringReverse, ObjectInfo);
+
+
+class CallableFunctionStringLines : public CallableFunctionStringThisT<pl_string_lines>
+{
+public:
+	CallableFunctionStringLines() :CallableFunctionStringThisT<pl_string_lines>("string.lines"){}
+	DECLARE_OBJECT_CACHED_INFO(CallableFunctionStringLines, ObjectInfo);
+};
+IMPLEMENT_OBJECT_INFO(CallableFunctionStringLines, ObjectInfo);
+
+class CallableFunctionStringWords : public CallableFunctionStringThisT<pl_string_words>
+{
+public:
+	CallableFunctionStringWords() :CallableFunctionStringThisT<pl_string_words>("string.words"){}
+	DECLARE_OBJECT_CACHED_INFO(CallableFunctionStringWords, ObjectInfo);
+};
+IMPLEMENT_OBJECT_INFO(CallableFunctionStringWords, ObjectInfo);
+
+
+class CallableFunctionSplitLines : public CallableFunctionStringT<pl_string_lines>
+{
+public:
+	CallableFunctionSplitLines() :CallableFunctionStringT<pl_string_lines>("split_line"){}
+	DECLARE_OBJECT_CACHED_INFO(CallableFunctionSplitLines, ObjectInfo);
+};
+IMPLEMENT_OBJECT_INFO(CallableFunctionSplitLines, ObjectInfo);
+
+class CallableFunctionSplitWords : public CallableFunctionStringT<pl_string_words>
+{
+public:
+	CallableFunctionSplitWords() :CallableFunctionStringT<pl_string_words>("split_word"){}
+	DECLARE_OBJECT_CACHED_INFO(CallableFunctionSplitWords, ObjectInfo);
+};
+IMPLEMENT_OBJECT_INFO(CallableFunctionSplitWords, ObjectInfo);
 
 class CallableFunctionStringSubstr : public CallableFunction
 {
@@ -407,6 +468,8 @@ void init_module_string()
 	gi.add_inner<CallableFunctionStringLength>();
 	gi.add_inner<CallableFunctionStringUpper>();
 	gi.add_inner<CallableFunctionStringLower>();
+	gi.add_inner<CallableFunctionStringWords>();
+	gi.add_inner<CallableFunctionStringLines>();
 	gi.add_inner<CallableFunctionStringReverse>();
 	gi.add_inner<CallableFunctionStringSubstr>();
 
@@ -423,6 +486,8 @@ void init_module_string()
 	gi.add_inner<CallableFunctionSubstr>();
 	gi.add_inner<CallableFunctionConcat>();
 	gi.add_inner<CallableFunctionSplit>();
+	gi.add_inner<CallableFunctionSplitLines>();
+	gi.add_inner<CallableFunctionSplitWords>();
 	gi.add_inner<CallableFunctionReplace>();
 
 }

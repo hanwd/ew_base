@@ -24,6 +24,7 @@ public:
 
 	virtual CallableMetatable* GetMetaTable();
 
+	virtual bool ToValue(String& s,int n=0) const;
 
 	virtual CallableData* DoClone(ObjectCloneState&){return this;}
 

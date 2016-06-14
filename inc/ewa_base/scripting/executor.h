@@ -101,6 +101,8 @@ public:
 	void get_index(const String& s);
 	void set_index(const String& s);
 
+	void reset();
+
 	int move_return_values(int n);
 
 	DataPtrT<CallableData> parse(const String& s);
@@ -145,7 +147,6 @@ public:
 protected:
 
 	VariantTable tb1_internal;
-	//CG_VariableGlobal var_import;
 
 	void _vm_run1(int kep);
 	void _vm_run2(int kep);

@@ -13,9 +13,10 @@ class DLLIMPEXP_EWA_BASE op_info
 {
 public:
 	op_info(){}
-	op_info(const String& s,int f=0):name(s),flag(f){}
+	op_info(const String& s,int f=0);
 
 	String name;
+	String op_name;
 	int flag;
 };
 

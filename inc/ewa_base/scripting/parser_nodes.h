@@ -671,6 +671,9 @@ class DLLIMPEXP_EWA_BASE TNode_statement_throw : public TNode_statement
 {
 public:
 	typedef TNode_statement basetype;
+	TNode_statement_throw(){}
+	TNode_statement_throw(const tokItem& v):basetype(v){}
+
 	DataPtrT<TNode_expression_list> value;
 
 	SYNTAX_TNODE_ACCEPT(TNode_statement_throw);

@@ -402,21 +402,9 @@ template<typename P>
 class pl1_dispatch_base
 {
 public:
-	static int value(Executor& ewsl,Variant& v1)
+	static int value(Executor& ewsl,Variant&)
 	{
-
-		int rt;
-
-		CallableMetatable* p1 = v1.get_metatable();
-		if(p1 && (rt=p1->__metatable_call1(ewsl,P::info().name))!=0)
-		{
-			return rt;
-		}
-
-		if ((rt=P::metatable_call1_var(v1, v1))!=0) return rt;
-
-		Exception::XError(String::Format("bad argument to %s",P::info().name));
-		return 1;
+		return CallableMetatable::__metatable_call1(ewsl,P::info().op_name);
 	}
 };
 
@@ -527,41 +515,15 @@ template<typename P>
 class pl2_dispatch_base
 {
 public:
-
-};
-
-template<typename P>
-class pl2_dispatch_meta
-{
-public:
-
-	static int value(Executor& ewsl,Variant& v1,Variant& v2)
+	static int value(Executor& ewsl,Variant&,Variant&)
 	{
-
-		int rt;
-
-		CallableMetatable* p1 = v1.get_metatable();
-		if(p1 && (rt=p1->__metatable_call2(ewsl,P::info().name))!=0)
-		{
-			return rt;
-		}
-
-		CallableMetatable* p2 = v2.get_metatable();
-		if(p2 && (rt=p2->__metatable_call2(ewsl,P::info().name))!=0)
-		{
-			return rt;
-		}
-
-		if ((rt=P::metatable_call2_var(v1, v1, v2))!=0) return rt;
-
-		Exception::XError(String::Format("bad argument to %s",P::info().name));
-
-		return 0;
+		return CallableMetatable::__metatable_call2(ewsl,P::info().op_name);
 	}
 };
 
+
 template<typename P,unsigned N,unsigned X>
-class pl2_dispatch : public pl2_dispatch_meta<P>
+class pl2_dispatch : public pl2_dispatch_base<P>
 {
 public:
 
@@ -581,7 +543,7 @@ public:
 	{
 		typedef typename P::template rebind<T1,T2>::type retx;
 		retx y=P::g(v1,v2);
-		ewsl.ci1.nsp[-1].reset(y);
+		(*--ewsl.ci1.nsp).reset(y);
 	}
 
 	template<typename T1,typename T2>
@@ -598,7 +560,7 @@ public:
 			y(i)=P::g(v1(i),v2);
 		}
 
-		ewsl.ci1.nsp[-1].reset(y);
+		(*--ewsl.ci1.nsp).reset(y);
 	}
 	template<typename T1,typename T2>
 	static typename tl::enable_if<type_flag<T1>::is_scr&&type_flag<T2>::is_arr>::type g(Executor& ewsl,const T1& v1,const T2& v2)
@@ -614,7 +576,7 @@ public:
 			y(i)=P::g(v1,v2(i));
 		}
 
-		ewsl.ci1.nsp[-1].reset(y);
+		(*--ewsl.ci1.nsp).reset(y);
 	}
 
 	template<typename T1,typename T2>
@@ -636,7 +598,7 @@ public:
 			y(i)=P::g(v1(i),v2(i));
 		}
 
-		ewsl.ci1.nsp[-1].reset(y);
+		(*--ewsl.ci1.nsp).reset(y);
 	}
 
 
@@ -647,7 +609,6 @@ public:
 
 		g(ewsl,variant_handler<type1>::raw(v1),variant_handler<type2>::raw(v2));
 
-		--ewsl.ci1.nsp;
 		return 1;
 	}
 };
@@ -683,7 +644,7 @@ public:
 	{
 		typedef typename P::template rebind<T1,T2>::type retx;
 		retx y=P::g(v1,v2);
-		s(ewsl.ci1.nsp[-1],y);
+		s((*--ewsl.ci1.nsp),y);
 	}
 
 	static inline int value(Executor& ewsl,Variant& v1,Variant& v2)
@@ -696,7 +657,6 @@ public:
 
 		g(ewsl,variant_handler<type1>::raw(v1),variant_handler<type2>::raw(v2));
 
-		--ewsl.ci1.nsp;
 		return 1;
 	}
 };
@@ -730,8 +690,7 @@ public:
 		unsigned n=(v1.type()<<4)|v2.type();
 		if(n==fast_flag)
 		{
-			v1.reset(P::g(variant_handler<fast_type>::raw(v1),variant_handler<fast_type>::raw(v2)));
-			--ewsl.ci1.nsp;
+			(*--ewsl.ci1.nsp).reset(P::g(variant_handler<fast_type>::raw(v1),variant_handler<fast_type>::raw(v2)));
 			return 1;
 		}
 		return lk::test(n)(ewsl,v1,v2);

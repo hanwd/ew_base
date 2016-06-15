@@ -750,15 +750,14 @@ VisReturnType TNodeVisitorCG_AnalyzerRValue::visit(TNode_val_variant* node,VisEx
 
 VisReturnType TNodeVisitorCG_AnalyzerRValue::visit(TNode_statement_assignment* node,VisExtraParam visp)
 {
-	if(node->flags.get(TNode::FLAG_WITH_SEMI|TNode_statement::FLAG_WITH_SEMI2))
-	{
-		node->value->flags.add(TNode::FLAG_WITH_SEMI);
-	}
+	LockState<bool> lock(show_temp,!node->flags.get(TNode::FLAG_WITH_SEMI|TNode_statement::FLAG_WITH_SEMI2));
+
 	return basetype::visit(node,visp);
 }
 
 VisReturnType TNodeVisitorCG_AnalyzerRValue::visit(TNode_expression_op_assign* node,VisExtraParam)
 {
+
 
 	if (node->param[0]->pm_count() == 0)
 	{
@@ -787,9 +786,9 @@ VisReturnType TNodeVisitorCG_AnalyzerRValue::visit(TNode_expression_op_assign* n
 		}
 	}
 
-
 	if (
-		!node->flags.get(TNode::FLAG_WITH_SEMI | TNode::FLAG_SUB_ASSIGN) &&
+		show_temp &&
+		!node->flags.get(TNode::FLAG_WITH_SEMI|TNode::FLAG_SUB_ASSIGN) &&
 		cgen.flags.get(CodeGen::FLAG_SHOW_RESULTS) &&
 		node->param[1]->pm_count() != 0)
 	{

@@ -8,56 +8,20 @@
 EW_ENTER
 
 
-int CallableMetatable::__metatable_call1(Executor&,const String&)
+int CallableMetatable::__metatable_call1(Executor& ewsl,const String& op)
 {
-	return 0;
+	ewsl.ci0.nbx=ewsl.ci1.nsp-1;
+	ewsl.push(op);
+	ewsl.get_system("metatable_call1");
+	return ewsl.callx_raw(2,1);
 }
 
 int CallableMetatable::__metatable_call2(Executor& ewsl,const String& op)
 {
-	typedef bool (CallableMetatable::*funcall2)(Variant&, Variant&, Variant&);
-
-	static class metatable_op_map : public indexer_map<String,funcall2>
-	{
-	public:
-		metatable_op_map()
-		{
-			indexer_map<String,funcall2>& mp(*this);
-
-			mp["math.add"]=&CallableMetatable::__add;
-			mp["math.sub"]=&CallableMetatable::__sub;
-			mp["math.mul"]=&CallableMetatable::__mul;
-			mp["math.div"]=&CallableMetatable::__div;
-
-			mp["math.dot_mul"]=&CallableMetatable::__dot_mul;
-			mp["math.dot_div"]=&CallableMetatable::__dot_div;
-
-			mp["rel.eq"]=&CallableMetatable::__eq;
-			mp["rel.ne"]=&CallableMetatable::__ne;
-			mp["rel.gt"]=&CallableMetatable::__gt;
-			mp["rel.ge"]=&CallableMetatable::__ge;
-			mp["rel.lt"]=&CallableMetatable::__lt;
-			mp["rel.le"]=&CallableMetatable::__le;
-
-		}
-
-	}op_map;
-
-	int id=op_map.find1(op);
-	if(id<0) return 0;
-
-	Variant& v1(ewsl.ci1.nsp[-1]);
-	Variant& v2(ewsl.ci1.nsp[-0]);
-
-	funcall2 fun=op_map.get(id).second;
-
-	if((this->*fun)(v1,v1,v2))
-	{
-		--ewsl.ci1.nsp;
-		return 1;
-	}
-
-	return 0;
+	ewsl.ci0.nbx=ewsl.ci1.nsp-2;
+	ewsl.push(op);
+	ewsl.get_system("metatable_call2");
+	return ewsl.callx_raw(3,1);
 }
 
 template<int M>

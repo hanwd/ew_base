@@ -4,6 +4,7 @@
 
 EW_ENTER
 
+op_info::op_info(const String& s,int f):name(s),op_name("__"+string_split(s,".").back()),flag(f){}
 
 double numeric_trait_floating<double>::nan_value()
 {
@@ -108,7 +109,6 @@ const op_info& pl_arr_pow::info(){static op_info sm_info("math.dot_pow",0);retur
 const op_info& pl_mat_mul::info(){static op_info sm_info("math.mul",0);return sm_info;}
 const op_info& pl_mat_div::info(){static op_info sm_info("math.div",0);return sm_info;}
 const op_info& pl_mat_pow::info(){static op_info sm_info("math.pow",0);return sm_info;}
-
 
 const op_info& pl_bw_not::info(){static op_info sm_info("bitwise.not",0);return sm_info;}
 const op_info& pl_bw_and::info(){static op_info sm_info("bitwise.and",0);return sm_info;}

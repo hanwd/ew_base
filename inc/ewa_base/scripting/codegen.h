@@ -128,11 +128,11 @@ public:
 		aInsts[n].p1=d-n-1;
 	}
 
-	void emit(int op,int pmc,int kep)
-	{
-		aInsts.push_back(XopInst(op,pmc,kep));
-		aInfos.push_back(tokInfo());
-	}
+	//void emit(int op,int pmc,int kep)
+	//{
+	//	aInsts.push_back(XopInst(op,pmc,kep));
+	//	aInfos.push_back(tokInfo());
+	//}
 
 	void emit(int op,tokInfo& tk,int pmc,int kep)
 	{

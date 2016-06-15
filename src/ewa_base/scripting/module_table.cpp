@@ -39,7 +39,6 @@ public:
 
 	virtual int __fun_call(Executor& ewsl,int pm)
 	{
-		//ewsl.check_pmc(this,pm,0);
 		DataPtrT<CallableMetatable> pcls=new CallableMetatable;
 		for(int i=1;i<=pm;i++)
 		{
@@ -110,6 +109,27 @@ public:
 
 IMPLEMENT_OBJECT_INFO(CallableFunctionTarget, ObjectInfo);
 
+
+
+
+class CallableFunctionGetMetatable : public CallableFunction
+{
+public:
+	CallableFunctionGetMetatable():CallableFunction("getmetatable"){}
+
+	virtual int __fun_call(Executor& ewsl,int pm)
+	{
+		ewsl.check_pmc(this,pm,1);
+		Variant& var(ewsl.ci1.nsp[0]);
+		var.reset(var.get_metatable());
+		return 1;
+	}
+
+	DECLARE_OBJECT_CACHED_INFO(CallableFunctionGetMetatable, ObjectInfo);
+};
+
+IMPLEMENT_OBJECT_INFO(CallableFunctionGetMetatable, ObjectInfo);
+
 void init_module_table()
 {
 
@@ -120,6 +140,7 @@ void init_module_table()
 	gi.add_inner<CallableFunctionClass>();
 	gi.add_inner<CallableFunctionClosure>();
 	gi.add_inner<CallableFunctionTarget>();
+	gi.add_inner<CallableFunctionGetMetatable>();
 
 }
 

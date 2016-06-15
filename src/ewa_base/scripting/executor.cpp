@@ -281,12 +281,44 @@ static XopInst xop_inst_throw_exception(XOP_TRY_THROW,1);
 
 int Executor_swap_context(Executor& ewsl,int pm);
 
+class ExceptionEwsl : public Exception
+{
+public:
+	ExceptionEwsl(Variant* bx,int pm):nbx(bx),pmc(pm){}
+
+	Variant* nbx;
+	int pmc;
+
+};
+
 void Executor::_vm_handle_exception(std::exception &e)
 {
 
 	StringBuffer<char> msg;
 
-	msg<<"CPP_Exception:" << e.what();
+	if(ExceptionEwsl* p=dynamic_cast<ExceptionEwsl*>(&e))
+	{		
+		ExceptionEwsl& v(*p);
+
+		msg<<"EWSL_Exception:";	
+		msg<<String::Format("%d param(s)",v.pmc);
+
+		for(int i=1;i<=v.pmc;i++)
+		{
+			if(i==6 && v.pmc>10)
+			{
+				msg << "\n --> " << v.pmc - 10 << " params ... ";
+				i+=v.pmc-10;
+			}
+
+			msg<<String::Format("\n --> param[%d] : ",i);
+			msg<<variant_cast<String>(v.nbx[i]);
+		}
+	}
+	else
+	{
+		msg<<"CPP_Exception:" << e.what();	
+	}
 
 	while(1)
 	{
@@ -346,7 +378,6 @@ void Executor::_vm_handle_exception(std::exception &e)
 		co_last=co_main;		
 		Executor_swap_context(*this,1);
 	}
-
 
 
 	ci0.nip = NULL;
@@ -726,16 +757,18 @@ void Executor::_vm_run2(int k)
 			break;
 		case XOP_TRY_THROW:
 			{
-				if(ewsl.co_this->aCatch.empty())
-				{
-					kerror("unhandled exception caught");
-				}
 
 				Variant* sp1=ci0.nbx;
 				int pmc=cip->p1;
+
 				if(pmc<0)
 				{
 					pmc=(*ci1.nsp--).get<int64_t>()-pmc;
+				}
+
+				if(ewsl.co_this->aCatch.empty())
+				{
+					throw ExceptionEwsl(sp1,pmc);
 				}
 
 				CallableCoroutine::tagCatch& cit(ewsl.co_this->aCatch.back());
@@ -810,6 +843,14 @@ void Executor::set_array(int pmc)
 
 	int ret=ci2.pfn->__setarray(ewsl,ci2.pmc);
 	_vm_check_ret(ret);
+}
+
+int Executor::callx_raw(int n,int k)
+{
+	Executor_update_pmc(*this,n);
+	ci0.kep=k;
+	int ret=ci2.pfn->__fun_call(*this,ci2.pmc);
+	return ret;
 }
 
 bool Executor::callx(int pmc,int kep)

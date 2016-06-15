@@ -91,7 +91,7 @@ public:
 
 	virtual VisReturnType visit(TNode_statement_macro* node, VisExtraParam visp);
 
-
+	bool show_temp;
 };
 
 

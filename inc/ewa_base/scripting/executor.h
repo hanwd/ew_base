@@ -61,6 +61,7 @@ public:
 	}
 
 	bool callx(int n,int k=1);
+	int callx_raw(int n,int k);
 
 	void kerror(const String& s);
 	void kthrow(int n);

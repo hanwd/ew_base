@@ -131,19 +131,20 @@ int int_div_hook_int_int(Executor &ewsl, Variant& v1, Variant& v2)
 	}
 	if(n1%n2==0)
 	{
-		ewsl.ci1.nsp[-1].reset(n1/n2);
+		(*--ewsl.ci1.nsp).reset(n1/n2);
 	}
 	else
 	{
-		ewsl.ci1.nsp[-1].reset(double(n1)/double(n2));
+		(*--ewsl.ci1.nsp).reset(double(n1)/double(n2));
 	}
+
 	return 1;
 }
 
 template<bool F>
-static int value_direct(Executor &, Variant& v1,Variant&)
+static int value_direct(Executor& ewsl, Variant& v1,Variant&)
 {
-	v1.reset(F);
+	(*--ewsl.ci1.nsp).reset(F);
 	return 1;
 }
 
@@ -210,11 +211,11 @@ void init_module_math()
 		unsigned n=(i<<4)|j;
 		if(i!=0&&j!=0) continue;
 
-		if(pl2_call<pl_eq>::lk::cmap[n]==&pl2_dispatch_meta<pl_eq>::value)
+		if(pl2_call<pl_eq>::lk::cmap[n]==&pl2_dispatch_base<pl_eq>::value)
 		{
 			pl2_call<pl_eq>::lk::cmap[n]=&value_direct<false>;
 		}
-		if(pl2_call<pl_ne>::lk::cmap[n]==&pl2_dispatch_meta<pl_ne>::value)
+		if(pl2_call<pl_ne>::lk::cmap[n]==&pl2_dispatch_base<pl_ne>::value)
 		{
 			pl2_call<pl_ne>::lk::cmap[n]=&value_direct<true>;
 		}

@@ -3,186 +3,217 @@
 
 EW_ENTER
 
-class CallableMetatableTime : public CallableMetatable
+
+class CallableFuncTimeAdd : public CallableFunction
 {
 public:
 
-	CallableMetatableTime(const String& s) :CallableMetatable(s){}
-
-	virtual bool __add(Variant& r, Variant& v1, Variant& v2)
+	virtual int __fun_call(Executor& ewsl, int pm)
 	{
+		ewsl.check_pmc(this,pm,2);
+		Variant& v1(ewsl.ci0.nbx[1]);
+		Variant& v2(ewsl.ci0.nbx[2]);
+
 		if (CallableWrapT<TimePoint>* p1 = dynamic_cast<CallableWrapT<TimePoint>*>(v1.kptr()))
 		{
 			if (CallableWrapT<TimeSpan>* p2 = dynamic_cast<CallableWrapT<TimeSpan>*>(v2.kptr()))
 			{
-				r.kptr(new CallableWrapT<TimePoint>(p1->value + p2->value));
-				return true;
+				v1.kptr(new CallableWrapT<TimePoint>(p1->value + p2->value));
+				return 1;
 			}
-			return false;
 		}
 		else if (CallableWrapT<TimeSpan>* p1 = dynamic_cast<CallableWrapT<TimeSpan>*>(v1.kptr()))
 		{
 			if (CallableWrapT<TimePoint>* p2 = dynamic_cast<CallableWrapT<TimePoint>*>(v2.kptr()))
 			{
-				r.kptr(new CallableWrapT<TimePoint>(p1->value + p2->value));
-				return true;
+				v1.kptr(new CallableWrapT<TimePoint>(p1->value + p2->value));
+				return 1;
 			}
-			return false;
 		}
-		return false;
+		return 0;
 	}
+};
 
-	virtual bool __sub(Variant& r, Variant& v1, Variant& v2)
+
+
+class CallableFuncTimeSub : public CallableFunction
+{
+public:
+
+	virtual int __fun_call(Executor& ewsl, int pm)
 	{
+		ewsl.check_pmc(this,pm,2);
+		Variant& v1(ewsl.ci0.nbx[1]);
+		Variant& v2(ewsl.ci0.nbx[2]);
 		if (CallableWrapT<TimePoint>* p1 = dynamic_cast<CallableWrapT<TimePoint>*>(v1.kptr()))
 		{
 			if (CallableWrapT<TimePoint>* p2 = dynamic_cast<CallableWrapT<TimePoint>*>(v2.kptr()))
 			{
-				r.kptr(new CallableWrapT<TimeSpan>(p1->value - p2->value));
-				return true;
+				v1.kptr(new CallableWrapT<TimeSpan>(p1->value - p2->value));
+				return 1;
 			}
 			else if (CallableWrapT<TimeSpan>* p2 = dynamic_cast<CallableWrapT<TimeSpan>*>(v2.kptr()))
 			{
-				r.kptr(new CallableWrapT<TimePoint>(p1->value - p2->value));
-				return true;
+				v1.kptr(new CallableWrapT<TimePoint>(p1->value - p2->value));
+				return 1;
 			}
-			return false;
 		}
-		if (CallableWrapT<TimeSpan>* p1 = dynamic_cast<CallableWrapT<TimeSpan>*>(v1.kptr()))
+		else if (CallableWrapT<TimeSpan>* p1 = dynamic_cast<CallableWrapT<TimeSpan>*>(v1.kptr()))
 		{
 			if (CallableWrapT<TimeSpan>* p2 = dynamic_cast<CallableWrapT<TimeSpan>*>(v2.kptr()))
 			{
-				r.kptr(new CallableWrapT<TimeSpan>(p1->value - p2->value));
-				return true;
+				v1.kptr(new CallableWrapT<TimeSpan>(p1->value - p2->value));
+				return 1;
 			}
-			return false;
 		}
-		return false;
+		return 0;
 	}
+};
 
-	virtual bool __mul(Variant& r, Variant& v1, Variant& v2)
+
+class CallableFuncTimeMul : public CallableFunction
+{
+public:
+
+	virtual int __fun_call(Executor& ewsl, int pm)
 	{
+		ewsl.check_pmc(this,pm,2);
+		Variant& v1(ewsl.ci0.nbx[1]);
+		Variant& v2(ewsl.ci0.nbx[2]);
 		if (CallableWrapT<TimeSpan>* p1 = dynamic_cast<CallableWrapT<TimeSpan>*>(v1.kptr()))
 		{
 			try
 			{
-				r.kptr(new CallableWrapT<TimeSpan>(p1->value*variant_cast<double>(v2)));
-				return true;
+				v1.kptr(new CallableWrapT<TimeSpan>(p1->value*variant_cast<double>(v2)));
+				return 1;
 			}
 			catch (...)
 			{
-				return false;
+
+			}
+		}
+		else if (CallableWrapT<TimeSpan>* p1 = dynamic_cast<CallableWrapT<TimeSpan>*>(v2.kptr()))
+		{
+			try
+			{
+				v1.kptr(new CallableWrapT<TimeSpan>(p1->value*variant_cast<double>(v1)));
+				return 1;
+			}
+			catch (...)
+			{
+
+			}
+		}
+		return 0;
+	}
+};
+
+
+class CallableFuncTimeDiv : public CallableFunction
+{
+public:
+
+	virtual int __fun_call(Executor& ewsl, int pm)
+	{
+		ewsl.check_pmc(this,pm,2);
+		Variant& v1(ewsl.ci0.nbx[1]);
+		Variant& v2(ewsl.ci0.nbx[2]);
+
+		if (CallableWrapT<TimeSpan>* p1 = dynamic_cast<CallableWrapT<TimeSpan>*>(v1.kptr()))
+		{
+			if (CallableWrapT<TimeSpan>* p2 = dynamic_cast<CallableWrapT<TimeSpan>*>(v2.kptr()))
+			{
+				v1.reset(p1->value / p2->value);
+				return 1;
+			}
+
+			try
+			{
+				v1.kptr(new CallableWrapT<TimeSpan>(p1->value/variant_cast<double>(v2)));
+				return 1;
+			}
+			catch (...)
+			{
+
+			}
+		}
+		return 0;
+	}
+};
+
+
+template<typename P>
+class CallableFuncCompare : public CallableFunction
+{
+public:
+
+	virtual int __fun_call(Executor& ewsl, int pm)
+	{
+		ewsl.check_pmc(this,pm,2);
+		Variant& v1(ewsl.ci0.nbx[1]);
+		Variant& v2(ewsl.ci0.nbx[2]);
+
+		if (CallableWrapT<TimeSpan>* p1 = dynamic_cast<CallableWrapT<TimeSpan>*>(v1.kptr()))
+		{
+			if (CallableWrapT<TimeSpan>* p2 = dynamic_cast<CallableWrapT<TimeSpan>*>(v2.kptr()))
+			{
+				v1.reset(P::g(p1->value.val,p2->value.val));
+				return 1;
+			}
+
+			try
+			{
+				v1.reset(P::g(p1->value / TimeSpan::MilliSeconds(1),variant_cast<double>(v2)));
+				return 1;
+			}
+			catch (...)
+			{
+				return 0;
 			}
 		}
 		if (CallableWrapT<TimeSpan>* p1 = dynamic_cast<CallableWrapT<TimeSpan>*>(v2.kptr()))
 		{
 			try
 			{
-				r.kptr(new CallableWrapT<TimeSpan>(p1->value*variant_cast<double>(v1)));
-				return true;
+				v1.reset(P::g(variant_cast<double>(v1), p1->value / TimeSpan::MilliSeconds(1)));
+				return 1;
 			}
 			catch (...)
 			{
-				return false;
-			}
-		}
-		return false;
-	}
-
-	virtual bool __div(Variant& r, Variant& v1, Variant& v2)
-	{
-		if (CallableWrapT<TimeSpan>* p1 = dynamic_cast<CallableWrapT<TimeSpan>*>(v1.kptr()))
-		{
-			if (CallableWrapT<TimeSpan>* p2 = dynamic_cast<CallableWrapT<TimeSpan>*>(v2.kptr()))
-			{
-				r.reset(p1->value / p2->value);
-				return true;
-			}
-
-			try
-			{
-				r.kptr(new CallableWrapT<TimeSpan>(p1->value/variant_cast<double>(v2)));
-				return true;
-			}
-			catch (...)
-			{
-				return false;
-			}
-		}
-		return false;
-	}
-
-
-	template<typename P>
-	bool __compare(Variant& r, Variant& v1, Variant& v2)
-	{
-		if (CallableWrapT<TimeSpan>* p1 = dynamic_cast<CallableWrapT<TimeSpan>*>(v1.kptr()))
-		{
-			if (CallableWrapT<TimeSpan>* p2 = dynamic_cast<CallableWrapT<TimeSpan>*>(v2.kptr()))
-			{
-				r.reset(P::g(p1->value.val,p2->value.val));
-				return true;
-			}
-
-			try
-			{
-				r.reset(P::g(p1->value / TimeSpan::MilliSeconds(1),variant_cast<double>(v2)));
-				return true;
-			}
-			catch (...)
-			{
-				return false;
-			}
-		}
-		if (CallableWrapT<TimeSpan>* p1 = dynamic_cast<CallableWrapT<TimeSpan>*>(v2.kptr()))
-		{
-			try
-			{
-				r.reset(P::g(variant_cast<double>(v1), p1->value / TimeSpan::MilliSeconds(1)));
-				return true;
-			}
-			catch (...)
-			{
-				return false;
+				return 0;
 			}
 		}
 		if (CallableWrapT<TimePoint>* p1 = dynamic_cast<CallableWrapT<TimePoint>*>(v1.kptr()))
 		{
 			if (CallableWrapT<TimePoint>* p2 = dynamic_cast<CallableWrapT<TimePoint>*>(v2.kptr()))
 			{
-				r.reset(P::g(p1->value.val, p2->value.val));
-				return true;
+				v1.reset(P::g(p1->value.val, p2->value.val));
+				return 1;
 			}
 		}
-
-		return false;
+		return 0;
 	}
 
-	virtual bool __gt(Variant& r, Variant& v1, Variant& v2)
-	{
-		return __compare<pl_gt>(r, v1, v2);
-	}
-	virtual bool __lt(Variant& r, Variant& v1, Variant& v2)
-	{
-		return __compare<pl_lt>(r, v1, v2);
-	}
-	virtual bool __ge(Variant& r, Variant& v1, Variant& v2)
-	{
-		return __compare<pl_ge>(r, v1, v2);
-	}
-	virtual bool __le(Variant& r, Variant& v1, Variant& v2)
-	{
-		return __compare<pl_le>(r, v1, v2);
-	}
-	virtual bool __ne(Variant& r, Variant& v1, Variant& v2)
-	{
-		return __compare<pl_ne>(r, v1, v2);
-	}
-	virtual bool __eq(Variant& r, Variant& v1, Variant& v2)
-	{
-		return __compare<pl_eq>(r, v1, v2);
-	}
+};
 
+class CallableMetatableTime : public CallableMetatable
+{
+public:
+
+	CallableMetatableTime(const String& s) :CallableMetatable(s)
+	{
+		table_meta["__add"].kptr(new CallableFuncTimeAdd);
+		table_meta["__sub"].kptr(new CallableFuncTimeSub);
+		table_meta["__mul"].kptr(new CallableFuncTimeMul);
+		table_meta["__div"].kptr(new CallableFuncTimeDiv);
+		table_meta["__gt"].kptr(new CallableFuncCompare<pl_gt>);
+		table_meta["__lt"].kptr(new CallableFuncCompare<pl_lt>);
+		table_meta["__ge"].kptr(new CallableFuncCompare<pl_ge>);
+		table_meta["__le"].kptr(new CallableFuncCompare<pl_le>);
+		table_meta["__ne"].kptr(new CallableFuncCompare<pl_ne>);
+		table_meta["__eq"].kptr(new CallableFuncCompare<pl_eq>);
+
+	}
 
 };
 

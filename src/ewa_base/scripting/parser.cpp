@@ -1176,7 +1176,7 @@ DataPtrT<TNode_statement_return> read_node_handler<TNode_statement_return>::g(Pa
 template<>
 DataPtrT<TNode_statement_throw> read_node_handler<TNode_statement_throw>::g(Parser& parser)
 {
-	DataPtrT<TNode_statement_throw> node(new TNode_statement_throw);
+	DataPtrT<TNode_statement_throw> node(new TNode_statement_throw(*parser.pcur));
 	++parser.pcur;
 	node->value=(read_node_handler<TNode_expression_list>::g(parser));
 	return node;

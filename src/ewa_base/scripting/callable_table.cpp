@@ -48,17 +48,7 @@ int CallableTableOperators::__do_getarray(Executor& ewsl,VariantTable& tb,int pm
 	String* sid=var.ptr<String>();
 	if(sid)
 	{
-		int id=tb.find1(*sid);
-		if(id>=0)
-		{
-			ewsl.ci0.nbx[1]=tb.get(id).second;
-		}
-		else
-		{
-			ewsl.kerror("invalid index");
-		}
-
-		return 1;
+		return __do_getindex(ewsl,tb,*sid);
 	}
 
 	size_t sz=tb.size();

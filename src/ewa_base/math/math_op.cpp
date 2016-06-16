@@ -5,6 +5,7 @@
 EW_ENTER
 
 op_info::op_info(const String& s,int f):name(s),op_name("__"+string_split(s,".").back()),flag(f){}
+op_info::op_info(const String& s,const String& o,int f):name(s),op_name(o),flag(f){}
 
 double numeric_trait_floating<double>::nan_value()
 {
@@ -110,10 +111,10 @@ const op_info& pl_mat_mul::info(){static op_info sm_info("math.mul",0);return sm
 const op_info& pl_mat_div::info(){static op_info sm_info("math.div",0);return sm_info;}
 const op_info& pl_mat_pow::info(){static op_info sm_info("math.pow",0);return sm_info;}
 
-const op_info& pl_bw_not::info(){static op_info sm_info("bitwise.not",0);return sm_info;}
-const op_info& pl_bw_and::info(){static op_info sm_info("bitwise.and",0);return sm_info;}
-const op_info& pl_bw_or::info(){static op_info sm_info("bitwise.or",0);return sm_info;}
-const op_info& pl_bw_xor::info(){static op_info sm_info("bitwise.xor",0);return sm_info;}
+const op_info& pl_bw_not::info(){static op_info sm_info("bitwise.not","__bitwise_not",0);return sm_info;}
+const op_info& pl_bw_and::info(){static op_info sm_info("bitwise.and","__bitwise_and",0);return sm_info;}
+const op_info& pl_bw_or::info(){static op_info sm_info("bitwise.or","__bitwise_or",0);return sm_info;}
+const op_info& pl_bw_xor::info(){static op_info sm_info("bitwise.xor","__bitwise_xor",0);return sm_info;}
 
 const op_info& pl_bw_shl::info(){static op_info sm_info("bitwise.shl",0);return sm_info;}
 const op_info& pl_bw_shr::info(){static op_info sm_info("bitwise.shr",0);return sm_info;}

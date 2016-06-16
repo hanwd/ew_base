@@ -103,6 +103,7 @@
     <ClInclude Include="..\..\inc\ewa_base\net\overlapped.h" />
     <ClInclude Include="..\..\inc\ewa_base\net\q2packet.h" />
     <ClInclude Include="..\..\inc\ewa_base\net\session.h" />
+    <ClInclude Include="..\..\inc\ewa_base\net\session_http.h" />
     <ClInclude Include="..\..\inc\ewa_base\net\socket.h" />
     <ClInclude Include="..\..\inc\ewa_base\scripting.h" />
     <ClInclude Include="..\..\inc\ewa_base\scripting\bytecode_inst.h" />

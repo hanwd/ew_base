@@ -7,6 +7,17 @@ void Object::Serialize(Serializer&)
 
 }
 
+void ObjectData::on_destroy() 
+{
+	delete this;
+}
+
+void ObjectData::on_created() 
+{
+
+}
+
+
 ObjectData* ObjectData::Clone(int t)
 {
 	ObjectCloneState cs(t);
@@ -31,6 +42,8 @@ ObjectData* ObjectCloneState::clone(ObjectData* d)
 
 	return v;
 }
+
+void ObjectCloneState::clear(){aClonedState.clear();}
 
 
 IMPLEMENT_OBJECT_INFO(Object,ObjectInfo)

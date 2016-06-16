@@ -525,6 +525,9 @@
     <ClInclude Include="..\..\src\ewa_base\basic\system_data.h">
       <Filter>source\basic</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\inc\ewa_base\net\session_http.h">
+      <Filter>include\net</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\ewa_base\basic\atomic.cpp">

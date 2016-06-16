@@ -148,7 +148,14 @@ public:
 	~ObjectData();
 
 	// Increase reference counter,
-	inline void IncRef(){m_refcount++;}
+	inline void IncRef()
+	{
+		EW_ASSERT(m_refcount.get()>=0);
+		if(m_refcount++==0)
+		{
+			on_created();
+		}
+	}
 
 	// Decrease reference counter,
 	inline void DecRef()
@@ -156,7 +163,7 @@ public:
 		EW_ASSERT(m_refcount.get()>0);
 		if(--m_refcount==0)
 		{
-			delete this;
+			on_destroy();			
 		}
 	}
 
@@ -178,7 +185,8 @@ public:
 		if(!pd) return NULL;
 		T* pt=dynamic_cast<T*>(pd);
 		if(pt) return pt;
-		delete pd;
+		pd->IncRef();
+		pd->DecRef();
 		return NULL;
 	}
 
@@ -202,10 +210,10 @@ public:
 
 protected:
 
-	//virtual void on_destroy() {}
-	//virtual void on_created() {}
+	virtual void on_destroy();
+	virtual void on_created();
 
-	AtomicInt32 m_refcount;
+	mutable AtomicInt32 m_refcount;
 };
 
 
@@ -214,13 +222,13 @@ class DLLIMPEXP_EWA_BASE ObjectCloneState
 {
 public:
 
-	explicit ObjectCloneState(int t=0):type(t){}
+	explicit inline ObjectCloneState(int t=0):type(t){}
 
 	// if d is already cloned, return last cloned value else return d->Clone(*this)
 	ObjectData* clone(ObjectData* d);
 	
 	// clear cloned state
-	void clear(){aClonedState.clear();}
+	void clear();
 
 	int type;
 private:

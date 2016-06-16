@@ -195,11 +195,6 @@ public:
 		return use_count()==1;
 	}
 
-	//operator const_reference()
-	//{
-	//	return m_pHandle;
-	//}
-
 	const_reference get()
 	{
 		return m_pHandle;
@@ -295,6 +290,11 @@ public:
 			m_pCounter->DecWeakCount();
 			m_pCounter=NULL;
 		}
+	}
+
+	const_reference unsafe_get()
+	{
+		return m_pHandle;
 	}
 
 	void swap(KO_Weak& o)

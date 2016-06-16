@@ -12,8 +12,9 @@ class DLLIMPEXP_EWA_BASE SessionHttp;
 class DLLIMPEXP_EWA_BASE SessionData : public CallableTableEx
 {
 public:
-	TimePoint tplast;
+
 	String id;
+	TimePoint tplast;
 	AtomicSpin spin;
 	BitFlags flags;
 
@@ -39,20 +40,33 @@ class DLLIMPEXP_EWA_BASE SessionManager : public Object
 {
 public:
 	typedef DataPtrT<SessionData> session_ptr;
-	typedef bst_map<String,session_ptr> map_type;
+	typedef bst_map<String,session_ptr> session_maptype;
+
+	typedef Functor<void(SessionHttp&)> handler_type;
+	typedef bst_map<String,handler_type> handler_maptype;
+
+
+	SessionManager();
+
+	virtual String NewSessionId();
 
 	session_ptr GetSession(String& session_id);
 
-	TimePoint tp_now;
-	String server_path;
+	void HandleRequest(SessionHttp&);
 
-protected:
 	SessionData* CreateSessionData();
 
-	void EraseTimeoutSessions();
-	virtual String NewSessionId();
+	virtual void EraseTimeoutSessions();
 
-	map_type session_map;
+
+	TimePoint tp_now;
+
+	String server_path;
+	DataPtrT<CallableTableEx> server_objects;
+
+	handler_maptype handler_map;
+	session_maptype session_map;
+
 	AtomicSpin spin;
 };
 
@@ -110,12 +124,13 @@ public:
 	String uri;
 	String method;
 	String anchor;
+	String filepath;
+
 	int length;
 
 	int phase;
 	BitFlags flags;
 
-	//String boundary;
 	DataPtrT<MultiPartFormData> multipart_formdata;
 
 	typedef indexer_map<String,String> map_type;
@@ -127,17 +142,14 @@ public:
 
 	int httpstatus;
 
-	SessionHttp();
+	SessionManager& Target;
+
+	SessionHttp(SessionManager& t);
 
 	Stream chunked_stream;
 
-	virtual void HandleHeader(StringBuffer<char>& sb1);
-	virtual void HandleContent(StringBuffer<char>& sb2);
-
 	void HandleQuery(const String& s);
 	void HandleRequest();
-
-	void HandleFile(StringBuffer<char>& sb2,const String& filepath);
 
 	virtual void OnSendCompleted(TempOlapPtr& q);
 	virtual void OnRecvCompleted(TempOlapPtr& q);
@@ -154,27 +166,16 @@ protected:
 };
 
 
-
-class DLLIMPEXP_EWA_BASE SessionHttpEwsl : public SessionHttp
-{
-public:
-
-	SessionManager& Target;
-	SessionHttpEwsl(SessionManager& t);
-
-	virtual void HandleContent(StringBuffer<char>& sb);
-
-
-};
-
 class  DLLIMPEXP_EWA_BASE SessionHttpServer : public SessionServer
 {
 public:
 	SessionManager Target;
+
 	void NewSession(PerIO_socket& sk);
 
+	SessionHttpServer();
 
-	static void Register(const String& name,Variant& object);
+	void Register(const String& name,Variant& object);
 };
 
 EW_LEAVE

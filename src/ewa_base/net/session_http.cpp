@@ -2,10 +2,156 @@
 
 EW_ENTER
 
-
-SessionHttpEwsl::SessionHttpEwsl(SessionManager& t):Target(t)
+class DLLIMPEXP_EWA_BASE SessionHttpRequest : public CallableTableEx
 {
+public:
+	SessionHttpRequest(SessionHttp& o)
+	{
+		value["uri"].reset(o.uri);
+		value["method"].reset(o.method);
+		value["anchor"].reset(o.anchor);
+		value["clientip"].reset(o.sk_local.peer.host());
+		value["query"].ref<VariantTable>().swap(o.query);
 
+	}
+};
+
+class DLLIMPEXP_EWA_BASE SessionHttpResponse : public CallableTableEx
+{
+public:
+	SessionHttpResponse()
+	{
+		value["buffer"].kptr(new CallableWrapT<StringBuffer<char> >);
+		value["status"].reset(200);
+		value["type"].reset("");
+	}
+};
+
+
+
+
+
+void SessionHttp_Response_404(SessionHttp& http)
+{
+	http.httpstatus=404;
+
+	StringBuffer<char>& sb(http.sb);
+
+	sb<<"\r\n";	
+	sb<<"<HTML><HEAD>";
+	sb<<"<meta http-equiv=Content-Type content=\"text/html;charset=utf-8\">";
+	sb<<"</HEAD>";
+	sb<<"<BODY><PRE>";
+	sb<<"404 page not found";
+	sb<<"\r\n";
+	sb<<"</PRE></BODY></HTML>\r\n";
+
+	return;
+
+}
+
+void SessionHttp_Response_FILE(SessionHttp& http)
+{
+	if(!http.chunked_stream.open(http.filepath,FLAG_FILE_RD))
+	{
+		http.httpstatus=404;
+		return;
+	}
+
+	int64_t sz=http.chunked_stream.reader().sizeg();
+	if(sz<0)
+	{
+		System::LogError("invalid file size");
+		http.Disconnect();
+		return;
+	}
+
+	if(sz>1024*8)
+	{
+		http.flags.add(SessionHttp::FLAG_RESPONSE_CHUNKED);
+		return;
+	}
+
+	http.sb.resize(sz);
+	int s1=http.chunked_stream.recv(http.sb.data(),sz);
+	if(s1==sz)
+	{
+		return;
+	}
+
+	System::LogTrace("invalid stream read");
+	http.sb.clear();
+
+}
+
+
+void SessionHttp_Response_EWSL(SessionHttp& http)
+{
+	DataPtrT<SessionHttpRequest> request(new SessionHttpRequest(http));
+	DataPtrT<SessionHttpResponse> response(new SessionHttpResponse);
+	Variant session(http.Target.GetSession(http.cookie["KSessionId"]));
+
+	Executor ewsl;
+	ewsl.push(session);
+	ewsl.push(request);
+	ewsl.push(response);
+	ewsl.push(http.Target.server_objects);
+
+	if(ewsl.execute_file(http.filepath,4))
+	{
+		http.httpstatus=variant_cast<int>(response->value["status"]);
+		if(http.httpstatus==301)
+		{
+			http.props["Location"]=variant_cast<String>(response->value["location"]);
+		}
+		else
+		{
+			http.sb.swap(response->value["buffer"].ref<StringBuffer<char> >());
+			if(http.sb.empty())
+			{
+				http.filepath=response->value["download"].ref<String>();
+				SessionHttp_Response_FILE(http);
+				//http.props["Download"]=;
+			}
+		}
+	}
+	else
+	{
+		http.sb<<"server_error";		
+	}
+
+}
+
+
+SessionManager::SessionManager()
+{
+	handler_map["HTM"].bind(&SessionHttp_Response_FILE,_1);
+	handler_map["HTML"].bind(&SessionHttp_Response_FILE,_1);
+	handler_map["JS"].bind(&SessionHttp_Response_FILE,_1);
+	handler_map["JSON"].bind(&SessionHttp_Response_FILE,_1);
+	handler_map["JPG"].bind(&SessionHttp_Response_FILE,_1);
+	handler_map["JPEG"].bind(&SessionHttp_Response_FILE,_1);
+	handler_map["BMP"].bind(&SessionHttp_Response_FILE,_1);
+	handler_map["GIF"].bind(&SessionHttp_Response_FILE,_1);
+	handler_map["ICO"].bind(&SessionHttp_Response_FILE,_1);
+
+	handler_map["EWSL"].bind(&SessionHttp_Response_EWSL,_1);
+}
+
+void SessionManager::HandleRequest(SessionHttp& http)
+{
+	http.filepath=server_path+http.uri;
+	String exts=string_to_upper(string_split(http.filepath,".").back());
+	handler_maptype::iterator it=handler_map.find(exts);
+
+	if(it!=handler_map.end())
+	{
+		(*it).second(http);
+	}
+	else
+	{
+		SessionHttp_Response_404(http);
+	}
 }
 
 SessionData* SessionManager::CreateSessionData()
@@ -24,7 +170,7 @@ void SessionManager::EraseTimeoutSessions()
 	if((tp-tp_now).GetSeconds()<30) return;
 	tp_now=tp;
 
-	for(map_type::iterator it=session_map.begin();it!=session_map.end();)
+	for(session_maptype::iterator it=session_map.begin();it!=session_map.end();)
 	{
 		if((*it).second->is_timeout(*this))
 		{
@@ -42,7 +188,7 @@ SessionManager::session_ptr SessionManager::GetSession(String& cookie_id)
 	LockGuard<AtomicSpin> lock(spin);
 	EraseTimeoutSessions();
 	session_ptr item;
-	map_type::iterator it=session_map.find(cookie_id);
+	session_maptype::iterator it=session_map.find(cookie_id);
 	if(it==session_map.end()||(*it).second->flags.get(SessionData::FLAG_ABONDON))
 	{
 		cookie_id=NewSessionId();
@@ -74,7 +220,7 @@ String SessionManager::NewSessionId()
 }
 
 
-SessionHttp::SessionHttp()
+SessionHttp::SessionHttp(SessionManager& t):Target(t)
 {
 	phase=0;
 	httpstatus=200;
@@ -83,8 +229,19 @@ SessionHttp::SessionHttp()
 	lines.push_back(0);
 }
 
-void SessionHttp::HandleHeader(StringBuffer<char>& sb2)
+
+
+void SessionHttp::HandleRequest()
 {
+	if(phase++!=1)
+	{
+		System::LogTrace("phase != 1");
+	}
+
+	sb.clear();
+
+	Target.HandleRequest(*this);
+
 	StringBuffer<char> sb1;
 
 	sb1<<"HTTP/1.1 "<<httpstatus<<" OK\r\n";
@@ -101,53 +258,23 @@ void SessionHttp::HandleHeader(StringBuffer<char>& sb2)
 	}
 	else if(flags.get(FLAG_RESPONSE_CHUNKED))
 	{
-		EW_ASSERT(sb2.empty());
+		EW_ASSERT(sb.empty());
 		sb1<<"Transfer-Encoding: chunked\r\n\r\n";
 	}
 	else
 	{
-		sb1<<"Content-Length:"<<sb2.size()<<"\r\n\r\n";
+		sb1<<"Content-Length:"<<sb.size()<<"\r\n\r\n";
 	}
 
 
 	if(httpstatus!=301)
 	{
-		sb1<<sb2;
+		sb1<<sb;
 	}
 
-	sb1.swap(sb2);
+	sb1.swap(sb);
 
-
-}
-
-void SessionHttp::HandleContent(StringBuffer<char>& sb2)
-{
-	httpstatus=404;
-
-	sb2<<"\r\n";	
-	sb2<<"<HTML><HEAD>";
-	sb2<<"<meta http-equiv=Content-Type content=\"text/html;charset=utf-8\">";
-	sb2<<"</HEAD>";
-	sb2<<"<BODY><PRE>";
-	sb2<<"400 page not found";
-	sb2<<"\r\n";
-	sb2<<"</PRE></BODY></HTML>\r\n";
-
-}
-
-void SessionHttp::HandleRequest()
-{
-	if(phase++!=1)
-	{
-		System::LogTrace("phase != 1");
-	}
-
-	StringBuffer<char> sb1;
-
-	HandleContent(sb1);
-	HandleHeader(sb1);
-
-	AsyncSend(sb1.c_str(),sb1.size());	
+	AsyncSend(sb.c_str(),sb.size());	
 
 }
 
@@ -678,67 +805,14 @@ void SessionHttp::Redirect(const String& url)
 	props["Location"]=url;	
 }
 
-void SessionHttp::HandleFile(StringBuffer<char>& sb2,const String& filepath)
+
+void SessionHttpServer::NewSession(PerIO_socket& sk)
 {
-	if(chunked_stream.open(filepath,FLAG_FILE_RD))
-	{
-
-		int64_t sz=chunked_stream.reader().sizeg();
-		if(sz<0)
-		{
-			System::LogError("invalid file size");
-			Disconnect();
-			return;
-		}
-
-		if(sz>1024*8)
-		{
-			flags.add(FLAG_RESPONSE_CHUNKED);
-			return;
-		}
-
-		sb2.resize(sz);
-		int s1=chunked_stream.recv(sb2.data(),sz);
-		if(s1==sz)
-		{
-			return;
-		}
-
-		System::LogTrace("invalid stream read");
-		sb2.clear();
-
-	}
-
-	SessionHttp::HandleContent(sb2);
-
+	sk.sock.block(false);
+	DataPtrT<SessionHttp> kjobd_worker(new SessionHttp(Target));
+	kjobd_worker->sk_local.swap(sk);
+	StartSession(kjobd_worker.get(),hiocp);
 }
-
-
-class DLLIMPEXP_EWA_BASE SessionHttpRequest : public CallableTableEx
-{
-public:
-	SessionHttpRequest(SessionHttpEwsl& o)
-	{
-		value["uri"].reset(o.uri);
-		value["method"].reset(o.method);
-		value["anchor"].reset(o.anchor);
-		value["clientip"].reset(o.sk_local.peer.host());
-		value["query"].ref<VariantTable>().swap(o.query);
-
-	}
-};
-
-class DLLIMPEXP_EWA_BASE SessionHttpResponse : public CallableTableEx
-{
-public:
-	SessionHttpResponse()
-	{
-		value["buffer"].kptr(new CallableWrapT<StringBuffer<char> >);
-		value["status"].reset(200);
-		value["type"].reset("");
-	}
-};
-
 
 class CallableFunctionAbondonSession : public CallableFunction
 {
@@ -754,89 +828,15 @@ public:
 	}
 };
 
-static DataPtrT<CallableTableEx> create_server_objects()
+SessionHttpServer::SessionHttpServer()
 {
-	DataPtrT<CallableTableEx> p=new CallableTableEx;
-	p->value["abondon_session"].reset(new CallableFunctionAbondonSession);
-	return p;
+	Target.server_objects.reset(new CallableTableEx);	
+	Target.server_objects->value["abondon_session"].reset(new CallableFunctionAbondonSession);
 }
-
-static DataPtrT<CallableTableEx> http_server_objects(create_server_objects());
-
-void SessionHttpEwsl::HandleContent(StringBuffer<char>& sb2)
-{
-	String filepath=Target.server_path+uri;
-
-	int i=-1;
-	for(const char* p=uri.c_str();*p;p++)
-	{
-		if(*p=='.') i=p-uri.c_str();
-	}
-
-	if(i>0 && uri.substr(i)==".ewsl")
-	{
-		DataPtrT<SessionHttpRequest> request(new SessionHttpRequest(*this));
-		DataPtrT<SessionHttpResponse> response(new SessionHttpResponse);
-		Variant session(Target.GetSession(cookie["KSessionId"]));
-
-		Executor ewsl;
-		ewsl.push(session);
-		ewsl.push(request);
-		ewsl.push(response);
-		ewsl.push(http_server_objects);
-
-		if(ewsl.execute_file(filepath,4))
-		{
-			httpstatus=variant_cast<int>(response->value["status"]);
-			if(httpstatus==301)
-			{
-				props["Location"]=variant_cast<String>(response->value["location"]);
-			}
-			else
-			{
-				sb2.swap(response->value["buffer"].ref<StringBuffer<char> >());
-				if(sb2.empty())
-				{
-					String& fp(response->value["download"].ref<String>());
-					if(fp!="")
-					{
-						HandleFile(sb2,fp);
-					}
-				}
-			}
-		}
-		else
-		{
-			sb2<<"server_error";		
-		}
-
-		return;
-	}
-	else
-	{
-		if(!cookie["KSessionId"].empty())
-		{
-			Target.GetSession(cookie["KSessionId"]);
-		}
-
-		HandleFile(sb2,filepath);
-	}
-}
-
-
-void SessionHttpServer::NewSession(PerIO_socket& sk)
-{
-	sk.sock.block(false);
-	DataPtrT<SessionHttpEwsl> kjobd_worker(new SessionHttpEwsl(Target));
-	kjobd_worker->sk_local.swap(sk);
-	StartSession(kjobd_worker.get(),hiocp);
-}
-
-
 
 void SessionHttpServer::Register(const String& name,Variant& object)
 {
-	http_server_objects->value[name]=object;
+	Target.server_objects->value[name]=object;
 }
 
 EW_LEAVE

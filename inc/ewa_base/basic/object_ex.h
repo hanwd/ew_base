@@ -173,7 +173,10 @@ public:
 		Object* pbase=Create(name);
 		T* pderv=dynamic_cast<T*>(pbase);
 		if(pderv) return pderv;
-		delete pbase;
+		if(pbase && pbase!=pbase->GetObjectInfo().GetCachedInstance())
+		{
+			delete pbase;
+		}
 		return NULL;
 	}
 

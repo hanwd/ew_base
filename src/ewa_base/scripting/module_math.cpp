@@ -57,6 +57,10 @@ public:
 	static int variant_call(Executor &ewsl,Variant& v1)
 	{
 		int n=down_cast_variant_type(v1);
+		if(lk::cmap[n]==&PL1_func<P>::variant_call)
+		{
+			return pl1_dispatch_base<P>::value(ewsl,v1);
+		}
 		return lk::test(n)(ewsl,v1);	
 	}
 
@@ -87,6 +91,10 @@ public:
 	static int variant_call(Executor& ewsl,Variant& v1,Variant& v2)
 	{
 		int n=(down_cast_variant_type(v1)<<4)|down_cast_variant_type(v2);
+		if(lk::cmap[n]==&PL2_func<P>::variant_call)
+		{
+			return pl2_dispatch_base<P>::value(ewsl,v1,v2);
+		}
 		return lk::test(n)(ewsl,v1,v2);	
 	}
 

@@ -323,7 +323,7 @@ public:
 	static const uint64_t WEAK_TAG = uint64_t(1) << 32;
 	static const uint64_t MASK_TAG = WEAK_TAG - 1;
 
-	EW_FORCEINLINE RefCounter() :m_refcount(0){}
+	EW_FORCEINLINE RefCounter(){}
 	EW_FORCEINLINE RefCounter(int n) :m_refcount(n){}
 
 	EW_FORCEINLINE bool Lock()

@@ -30,5 +30,11 @@
     <ClCompile Include="..\..\src\ewx_test\test\test_thread.cpp">
       <Filter>test</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\ewx_test\test\test_gc_ptr.cpp">
+      <Filter>test</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewx_test\test\test_iocp.cpp">
+      <Filter>test</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

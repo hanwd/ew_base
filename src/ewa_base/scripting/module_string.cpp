@@ -45,7 +45,7 @@ struct pl_string_lower
 {
 	static inline void g(Variant& r, const String& v)
 	{
-		r.reset(ew::string_to_lower(v));
+		r.reset(string_to_lower(v));
 	}
 };
 
@@ -53,7 +53,7 @@ struct pl_string_upper
 {
 	static inline void g(Variant& r, const String& v)
 	{
-		r.reset(ew::string_to_upper(v));
+		r.reset(string_to_upper(v));
 	}
 };
 
@@ -72,12 +72,8 @@ struct pl_string_lines
 {
 	static inline void g(Variant& r, const String& v)
 	{
-		arr_1t<String> arr=ew::string_lines(v);
-		arr_xt<Variant>& vxt(r.ref<arr_xt<Variant> >());
-		std::for_each(arr.begin(),arr.end(),[&vxt](const String& s)
-		{
-			vxt.push_back(Variant(s));
-		});
+		arr_1t<String> arr=string_lines(v);
+		r.ref<arr_xt<Variant> >()=variant_cast<arr_xt<Variant> >(arr);
 	}
 };
 
@@ -86,12 +82,8 @@ struct pl_string_words
 {
 	static inline void g(Variant& r, const String& v)
 	{
-		arr_1t<String> arr=ew::string_words(v);
-		arr_xt<Variant>& vxt(r.ref<arr_xt<Variant> >());
-		std::for_each(arr.begin(),arr.end(),[&vxt](const String& s)
-		{
-			vxt.push_back(Variant(s));
-		});
+		arr_1t<String> arr=string_words(v);
+		r.ref<arr_xt<Variant> >()=variant_cast<arr_xt<Variant> >(arr);
 	}
 };
 

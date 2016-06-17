@@ -8,9 +8,9 @@ arr_1t<String> string_words(const String& s)
 {
 
 	const char* p=s.c_str();
-	bool last_is_not_white=false;
+
+	bool last_is_not_white=!::isspace(p[0]);
 	arr_1t<size_t> pos;
-	//pos.push_back(0);
 
 	size_t n=s.size();
 
@@ -26,7 +26,9 @@ arr_1t<String> string_words(const String& s)
 			last_is_not_white=false;
 		}
 	}
-	pos.push_back(n);
+
+	if(!last_is_not_white) pos.push_back(n);
+
 	arr_1t<String> columns;
 	for(size_t i=1;i<pos.size();i++)
 	{

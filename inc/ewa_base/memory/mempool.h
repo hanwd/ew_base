@@ -23,7 +23,7 @@ DLLIMPEXP_EWA_BASE void mp_free_with_page_protect(void* p);
 
 DLLIMPEXP_EWA_BASE void* page_alloc(size_t n);
 DLLIMPEXP_EWA_BASE void page_free(void* p,size_t n);
-DLLIMPEXP_EWA_BASE int page_protect(void* p,size_t n,int f);
+DLLIMPEXP_EWA_BASE int page_access(void* p,size_t n,int f);
 
 
 class DLLIMPEXP_EWA_BASE MemPoolPaging

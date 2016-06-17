@@ -53,7 +53,7 @@ void page_free(void* p,size_t)
 	}
 }
 
-int page_protect(void* p,size_t n,int f)
+int page_access(void* p,size_t n,int f)
 {
 	DWORD flag_old;
 	DWORD flag_new=0;
@@ -123,7 +123,7 @@ void* page_alloc(size_t nSize)
 	return NULL;
 }
 
-DLLIMPEXP_EWA_BASE int page_protect(void* p,size_t n,int f)
+DLLIMPEXP_EWA_BASE int page_access(void* p,size_t n,int f)
 {
 	int flag_old;
 	int flag_new=0;

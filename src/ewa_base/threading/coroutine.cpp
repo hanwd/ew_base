@@ -172,7 +172,7 @@ public:
 		{
 			void*p=(void*)asm_swap_context_code;
 			raw_coroutine_swap=(void (*)(CoroutineContext*,CoroutineContext*))p;
-			page_protect(p,4096,FLAG_FILE_RD|FLAG_FILE_EXEC);
+			page_access(p,4096,FLAG_FILE_RD|FLAG_FILE_EXEC);
 		}
 
 		if(size==0)
@@ -187,7 +187,7 @@ public:
 		}
 
 		// protect first page to detect stack overflow
-		page_protect(base,4096,0);
+		page_access(base,4096,0);
 
 		nbp=(void**)((char*)base+size);
 		nsp=nbp-16;

@@ -71,7 +71,7 @@ String LogTarget::Format(const LogRecord& o) const
 
 LogFile::LogFile(const String& filename,bool app)
 {
-	int flag=FLAG_FILE_WR|FLAG_FILE_CR;
+	int flag=FLAG_FILE_WC;
 	if(app) flag|=FLAG_FILE_APPEND;
 	fp.open(filename,flag);
 	if(!app)

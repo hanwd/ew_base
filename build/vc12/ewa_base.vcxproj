@@ -155,6 +155,7 @@
     <ClInclude Include="..\..\inc\ewa_base\threading\thread_spin.h" />
     <ClInclude Include="..\..\inc\ewa_base\threading\timer_queue.h" />
     <ClInclude Include="..\..\inc\ewa_base\util\json.h" />
+    <ClInclude Include="..\..\inc\ewa_base\util\regex.h" />
     <ClInclude Include="..\..\inc\ewa_base\util\strlib.h" />
     <ClInclude Include="..\..\inc\ewa_base\util\symm.h" />
     <ClInclude Include="..\..\inc\ewa_base\xml.h" />
@@ -171,6 +172,8 @@
     <ClInclude Include="..\..\src\ewa_base\threading\thread_impl_detail.h" />
     <ClInclude Include="..\..\src\ewa_base\threading\thread_impl_pthread.h" />
     <ClInclude Include="..\..\src\ewa_base\threading\thread_impl_windows.h" />
+    <ClInclude Include="..\..\src\ewa_base\util\regex_impl.h" />
+    <ClInclude Include="..\..\src\ewa_base\util\regex_parser.h" />
     <ClInclude Include="..\..\src\ewa_base\xml\xml_parser.h" />
   </ItemGroup>
   <ItemGroup>
@@ -282,6 +285,9 @@
     <ClCompile Include="..\..\src\ewa_base\threading\timer_queue.cpp" />
     <ClCompile Include="..\..\src\ewa_base\util\dstate.cpp" />
     <ClCompile Include="..\..\src\ewa_base\util\json.cpp" />
+    <ClCompile Include="..\..\src\ewa_base\util\regex.cpp" />
+    <ClCompile Include="..\..\src\ewa_base\util\regex_impl.cpp" />
+    <ClCompile Include="..\..\src\ewa_base\util\regex_parser.cpp" />
     <ClCompile Include="..\..\src\ewa_base\util\strlib.cpp" />
     <ClCompile Include="..\..\src\ewa_base\util\symm.cpp" />
     <ClCompile Include="..\..\src\ewa_base\util\table_serializer.cpp" />

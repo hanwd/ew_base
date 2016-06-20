@@ -528,6 +528,15 @@
     <ClInclude Include="..\..\inc\ewa_base\net\session_http.h">
       <Filter>include\net</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\inc\ewa_base\util\regex.h">
+      <Filter>include\util</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\ewa_base\util\regex_parser.h">
+      <Filter>source\util</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\ewa_base\util\regex_impl.h">
+      <Filter>source\util</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\ewa_base\basic\atomic.cpp">
@@ -853,6 +862,15 @@
     </ClCompile>
     <ClCompile Include="..\..\src\ewa_base\basic\system_data.cpp">
       <Filter>source\basic</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewa_base\util\regex.cpp">
+      <Filter>source\util</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewa_base\util\regex_parser.cpp">
+      <Filter>source\util</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewa_base\util\regex_impl.cpp">
+      <Filter>source\util</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

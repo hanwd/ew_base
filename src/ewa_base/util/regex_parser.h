@@ -146,9 +146,11 @@ class regex_item_repeat_next : public regex_item
 {
 public:
 	regex_item_repeat& node;
+	bool match_as_much_as_possible;
+
 	regex_item_repeat_next(regex_item_repeat& p):regex_item(ITEM_REPEAT_NEXT),node(p)
 	{
-		
+		match_as_much_as_possible=true;
 	}
 };
 

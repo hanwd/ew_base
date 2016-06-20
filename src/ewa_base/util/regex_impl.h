@@ -34,7 +34,7 @@ public:
 	public:
 		iterator pos;
 		int num;
-		repeat_pos_and_num():num(0){}
+		repeat_pos_and_num():pos(),num(0){}
 		repeat_pos_and_num(iterator it,int n):pos(it),num(n){}
 	};
 
@@ -43,8 +43,9 @@ public:
 
 	bool fallback(regex_state& state);
 
-	bool match_real(iterator& it,regex_item_seq* sq);
+	bool match_real(iterator& it,regex_item* sq);
 
+	bool search(regex_item_seq* seq,iterator t1,iterator t2);
 	bool match(regex_item_seq* seq,iterator t1,iterator t2);
 
 	iterator it_beg,it_end,it_cur;

@@ -1,7 +1,7 @@
 #include "ewa_base/testing/test.h"
 #include "ewa_base/util/regex.h"
 #include <regex>
-
+#include <iostream>
 
 using namespace ew;
 
@@ -71,17 +71,19 @@ void regex_test(const String& type)
 		TEST_ASSERT(P::regex_match("a","a|b"));
 		TEST_ASSERT(P::regex_match("b","a|b"));
 		TEST_ASSERT(!P::regex_match("c","a|b"));
+
+		TEST_ASSERT(P::regex_match("abaaacaabbbaababcababaaacabbb","((b|(a|b)*)*c*(a|b)*)*"));
 	
 		TEST_ASSERT(P::regex_match("dcbaadadced","(a*b*c*d*e*)*"));
 		TEST_ASSERT(P::regex_match("adsdfskdf","\\w+"));
-		TEST_ASSERT(P::regex_match("adsd fskdf","\\w+\\s+\\w+"));	
+		TEST_ASSERT(P::regex_match("adsd fskdf","\\w+\\s+\\w+"));
+
+		TEST_ASSERT(P::regex_match("adsd fskdf sdfsdkjdsfk sdfskfs df sdfsjdf sfdjsdf sjfsfj sf sdjf sdfj sdf s","(\\w+\\s*)+"));
+
 	}
 
 
-
-
 	TimePoint p2=Clock::now();
-
 	this_logger().LogMessage("%s : %g ms",type,(p2-p1)/TimeSpan::MilliSeconds(1));
 
 }
@@ -89,9 +91,25 @@ void regex_test(const String& type)
 
 TEST_DEFINE(TEST_Regex)
 {
+	ew::regex re;
+	ew::cmatch res;
+
+	//re.assign("\\w+?$");
+	//ew::regex_match("abcd",res,re);
+	//ew::regex_match("ab,cd",res,re);
+	//re.assign("(\\w+\\,|$)+");
+	//ew::regex_match("ab,cd",res,re);
+	//re.assign("[d-f]+");
+	//ew::regex_search("abc def ggg dfe",res,re);
+
+	re.assign("(\\w+\\s*)+");
+
+	bool flag=ew::regex_match("adsd fskdf sdfsdkjdsfk sdfskfs df sdfsjdf sfdjsdf sjfsfj sf sdjf sdfj sdf s",res,re);
+
+
 	regex_test<StdRegex>("std_regex");
 	regex_test<MyRegex>("my_regex");
-	//system("pause");
+
 }
 
 

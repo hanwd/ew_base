@@ -3,6 +3,31 @@
 EW_ENTER
 
 template<typename X>
+bool regex_base<X>::search(regex_item_seq* seq,iterator t1,iterator t2)
+{
+
+	it_beg=it_cur=t1;
+	it_end=t2;
+
+	arrStates.clear();
+	stkRepeat.clear();
+
+	regex_item_repeat repeat;
+
+	repeat.child.reset(new regex_item_char_any);
+	repeat.repeat_end.match_as_much_as_possible=false;
+
+	repeat.update(seq);
+
+
+	if(!match_real(it_cur,&repeat))
+	{
+		return false;
+	}
+	return true;
+}
+
+template<typename X>
 bool regex_base<X>::match(regex_item_seq* seq,iterator t1,iterator t2)
 {
 
@@ -36,7 +61,7 @@ bool regex_base<X>::fallback(regex_state& state)
 }
 
 template<typename X>
-bool regex_base<X>::match_real(iterator& it,regex_item_seq* sq)
+bool regex_base<X>::match_real(iterator& it,regex_item* sq)
 {
 
 	regex_state state;
@@ -46,7 +71,6 @@ bool regex_base<X>::match_real(iterator& it,regex_item_seq* sq)
 	state.iseq=0;
 	state.n_pos_repeat=0;
 	state.n_pos_seqpos=0;
-
 	
 	while(state.curp)
 	{
@@ -116,12 +140,12 @@ bool regex_base<X>::match_real(iterator& it,regex_item_seq* sq)
 				{
 						
 				}
-				else if(n==item.node.nmax)
+				else if(n==item.node.nmax||state.ipos==it_end)
 				{							
 					state.curp=item.node.real_sibling;
 					continue;
 				}
-				else
+				else if(item.match_as_much_as_possible)
 				{
 					if(n==item.node.nmin||state.ipos!=stkRepeat.back().pos)
 					{
@@ -139,13 +163,32 @@ bool regex_base<X>::match_real(iterator& it,regex_item_seq* sq)
 						continue;
 					}						
 				}
+				else
+				{
+					if(n==item.node.nmin||state.ipos!=stkRepeat.back().pos)
+					{
+						regex_state state2(state);
+						state2.curp=state.curp->sibling;
+						arrStates.push_back(state2);
+						state.curp=item.node.real_sibling;
+						continue;
+					}
+					else
+					{
+						if(!fallback(state))
+						{
+							return false;
+						}
+						continue;
+					}				
+				}
 
 				stkRepeat.back().pos=state.ipos;
 			}
 			break;
 		case regex_item::ITEM_REPEAT:
 			{
-				stkRepeat.push_back(repeat_pos_and_num());
+				stkRepeat.push_back(repeat_pos_and_num(state.ipos,0));
 				state.n_pos_repeat=stkRepeat.size();
 			}
 			break;
@@ -153,7 +196,7 @@ bool regex_base<X>::match_real(iterator& it,regex_item_seq* sq)
 			{
 				regex_state state2(state);
 				state2.curp=static_cast<regex_item_or*>(state.curp)->child2.get();
-				arrStates.push_back(state2);			
+				arrStates.push_back(state2);		
 			}
 			break;
 		case regex_item::ITEM_LINE:

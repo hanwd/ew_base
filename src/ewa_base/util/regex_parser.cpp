@@ -66,7 +66,6 @@ void regex_item_seq::adjust()
 			}
 		}
 		
-		
 		p1=p2;
 		p2=p2->next;
 	}
@@ -251,7 +250,13 @@ regex_item* RegexParser::parse_item_ex(const char* &p1,bool seq)
 			break;
 		}
 
-		if(q1)
+		if(p1[1]=='?')
+		{
+			p1++;
+			q2->repeat_end.match_as_much_as_possible=false;
+		}
+
+		if(q1 && q1->repeat_end.match_as_much_as_possible==q2->repeat_end.match_as_much_as_possible)
 		{
 			if(q1->nmax==-1||q1->nmax==1)
 			{

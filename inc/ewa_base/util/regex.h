@@ -32,6 +32,7 @@ public:
 
 DLLIMPEXP_EWA_BASE bool regex_match(const String& s,regex& re);
 DLLIMPEXP_EWA_BASE bool regex_match(const String& s,cmatch& res,regex& re);
+DLLIMPEXP_EWA_BASE bool regex_search(const String& s,cmatch& res,regex& re);
 
 EW_LEAVE
 

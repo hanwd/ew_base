@@ -18,28 +18,28 @@ public:
 
 	virtual void OnRecvCompleted(TempOlapPtr& q)
 	{
-		AsyncSend(q);
-		AsyncRecv();
+		//AsyncSend(q);
+		//AsyncRecv();
 
-		//if(!q2packet.update(q))
-		//{
-		//	Disconnect();
-		//	return;
-		//}
+		if(!q2packet.update(q))
+		{
+			Disconnect();
+			return;
+		}
 
-		//size_t n=q2packet.size();
-		//for(size_t i=0; i<n; i++)
-		//{
-		//	OnPacket(q2packet[i]);
-		//}
+		size_t n=q2packet.size();
+		for(size_t i=0; i<n; i++)
+		{
+			OnPacket(q2packet[i]);
+		}
 
-		//AsyncRecv(q);
+		AsyncRecv(q);
 	}
 
 	virtual void OnPacket(IPacketEx& pk)
 	{
-		//wassert(pk.check());
-		//pk.update();
+		EW_ASSERT(pk.check());
+		pk.update();
 
 		AsyncSend(pk);
 	}
@@ -59,7 +59,7 @@ public:
 
 	void NewSession(PerIO_socket& sk)
 	{
-		sk.sock.Block(false);
+		sk.sock.block(false);
 		DataPtrT<SessionTCPEcho> echo(new SessionTCPEcho);
 		echo->sk_local.swap(sk);
 		StartSession(echo.get(),hiocp);
@@ -90,7 +90,7 @@ public:
 	{
 		packet.size=1024;
 		packet.tag1=seq_send;
-		//packet.update();
+		packet.update();
 
 		seq_send++;
 		AsyncSend(packet);
@@ -102,12 +102,6 @@ public:
 		seq_send=0;
 		seq_recv=0;
 	}
-
-
-	//virtual void OnSendCompleted(TempOlapPtr& q)
-	//{
-	//	lkfq_free.putq(q);
-	//}
 
 	virtual void OnRecvCompleted(TempOlapPtr& q)
 	{

@@ -46,6 +46,7 @@ public:
 		{
 			size_t sz=((size_t)::rand())%memmax;
 			h.push_back(mp.allocate(sz));
+			::memset(h.back(),0,sz);
 		}
 
 		logger.LogMessage("thread rank[%d] allocate/deallocate memory randomly",rank());
@@ -56,6 +57,7 @@ public:
 			{
 				size_t sz=((size_t)::rand()%memmax);
 				h.push_back(mp.allocate(sz));
+				::memset(h.back(),0,sz);
 			}
 			else if(!h.empty())
 			{

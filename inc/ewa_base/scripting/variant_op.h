@@ -306,6 +306,15 @@ public:
 	static const type& g(const type& v){return v;}
 
 	template<typename O>
+	static type g(const arr_1t<O>& v)
+	{
+		type t;
+		t.resize(v.size());
+		for(size_t i=0;i<v.size();i++) t[i]=vv_cast<T,pl_cast_base<T> >::g(v[i]);
+		return t;
+	}
+
+	template<typename O>
 	static type g(const arr_xt<O>& v)
 	{
 		type t;

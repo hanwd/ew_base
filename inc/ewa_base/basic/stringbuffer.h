@@ -147,6 +147,20 @@ public:
 	static const unsigned value = (N >= 'A'&&N <= 'Z') ? (N - 'A' + 'a') : N;
 };
 
+
+template<unsigned N>
+class lkt_slash
+{
+public:
+	static const unsigned value = 
+		N=='t'?'\t':
+		N=='n'?'\n':
+		N=='r'?'\r':
+		N=='0'?'\0':
+		N;
+};
+
+
 template<unsigned N>
 class lkt_whitespace
 {

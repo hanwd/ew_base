@@ -1,16 +1,14 @@
 #include "regex_impl.h"
-
+#include "ewa_base/util/regex.h"
 EW_ENTER
 
 template<typename X>
-bool regex_base<X>::search(regex_item_seq* seq,iterator t1,iterator t2)
+bool regex_impl<X>::search(regex_item_seq* seq,iterator t1,iterator t2)
 {
+	if(!seq) return false;
 
 	it_beg=it_cur=t1;
 	it_end=t2;
-
-	arrStates.clear();
-	stkRepeat.clear();
 
 	regex_item_repeat repeat;
 
@@ -18,7 +16,6 @@ bool regex_base<X>::search(regex_item_seq* seq,iterator t1,iterator t2)
 	repeat.repeat_end.match_as_much_as_possible=false;
 
 	repeat.update(seq);
-
 
 	if(!match_real(it_cur,&repeat))
 	{
@@ -28,14 +25,12 @@ bool regex_base<X>::search(regex_item_seq* seq,iterator t1,iterator t2)
 }
 
 template<typename X>
-bool regex_base<X>::match(regex_item_seq* seq,iterator t1,iterator t2)
+bool regex_impl<X>::match(regex_item_seq* seq,iterator t1,iterator t2)
 {
+	if(!seq) return false;
 
 	it_beg=it_cur=t1;
 	it_end=t2;
-
-	arrStates.clear();
-	stkRepeat.clear();
 
 	if(!match_real(it_cur,seq))
 	{
@@ -45,7 +40,7 @@ bool regex_base<X>::match(regex_item_seq* seq,iterator t1,iterator t2)
 }
 
 template<typename X>
-bool regex_base<X>::fallback(regex_state& state)
+bool regex_impl<X>::fallback(regex_state& state)
 {
 	if(arrStates.empty())
 	{
@@ -61,22 +56,50 @@ bool regex_base<X>::fallback(regex_state& state)
 }
 
 template<typename X>
-bool regex_base<X>::match_real(iterator& it,regex_item* sq)
+bool regex_impl<X>::match_real(iterator& it,regex_item* sq)
 {
+
+	arrStates.clear();
+	stkRepeat.clear();
+	stkSeqpos.clear();
 
 	regex_state state;
 
 	state.curp=sq;
 	state.ipos=it;
-	state.iseq=0;
 	state.n_pos_repeat=0;
 	state.n_pos_seqpos=0;
+
+	int n=0;
 	
 	while(state.curp)
 	{
+		n++;
 
 		switch(state.curp->type)
 		{
+		case regex_item::ITEM_CHAR_STR_NOCASE:
+			{
+				typedef lookup_table<lkt2lowercase> lk;
+
+				regex_item_char_str& item(*static_cast<regex_item_char_str*>(state.curp));
+				const char* p1=item.value.c_str();
+
+				while(state.ipos !=it_end && *p1 && lk::cmap[unsigned char(*state.ipos)]==lk::cmap[unsigned char(*p1)])
+				{
+					state.ipos++;p1++;
+				}
+
+				if(*p1)
+				{
+					if(!fallback(state))
+					{
+						return false;
+					}
+					continue;
+				}
+			}
+			break;
 		case regex_item::ITEM_CHAR_STR:
 			{
 				regex_item_char_str& item(*static_cast<regex_item_char_str*>(state.curp));
@@ -238,13 +261,12 @@ bool regex_base<X>::match_real(iterator& it,regex_item* sq)
 		case regex_item::ITEM_SEQ:
 			{
 				state.n_pos_seqpos++;
-				stkSeqpos.push_back(repeat_pos_and_num(state.ipos, state.iseq++));
+				stkSeqpos.push_back(repeat_pos_and_num(state.ipos, static_cast<regex_item_seq*>(state.curp)->index));
 			}
 			break;
 		case regex_item::ITEM_SEQ_END:
 			{
 				state.n_pos_seqpos++;
-				state.iseq--;
 				stkSeqpos.push_back(repeat_pos_and_num(state.ipos,-1));
 			}
 			break;
@@ -261,6 +283,44 @@ bool regex_base<X>::match_real(iterator& it,regex_item* sq)
 }
 
 
-template class regex_base<const char*>;
+
+template<typename X>
+void regex_impl<X>::update_match_results(Match& res)
+{
+
+	class item
+	{
+	public:
+
+		item(){}
+		item(const char* p,int n):str(p,p),num(n){}
+
+		Match::item str;
+		int num;
+	};
+
+	 arr_1t<item> q;
+
+	for(size_t i=0;i<stkSeqpos.size();i++)
+	{
+		int n=stkSeqpos[i].num;
+		if(n>=0)
+		{
+			q.push_back(item(stkSeqpos[i].pos,stkSeqpos[i].num));
+		}
+		else if(n<0)
+		{
+			q.back().str.it_end=stkSeqpos[i].pos;
+			if(q.back().num>=(int)res.matchs.size())
+			{
+				res.matchs.resize(q.back().num+1);
+			}
+			res.matchs[q.back().num].push_back(q.back().str);
+			q.pop_back();
+		}
+	}
+}
+
+template class regex_impl<const char*>;
 
 EW_LEAVE

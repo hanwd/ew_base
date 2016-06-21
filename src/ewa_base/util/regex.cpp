@@ -1,168 +1,186 @@
-#include "ewa_base/util/regex.h"
+#include "ewa_base/util/Regex.h"
 #include "regex_parser.h"
 #include "regex_impl.h"
 
 EW_ENTER
 
-regex::regex()
+Regex::Regex()
 {
 
 }
 
-regex::regex(const regex& r):pimpl(r.pimpl)
+Regex::Regex(const Regex& r):pimpl(r.pimpl)
 {
 
 }
 
-regex::regex(const String& s)
+Regex::Regex(const String& s,int f)
 {
-	assign(s);
+	assign(s,f);
 }
 
-regex& regex::operator=(const regex& o)
+Regex& Regex::operator=(const Regex& o)
 {
 	pimpl=o.pimpl;
 	return *this;
 }
 
-bool regex::assign(const String& s)
+bool Regex::assign(const String& s,int f)
 {
-	RegexParser parser;
+	RegexParser parser(f);
 	regex_item_seq* q=parser.parse(s);
 	pimpl.reset(q);
 	return pimpl!=NULL;
 }
 
-bool regex_match(const String& s,regex& re)
+bool Regex::match(const String& s)
 {
-	regex_base<const char*> impl;
+	regex_impl<const char*> impl;
 
 	const char* q1=s.c_str();
 	const char* q2=q1+s.length();
 
-	ObjectData* pr=*(ObjectData**)&re;
-	if(!pr) return false;
+	if(!pimpl) return false;
 
-	return impl.match(static_cast<regex_item_seq*>(pr),q1,q2);
+	return impl.match(static_cast<regex_item_seq*>(pimpl.get()),q1,q2);
 }
 
-String cmatch::operator[](size_t i) const
+regex_item_seq* do_get_regex_item_seq(Regex& re)
 {
-	if(i>=matchs.size()) Exception::XInvalidIndex();
-	if(matchs[i].size()==1)
-	{
-		return String(matchs[i][0].first,matchs[i][0].second);
-	}
-	else
-	{
-		return String(matchs[i][0].first,matchs[i][0].second);	
-	}
+	ObjectData* pitem=*(ObjectData**)&re;
+	if(!pitem) return NULL;
+	return static_cast<regex_item_seq*>(pitem);
 }
 
-bool regex_match(const String& s,cmatch& res,regex& re)
+bool regex_execute(const String& s,Match& res,Regex& re,bool fg)
 {
-	regex_base<const char*> impl;
+	regex_impl<const char*> impl;
 
 	res.matchs.clear();
 	res.orig_str=s;
+	res.orig_reg=re;
 
 	const char* q1=res.orig_str.c_str();
 	const char* q2=q1+res.orig_str.length();
 
-	ObjectData* pr=*(ObjectData**)&re;
-	if(!pr) return false;
+	regex_item_seq* seq=do_get_regex_item_seq(re);
 
-	bool flag=impl.match(static_cast<regex_item_seq*>(pr),q1,q2);
+	bool flag=fg?impl.match(seq,q1,q2):impl.search(seq,q1,q2);
 
 	if(!flag) return false;
 
-	class item
-	{
-	public:
-
-		item(){}
-		item(const char* p,int n):str(p,p),num(n){}
-
-		std::pair<const char*,const char*> str;
-		int num;
-	};
-
-	 arr_1t<item> q;
-
-	for(size_t i=0;i<impl.stkSeqpos.size();i++)
-	{
-		int n=impl.stkSeqpos[i].num;
-		if(n>=0)
-		{
-			q.push_back(item(impl.stkSeqpos[i].pos,impl.stkSeqpos[i].num));
-		}
-		else if(n<0)
-		{
-			q.back().str.second=impl.stkSeqpos[i].pos;
-			if(q.back().num>=(int)res.matchs.size())
-			{
-				res.matchs.resize(q.back().num+1);
-			}
-			res.matchs[q.back().num].push_back(q.back().str);
-			q.pop_back();
-		}
-	}
+	impl.update_match_results(res);
 
 	return true;
 }
 
-bool regex_search(const String& s,cmatch& res,regex& re)
+
+
+bool Regex::match(const String& s,Match& m)
 {
-	regex_base<const char*> impl;
+	return regex_execute(s,m,*this,true);
+}
 
-	res.matchs.clear();
-	res.orig_str=s;
+bool Regex::search(const String& s,Match& m)
+{
+	return regex_execute(s,m,*this,false);
+}
 
-	const char* q1=res.orig_str.c_str();
-	const char* q2=q1+res.orig_str.length();
 
-	ObjectData* pr=*(ObjectData**)&re;
-	if(!pr) return false;
 
-	bool flag=impl.search(static_cast<regex_item_seq*>(pr),q1,q2);
+bool regex_match(const String& s,Regex& re)
+{
+	return re.match(s);
+}
+
+bool regex_match(const String& s,Match& res,Regex& re)
+{
+	return regex_execute(s,res,re,true);
+}
+
+bool regex_search(const String& s,Match& res,Regex& re)
+{
+	return regex_execute(s,res,re,false);
+}
+
+String regex_replace(const String& s,Regex& re,const String& p)
+{
+	Match res;
+	re.match(s,res);
+	return res.replace(p);
+}
+
+
+
+bool Match::search_next()
+{
+	if(matchs.empty())
+	{
+		return false;
+	}
+
+	const char* q1=orig_str.c_str();
+	const char* q2=q1+orig_str.length();
+
+	const char* p1=matchs[0][0].it_end;
+
+	matchs.clear();
+
+	if(p1<q1||p1>=q2)
+	{
+		return false;
+	}
+
+	regex_impl<const char*> impl;
+	regex_item_seq* seq=do_get_regex_item_seq(orig_reg);
+
+	bool flag=impl.search(seq,p1,q2);
 
 	if(!flag) return false;
 
-	class item
-	{
-	public:
-
-		item(){}
-		item(const char* p,int n):str(p,p),num(n){}
-
-		std::pair<const char*,const char*> str;
-		int num;
-	};
-
-	 arr_1t<item> q;
-
-	for(size_t i=0;i<impl.stkSeqpos.size();i++)
-	{
-		int n=impl.stkSeqpos[i].num;
-		if(n>=0)
-		{
-			q.push_back(item(impl.stkSeqpos[i].pos,impl.stkSeqpos[i].num));
-		}
-		else if(n<0)
-		{
-			q.back().str.second=impl.stkSeqpos[i].pos;
-			if(q.back().num>=(int)res.matchs.size())
-			{
-				res.matchs.resize(q.back().num+1);
-			}
-			res.matchs[q.back().num].push_back(q.back().str);
-			q.pop_back();
-		}
-	}
+	impl.update_match_results(*this);
 
 	return true;
+
 }
 
+String Match::replace(const String& dst) const
+{
+	StringBuffer<char> sb;
+	const char* p1=dst.c_str();
+	while(*p1)
+	{
+		if(*p1!='$' )
+		{
+			sb.push_back(*p1++);
+			continue;
+		}
+		if(p1[1]>='0'&&p1[1]<='9')
+		{
+			int n=p1[1]-'0';
+			if(n<(int)matchs.size())
+			{
+				sb<<matchs[n];
+			}
+			p1+=2;
+		}
+		else
+		{
+			sb.push_back(p1[1]);	
+			p1+=2;
+		}
+	}
+	return sb;
+}
+
+Match::item_array::operator String() const 
+{
+	if(empty()) return "";
+	const_iterator it=cbegin();
+	String result(*it++);
+	while(it!=cend()) result+="\t"+*it++;
+	return result;
+}
 
 EW_LEAVE
 

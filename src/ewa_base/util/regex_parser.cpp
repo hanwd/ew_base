@@ -1,4 +1,5 @@
 #include "regex_parser.h"
+#include "ewa_base/util/Regex.h"
 
 EW_ENTER
 
@@ -14,22 +15,57 @@ regex_item::~regex_item()
 }
 
 
-
 void regex_item_repeat::update(regex_item* q)
 {
-	regex_item::update(q);
-	real_sibling=sibling;
+	real_sibling=next?next:q;
+	sibling=&repeat_end;
+	repeat_end.sibling=child.get();
+}
+
+void regex_item_repeat::update(regex_item_state& q)
+{
+	index=q.loop++;
+
+	real_sibling=next?next:q.sibling;
 		
 	if(!child.get()) return;
 
-	child->update(&repeat_end);
+	LockState<regex_item*> lock(q.sibling,&repeat_end);
+	child->update(q);
 
 	sibling=&repeat_end;
 	repeat_end.sibling=child.get();
 
 }
 
+void regex_item_seq::update(regex_item_state& q)
+{
 
+	index=q.iseq++;
+	seqend.sibling=next?next:q.sibling;
+
+	LockState<regex_item*> lock(q.sibling,&seqend);
+	for(regex_item* p=child.get();p;p=p->next)
+	{
+		p->update(q);
+	}
+
+	sibling=child.get();
+
+}
+
+void regex_item_seq::append(regex_item* p)
+{
+	if(!child.get())
+	{
+		child.reset(p);
+		return;
+	}
+	regex_item* h=child.get();
+	while(h && h->next) h=h->next;
+	h->next=p;
+	return;
+}
 
 void regex_item_seq::adjust()
 {
@@ -86,7 +122,7 @@ regex_item* RegexParser::parse_item(const char* &p1,bool seq)
 
 	if(*p1=='(')
 	{
-		std::auto_ptr<regex_item_seq> q(parse_seq(++p1));
+		AutoPtrT<regex_item_seq> q(parse_seq(++p1));
 		if(*p1++!=')')
 		{
 			return NULL;
@@ -95,7 +131,7 @@ regex_item* RegexParser::parse_item(const char* &p1,bool seq)
 	}
 	if(*p1=='[')
 	{
-		std::auto_ptr<regex_item_char_map> q(new regex_item_char_map);
+		AutoPtrT<regex_item_char_map> q(new regex_item_char_map);
 		p1++;
 
 		bool inv=false;
@@ -107,10 +143,22 @@ regex_item* RegexParser::parse_item(const char* &p1,bool seq)
 
 		while(*p1!=']')
 		{
-			if(*p1=='/')
+			if(*p1=='\\')
 			{
+				if(p1[1]=='r'||p1[1]=='n'||p1[1]=='t')
+				{
+					q->set(lookup_table<lkt_slash>::test(p1[1]),true);				
+				}
+				else if(p1[1]=='w'||p1[1]=='d'||p1[1]=='s')
+				{
+					q->add_chars(p1[1]);
+				}
+				else
+				{
 					q->set(p1[1],true);
-					p1+=2;
+				}
+
+				p1+=2;
 			}
 			else if(p1[1]=='-')
 			{
@@ -132,6 +180,11 @@ regex_item* RegexParser::parse_item(const char* &p1,bool seq)
 			return NULL;
 		}
 
+		if(flags.get(Regex::FLAG_CASE_INSENSITIVE))
+		{
+			q->update_case();
+		}
+
 		if(inv) q->inv();
 
 		return q.release();;
@@ -142,41 +195,29 @@ regex_item* RegexParser::parse_item(const char* &p1,bool seq)
 		return new regex_item_line(*p1++);
 	}
 		
-	if(*p1=='/'||*p1=='\\')
+	if(*p1=='\\')
 	{
 		p1++;
 
 		char ch=*p1++;
 
-		if(ch=='w')
-		{
-			regex_item_char_map*q= new regex_item_char_map;
-			for(char ch='a';ch<='z';ch++)
-			{
-				q->set(ch,true);
-				q->set(ch-'a'+'A',true);
-			}
-			return q;
-		}
-		else if(ch=='d')
-		{
-			regex_item_char_map*q= new regex_item_char_map;
-			for(char ch='0';ch<='9';ch++)
-			{
-				q->set(ch,true);
-			}
-			return q;			
-		}
-		else if(ch=='s')
+		if(ch=='w'||ch=='d'||ch=='s')
 		{
 			regex_item_char_map*q= new regex_item_char_map;	
-			q->set(' ',true);
-			q->set('\t',true);		
+			q->add_chars(ch);
+			if(flags.get(Regex::FLAG_CASE_INSENSITIVE))
+			{
+				q->update_case();
+			}
 			return q;			
+		}
+		else if(ch=='t'||ch=='r'||ch=='n')
+		{
+			return new regex_item_char_str(lookup_table<lkt_slash>::test(ch),flags.get(Regex::FLAG_CASE_INSENSITIVE));		
 		}
 		else
 		{
-			return new regex_item_char_str(ch);
+			return new regex_item_char_str(ch,flags.get(Regex::FLAG_CASE_INSENSITIVE));
 		}
 
 		return NULL;
@@ -191,7 +232,7 @@ regex_item* RegexParser::parse_item(const char* &p1,bool seq)
 
 	if(!seq)
 	{
-		return new regex_item_char_str(std::string(p0,++p1));
+		return new regex_item_char_str(String(p0,++p1),flags.get(Regex::FLAG_CASE_INSENSITIVE));
 	}
 
 	while(*p1>='a'&&*p1<='z'||*p1>='A'&&*p1<='Z'||*p1>='0'&&*p1<='9'||*p1==' ') p1++;
@@ -199,27 +240,27 @@ regex_item* RegexParser::parse_item(const char* &p1,bool seq)
 
 	if(p1[0]!='*'&&p1[0]!='+'&&p1[0]!='?'&&p1[0]!='{'&&p1[0]!='|')
 	{
-		return new regex_item_char_str(std::string(p0,p1));
+		return new regex_item_char_str(String(p0,p1),flags.get(Regex::FLAG_CASE_INSENSITIVE));
 	}
 	else if(p1-p0>1)
 	{
-		return new regex_item_char_str(std::string(p0,--p1));
+		return new regex_item_char_str(String(p0,--p1),flags.get(Regex::FLAG_CASE_INSENSITIVE));
 	}
 	else
 	{
-		return new regex_item_char_str(std::string(p0,p1));	
+		return new regex_item_char_str(String(p0,p1),flags.get(Regex::FLAG_CASE_INSENSITIVE));	
 	}		
 }
 
 regex_item* RegexParser::parse_item_ex(const char* &p1,bool seq)
 {
-	std::auto_ptr<regex_item> q(parse_item(p1,seq));
+	AutoPtrT<regex_item> q(parse_item(p1,seq));
 	if(!q.get()) return NULL;
 
 	regex_item_repeat* q1=NULL;
 	for(;*p1=='*'||*p1=='+'||*p1=='?'||*p1=='{';p1++)
 	{
-		std::auto_ptr<regex_item_repeat> q2(new regex_item_repeat);
+		AutoPtrT<regex_item_repeat> q2(new regex_item_repeat);
 		if(*p1=='*')
 		{
 
@@ -287,12 +328,12 @@ regex_item_seq* RegexParser::parse_seq(const char* &p1)
 
 	while(*p1&&*p1!=')')
 	{
-		std::auto_ptr<regex_item> q(parse_item_ex(p1,true));
+		AutoPtrT<regex_item> q(parse_item_ex(p1,true));
 		if(!q.get()) return NULL;
 
 		while(p1[0]=='|')
 		{
-			std::auto_ptr<regex_item_or> q2(new regex_item_or);
+			AutoPtrT<regex_item_or> q2(new regex_item_or);
 			q2->child1.reset(q.release());
 			q2->child2.reset(parse_item_ex(++p1,false));
 
@@ -318,5 +359,19 @@ regex_item_seq* RegexParser::parse_seq(const char* &p1)
 	pitem->adjust();
 	return pitem;
 }
+
+regex_item_seq* RegexParser::parse(const String& s)
+{
+	const char* p=s.c_str();
+		
+	regex_item_seq* q=parse_seq(p);
+	if(q)
+	{
+		regex_item_state s;
+		q->update(s);
+	}
+	return q;
+}
+
 
 EW_LEAVE

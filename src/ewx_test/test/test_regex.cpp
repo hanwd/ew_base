@@ -1,7 +1,9 @@
 #include "ewa_base/testing/test.h"
 #include "ewa_base/util/regex.h"
+#include "ewa_base/util/strlib.h"
 #include <regex>
 #include <iostream>
+#include <ctime>
 
 using namespace ew;
 
@@ -22,8 +24,8 @@ class MyRegex
 public:
 	static bool regex_match(const char* s,const char* p)
 	{
-		regex re(p);
-		return ew::regex_match(s,re);
+		Regex re(p);
+		return re.match(s);
 	}
 };
 
@@ -33,7 +35,7 @@ void regex_test(const String& type)
 {	
 	TimePoint p1=Clock::now();
 
-	for(int i=0;i<300;i++)
+	for(int i=0;i<30;i++)
 	{
 		TEST_ASSERT(P::regex_match("a","a"));
 		TEST_ASSERT(P::regex_match("abc","abc"));
@@ -78,7 +80,6 @@ void regex_test(const String& type)
 		TEST_ASSERT(P::regex_match("adsdfskdf","\\w+"));
 		TEST_ASSERT(P::regex_match("adsd fskdf","\\w+\\s+\\w+"));
 
-		TEST_ASSERT(P::regex_match("adsd fskdf sdfsdkjdsfk sdfskfs df sdfsjdf sfdjsdf sjfsfj sf sdjf sdfj sdf s","(\\w+\\s*)+"));
 
 	}
 
@@ -89,26 +90,61 @@ void regex_test(const String& type)
 }
 
 
+
+void test_ews()
+{
+
+
+	Match res;
+	Regex re;
+
+	re.assign("abc",Regex::FLAG_CASE_INSENSITIVE);
+	TEST_ASSERT(re.match("AbC"));
+
+	re.assign("abc");
+	TEST_ASSERT(!re.match("AbC"));
+
+	
+	re.assign("((\\w+)\\s*)+");
+
+	String words[9]={"The","quick","brown","fox","jumps","over","the","lazy","dog"};
+	String aaa=string_join(words,words+9," ");
+	TEST_ASSERT(re.match(aaa,res));
+
+	if(res.size()==3 && res[2].size()==9)
+	{
+		for(size_t i=0;i<9;i++)	TEST_ASSERT(res[2][i]==words[i]);
+	}
+
+	re.assign("\\s*(\\w+)");
+	if(re.search(aaa,res))
+	{
+		TEST_ASSERT(res[1]=="The");
+		int nd=1;
+		while(res.search_next())
+		{
+			TEST_ASSERT(res[1]==words[nd++]);
+		}
+	}
+
+
+
+	re.assign("(\\w+) (\\w+)");
+	
+	TEST_ASSERT(ew::regex_replace("hello world",re,"$2 $1")=="world hello");
+
+
+
+}
+
+
 TEST_DEFINE(TEST_Regex)
 {
-	ew::regex re;
-	ew::cmatch res;
 
-	//re.assign("\\w+?$");
-	//ew::regex_match("abcd",res,re);
-	//ew::regex_match("ab,cd",res,re);
-	//re.assign("(\\w+\\,|$)+");
-	//ew::regex_match("ab,cd",res,re);
-	//re.assign("[d-f]+");
-	//ew::regex_search("abc def ggg dfe",res,re);
+	test_ews();
 
-	re.assign("(\\w+\\s*)+");
-
-	bool flag=ew::regex_match("adsd fskdf sdfsdkjdsfk sdfskfs df sdfsjdf sfdjsdf sjfsfj sf sdjf sdfj sdf s",res,re);
-
-
-	regex_test<StdRegex>("std_regex");
 	regex_test<MyRegex>("my_regex");
+	regex_test<StdRegex>("std_regex");
 
 }
 

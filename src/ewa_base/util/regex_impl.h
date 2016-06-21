@@ -8,26 +8,27 @@
 
 EW_ENTER
 
+class DLLIMPEXP_EWA_BASE Match;
 
 template<typename X>
-class regex_base
+class regex_impl
 {
 public:
 	typedef X iterator;
 
 	class regex_state
 	{
-	public:		
+	public:
+
+		regex_state():n_pos_repeat(0),n_pos_seqpos(0),curp(NULL){}
+
 		regex_item* curp;
 		iterator ipos;
-		int iseq;
-
 		int n_pos_repeat;
 		int n_pos_seqpos;
-		regex_state():n_pos_repeat(0),n_pos_seqpos(0),curp(NULL),iseq(0){}
+
 	};
 
-	std::vector<regex_state> arrStates;
 
 	class repeat_pos_and_num
 	{
@@ -38,8 +39,12 @@ public:
 		repeat_pos_and_num(iterator it,int n):pos(it),num(n){}
 	};
 
+	std::vector<regex_state> arrStates;
 	std::vector<repeat_pos_and_num> stkRepeat;
 	std::vector<repeat_pos_and_num> stkSeqpos;
+
+
+	void update_match_results(Match& res);
 
 	bool fallback(regex_state& state);
 

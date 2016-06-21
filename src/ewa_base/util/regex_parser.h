@@ -6,6 +6,16 @@
 
 EW_ENTER
 
+class regex_item;
+class regex_item_state
+{
+public:
+	regex_item_state():sibling(0),iseq(0),loop(0){}
+	regex_item* sibling;
+	int iseq;
+	int loop;
+};
+
 class regex_item
 {
 public:
@@ -15,6 +25,7 @@ public:
 		ITEM_SEQ,
 		ITEM_SEQ_END,
 		ITEM_CHAR_STR,
+		ITEM_CHAR_STR_NOCASE,
 		ITEM_CHAR_ANY,
 		ITEM_CHAR_MAP,
 		ITEM_REPEAT,
@@ -30,9 +41,9 @@ public:
 
 	virtual ~regex_item();
 
-	virtual void update(regex_item* q)
+	virtual void update(regex_item_state& q)
 	{
-		sibling=next?next:q;
+		sibling=next?next:q.sibling;
 	}
 
 	virtual void print(int n)
@@ -49,11 +60,8 @@ public:
 class regex_item_line : public regex_item
 {
 public:
-
 	char value;
-
 	regex_item_line(char ch):regex_item(ITEM_LINE),value(ch){}
-
 	virtual void print(int n)
 	{
 		regex_item::print(n);
@@ -65,7 +73,6 @@ class regex_item_char_any : public regex_item
 {
 public:
 	regex_item_char_any():regex_item(ITEM_CHAR_ANY){}
-
 	virtual void print(int n)
 	{
 		regex_item::print(n);
@@ -84,10 +91,45 @@ public:
 	static const int ndig=256/32;
 	unsigned bitmap[ndig];
 
-	void set(const std::string& s)
+	void update_case()
 	{
-		const char* p=s.c_str();
-		while(*p) set(*p++,true);
+		regex_item_char_map* q=this;
+		for(char ch='a';ch<='z';ch++)
+		{
+			if(q->get(ch))
+			{
+				q->set(ch-'a'+'A',true);
+			}
+			else if(q->get(ch-'a'+'A'))
+			{
+				q->set(ch,true);
+			}				
+		}	
+	}
+
+	void add_chars(char ch)
+	{
+		regex_item_char_map* q=this;
+		if(ch=='w')
+		{
+			for(char ch='a';ch<='z';ch++)
+			{
+				q->set(ch,true);
+				q->set(ch-'a'+'A',true);
+			}
+		}
+		else if(ch=='d')
+		{
+			for(char ch='0';ch<='9';ch++)
+			{
+				q->set(ch,true);
+			}
+		}
+		else if(ch=='s')
+		{
+			q->set(' ',true);
+			q->set('\t',true);	
+		}	
 	}
 
 	void set(char ch,bool f)
@@ -118,20 +160,19 @@ public:
 			bitmap[i]=~bitmap[i];
 		}
 	}
-
 };
 
 
 class regex_item_char_str : public regex_item
 {
 public:
-	regex_item_char_str(const std::string& s):regex_item(ITEM_CHAR_STR),value(s){}
-	regex_item_char_str(char ch):regex_item(ITEM_CHAR_STR)
+	regex_item_char_str(const String& s,bool flag):regex_item(flag?ITEM_CHAR_STR_NOCASE:ITEM_CHAR_STR),value(s){}
+	regex_item_char_str(char ch,bool flag):regex_item(flag?ITEM_CHAR_STR_NOCASE:ITEM_CHAR_STR)
 	{
-		value.push_back(ch);
+		value.append(&ch,1);
 	}
 
-	std::string value;
+	String value;
 
 	virtual void print(int n)
 	{
@@ -165,11 +206,13 @@ public:
 
 	regex_item_repeat_next repeat_end;
 
+	void update(regex_item_state& q);
 	void update(regex_item* q);
 
 	regex_item* real_sibling;
+	int index;
 
-	std::auto_ptr<regex_item> child;
+	AutoPtrT<regex_item> child;
 
 	virtual void print(int n)
 	{
@@ -190,14 +233,14 @@ public:
 
 	}
 
-	std::auto_ptr<regex_item> child1,child2;
+	AutoPtrT<regex_item> child1,child2;
 
-	void update(regex_item* q)
+	void update(regex_item_state& q)
 	{
 		regex_item::update(q);
 
-		child1->update(sibling);
-		child2->update(sibling);
+		child1->update(q);
+		child2->update(q);
 
 		sibling=child1.get();
 	}
@@ -220,7 +263,7 @@ public:
 
 	regex_item_seq():regex_item(ITEM_SEQ),seqend(ITEM_SEQ_END){}
 
-	std::auto_ptr<regex_item> child;
+	AutoPtrT<regex_item> child;
 
 	virtual void print(int n)
 	{
@@ -232,31 +275,14 @@ public:
 		}
 	}
 
-	void update(regex_item* q)
-	{
-		seqend.sibling=next?next:q;
+	int index;
 
-		for(regex_item* p=child.get();p;p=p->next)
-		{
-			p->update(&seqend);
-		}
-		sibling=child.get();
-	}
+	void update(regex_item_state& q);
 
 	void adjust();
 
-	void append(regex_item* p)
-	{
-		if(!child.get())
-		{
-			child.reset(p);
-			return;
-		}
-		regex_item* h=child.get();
-		while(h && h->next) h=h->next;
-		h->next=p;
-		return;
-	}
+	void append(regex_item* p);
+
 };
 
 
@@ -267,6 +293,10 @@ class RegexParser
 public:
 	typedef const char* iterator;
 
+	RegexParser(int f):flags(f){}
+
+	BitFlags flags;
+
 	static int read_number(const char* &p1);
 
 	regex_item* parse_item(const char* &p1,bool seq);
@@ -275,13 +305,7 @@ public:
 
 	regex_item_seq* parse_seq(const char* &p1);
 
-	regex_item_seq* parse(const String& s)
-	{
-		const char* p=s.c_str();
-		regex_item_seq* q=parse_seq(p);
-		if(q) q->update(NULL);
-		return q;
-	}
+	regex_item_seq* parse(const String& s);
 
 
 };

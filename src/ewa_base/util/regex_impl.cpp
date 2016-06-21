@@ -14,7 +14,7 @@ bool regex_impl<X>::search(regex_item_seq* seq,iterator t1,iterator t2)
 
 	repeat.child.reset(new regex_item_char_any);
 	repeat.repeat_end.match_as_much_as_possible=false;
-
+	repeat.child->sibling=&repeat.repeat_end;
 	repeat.update(seq);
 
 	if(!match_real(it_cur,&repeat))

@@ -116,17 +116,16 @@ void test_ews()
 		for(size_t i=0;i<9;i++)	TEST_ASSERT(res[2][i]==words[i]);
 	}
 
-	re.assign("\\s*(\\w+)");
+	re.assign("\\w+");
 	if(re.search(aaa,res))
 	{
-		TEST_ASSERT(res[1]=="The");
+		TEST_ASSERT(res[0]=="The");
 		int nd=1;
 		while(res.search_next())
 		{
-			TEST_ASSERT(res[1]==words[nd++]);
+			TEST_ASSERT(res[0]==words[nd++]);
 		}
 	}
-
 
 
 	re.assign("(\\w+) (\\w+)");
@@ -143,8 +142,8 @@ TEST_DEFINE(TEST_Regex)
 
 	test_ews();
 
-	regex_test<MyRegex>("my_regex");
-	regex_test<StdRegex>("std_regex");
+	regex_test<MyRegex>("ew::Regex");
+	//regex_test<StdRegex>("std::regex");
 
 }
 

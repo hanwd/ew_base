@@ -10,11 +10,11 @@ EW_ENTER
 
 class DLLIMPEXP_EWA_BASE Match;
 
-template<typename X>
-class regex_impl
+class regex_policy_char
 {
 public:
-	typedef X iterator;
+	typedef const char* iterator;
+	static const bool flag_store_result=true;
 
 	class regex_state
 	{
@@ -26,22 +26,148 @@ public:
 		iterator ipos;
 		int n_pos_repeat;
 		int n_pos_seqpos;
-
 	};
 
-
-	class repeat_pos_and_num
+	class regex_iterator_and_num
 	{
 	public:
 		iterator pos;
 		int num;
-		repeat_pos_and_num():pos(),num(0){}
-		repeat_pos_and_num(iterator it,int n):pos(it),num(n){}
+		regex_iterator_and_num():pos(),num(0){}
+		regex_iterator_and_num(iterator it,int n):pos(it),num(n){}
 	};
 
-	std::vector<regex_state> arrStates;
-	std::vector<repeat_pos_and_num> stkRepeat;
-	std::vector<repeat_pos_and_num> stkSeqpos;
+	static bool not_finished(regex_state& state)
+	{
+		return state.curp!=NULL;	
+	}
+
+	static void init_state(regex_state& state,iterator& it,regex_item* sq)
+	{
+		state.curp=sq;
+		state.ipos=it;
+		state.n_pos_repeat=0;
+		state.n_pos_seqpos=0;
+	}
+
+	void seqenter(regex_state& state)
+	{
+		state.n_pos_seqpos++;
+		stkSeqpos.push_back(regex_iterator_and_num(state.ipos, static_cast<regex_item_seq*>(state.curp)->index));	
+	}
+
+	void seqleave(regex_state& state)
+	{
+		state.n_pos_seqpos++;
+		stkSeqpos.push_back(regex_iterator_and_num(state.ipos,-1));		
+	}
+
+	void fallback(regex_state& state)
+	{
+		stkSeqpos.resize(state.n_pos_seqpos);
+	}
+
+	static bool handle_item_id(regex_state&,const String&){return false;}
+
+
+	arr_1t<regex_iterator_and_num> stkSeqpos;
+};
+
+class regex_policy_char_match_only : public regex_policy_char
+{
+public:
+	static void seqenter(regex_state&){}
+	static void seqleave(regex_state&){}
+	static void fallback(regex_state&){}
+};
+
+class regex_policy_char_recursive : public regex_policy_char
+{
+public:
+	typedef regex_policy_char basetype;
+
+	class regex_state : public basetype::regex_state
+	{
+	public:
+
+		regex_state():n_pos_curstk(0),n_seq_index(0){}
+		int n_pos_curstk;
+		int n_seq_index;
+	};
+
+	class curp_state
+	{
+	public:
+		curp_state(regex_item* p=0,int n=0):curp(p),n_seq_shift(n){}
+		regex_item* curp;
+		int n_seq_shift;
+	};
+
+	arr_1t<curp_state> curp_stack;
+
+	bst_map<String,regex_item*> item_map;
+
+	bool not_finished(regex_state& state)
+	{
+		if(state.curp!=NULL) return true;
+		state.curp=curp_stack.back().curp;
+		if(!state.curp) return false;
+
+		curp_stack.pop_back();
+		return true;
+	}
+
+	void seqenter(regex_state& state)
+	{
+		state.n_seq_index=curp_stack.back().n_seq_shift+static_cast<regex_item_seq*>(state.curp)->index;
+
+		state.n_pos_seqpos++;
+		stkSeqpos.push_back(regex_iterator_and_num(state.ipos, state.n_seq_index));	
+	}
+
+	void init_state(regex_state& state,iterator& it,regex_item* sq)
+	{
+		basetype::init_state(state,it,sq);
+		curp_stack.resize(1);
+		state.n_pos_curstk=1;
+	}
+
+	void fallback(regex_state& state)
+	{
+		basetype::fallback(state);
+		curp_stack.resize(state.n_pos_curstk);
+	}
+
+	bool handle_item_id(regex_state& state,const String& name)
+	{
+		bst_map<String,regex_item*>::iterator it=item_map.find(name);
+		if(it==item_map.end()) return false;
+
+		if(state.curp->sibling)
+		{
+			state.n_pos_curstk++;
+			curp_stack.push_back(curp_state(state.curp->sibling,state.n_seq_index));
+		}
+
+		state.curp=(*it).second;
+		return true;
+	}
+
+};
+
+template<typename X>
+class regex_impl : public X
+{
+public:
+
+	typedef typename X::iterator iterator;
+	typedef typename X::regex_state regex_state;
+	typedef typename X::regex_iterator_and_num regex_iterator_and_num;
+
+
+	arr_1t<regex_state> arrStates;
+	arr_1t<regex_iterator_and_num> stkRepeat;
+
 
 
 	void update_match_results(Match& res);
@@ -50,8 +176,8 @@ public:
 
 	bool match_real(iterator& it,regex_item* sq);
 
-	bool search(regex_item_seq* seq,iterator t1,iterator t2);
-	bool match(regex_item_seq* seq,iterator t1,iterator t2);
+	bool search(regex_item_root* seq,iterator t1,iterator t2);
+	bool match(regex_item_root* seq,iterator t1,iterator t2);
 
 	iterator it_beg,it_end,it_cur;
 };

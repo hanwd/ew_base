@@ -25,9 +25,9 @@ void Test::Run()
 	{
 		RunTest();
 	}
-	catch(...)
+	catch(std::exception &e)
 	{
-		TestMgr::current().logger.LogError("unexpected exception");
+		TestMgr::current().logger.LogError("unexpected exception:%s",e.what());
 		m_nFailed++;
 	}
 	

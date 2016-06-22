@@ -1,6 +1,8 @@
 #include "ewa_base/testing/test.h"
 #include "ewa_base/util/regex.h"
 #include "ewa_base/util/strlib.h"
+#include "../../ewa_base/util/regex_impl.h"
+
 #include <regex>
 #include <iostream>
 #include <ctime>
@@ -98,18 +100,7 @@ void test_ews()
 	Match res;
 	Regex re;
 
-	String s1=L"ฮารว";
-
-	re.assign("(\\w){2}",Regex::FLAG_MATCH_UNICODE);
-
-	flag=re.match(s1,res);
-
-	for(size_t i=0;i<res[1].size();i++)
-	{
-		Console::WriteLine(res[1][i]);
-	}
-
-	re.assign("abc",Regex::FLAG_CASE_INSENSITIVE);
+	re.assign("abc",Regex::FLAG_RE_IGNORECASE);
 	TEST_ASSERT(re.match("AbC"));
 
 	re.assign("abc");
@@ -166,7 +157,31 @@ void test_std()
 TEST_DEFINE(TEST_Regex)
 {
 	//test_std();
-	test_ews();
+	//test_ews();
+
+	//regex_impl<regex_policy_char_recursive> impl;
+	//RegexParser parser(0);
+
+	//impl.item_map["id"]=parser.parse("a");
+	//impl.item_map["equal"]=parser.parse("\\=");
+	//impl.item_map["expr"]=parser.parse("`id``equal``id`");
+	//impl.item_map["stmt"]=parser.parse("`id`*\\;");
+	//impl.item_map["stmt_seq"]=parser.parse("`stmt`*");
+	//impl.item_map["block"]=parser.parse("\\{`stmt_seq`\\}");
+
+	//String sss=";;";
+	//const char* p1=sss.c_str();
+	//const char* p2=p1+sss.length();
+
+	//Regex re;
+	//re.assign("(a*\\;)*");
+	//bool flag1=re.match(sss);
+
+	//::printf("----------\n");
+
+	//bool flag2=impl.match(static_cast<regex_item_root*>(impl.item_map["stmt_seq"]),p1,p2);
+
+
 
 	regex_test<MyRegex>("ew::Regex");
 	regex_test<StdRegex>("std::regex");

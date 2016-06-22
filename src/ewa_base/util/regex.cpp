@@ -28,33 +28,32 @@ Regex& Regex::operator=(const Regex& o)
 bool Regex::assign(const String& s,int f)
 {
 	RegexParser parser(f);
-	regex_item_seq* q=parser.parse(s);
-	pimpl.reset(q);
+	pimpl.reset(parser.parse(s));
 	return pimpl!=NULL;
 }
 
 bool Regex::match(const String& s)
 {
-	regex_impl<const char*> impl;
+	regex_impl<regex_policy_char_match_only> impl;
 
 	const char* q1=s.c_str();
 	const char* q2=q1+s.length();
 
 	if(!pimpl) return false;
 
-	return impl.match(static_cast<regex_item_seq*>(pimpl.get()),q1,q2);
+	return impl.match(static_cast<regex_item_root*>(pimpl.get()),q1,q2);
 }
 
-regex_item_seq* do_get_regex_item_seq(Regex& re)
+regex_item_root* do_get_regex_item_seq(Regex& re)
 {
 	ObjectData* pitem=*(ObjectData**)&re;
 	if(!pitem) return NULL;
-	return static_cast<regex_item_seq*>(pitem);
+	return static_cast<regex_item_root*>(pitem);
 }
 
 bool regex_execute(const String& s,Match& res,Regex& re,bool fg)
 {
-	regex_impl<const char*> impl;
+	regex_impl<regex_policy_char> impl;
 
 	res.matchs.clear();
 	res.orig_str=s;
@@ -63,7 +62,7 @@ bool regex_execute(const String& s,Match& res,Regex& re,bool fg)
 	const char* q1=res.orig_str.c_str();
 	const char* q2=q1+res.orig_str.length();
 
-	regex_item_seq* seq=do_get_regex_item_seq(re);
+	regex_item_root* seq=do_get_regex_item_seq(re);
 
 	bool flag=fg?impl.match(seq,q1,q2):impl.search(seq,q1,q2);
 
@@ -131,8 +130,8 @@ bool Match::search_next()
 		return false;
 	}
 
-	regex_impl<const char*> impl;
-	regex_item_seq* seq=do_get_regex_item_seq(orig_reg);
+	regex_impl<regex_policy_char> impl;
+	regex_item_root* seq=do_get_regex_item_seq(orig_reg);
 
 	bool flag=impl.search(seq,p1,q2);
 

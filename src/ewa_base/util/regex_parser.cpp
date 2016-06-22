@@ -195,9 +195,9 @@ regex_item_char_map* RegexParser::parse_char_map(const char* &p1)
 			else if(p1[1]=='w'||p1[1]=='d'||p1[1]=='s'||p1[1]=='W'||p1[1]=='D'||p1[1]=='S')
 			{
 				q->add_chars(p1[1]);
-				if(flags.get(Regex::FLAG_MATCH_UNICODE) && p1[1]=='w')
+				if(flags.get(Regex::FLAG_RE_UNICODE) && p1[1]=='w')
 				{
-					q->match_unicode=true;
+					q.reset(new regex_item_char_map_unicode(*q));
 				}
 			}
 			else
@@ -227,7 +227,7 @@ regex_item_char_map* RegexParser::parse_char_map(const char* &p1)
 		return NULL;
 	}
 
-	if(flags.get(Regex::FLAG_CASE_INSENSITIVE))
+	if(flags.get(Regex::FLAG_RE_IGNORECASE))
 	{
 		q->update_case();
 	}
@@ -259,7 +259,15 @@ regex_item* RegexParser::parse_item(const char* &p1,bool seq)
 
 	if(*p1=='^'||*p1=='$')
 	{
-		return new regex_item_line(*p1++);
+		p1++;
+		if(flags.get(Regex::FLAG_RE_MULTILINE))
+		{
+			return new regex_item(*p1=='^'?regex_item::ITEM_LINE_ENTER:regex_item::ITEM_LINE_LEAVE);		
+		}
+		else
+		{
+			return new regex_item(*p1=='^'?regex_item::ITEM_EXPR_ENTER:regex_item::ITEM_EXPR_LEAVE);			
+		}
 	}
 		
 	if(*p1=='\\')
@@ -270,25 +278,26 @@ regex_item* RegexParser::parse_item(const char* &p1,bool seq)
 
 		if(ch=='w'||ch=='d'||ch=='s'||ch=='W'||ch=='D'||ch=='S')
 		{
-			regex_item_char_map*q= new regex_item_char_map;	
+			AutoPtrT<regex_item_char_map> q(new regex_item_char_map);
+
 			q->add_chars(ch);
-			if(flags.get(Regex::FLAG_CASE_INSENSITIVE))
+			if(flags.get(Regex::FLAG_RE_IGNORECASE))
 			{
 				q->update_case();
 			}
-			if(flags.get(Regex::FLAG_MATCH_UNICODE) && ch=='w')
+			if(flags.get(Regex::FLAG_RE_UNICODE) && ch=='w')
 			{
-				q->match_unicode=true;
+				q.reset(new regex_item_char_map_unicode(*q));
 			}
-			return q;			
+			return q.release();			
 		}
 		else if(ch=='t'||ch=='r'||ch=='n'||ch=='v'||ch=='f')
 		{
-			return new regex_item_char_str(lookup_table<lkt_slash>::test(ch),flags.get(Regex::FLAG_CASE_INSENSITIVE));		
+			return new regex_item_char_str(lookup_table<lkt_slash>::test(ch),flags.get(Regex::FLAG_RE_IGNORECASE));		
 		}
 		else
 		{
-			return new regex_item_char_str(ch,flags.get(Regex::FLAG_CASE_INSENSITIVE));
+			return new regex_item_char_str(ch,flags.get(Regex::FLAG_RE_IGNORECASE));
 		}
 
 		return NULL;
@@ -298,12 +307,30 @@ regex_item* RegexParser::parse_item(const char* &p1,bool seq)
 	if(*p1=='.')
 	{
 		p1++;
-		return new regex_item_char_any();
+		if(flags.get(Regex::FLAG_RE_DOTALL))
+		{
+			return new regex_item(regex_item::ITEM_CHAR_ANY);	
+		}
+		else
+		{
+			AutoPtrT<regex_item_char_map> q(flags.get(Regex::FLAG_RE_UNICODE)?new regex_item_char_map_unicode:new regex_item_char_map);
+			q->set('\r',true);
+			q->set('\n',true);
+			q->regex_item_char_map::inv();
+			return q.release();
+		}
+	}
+
+	if(*p1=='`')
+	{
+		for(p1++;*p1&&*p1!='`';p1++);
+		if(*p1++!='`') return NULL;
+		return new regex_item_id(String(p0+1,p1-1));
 	}
 
 	if(!seq)
 	{
-		return new regex_item_char_str(String(p0,++p1),flags.get(Regex::FLAG_CASE_INSENSITIVE));
+		return new regex_item_char_str(String(p0,++p1),flags.get(Regex::FLAG_RE_IGNORECASE));
 	}
 	const char* prev=p1;
 	while(1)
@@ -342,16 +369,16 @@ regex_item* RegexParser::parse_item(const char* &p1,bool seq)
 
 	if(p1[0]!='*'&&p1[0]!='+'&&p1[0]!='?'&&p1[0]!='{'&&p1[0]!='|')
 	{
-		return new regex_item_char_str(String(p0,p1),flags.get(Regex::FLAG_CASE_INSENSITIVE));
+		return new regex_item_char_str(String(p0,p1),flags.get(Regex::FLAG_RE_IGNORECASE));
 	}
 	else if(prev>p0)
 	{
 		p1=prev;
-		return new regex_item_char_str(String(p0,prev),flags.get(Regex::FLAG_CASE_INSENSITIVE));
+		return new regex_item_char_str(String(p0,prev),flags.get(Regex::FLAG_RE_IGNORECASE));
 	}
 	else
 	{
-		return new regex_item_char_str(String(p0,p1),flags.get(Regex::FLAG_CASE_INSENSITIVE));	
+		return new regex_item_char_str(String(p0,p1),flags.get(Regex::FLAG_RE_IGNORECASE));	
 	}		
 }
 
@@ -463,17 +490,22 @@ regex_item_seq* RegexParser::parse_seq(const char* &p1)
 	return pitem;
 }
 
-regex_item_seq* RegexParser::parse(const String& s)
+regex_item_root* RegexParser::parse(const String& s)
 {
-	const char* p=s.c_str();
-		
-	regex_item_seq* q=parse_seq(p);
-	if(q)
-	{
-		regex_item_state s;
-		q->update(s);
-	}
-	return q;
+	AutoPtrT<regex_item_root> q(new regex_item_root);
+	q->orig_str=s;
+	q->flags=flags;
+
+	const char* p=q->orig_str.c_str();
+
+	AutoPtrT<regex_item_seq> seq(parse_seq(p));
+	if(!seq||*p!=0) return NULL;
+
+	q->child.swap(seq->child);
+	regex_item_state rstate;
+	q->update(rstate);
+
+	return q.release();
 }
 
 

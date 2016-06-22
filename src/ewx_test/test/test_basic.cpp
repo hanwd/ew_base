@@ -11,10 +11,12 @@ template<typename ATOMIC_TYPE>
 class ThreadAtomic : public ThreadMulti
 {
 public:
+	static const int N=1024*64;
+
 	ATOMIC_TYPE val;
 	void svc()
 	{
-		for(int i=0;i<1024*256;i++) val++;
+		for(int i=0;i<N;i++) val++;
 	}
 
 	void test()
@@ -22,7 +24,7 @@ public:
 		val=0;
 		if(!activate(4)) return;
 		wait();
-		TEST_ASSERT(val==4*1024*256);
+		TEST_ASSERT(val==4*N);
 	}
 };
 

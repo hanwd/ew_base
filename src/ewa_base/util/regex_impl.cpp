@@ -3,7 +3,7 @@
 EW_ENTER
 
 template<typename X>
-bool regex_impl<X>::search(regex_item_seq* seq,iterator t1,iterator t2)
+bool regex_impl<X>::search(regex_item_root* seq,iterator t1,iterator t2)
 {
 	if(!seq) return false;
 
@@ -12,7 +12,7 @@ bool regex_impl<X>::search(regex_item_seq* seq,iterator t1,iterator t2)
 
 	regex_item_repeat repeat;
 
-	repeat.child.reset(new regex_item_char_any);
+	repeat.child.reset(new regex_item(regex_item::ITEM_CHAR_ANY));
 	repeat.repeat_end.match_as_much_as_possible=false;
 	repeat.child->sibling=&repeat.repeat_end;
 	repeat.update(seq);
@@ -25,7 +25,7 @@ bool regex_impl<X>::search(regex_item_seq* seq,iterator t1,iterator t2)
 }
 
 template<typename X>
-bool regex_impl<X>::match(regex_item_seq* seq,iterator t1,iterator t2)
+bool regex_impl<X>::match(regex_item_root* seq,iterator t1,iterator t2)
 {
 	if(!seq) return false;
 
@@ -36,12 +36,15 @@ bool regex_impl<X>::match(regex_item_seq* seq,iterator t1,iterator t2)
 	{
 		return false;
 	}
-	return it_cur==it_end;
+
+	return seq->flags.get(Regex::FLAG_RE_PARTITIAL)||it_cur==it_end;
 }
 
 template<typename X>
 bool regex_impl<X>::fallback(regex_state& state)
 {
+	::printf("fallback\n");
+
 	if(arrStates.empty())
 	{
 		return false;
@@ -49,9 +52,10 @@ bool regex_impl<X>::fallback(regex_state& state)
 
 	state=arrStates.back();
 	stkRepeat.resize(state.n_pos_repeat);
-	stkSeqpos.resize(state.n_pos_seqpos);
+
+	X::fallback(state);
+
 	arrStates.pop_back();
-		
 	return true;
 }
 
@@ -61,20 +65,21 @@ bool regex_impl<X>::match_real(iterator& it,regex_item* sq)
 
 	arrStates.clear();
 	stkRepeat.clear();
-	stkSeqpos.clear();
+
+	if(X::flag_store_result)
+	{
+		stkSeqpos.clear();
+	}
 
 	regex_state state;
 
-	state.curp=sq;
-	state.ipos=it;
-	state.n_pos_repeat=0;
-	state.n_pos_seqpos=0;
+	X::init_state(state,it,sq);
 	
-	while(state.curp)
+	while(X::not_finished(state))
 	{
 		switch(state.curp->type)
 		{
-		case regex_item::ITEM_CHAR_STR_NOCASE:
+		case regex_item::ITEM_CHAR_STR_IGNORECASE:
 			{
 				typedef lookup_table<lkt2lowercase> lk;
 
@@ -118,7 +123,7 @@ bool regex_impl<X>::match_real(iterator& it,regex_item* sq)
 			break;
 		case regex_item::ITEM_CHAR_ANY:
 			{
-				regex_item_char_any& item(*static_cast<regex_item_char_any*>(state.curp));
+				regex_item& item(*static_cast<regex_item*>(state.curp));
 				if(state.ipos!=it_end)
 				{
 					++state.ipos;						
@@ -133,25 +138,28 @@ bool regex_impl<X>::match_real(iterator& it,regex_item* sq)
 				}
 			}
 			break;
-		case regex_item::ITEM_CHAR_MAP:
+		case regex_item::ITEM_CHAR_MAP_UNICODE:
 			{
 				regex_item_char_map& item(*static_cast<regex_item_char_map*>(state.curp));
 
 				unsigned char uc=*state.ipos;
 
-				if(uc>=0xC0 && item.match_unicode)
+				if(uc>=0xC0)
 				{
 					if(uc<0xE0)
 					{
 						state.ipos+=2;
+						if(state.ipos>it_end){state.ipos=it_end;}
 					}
 					else if(uc<0xF0)
 					{
 						state.ipos+=3;
+						if(state.ipos>it_end){state.ipos=it_end;}
 					}
 					else
 					{
 						state.ipos+=4;
+						if(state.ipos>it_end){state.ipos=it_end;}
 					}
 				}
 				else if(item.get(*state.ipos))
@@ -168,8 +176,27 @@ bool regex_impl<X>::match_real(iterator& it,regex_item* sq)
 				}
 			}
 			break;
+		case regex_item::ITEM_CHAR_MAP:
+			{
+				regex_item_char_map& item(*static_cast<regex_item_char_map*>(state.curp));
+				if(item.get(*state.ipos))
+				{
+					++state.ipos;
+				}
+				else
+				{
+					if(!fallback(state))
+					{
+						return false;
+					}
+					continue;
+				}
+			}
+			break;
 		case regex_item::ITEM_REPEAT_NEXT:
 			{
+				::printf("repeat_next\n");
+
 				regex_item_repeat_next& item(*static_cast<regex_item_repeat_next*>(state.curp));
 
 				int n=stkRepeat.back().num++;
@@ -189,7 +216,7 @@ bool regex_impl<X>::match_real(iterator& it,regex_item* sq)
 						regex_state state2(state);
 						state2.curp=item.node.real_sibling;
 						state2.n_pos_repeat=state.n_pos_repeat-1;
-						arrStates.push_back(state2);					
+						arrStates.push_back(state2);
 					}
 					else
 					{
@@ -225,7 +252,9 @@ bool regex_impl<X>::match_real(iterator& it,regex_item* sq)
 			break;
 		case regex_item::ITEM_REPEAT:
 			{
-				stkRepeat.push_back(repeat_pos_and_num(state.ipos,0));
+				::printf("repeat\n");
+
+				stkRepeat.push_back(regex_iterator_and_num(state.ipos,0));
 				state.n_pos_repeat=stkRepeat.size();
 			}
 			break;
@@ -236,54 +265,79 @@ bool regex_impl<X>::match_real(iterator& it,regex_item* sq)
 				arrStates.push_back(state2);		
 			}
 			break;
-		case regex_item::ITEM_LINE:
+		case regex_item::ITEM_EXPR_ENTER:
 			{
-				char ch=static_cast<regex_item_line*>(state.curp)->value;
-				if(ch=='^')
+				if(state.ipos!=it_beg)
 				{
-					iterator ipos(state.ipos);
-					if(ipos!=it_beg&&*--ipos!='\n')
+					if(!fallback(state))
 					{
-						if(!fallback(state))
-						{
-							return false;
-						}
-						continue;
+						return false;
 					}
+					continue;
 				}
-				else
+			}
+			break;
+		case regex_item::ITEM_EXPR_LEAVE:
+			{
+				if(state.ipos!=it_end)
 				{
-					iterator ipos(state.ipos);
-
-					for(;ipos!=it_end && *ipos=='\r';ipos++);
-							
-					if(ipos!=it_end && *ipos++!='\n')
+					if(!fallback(state))
 					{
-						if(!fallback(state))
-						{
-							return false;
-						}
-						continue;
+						return false;
 					}
-
-					state.ipos=ipos;
+					continue;
 				}
-			
+			}
+			break;
+		case regex_item::ITEM_LINE_ENTER:
+			{
+				iterator ipos(state.ipos);
+				if(ipos!=it_beg&&*--ipos!='\n')
+				{
+					if(!fallback(state))
+					{
+						return false;
+					}
+					continue;
+				}
+
+			}
+			break;
+		case regex_item::ITEM_LINE_LEAVE:
+			{
+				iterator ipos(state.ipos);
+				for(;ipos!=it_end && *ipos=='\r';ipos++);
+
+				if(ipos!=it_end && *ipos++!='\n')
+				{
+					if(!fallback(state))
+					{
+						return false;
+					}
+					continue;
+				}
+				state.ipos=ipos;
 			}
 				
-				break;
+			break;
 		case regex_item::ITEM_SEQ:
 			{
-				state.n_pos_seqpos++;
-				stkSeqpos.push_back(repeat_pos_and_num(state.ipos, static_cast<regex_item_seq*>(state.curp)->index));
+				X::seqenter(state);
 			}
 			break;
 		case regex_item::ITEM_SEQ_END:
 			{
-				state.n_pos_seqpos++;
-				stkSeqpos.push_back(repeat_pos_and_num(state.ipos,-1));
+				X::seqleave(state);
 			}
 			break;
+		case regex_item::ITEM_ID:
+			{
+				if(!X::handle_item_id(state,static_cast<regex_item_id*>(state.curp)->value))
+				{
+					return false;
+				}
+				continue;
+			}
 		default:
 			return false;				
 		}
@@ -335,6 +389,8 @@ void regex_impl<X>::update_match_results(Match& res)
 	}
 }
 
-template class regex_impl<const char*>;
+template class regex_impl<regex_policy_char>;
+template class regex_impl<regex_policy_char_match_only>;
+template class regex_impl<regex_policy_char_recursive>;
 
 EW_LEAVE

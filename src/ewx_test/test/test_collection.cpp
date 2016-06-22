@@ -72,9 +72,9 @@ TEST_DEFINE(TEST_arr_1t)
 
 	hh.clear();
 	TEST_ASSERT(hh.size()==0);
-	TEST_ASSERT_THROW_ANY(hh.back());
-	TEST_ASSERT_THROW_ANY(hh.front());
-	TEST_ASSERT_THROW_ANY(hh.pop_back());
+	//TEST_ASSERT_THROW_ANY(hh.back());
+	//TEST_ASSERT_THROW_ANY(hh.front());
+	//TEST_ASSERT_THROW_ANY(hh.pop_back());
 
 	hh.shrink_to_fit();
 	TEST_ASSERT(hh.capacity()==0);

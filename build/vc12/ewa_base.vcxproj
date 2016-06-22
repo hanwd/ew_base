@@ -254,6 +254,7 @@
     <ClCompile Include="..\..\src\ewa_base\scripting\module_math.cpp" />
     <ClCompile Include="..\..\src\ewa_base\scripting\module_number.cpp" />
     <ClCompile Include="..\..\src\ewa_base\scripting\module_os.cpp" />
+    <ClCompile Include="..\..\src\ewa_base\scripting\module_regex.cpp" />
     <ClCompile Include="..\..\src\ewa_base\scripting\module_stream.cpp" />
     <ClCompile Include="..\..\src\ewa_base\scripting\module_string.cpp" />
     <ClCompile Include="..\..\src\ewa_base\scripting\module_table.cpp" />

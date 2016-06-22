@@ -69,13 +69,9 @@ bool regex_impl<X>::match_real(iterator& it,regex_item* sq)
 	state.ipos=it;
 	state.n_pos_repeat=0;
 	state.n_pos_seqpos=0;
-
-	int n=0;
 	
 	while(state.curp)
 	{
-		n++;
-
 		switch(state.curp->type)
 		{
 		case regex_item::ITEM_CHAR_STR_NOCASE:

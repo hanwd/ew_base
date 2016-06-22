@@ -35,7 +35,7 @@ void regex_test(const String& type)
 {	
 	TimePoint p1=Clock::now();
 
-	for(int i=0;i<30;i++)
+	for(int i=0;i<500;i++)
 	{
 		TEST_ASSERT(P::regex_match("a","a"));
 		TEST_ASSERT(P::regex_match("abc","abc"));
@@ -136,15 +136,35 @@ void test_ews()
 
 }
 
+void test_std()
+{
+
+	::clock_t t1=::clock();
+	
+	bool flag=true;
+	try
+	{
+		std::regex re("((\\w+)\\s*)+");
+		flag=std::regex_match("The quick brown fox jumps over the lazy dog",re);
+	}
+	catch(std::exception& e)
+	{
+		::printf("%s\n",e.what());
+	}
+	::clock_t t2=::clock();
+	::printf("%g s\n",0.001*double(t2-t1));
+	system("pause");
+
+}
 
 TEST_DEFINE(TEST_Regex)
 {
-
+	//test_std();
 	test_ews();
 
 	regex_test<MyRegex>("ew::Regex");
-	//regex_test<StdRegex>("std::regex");
-
+	regex_test<StdRegex>("std::regex");
+	system("pause");
 }
 
 

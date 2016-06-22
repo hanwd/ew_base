@@ -599,6 +599,7 @@ void init_module_table();
 void init_module_string();
 void init_module_number();
 void init_module_logger();
+void init_module_regex();
 
 void CG_GGVar::_init()
 {
@@ -648,6 +649,7 @@ void CG_GGVar::_init()
 	init_module_math();
 	init_module_logger();
 	init_module_coroutine();
+	init_module_regex();
 
 	gi.add(NULL,"pcall");
 	gi.add(NULL,"map");

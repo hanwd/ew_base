@@ -872,5 +872,8 @@
     <ClCompile Include="..\..\src\ewa_base\util\regex_impl.cpp">
       <Filter>source\util</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\ewa_base\scripting\module_regex.cpp">
+      <Filter>source\scripting</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

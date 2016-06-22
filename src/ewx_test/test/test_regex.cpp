@@ -94,26 +94,41 @@ void regex_test(const String& type)
 void test_ews()
 {
 
-
+	bool flag;
 	Match res;
 	Regex re;
+
+	String s1=L"ฮารว";
+
+	re.assign("(\\w){2}",Regex::FLAG_MATCH_UNICODE);
+
+	flag=re.match(s1,res);
+
+	for(size_t i=0;i<res[1].size();i++)
+	{
+		Console::WriteLine(res[1][i]);
+	}
 
 	re.assign("abc",Regex::FLAG_CASE_INSENSITIVE);
 	TEST_ASSERT(re.match("AbC"));
 
 	re.assign("abc");
 	TEST_ASSERT(!re.match("AbC"));
-
 	
 	re.assign("((\\w+)\\s*)+");
 
-	String words[9]={"The","quick","brown","fox","jumps","over","the","lazy","dog"};
-	String aaa=string_join(words,words+9," ");
+	String aaa="The quick brown fox jumps over the lazy dog";
+	arr_1t<String> words=string_split(aaa," ");
+
 	TEST_ASSERT(re.match(aaa,res));
 
 	if(res.size()==3 && res[2].size()==9)
 	{
-		for(size_t i=0;i<9;i++)	TEST_ASSERT(res[2][i]==words[i]);
+		for(size_t i=0;i<9;i++)
+		{
+			Console::WriteLine(res[2][i]);
+			TEST_ASSERT(res[2][i]==words[i]);
+		}
 	}
 
 	re.assign("\\w+");
@@ -126,21 +141,13 @@ void test_ews()
 			TEST_ASSERT(res[0]==words[nd++]);
 		}
 	}
-
-
-	re.assign("(\\w+) (\\w+)");
-	
+	re.assign("(\\w+) (\\w+)");	
 	TEST_ASSERT(ew::regex_replace("hello world",re,"$2 $1")=="world hello");
-
-
-
 }
 
 void test_std()
 {
-
 	::clock_t t1=::clock();
-	
 	bool flag=true;
 	try
 	{
@@ -154,7 +161,6 @@ void test_std()
 	::clock_t t2=::clock();
 	::printf("%g s\n",0.001*double(t2-t1));
 	system("pause");
-
 }
 
 TEST_DEFINE(TEST_Regex)

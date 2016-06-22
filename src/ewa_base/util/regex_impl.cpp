@@ -136,7 +136,25 @@ bool regex_impl<X>::match_real(iterator& it,regex_item* sq)
 		case regex_item::ITEM_CHAR_MAP:
 			{
 				regex_item_char_map& item(*static_cast<regex_item_char_map*>(state.curp));
-				if(item.get(*state.ipos))
+
+				unsigned char uc=*state.ipos;
+
+				if(uc>=0xC0 && item.match_unicode)
+				{
+					if(uc<0xE0)
+					{
+						state.ipos+=2;
+					}
+					else if(uc<0xF0)
+					{
+						state.ipos+=3;
+					}
+					else
+					{
+						state.ipos+=4;
+					}
+				}
+				else if(item.get(*state.ipos))
 				{
 					++state.ipos;
 				}

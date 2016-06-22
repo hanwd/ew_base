@@ -179,10 +179,13 @@ public:
 
 	int __fun_call(Executor& ewsl,int pm)
 	{
-		ewsl.check_pmc(this,pm,1);
+		ewsl.check_pmc(this,pm,1,2);
 		String str=variant_cast<String>(ewsl.ci0.nbx[1]);
 		DataPtrT<CallableWrapT<Regex> > preg(new CallableWrapT<Regex> );
-		preg->value.assign(str);
+		int flag=0;
+		if(pm==2) flag=variant_cast<int>(ewsl.ci0.nbx[2]);
+
+		preg->value.assign(str,flag);
 		ewsl.ci0.nbx[1].reset(preg);
 		return 1;
 	};

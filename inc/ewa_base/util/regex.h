@@ -14,7 +14,8 @@ public:
 
 	enum
 	{
-		FLAG_CASE_INSENSITIVE =1<<0,
+		FLAG_CASE_INSENSITIVE	=1<<0,
+		FLAG_MATCH_UNICODE		=1<<1,
 	};
 
 
@@ -39,16 +40,16 @@ class DLLIMPEXP_EWA_BASE Match
 {
 public:
 
-	class item
+	class DLLIMPEXP_EWA_BASE item
 	{
 	public:
 		item(const char* p1=NULL,const char* p2=NULL):it_beg(p1),it_end(p2){}
+		operator String() const {return String(it_beg,it_end);}
 		const char* it_beg;
 		const char* it_end;
-		operator String() const {return String(it_beg,it_end);}
 	};
 
-	class item_array : public arr_1t<item>
+	class DLLIMPEXP_EWA_BASE item_array : public arr_1t<item>
 	{
 	public:
 		operator String() const;

@@ -86,51 +86,19 @@ public:
 	regex_item_char_map():regex_item(ITEM_CHAR_MAP)
 	{
 		memset(bitmap,0,sizeof(bitmap));
+		match_unicode=false;
+		match_inverse=false;
 	}
+
 
 	static const int ndig=256/32;
-	unsigned bitmap[ndig];
+	uint32_t bitmap[ndig];
 
-	void update_case()
-	{
-		regex_item_char_map* q=this;
-		for(char ch='a';ch<='z';ch++)
-		{
-			if(q->get(ch))
-			{
-				q->set(ch-'a'+'A',true);
-			}
-			else if(q->get(ch-'a'+'A'))
-			{
-				q->set(ch,true);
-			}				
-		}	
-	}
+	bool match_unicode;
+	bool match_inverse;
 
-	void add_chars(char ch)
-	{
-		regex_item_char_map* q=this;
-		if(ch=='w')
-		{
-			for(char ch='a';ch<='z';ch++)
-			{
-				q->set(ch,true);
-				q->set(ch-'a'+'A',true);
-			}
-		}
-		else if(ch=='d')
-		{
-			for(char ch='0';ch<='9';ch++)
-			{
-				q->set(ch,true);
-			}
-		}
-		else if(ch=='s')
-		{
-			q->set(' ',true);
-			q->set('\t',true);	
-		}	
-	}
+	void update_case();
+	void add_chars(char ch);
 
 	void set(char ch,bool f)
 	{
@@ -144,7 +112,8 @@ public:
 	{
 		int n=((unsigned char)ch)/32;
 		int d=((unsigned char)ch)%32;
-		return (bitmap[n] & (1<<d))!=0;
+		bool f=(bitmap[n] & (1<<d))!=0;
+		return match_inverse?!f:f;
 	}
 
 	virtual void print(int n)
@@ -155,10 +124,12 @@ public:
 
 	void inv()
 	{
-		for(int i=0;i<ndig;i++)
-		{
-			bitmap[i]=~bitmap[i];
-		}
+		match_inverse=!match_inverse;
+
+		//for(int i=0;i<ndig;i++)
+		//{
+		//	bitmap[i]=~bitmap[i];
+		//}
 	}
 };
 
@@ -239,6 +210,7 @@ public:
 	{
 		regex_item::update(q);
 
+		LockState<regex_item*> lock(q.sibling,sibling);
 		child1->update(q);
 		child2->update(q);
 
@@ -304,6 +276,8 @@ public:
 	regex_item* parse_item_ex(const char* &p1,bool seq);
 
 	regex_item_seq* parse_seq(const char* &p1);
+
+	regex_item_char_map* parse_char_map(const char* &p1);
 
 	regex_item_seq* parse(const String& s);
 

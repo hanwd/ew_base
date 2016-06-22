@@ -1,5 +1,5 @@
 #include "regex_parser.h"
-#include "ewa_base/util/Regex.h"
+#include "ewa_base/util/regex.h"
 
 EW_ENTER
 
@@ -11,6 +11,60 @@ regex_item::~regex_item()
 		next=next->next;
 		old->next=NULL;
 		delete old;
+	}
+}
+
+
+void regex_item_char_map::update_case()
+{
+	regex_item_char_map* q=this;
+	for(char ch='a';ch<='z';ch++)
+	{
+		if(q->get(ch))
+		{
+			q->set(ch-'a'+'A',true);
+		}
+		else if(q->get(ch-'a'+'A'))
+		{
+			q->set(ch,true);
+		}				
+	}	
+}
+
+void regex_item_char_map::add_chars(char ch)
+{
+	if(ch=='w')
+	{
+		for(char ch='a';ch<='z';ch++)
+		{
+			set(ch,true);
+			set(ch-'a'+'A',true);
+		}
+	}
+	else if(ch=='d')
+	{
+		for(char ch='0';ch<='9';ch++)
+		{
+			set(ch,true);
+		}
+	}
+	else if(ch=='s')
+	{
+		set(' ',true);
+		set('\t',true);
+		set('\r',true);
+		set('\n',true);
+		set('\f',true);
+		set('\v',true);
+	}
+	else if(ch=='S'||ch=='D'||ch=='W')
+	{
+		regex_item_char_map t;
+		t.add_chars(ch-'A'+'a');
+		for(int i=0;i<ndig;i++)
+		{
+			bitmap[i]|=t.bitmap[i];
+		}
 	}
 }
 
@@ -116,6 +170,74 @@ int RegexParser::read_number(const char* &p1)
 	return n;
 }
 
+regex_item_char_map* RegexParser::parse_char_map(const char* &p1)
+{
+	if(*p1!='[') return NULL;
+
+	AutoPtrT<regex_item_char_map> q(new regex_item_char_map);
+	p1++;
+
+	bool inv=false;
+	if(*p1=='^')
+	{
+		inv=true;
+		++p1;
+	}
+
+	while(*p1!=']')
+	{
+		if(*p1=='\\')
+		{
+			if(p1[1]=='r'||p1[1]=='n'||p1[1]=='t'||p1[1]=='v'||p1[1]=='f')
+			{
+				q->set(lookup_table<lkt_slash>::test(p1[1]),true);				
+			}
+			else if(p1[1]=='w'||p1[1]=='d'||p1[1]=='s'||p1[1]=='W'||p1[1]=='D'||p1[1]=='S')
+			{
+				q->add_chars(p1[1]);
+				if(flags.get(Regex::FLAG_MATCH_UNICODE) && p1[1]=='w')
+				{
+					q->match_unicode=true;
+				}
+			}
+			else
+			{
+				q->set(p1[1],true);
+			}
+
+			p1+=2;
+		}
+		else if(p1[1]=='-')
+		{
+			char c1=p1[0];
+			char c2=p1[2];
+			if(c2==']') return NULL;
+			for(char ch=c1;ch<=c2;ch++) q->set(ch,true);
+			p1+=3;
+				
+		}
+		else
+		{
+			q->set(*p1++,true);
+		}
+	}
+
+	if(*p1++!=']')
+	{
+		return NULL;
+	}
+
+	if(flags.get(Regex::FLAG_CASE_INSENSITIVE))
+	{
+		q->update_case();
+	}
+
+	if(inv) q->inv();
+
+	return q.release();;
+
+}
+
 regex_item* RegexParser::parse_item(const char* &p1,bool seq)
 {
 	const char* p0=p1;
@@ -129,65 +251,10 @@ regex_item* RegexParser::parse_item(const char* &p1,bool seq)
 		}
 		return q.release();;
 	}
+
 	if(*p1=='[')
 	{
-		AutoPtrT<regex_item_char_map> q(new regex_item_char_map);
-		p1++;
-
-		bool inv=false;
-		if(*p1=='^')
-		{
-			inv=true;
-			++p1;
-		}
-
-		while(*p1!=']')
-		{
-			if(*p1=='\\')
-			{
-				if(p1[1]=='r'||p1[1]=='n'||p1[1]=='t')
-				{
-					q->set(lookup_table<lkt_slash>::test(p1[1]),true);				
-				}
-				else if(p1[1]=='w'||p1[1]=='d'||p1[1]=='s')
-				{
-					q->add_chars(p1[1]);
-				}
-				else
-				{
-					q->set(p1[1],true);
-				}
-
-				p1+=2;
-			}
-			else if(p1[1]=='-')
-			{
-				char c1=p1[0];
-				char c2=p1[2];
-				if(c2==']') return NULL;
-				for(char ch=c1;ch<=c2;ch++) q->set(ch,true);
-				p1+=3;
-				
-			}
-			else
-			{
-				q->set(*p1++,true);
-			}
-		}
-
-		if(*p1++!=']')
-		{
-			return NULL;
-		}
-
-		if(flags.get(Regex::FLAG_CASE_INSENSITIVE))
-		{
-			q->update_case();
-		}
-
-		if(inv) q->inv();
-
-		return q.release();;
+		return parse_char_map(p1);
 	}
 
 	if(*p1=='^'||*p1=='$')
@@ -201,7 +268,7 @@ regex_item* RegexParser::parse_item(const char* &p1,bool seq)
 
 		char ch=*p1++;
 
-		if(ch=='w'||ch=='d'||ch=='s')
+		if(ch=='w'||ch=='d'||ch=='s'||ch=='W'||ch=='D'||ch=='S')
 		{
 			regex_item_char_map*q= new regex_item_char_map;	
 			q->add_chars(ch);
@@ -209,9 +276,13 @@ regex_item* RegexParser::parse_item(const char* &p1,bool seq)
 			{
 				q->update_case();
 			}
+			if(flags.get(Regex::FLAG_MATCH_UNICODE) && ch=='w')
+			{
+				q->match_unicode=true;
+			}
 			return q;			
 		}
-		else if(ch=='t'||ch=='r'||ch=='n')
+		else if(ch=='t'||ch=='r'||ch=='n'||ch=='v'||ch=='f')
 		{
 			return new regex_item_char_str(lookup_table<lkt_slash>::test(ch),flags.get(Regex::FLAG_CASE_INSENSITIVE));		
 		}
@@ -234,17 +305,49 @@ regex_item* RegexParser::parse_item(const char* &p1,bool seq)
 	{
 		return new regex_item_char_str(String(p0,++p1),flags.get(Regex::FLAG_CASE_INSENSITIVE));
 	}
+	const char* prev=p1;
+	while(1)
+	{
 
-	while(*p1>='a'&&*p1<='z'||*p1>='A'&&*p1<='Z'||*p1>='0'&&*p1<='9'||*p1==' ') p1++;
+		if(*p1>='a'&&*p1<='z'||*p1>='A'&&*p1<='Z'||*p1>='0'&&*p1<='9'||*p1==' ')
+		{
+			prev=p1++;
+			continue;
+		}
+
+		unsigned uc=(unsigned char)*p1;
+
+		if(uc<0xC0)
+		{
+			break;
+		}
+
+		prev=p1;
+		if(uc<0xE0)
+		{
+			p1+=2;
+		}
+		else if(uc<0xF0)
+		{
+			p1+=3;
+		}
+		else
+		{
+			p1+=4;
+		}	
+
+	}
+
 	if(p1==p0) return NULL;
 
 	if(p1[0]!='*'&&p1[0]!='+'&&p1[0]!='?'&&p1[0]!='{'&&p1[0]!='|')
 	{
 		return new regex_item_char_str(String(p0,p1),flags.get(Regex::FLAG_CASE_INSENSITIVE));
 	}
-	else if(p1-p0>1)
+	else if(prev>p0)
 	{
-		return new regex_item_char_str(String(p0,--p1),flags.get(Regex::FLAG_CASE_INSENSITIVE));
+		p1=prev;
+		return new regex_item_char_str(String(p0,prev),flags.get(Regex::FLAG_CASE_INSENSITIVE));
 	}
 	else
 	{

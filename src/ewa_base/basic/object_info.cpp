@@ -1,7 +1,7 @@
 #include "ewa_base/basic/object.h"
 #include "ewa_base/basic/object_ex.h"
 #include "ewa_base/collection/indexer_map.h"
-
+#include "ewa_base/basic/system.h"
 
 EW_ENTER
 
@@ -26,7 +26,7 @@ public:
 	}
 
 
-	void CreatorUseInfo::Register(ObjectInfo *info)
+	void Register(ObjectInfo *info)
 	{
 		if(!info)
 		{
@@ -43,7 +43,7 @@ public:
 		kmap[name]=info;
 	}
 
-	ObjectInfo *CreatorUseInfo::GetInfo(const String &name)
+	ObjectInfo *GetInfo(const String &name)
 	{
 		int id=kmap.find1(name);
 		if(id<0) return NULL;

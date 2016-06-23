@@ -17,6 +17,28 @@
 
 EW_ENTER
 
+template<size_t N,bool TS,bool DG>
+bool MpFixedSizePool<N,TS,DG>::alloc_batch_nolock()
+{
+    MpAllocNode* p1=(MpAllocNode*)page_alloc(sp_size);
+    if(!p1)
+    {
+        System::LogError("page_alloc failed in MpFixedSizePool::alloc_batch");
+        return false;
+    }
+
+    MpAllocNode::link(p1,sp_size,nd_size,nd_free);
+    nd_free=p1->nd_next;
+    p1->nd_next=pg_list;
+    pg_list=p1;
+
+    return true;
+}
+
+template class MpFixedSizePool<32,1,1>;
+template class MpFixedSizePool<20,0,1>;
+template class MpFixedSizePool<40,0,1>;
+
 EW_THREAD_TLS MpAllocCachedNoLock* tls_tc_data;
 
 #ifdef EW_WINDOWS
@@ -118,7 +140,7 @@ void* page_alloc(size_t nSize)
 			return p;
 		}
 	}
-	
+
 	System::CheckError("mmap failed");
 	return NULL;
 }

@@ -3,7 +3,10 @@
 #define __H_EW_COLLECTION_INDEXER_BASE__
 
 #include "kv_trait.h"
+#include "ewa_base/collection/detail/collection_base.h"
+#include "ewa_base/memory/mempool.h"
 #include "ewa_base/collection/arr_1t.h"
+
 
 #include "math.h"
 
@@ -357,7 +360,7 @@ public:
 		values.push_back(P::pair(std::forward<X>(v)));
 
 		if((size_t)(id+1)>m_nElemHint)
-		{			
+		{
 			try
 			{
 				rehash(2.0*double(values.size())/double(m_nMaxLoadFactor));
@@ -374,7 +377,7 @@ public:
 			chunk_node* p=NULL;
 			try
 			{
-				p=chunk_type::create();		
+				p=chunk_type::create();
 				p->index=id;
 				p->pnext=chunk.phead;
 				chunk.phead=p;
@@ -386,7 +389,7 @@ public:
 				throw;
 			}
 		}
-		
+
 		return id;
 	}
 #endif
@@ -415,7 +418,7 @@ public:
 		values.push_back(P::pair(v));
 
 		if((size_t)(id+1)>m_nElemHint)
-		{			
+		{
 			try
 			{
 				rehash(2.0*double(values.size())/double(m_nMaxLoadFactor));
@@ -432,7 +435,7 @@ public:
 			chunk_node* p=NULL;
 			try
 			{
-				p=chunk_type::create();		
+				p=chunk_type::create();
 				p->index=id;
 				p->pnext=chunk.phead;
 				chunk.phead=p;
@@ -444,7 +447,7 @@ public:
 				throw;
 			}
 		}
-		
+
 		return id;
 	}
 

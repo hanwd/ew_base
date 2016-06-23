@@ -1,4 +1,8 @@
 #include "ewa_base/net/session_http.h"
+#include "ewa_base/scripting/callable_buffer.h"
+#include "ewa_base/scripting/executor.h"
+#include "ewa_base/util/strlib.h"
+#include "ewa_base/basic/system.h"
 
 EW_ENTER
 
@@ -37,7 +41,7 @@ void SessionHttp_Response_404(SessionHttp& http)
 
 	StringBuffer<char>& sb(http.sb);
 
-	sb<<"\r\n";	
+	sb<<"\r\n";
 	sb<<"<HTML><HEAD>";
 	sb<<"<meta http-equiv=Content-Type content=\"text/html;charset=utf-8\">";
 	sb<<"</HEAD>";
@@ -117,7 +121,7 @@ void SessionHttp_Response_EWSL(SessionHttp& http)
 	}
 	else
 	{
-		http.sb<<"server_error";		
+		http.sb<<"server_error";
 	}
 
 }
@@ -180,7 +184,7 @@ void SessionManager::EraseTimeoutSessions()
 		{
 			it++;
 		}
-	}	
+	}
 }
 
 SessionManager::session_ptr SessionManager::GetSession(String& cookie_id)
@@ -249,7 +253,7 @@ void SessionHttp::HandleRequest()
 
 	for(map_type::const_iterator it=cookie.begin();it!=cookie.end();++it)
 	{
-		sb1<<"Set-Cookie: "<<(*it).first<<"="<<string_escape((*it).second)<<"; path=/; \r\n";		
+		sb1<<"Set-Cookie: "<<(*it).first<<"="<<string_escape((*it).second)<<"; path=/; \r\n";
 	}
 
 	if(httpstatus==301)
@@ -274,7 +278,7 @@ void SessionHttp::HandleRequest()
 
 	sb1.swap(sb);
 
-	AsyncSend(sb.c_str(),sb.size());	
+	AsyncSend(sb.c_str(),sb.size());
 
 }
 
@@ -344,7 +348,7 @@ void SessionHttp::_ParseRequestHeaders()
 			String value=p2+1;
 
 			if(key=="Cookie")
-			{		
+			{
 				for(int p0=0;p0>=0;)
 				{
 					int p1=value.find('=',p0);
@@ -431,9 +435,9 @@ void SessionHttp::OnSendCompleted(TempOlapPtr& q)
 		else
 		{
 			*p2++='\r';
-			*p2++='\n';	
+			*p2++='\n';
 		}
-		
+
 		AsyncSend(p1,p2-p1);
 		return;
 	}
@@ -443,7 +447,7 @@ void SessionHttp::OnSendCompleted(TempOlapPtr& q)
 
 	if(sz<0)
 	{
-		System::LogTrace("stream read error");	
+		System::LogTrace("stream read error");
 	}
 
 }
@@ -519,7 +523,7 @@ void MultiPartFormData::_handle_phase1_line(const char* p1)
 					if(*p=='/'||*p=='\\') fp=p+1;
 				}
 				filename=IConv::from_unknown(fp);
-			}						
+			}
 		}
 	}
 	else if(key=="Content-Type")
@@ -634,7 +638,7 @@ void MultiPartFormData::_handle_phase3()
 	}
 
 	int sz=(pend-pcur-length_tag)&~4095;
-	if(sz>0) 
+	if(sz>0)
 	{
 		file.write(pcur,sz);
 		pcur+=sz;
@@ -709,7 +713,7 @@ void MultiPartFormData::HandleData(TempOlapPtr& q)
 			Target.Disconnect();
 			return;
 		}
-	} 
+	}
 
 }
 
@@ -729,7 +733,7 @@ void SessionHttp::OnRecvCompleted(TempOlapPtr& q)
 
 			sb[i]=0;
 			if(sb[i-1]=='\r') sb[i-1]=0;
-	
+
 			int n=lines.back();
 			lines.push_back(++i);
 			if(i-n!=2) continue;
@@ -753,18 +757,18 @@ void SessionHttp::OnRecvCompleted(TempOlapPtr& q)
 				Disconnect();
 				return;
 			}
-		}	
+		}
 
 		if(phase==0)
 		{
 			AsyncRecv(q);
-			return;		
-		}	
+			return;
+		}
 	}
 
 	if(phase!=1||method!="POST")
 	{
-		System::LogTrace("invalid state at "__FUNCTION__);
+		System::LogTrace("invalid state");
 		Disconnect();
 		return;
 	}
@@ -780,7 +784,7 @@ void SessionHttp::OnRecvCompleted(TempOlapPtr& q)
 		if(sb.size()<(size_t)length)
 		{
 			AsyncRecv(q);
-			return;			 
+			return;
 		}
 	}
 	else if(flags.get(FLAG_REQUEST_CHUNKED))
@@ -802,7 +806,7 @@ void SessionHttp::OnConnected()
 void SessionHttp::Redirect(const String& url)
 {
 	httpstatus=301;
-	props["Location"]=url;	
+	props["Location"]=url;
 }
 
 
@@ -830,7 +834,7 @@ public:
 
 SessionHttpServer::SessionHttpServer()
 {
-	Target.server_objects.reset(new CallableTableEx);	
+	Target.server_objects.reset(new CallableTableEx);
 	Target.server_objects->value["abondon_session"].reset(new CallableFunctionAbondonSession);
 }
 

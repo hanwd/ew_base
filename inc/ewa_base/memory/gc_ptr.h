@@ -6,6 +6,7 @@
 #include "ewa_base/basic/atomic.h"
 #include "ewa_base/basic/bitflags.h"
 #include "ewa_base/collection/arr_1t.h"
+#include "ewa_base/basic/system.h"
 
 EW_ENTER
 
@@ -103,7 +104,7 @@ public:
 		reset((pointer)o.get());
 		return *this;
 	}
-	
+
 	template<typename G>
 	inline gc_ptr& operator=(const gc_ptr<G>& o)
 	{
@@ -119,8 +120,8 @@ public:
 	inline operator const_pointer() const
 	{
 		return (const_pointer)m_ptr;
-	}		
-		
+	}
+
 	inline T &operator*()
 	{
 		return *(pointer)m_ptr;
@@ -182,7 +183,7 @@ public:
 	{
 		FLAG_SHOW_GC_INFO	=1<<0,
 	};
-	
+
 	class addrinfo_type
 	{
 	public:
@@ -210,13 +211,13 @@ public:
 		if(!tCurrentObject.test(p))
 		{
 			tRecursiveMutex.lock();
-			
+
 			EW_ASSERT(tPtrLink_head._gc_next!=NULL);
 			EW_ASSERT(tPtrLink_head._gc_next->_gc_prev!=NULL);
 
 			p->_gc_next=tPtrLink_head._gc_next;
 			p->_gc_prev=&tPtrLink_head;
-			tPtrLink_head._gc_next->_gc_prev=p;	
+			tPtrLink_head._gc_next->_gc_prev=p;
 			tPtrLink_head._gc_next=p;
 
 			tRecursiveMutex.unlock();

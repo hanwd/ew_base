@@ -1,15 +1,15 @@
 #include "ewa_base/basic/cmdline.h"
 #include "ewa_base/logging/logger.h"
-
+#include "ewa_base/basic/codecvt.h"
 EW_ENTER
 
 CmdLineParser::CmdLineParser()
 {
-	
+
 }
 
 void CmdLineParser::AddSwitch(const String& s)
-{ 
+{
 	m_aCmdLineOptions[s].set(CMDLINE_SWITCH);
 }
 
@@ -26,7 +26,7 @@ void CmdLineParser::AddOption(const String& s,const String& d)
 
 void CmdLineParser::AddParam(int n)
 {
-	m_aCmdLineOptions[""].set(CMDLINE_PARAM,n);	
+	m_aCmdLineOptions[""].set(CMDLINE_PARAM,n);
 }
 
 bool CmdLineParser::parse(const arr_1t<String>& argv)
@@ -161,7 +161,7 @@ bool CmdLineParser::Found(const String& s, int64_t& v)
 }
 
 size_t CmdLineParser::GetParamCount()
-{ 
+{
 	return m_aParams.size();
 }
 

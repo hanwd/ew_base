@@ -2,6 +2,7 @@
 #include "ewa_base/basic/string.h"
 #include "ewa_base/basic/lockguard.h"
 #include "ewa_base/basic/atomic.h"
+#include "ewa_base/basic/codecvt.h"
 
 #include <string>
 

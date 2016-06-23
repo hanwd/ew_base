@@ -9,7 +9,7 @@
 #include "ewa_base/scripting/detail/idx_1t.h"
 #include "ewa_base/serialization/serializer.h"
 #include "ewa_base/scripting/callable_data.h"
-
+#include "ewa_base/scripting/callable_wrap.h"
 EW_ENTER
 
 
@@ -519,6 +519,7 @@ namespace detail
 	template<> struct variant_type_internal<char*>{typedef String type;};
 
 	template<int N> struct variant_type_internal<const char[N]>{typedef String type;};
+	template<int N> struct variant_type_internal<char[N]>{typedef String type;};
 
 	template<typename T> struct variant_type_internal<const T> : public variant_type_internal<T>{};
 	template<typename T> struct variant_type_internal<T&> : public variant_type_internal<T>{};

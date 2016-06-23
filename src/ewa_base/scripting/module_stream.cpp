@@ -36,11 +36,11 @@ bool CallableWrapT<Stream>::getline(String& val)
 
 	if(i>0&&buffer[i-1]=='\r')
 	{
-		val.assign(&buffer[0],&buffer[i-1]);	
+		val.assign(&buffer[0],&buffer[i-1]);
 	}
 	else
 	{
-		val.assign(&buffer[0],&buffer[i]);			
+		val.assign(&buffer[0],&buffer[i]);
 	}
 
 	buffer.erase(buffer.begin(),buffer.begin()+i+1);
@@ -59,7 +59,7 @@ public:
 		int fg= pm>1 ? variant_cast<int>(ewsl.ci0.nbx[2]):0;
 		ewsl.ci1.nbp[StackState1::SBASE_THIS].ref<Stream>().open(fp,fg);
 		ewsl.ci0.nbx[1]=ewsl.ci1.nbp[StackState1::SBASE_THIS];
-		return 1;	
+		return 1;
 	}
 	DECLARE_OBJECT_CACHED_INFO(CallableFunctionStreamOpen, ObjectInfo);
 };
@@ -77,7 +77,7 @@ public:
 		bool flag=ewsl.ci1.nbp[StackState1::SBASE_THIS].ref<Stream>().connect(fp,fg);
 		flag=flag;
 		ewsl.ci0.nbx[1]=ewsl.ci1.nbp[StackState1::SBASE_THIS];
-		return 1;	
+		return 1;
 	}
 	DECLARE_OBJECT_CACHED_INFO(CallableFunctionStreamConnect, ObjectInfo);
 };
@@ -97,7 +97,7 @@ public:
 		flag=flag;
 		ewsl.ci0.nbx[1].reset(flag);
 
-		return 1;	
+		return 1;
 	}
 	DECLARE_OBJECT_CACHED_INFO(CallableFunctionStreamSave, ObjectInfo);
 };
@@ -113,7 +113,7 @@ public:
 	{
 		ewsl.check_pmc(this, pm,0);
 		ewsl.ci1.nbp[StackState1::SBASE_THIS].ref<Stream>().close();
-		return 0;	
+		return 0;
 	}
 	DECLARE_OBJECT_CACHED_INFO(CallableFunctionStreamClose, ObjectInfo);
 };
@@ -127,7 +127,7 @@ public:
 	{
 		ewsl.check_pmc(this, pm,0);
 		ewsl.ci1.nbp[StackState1::SBASE_THIS].ref<Stream>().writer().flush();
-		return 0;	
+		return 0;
 	}
 	DECLARE_OBJECT_CACHED_INFO(CallableFunctionStreamFlush, ObjectInfo);
 };
@@ -142,7 +142,7 @@ public:
 		ewsl.check_pmc(this, pm,1);
 		String fp=ewsl.ci0.nbx[1].get<String>();
 		ewsl.ci0.nbx[1].reset(ewsl.ci1.nbp[StackState1::SBASE_THIS].get<Stream>().send_all(fp.c_str(),fp.size()));
-		return 1;	
+		return 1;
 	}
 	DECLARE_OBJECT_CACHED_INFO(CallableFunctionStreamWrite, ObjectInfo);
 };
@@ -167,16 +167,16 @@ public:
 		{
 			ewsl.ci0.nbx[1].clear();
 		}
-		return 1;	
+		return 1;
 	}
 	DECLARE_OBJECT_CACHED_INFO(CallableFunctionStreamGetline, ObjectInfo);
 };
 IMPLEMENT_OBJECT_INFO(CallableFunctionStreamGetline, ObjectInfo);
 
 
-
+template<>
 CallableMetatableT<Stream>::CallableMetatableT():CallableMetatable("stream")
-{		
+{
 	value["open"].kptr(new CallableFunctionStreamOpen());
 	value["connect"].kptr(new CallableFunctionStreamConnect());
 	value["close"].kptr(new CallableFunctionStreamClose());
@@ -187,6 +187,7 @@ CallableMetatableT<Stream>::CallableMetatableT():CallableMetatable("stream")
 
 }
 
+template<>
 int CallableMetatableT<Stream>::__fun_call(Executor& ewsl, int pm)
 {
 	ewsl.ci0.nbx[1].reset<Stream>();

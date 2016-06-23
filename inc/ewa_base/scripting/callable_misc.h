@@ -4,6 +4,7 @@
 
 #include "ewa_base/scripting/callable_table.h"
 #include "ewa_base/scripting/callable_array.h"
+#include "ewa_base/scripting/callable_function.h"
 
 EW_ENTER
 

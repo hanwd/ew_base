@@ -18,6 +18,9 @@
 #include "ewa_base/scripting/executor.h"
 #include "ewa_base/scripting/executor_proxy.h"
 
+#include "ewa_base/scripting/pl_dispatch.h"
+
+
 
 #endif
 

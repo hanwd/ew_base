@@ -1,5 +1,8 @@
 #include "ewa_base/util/strlib.h"
+
+#ifdef EW_MSVC
 #pragma warning(disable:4309)
+#endif // EW_MSVC
 
 EW_ENTER
 
@@ -58,7 +61,7 @@ arr_1t<String> string_lines(const String& s)
 			a.push_back(String(s1, s2[-1] == '\r'?s2-1:s2));
 		}
 
-		if (!*s2) break;		
+		if (!*s2) break;
 		s1 = s2 + 1;
 	}
 
@@ -120,7 +123,7 @@ String string_to_lower(const String& s)
 	StringBuffer<char> sb(s);
 	for (size_t i = 0; i < sb.size(); ++i)
 	{
-		sb[i] = lk::cmap[sb[i]];
+		sb[i] = lk::cmap[(unsigned char)sb[i]];
 	}
 	return sb;
 }
@@ -131,7 +134,7 @@ String string_to_upper(const String& s)
 	StringBuffer<char> sb(s);
 	for (size_t i = 0; i < sb.size(); ++i)
 	{
-		sb[i] = lk::cmap[sb[i]];
+		sb[i] = lk::cmap[(unsigned char)sb[i]];
 	}
 	return sb;
 }
@@ -195,7 +198,7 @@ String string_unescape(const String& s)
 			System::LogTrace("??? escape: "+String(p,2));
 
 			sb.push_back(p[0]);
-			p += 1;				
+			p += 1;
 			continue;;
 		}
 		else
@@ -204,7 +207,7 @@ String string_unescape(const String& s)
 			wchar_t vv = 0;
 			for (int i = 0; i < 4; i++)
 			{
-				v1 = lookup_table<lkt_number16b>::test(p[i+2]);	
+				v1 = lookup_table<lkt_number16b>::test(p[i+2]);
 				if (v1 >=16)
 				{
 					System::LogTrace("??? escape: "+String(p,3+i));
@@ -216,7 +219,7 @@ String string_unescape(const String& s)
 			StringBuffer<char> wb;
 			IConv::unicode_to_utf8(wb, &vv, 1);
 			sb << wb;
-			p += 6;			
+			p += 6;
 		}
 	}
 
@@ -240,7 +243,7 @@ template<unsigned N>
 class lkt_10b_to_16b_char
 {
 public:
-	static const unsigned char value = N < 10 ? '0' + N : (N < 16 ? 'A' + N - 10 : -1);
+	static const unsigned char value = (unsigned char) (N < 10 ? '0' + N : (N < 16 ? 'A' + N - 10 : -1));
 };
 
 
@@ -328,7 +331,7 @@ String string_urldecode(const String& s)
 			System::LogTrace("??? urldecode: "+String(p,2));
 
 			sb.push_back(p[0]);
-			p += 1;				
+			p += 1;
 			continue;;
 		}
 		else
@@ -337,7 +340,7 @@ String string_urldecode(const String& s)
 			wchar_t vv = 0;
 			for (int i = 0; i < 4; i++)
 			{
-				v1 = lookup_table<lkt_number16b>::test(p[i+2]);	
+				v1 = lookup_table<lkt_number16b>::test(p[i+2]);
 				if (v1 >=16)
 				{
 					System::LogTrace("??? urldecode: "+String(p,3+i));
@@ -349,7 +352,7 @@ String string_urldecode(const String& s)
 			StringBuffer<char> wb;
 			IConv::unicode_to_utf8(wb, &vv, 1);
 			sb << wb;
-			p += 6;			
+			p += 6;
 		}
 	}
 

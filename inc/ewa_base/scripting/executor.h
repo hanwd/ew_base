@@ -49,16 +49,10 @@ public:
 	EW_FORCEINLINE Variant& top(){ return *ci1.nsp; }
 
 	template<typename P>
-	void call1()
-	{
-		pl1_call<P>::g(*this);
-	}
+	void call1();
 
 	template<typename P>
-	void call2()
-	{
-		pl2_call<P>::g(*this);
-	}
+	void call2();
 
 	bool callx(int n,int k=1);
 	int callx_raw(int n,int k);

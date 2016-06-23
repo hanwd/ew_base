@@ -4,6 +4,8 @@
 #include "ewa_base/threading/thread_cond.h"
 #include "ewa_base/threading/thread_sem.h"
 #include "ewa_base/threading/thread_rwlock.h"
+#include "ewa_base/basic/system.h"
+
 #include <pthread.h>
 #include <semaphore.h>
 #include <time.h>

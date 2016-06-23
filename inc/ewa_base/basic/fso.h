@@ -3,6 +3,7 @@
 
 #include "ewa_base/basic/string.h"
 #include "ewa_base/basic/stream.h"
+#include "ewa_base/basic/file.h"
 
 EW_ENTER
 

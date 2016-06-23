@@ -250,7 +250,7 @@ public:
 			::CloseHandle(hWriter0);
 			::CloseHandle(hReader0);
 			return false;
-		}		
+		}
 
 		::CloseHandle(hReader0);
 		::CloseHandle(hWriter0);
@@ -371,7 +371,7 @@ void System::CheckErrno(const String& msg)
 	{
 		String errmsg=ret==-1?ThreadImpl::this_data().last_error:IConv::from_ansi(strerror(ret));
 		System::LogTrace("%s failed, code(%d): %s",msg,ret,errmsg);
-	}	
+	}
 }
 
 void System::SetLastError(const String& msg)
@@ -454,7 +454,7 @@ public:
 
 	SystemLoggerData()
 	{
-		bEnabled=true;		
+		bEnabled=true;
 	}
 
 	~SystemLoggerData()
@@ -694,25 +694,25 @@ String NormalPath(const String& file_)
 	arr_1t<String> arr=string_split(file,"/");
 
 	arr_1t<String> tmp;
-	
+
 	for(size_t i=0;i<arr.size();i++)
 	{
 		if(arr[i]=="")
 		{
-			if(i==0) tmp.push_back("");		
+			if(i==0) tmp.push_back("");
 		}
 		else if(arr[i]!="..")
 		{
 			tmp.push_back(arr[i]);
 		}
 		else if(tmp.empty()||tmp.back()=="..")
-		{		
+		{
 			tmp.push_back(arr[i]);
 		}
 		else
 		{
 			tmp.pop_back();
-		}	
+		}
 	}
 
 	return string_join(tmp.begin(),tmp.end(),"/");
@@ -767,8 +767,10 @@ bool System::SetCwd(const String& s)
 
 size_t System::Backtrace(void** stack,size_t frames)
 {
-#ifdef EW_WINDOWS
+#ifdef EW_MSVC
 	return CaptureStackBackTrace(0,frames,stack,NULL);
+#elif defined(EW_WINDOWS)
+    return 0;
 #else
 	return backtrace(stack,frames);
 #endif

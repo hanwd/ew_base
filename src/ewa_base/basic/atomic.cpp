@@ -138,37 +138,37 @@ bool AtomicHelper<8>::compare_exchange(volatile type* p,type& c,type v)
 
 int32_t AtomicHelper<4>::fetch_add(volatile type* p,type v)
 {
-	return __sync_fetch_and_add(&val,v);
+	return __sync_fetch_and_add(p,v);
 }
 
 int32_t AtomicHelper<4>::fetch_sub(volatile type* p,type v)
 {
-	return __sync_fetch_and_sub(&val,v);
+	return __sync_fetch_and_sub(p,v);
 }
 
 int32_t AtomicHelper<4>::fetch_and(volatile type* p,type v)
 {
-	return __sync_fetch_and_and(&val,v);
+	return __sync_fetch_and_and(p,v);
 }
 
 int32_t AtomicHelper<4>::fetch_or(volatile type* p,type v)
 {
-	return __sync_fetch_and_or(&val,v);
+	return __sync_fetch_and_or(p,v);
 }
 
 int32_t AtomicHelper<4>::fetch_xor(volatile type* p,type v)
 {
-	return __sync_fetch_and_xor(&val,v);
+	return __sync_fetch_and_xor(p,v);
 }
 
 int32_t AtomicHelper<4>::exchange(volatile type* p,type v)
 {
-	return __sync_lock_test_and_set(&val,v);
+	return __sync_lock_test_and_set(p,v);
 }
 
 int32_t AtomicHelper<4>::store(volatile type* p,type v)
 {
-	return __sync_lock_test_and_set(&val,v);
+	return __sync_lock_test_and_set(p,v);
 }
 
 int32_t AtomicHelper<4>::load(volatile const type* p)
@@ -178,7 +178,7 @@ int32_t AtomicHelper<4>::load(volatile const type* p)
 
 bool AtomicHelper<4>::compare_exchange(volatile type* p,type& expected,type v)
 {
-	T old=__sync_val_compare_and_swap(p,expected,v);
+	type old=__sync_val_compare_and_swap(p,expected,v);
 	if(old==expected) return true;
 	expected=old;
 	return false;
@@ -187,37 +187,37 @@ bool AtomicHelper<4>::compare_exchange(volatile type* p,type& expected,type v)
 
 int64_t AtomicHelper<8>::fetch_add(volatile type* p,type v)
 {
-	return __sync_fetch_and_add(&val,v);
+	return __sync_fetch_and_add(p,v);
 }
 
 int64_t AtomicHelper<8>::fetch_sub(volatile type* p,type v)
 {
-	return __sync_fetch_and_sub(&val,v);
+	return __sync_fetch_and_sub(p,v);
 }
 
 int64_t AtomicHelper<8>::fetch_and(volatile type* p,type v)
 {
-	return __sync_fetch_and_and(&val,v);
+	return __sync_fetch_and_and(p,v);
 }
 
 int64_t AtomicHelper<8>::fetch_or(volatile type* p,type v)
 {
-	return __sync_fetch_and_or(&val,v);
+	return __sync_fetch_and_or(p,v);
 }
 
 int64_t AtomicHelper<8>::fetch_xor(volatile type* p,type v)
 {
-	return __sync_fetch_and_xor(&val,v);
+	return __sync_fetch_and_xor(p,v);
 }
 
 int64_t AtomicHelper<8>::exchange(volatile type* p,type v)
 {
-	return __sync_lock_test_and_set(&val,v);
+	return __sync_lock_test_and_set(p,v);
 }
 
 int64_t AtomicHelper<8>::store(volatile type* p,type v)
 {
-	return __sync_lock_test_and_set(&val,v);
+	return __sync_lock_test_and_set(p,v);
 }
 
 int64_t AtomicHelper<8>::load(volatile const type* p)
@@ -227,7 +227,7 @@ int64_t AtomicHelper<8>::load(volatile const type* p)
 
 bool AtomicHelper<8>::compare_exchange(volatile type* p,type& expected,type v)
 {
-	T old=__sync_val_compare_and_swap(p,expected,v);
+	type old=__sync_val_compare_and_swap(p,expected,v);
 	if(old==expected) return true;
 	expected=old;
 	return false;

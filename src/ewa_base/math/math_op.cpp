@@ -1,25 +1,31 @@
 #include "ewa_base/math/math_op.h"
 #include "ewa_base/math/math_def.h"
-
+#include "ewa_base/util/strlib.h"
 
 EW_ENTER
 
 op_info::op_info(const String& s,int f):name(s),op_name("__"+string_split(s,".").back()),flag(f){}
 op_info::op_info(const String& s,const String& o,int f):name(s),op_name(o),flag(f){}
 
-double numeric_trait_floating<double>::nan_value()
-{
-	return _Nan._Double;
-}
 
+template<>
 double numeric_trait_floating<double>::min_value()
 {
 	return -std::numeric_limits<double>::max();
 }
 
+template<>
 double numeric_trait_floating<double>::max_value()
 {
 	return std::numeric_limits<double>::max();
+}
+
+template<>
+double numeric_trait_floating<double>::nan_value()
+{
+	//return _Nan._Double;
+	static double d= ::sin(max_value());
+	return d;
 }
 
 

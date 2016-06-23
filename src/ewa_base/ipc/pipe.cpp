@@ -1,6 +1,8 @@
 
 #include "ewa_base/ipc/pipe.h"
 #include "ewa_base/threading/thread.h"
+#include "ewa_base/basic/codecvt.h"
+#include "ewa_base/basic/system.h"
 
 #ifdef EW_WINDOWS
 #include <windows.h>

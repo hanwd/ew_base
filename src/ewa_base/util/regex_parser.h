@@ -3,6 +3,7 @@
 #define __H_EW_UTIL_REGEX_PARSER__
 
 #include "ewa_base/basic.h"
+#include <stdio.h>
 
 EW_ENTER
 
@@ -73,7 +74,7 @@ public:
 
 	regex_item_id(const String& s=""):regex_item(ITEM_ID),value(s)
 	{
-		
+
 	}
 
 	String value;
@@ -312,7 +313,7 @@ public:
 		::printf("seq\n");
 		for(regex_item* q=child.get();q;q=q->next)
 		{
-			q->print(n+1);	
+			q->print(n+1);
 		}
 	}
 

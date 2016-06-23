@@ -1,4 +1,5 @@
 #include "ewa_base/basic/fso.h"
+#include "ewa_base/util/strlib.h"
 
 EW_ENTER
 
@@ -86,7 +87,7 @@ bool FSLocal::FindFiles(const String& folder,arr_1t<FileItem>& items,const Strin
 		PushFindItem(items,p);
 		while (FindNextFileW(h, &p))
 		{
-			PushFindItem(items,p);		
+			PushFindItem(items,p);
 		}
 	}
 
@@ -156,11 +157,11 @@ bool FSLocal::Rmdir(const String& fp,int flag)
 	StringBuffer<char> sb;
 	if(flag==0)
 	{
-		System::Execute("cmd /c rmdir \""+dir+"\"",sb);	
+		System::Execute("cmd /c rmdir \""+dir+"\"",sb);
 	}
 	else
 	{
-		System::Execute("cmd /c rmdir /S /Q \""+dir+"\"",sb);		
+		System::Execute("cmd /c rmdir /S /Q \""+dir+"\"",sb);
 	}
 
 

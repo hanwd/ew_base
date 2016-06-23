@@ -131,6 +131,8 @@ public:
 
 	typedef T element_type;
 	typedef KO_Handle<KO_Policy_pointer<T> > basetype;
+	using basetype::m_pCounter;
+	using basetype::m_pHandle;
 
 	friend class WeakPtrT<T>;
 
@@ -148,7 +150,7 @@ public:
 	{
 		basetype::reset((X*)o.get(),o.counter());
 	}
-	
+
 	pointer get()
 	{
 		return m_pHandle;
@@ -298,6 +300,31 @@ public:
 	{
 		return (uintptr_t(val.get()))>>4;
 	}
+};
+
+
+template<typename T,typename INFO=ObjectInfo>
+class ObjectInfoCachedT : public INFO
+{
+public:
+	typedef INFO basetype;
+
+	ObjectInfoCachedT(const String &name) :basetype(name)
+	{
+
+	}
+
+	T *CreateObject()
+	{
+		static DataPtrT<T> gInstance(new T);
+		return gInstance.get();
+	}
+
+	virtual T* GetCachedInstance()
+	{
+		return CreateObject();
+	}
+
 };
 
 

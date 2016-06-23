@@ -4,7 +4,7 @@
 
 #include "ewa_base/collection/detail/collection_base.h"
 #include "ewa_base/collection/detail/arr_container.h"
-
+#include "ewa_base/memory/allocator.h"
 
 EW_ENTER
 
@@ -74,7 +74,7 @@ public:
 	template<typename It>
 	inline iterator insert(const_iterator where_,It first_,It last_)
 	{
-		return impl.insert(where_,first_,last_);		
+		return impl.insert(where_,first_,last_);
 	}
 
 	inline iterator append(const T& val_)

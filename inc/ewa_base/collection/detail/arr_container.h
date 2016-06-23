@@ -3,6 +3,7 @@
 
 
 #include "ewa_base/collection/detail/collection_base.h"
+#include "ewa_base/basic/hashing.h"
 
 EW_ENTER
 
@@ -40,7 +41,7 @@ public:
 		std::swap(m_base,o.m_base);
 		std::swap(m_end1,o.m_end1);
 		std::swap(m_end2,o.m_end2);
-		_swap_allocator(o);
+		this->_swap_allocator(o);
 	}
 
 	void clear();

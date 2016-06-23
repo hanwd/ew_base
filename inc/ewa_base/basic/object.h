@@ -94,30 +94,6 @@ public:
 	}
 };
 
-template<typename T,typename INFO=ObjectInfo>
-class ObjectInfoCachedT : public INFO
-{
-public:
-	typedef INFO basetype;
-
-	ObjectInfoCachedT(const String &name) :basetype(name)
-	{
-
-	}
-
-	T *CreateObject()
-	{
-		static DataPtrT<T> gInstance(new T);
-		return gInstance.get();
-	}
-
-	virtual T* GetCachedInstance()
-	{ 
-		return CreateObject(); 
-	}
-
-};
-
 
 
 class DLLIMPEXP_EWA_BASE Object
@@ -163,7 +139,7 @@ public:
 		EW_ASSERT(m_refcount.get()>0);
 		if(--m_refcount==0)
 		{
-			on_destroy();			
+			on_destroy();
 		}
 	}
 
@@ -226,7 +202,7 @@ public:
 
 	// if d is already cloned, return last cloned value else return d->Clone(*this)
 	ObjectData* clone(ObjectData* d);
-	
+
 	// clear cloned state
 	void clear();
 

@@ -3,6 +3,7 @@
 
 #include "ewa_base/scripting/callable_data.h"
 #include "ewa_base/basic/stringbuffer.h"
+#include "ewa_base/basic/stream.h"
 #include "ewa_base/basic/clock.h"
 
 EW_ENTER
@@ -28,7 +29,7 @@ public:
 #ifdef EW_C11
 	CallableDataBaseT(T&& v):CallableWrap(type_flag<type>::value),value(std::forward<T>(v)){}
 #endif
-	
+
 	type value;
 
 	virtual int __update_idx(idx_1t& id,intptr_t n1,intptr_t n2)
@@ -60,6 +61,8 @@ class DLLIMPEXP_EWA_BASE CallableWrapT : public CallableDataBaseT<T>
 {
 public:
 	typedef CallableDataBaseT<T> basetype;
+	using basetype::value;
+
 	CallableWrapT():basetype(){}
 	CallableWrapT(const T& v):basetype(v){}
 

@@ -5,10 +5,11 @@
 #include "ewa_base/config.h"
 #include "ewa_base/basic/clock.h"
 
-#ifndef _MSC_VER
-#include <pthread.h>
-#else
+#ifdef EW_WINDOWS
 #include <windows.h>
+
+#else
+#include <pthread.h>
 #endif
 
 

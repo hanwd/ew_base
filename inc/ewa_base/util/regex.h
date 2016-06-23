@@ -5,9 +5,9 @@
 
 EW_ENTER
 
-
-
 class DLLIMPEXP_EWA_BASE Match;
+class DLLIMPEXP_EWA_BASE Regex;
+class DLLIMPEXP_EWA_BASE RegexEx;
 
 class DLLIMPEXP_EWA_BASE Regex : public Object
 {
@@ -42,6 +42,8 @@ protected:
 class DLLIMPEXP_EWA_BASE Match
 {
 public:
+	friend class Regex;
+	friend class RegexEx;
 
 	class DLLIMPEXP_EWA_BASE item
 	{
@@ -73,6 +75,7 @@ public:
 	iterator begin(){return matchs.cbegin();}
 	iterator end(){return matchs.cend();}
 
+protected:
 	arr_1t<item_array> matchs;
 	String orig_str;
 	Regex orig_reg;

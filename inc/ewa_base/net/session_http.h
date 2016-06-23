@@ -2,6 +2,7 @@
 #define __H_EW_IOCP_SESSION_HTTP__
 
 #include "ewa_base/net/session.h"
+#include "ewa_base/scripting/callable_table.h"
 #include "ewa_base/net/iocp1.h"
 
 EW_ENTER

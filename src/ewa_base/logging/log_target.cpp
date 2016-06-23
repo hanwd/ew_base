@@ -1,6 +1,7 @@
 #include "ewa_base/logging/logtarget.h"
 #include "ewa_base/logging/logrecord.h"
 #include "ewa_base/basic/lockguard.h"
+#include "ewa_base/basic/system.h"
 
 #include <cstdlib>
 #include <cstdio>

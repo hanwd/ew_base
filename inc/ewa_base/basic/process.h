@@ -6,6 +6,7 @@
 #include "ewa_base/basic/platform.h"
 #include "ewa_base/basic/bitflags.h"
 #include "ewa_base/basic/pointer.h"
+#include "ewa_base/basic/stream.h"
 
 EW_ENTER
 

@@ -5,9 +5,10 @@
 #include "ewa_base/util/strlib.h"
 EW_ENTER
 
-template<typename T> 
-typename CallableWrapT<StringBuffer<T> >::infotype 
+template<typename T>
+typename CallableWrapT<StringBuffer<T> >::infotype
 CallableWrapT<StringBuffer<T> >::sm_info(ObjectNameT<StringBuffer<T> >::MakeName("CallableWrap"));
+
 template<typename T>
 bool CallableWrapT<StringBuffer<T> >::ToValue(String& s,int) const
 {
@@ -25,7 +26,7 @@ public:
 		ewsl.check_pmc(this, pm,0);
 		ewsl.ci1.nbp[StackState1::SBASE_THIS].ref<StringBuffer<T> >().clear();
 		ewsl.ci0.nbx[1]=ewsl.ci1.nbp[StackState1::SBASE_THIS];
-		return 1;	
+		return 1;
 	}
 	DECLARE_OBJECT_CACHED_INFO(CallableFunctionBufferClearT, ObjectInfo);
 };
@@ -42,7 +43,7 @@ public:
 		ewsl.check_pmc(this, pm,0);
 		size_t sz=ewsl.ci1.nbp[StackState1::SBASE_THIS].ref<StringBuffer<T> >().size();
 		ewsl.ci0.nbx[1].reset((int64_t)sz);
-		return 1;	
+		return 1;
 	}
 	DECLARE_OBJECT_CACHED_INFO(CallableFunctionBufferLengthT, ObjectInfo);
 };
@@ -61,7 +62,7 @@ public:
 		int type=pm>1?variant_cast<int>(ewsl.ci0.nbx[2]):FILE_TYPE_BINARY;
 		bool flag=ewsl.ci1.nbp[StackState1::SBASE_THIS].ref<StringBuffer<T> >().save(filename,type);
 		ewsl.ci0.nbx[1].reset(flag);
-		return 1;	
+		return 1;
 	}
 	DECLARE_OBJECT_CACHED_INFO(CallableFunctionBufferSaveT, ObjectInfo);
 };
@@ -82,7 +83,7 @@ public:
 
 		bool flag=ewsl.ci1.nbp[StackState1::SBASE_THIS].ref<StringBuffer<T> >().load(filename,type);
 		ewsl.ci0.nbx[1].reset(flag);
-		return 1;	
+		return 1;
 	}
 	DECLARE_OBJECT_CACHED_INFO(CallableFunctionBufferLoadT, ObjectInfo);
 };
@@ -110,7 +111,7 @@ public:
 			}
 		}
 		ewsl.ci0.nbx[1]=ewsl.ci1.nbp[StackState1::SBASE_THIS];
-		return 1;	
+		return 1;
 	}
 	DECLARE_OBJECT_CACHED_INFO(CallableFunctionBufferWriteT, ObjectInfo);
 };
@@ -144,11 +145,11 @@ public:
 	DECLARE_OBJECT_CACHED_INFO(CallableMetatableT, ObjectInfo);
 };
 
-template<typename T> 
-typename CallableMetatableT<StringBuffer<T> >::infotype  
+template<typename T>
+typename CallableMetatableT<StringBuffer<T> >::infotype
 CallableMetatableT<StringBuffer<T> >::sm_info(ObjectNameT<T>::MakeName("CallableMetatableT#Buffer"));
 
-template<typename T> 
+template<typename T>
 CallableMetatable* CallableWrapT<StringBuffer<T> >::GetMetaTable()
 {
 	return CallableMetatableT<StringBuffer<T> >::sm_info.CreateObject();

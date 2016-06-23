@@ -1,4 +1,5 @@
 #include "ewa_base/memory/allocator.h"
+#include <stdlib.h>
 
 EW_ENTER
 

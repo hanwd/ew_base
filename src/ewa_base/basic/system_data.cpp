@@ -1,9 +1,11 @@
 #include "system_data.h"
 
+#include "windows.h"
+
 EW_ENTER
 
 
-#ifdef EW_WINDOWS
+#ifdef EW_MSVC
 
 void SystemData::init_system_info()
 {
@@ -41,6 +43,8 @@ void SystemData::init_system_info()
 
 }
 
+#elif defined(EW_WINDOWS)
+
 #else
 
 void SystemData::init_system_info()
@@ -64,7 +68,7 @@ void SystemData::init_system_info()
 #endif
 
 
-#ifdef EW_WINDOWS
+#ifdef EW_MSVC
 
 void SystemData::update_system_info()
 {
@@ -80,6 +84,7 @@ void SystemData::update_system_info()
 	m_nMemAvailPageFile=ms.ullAvailPageFile;
 
 }
+
 #else
 
 void SystemData::update_system_info()

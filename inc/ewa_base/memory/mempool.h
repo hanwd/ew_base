@@ -3,11 +3,10 @@
 #define __H_EW_MEMORY_MEMPOOL__
 
 #include "ewa_base/basic/exception.h"
-//#include "ewa_base/basic/system.h"
 #include "ewa_base/basic/atomic.h"
 
 EW_ENTER
-	
+
 DLLIMPEXP_EWA_BASE void* mp_alloc(size_t n);
 DLLIMPEXP_EWA_BASE void* mp_alloc(size_t n,const char* f,int line);
 DLLIMPEXP_EWA_BASE void* mp_realloc(void* p,size_t n);
@@ -94,7 +93,7 @@ public:
 // TS = ThreadSafe
 // DG = DynamicGrow
 template<size_t N,bool TS=false,bool DG=true>
-class MpFixedSizePool : public ThreadSafe<TS>
+class DLLIMPEXP_EWA_BASE MpFixedSizePool : public ThreadSafe<TS>
 {
 public:
 	static const size_t nd_size=(N+sizeof(void*)-1)&~(sizeof(void*)-1);
@@ -168,22 +167,7 @@ public:
 
 protected:
 
-	bool alloc_batch_nolock()
-	{
-		MpAllocNode* p1=(MpAllocNode*)page_alloc(sp_size);
-		if(!p1)
-		{			
-			System::LogError("page_alloc failed in MpFixedSizePool::alloc_batch");
-			return false;
-		}
-
-		MpAllocNode::link(p1,sp_size,nd_size,nd_free);
-		nd_free=p1->nd_next;
-		p1->nd_next=pg_list;
-		pg_list=p1;
-
-		return true;
-	}
+	bool alloc_batch_nolock();
 
 
 };

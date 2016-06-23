@@ -3,7 +3,7 @@
 
 #include "tl.h"
 
-#define EW_C11
+//#define EW_C11
 
 #ifdef EW_C11
 	#define EW_MOVE(x) std::move(x)

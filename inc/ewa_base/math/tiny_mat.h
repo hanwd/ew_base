@@ -2,6 +2,7 @@
 #define __H_EW_MATH_TINY_MAT__
 
 #include "ewa_base/math/tiny_vec.h"
+#include "ewa_base/math/math_def.h"
 
 EW_ENTER
 
@@ -80,7 +81,7 @@ struct opx_scalar_mat
 };
 
 template<typename X,typename Y,int R,int C>
-struct mat_promote : public opx_helper_promote<X,Y,cpx_promote,opx_scalar_mat<R,C>::rebind>{};
+struct mat_promote : public opx_helper_promote<X,Y,cpx_promote,opx_scalar_mat<R,C>::template rebind>{};
 
 template<typename T,int R,int C> class hash_t<tiny_mat<T,R,C> > : public hash_pod<tiny_mat<T,R,C> > {};
 
@@ -187,10 +188,10 @@ typename vec_promote<X,Y,N>::promoted operator*(const tiny_mat<X,N,N>& lhs,const
 	typename vec_promote<X,Y,N>::promoted res;
 	for(int i=0;i<N;i++)
 	{
-		for(int k=0;k<L;k++)
+		for(int k=0;k<N;k++)
 		{
 			res[N]+=lhs(i,k)*rhs[k];
-		}	
+		}
 	}
 	return res;
 }
@@ -297,12 +298,12 @@ public:
 };
 
 
-template<typename T>
-class type_mat<T,4,4> : public tiny_mat<T,4,4>
+template<typename X>
+class type_mat<X,4,4> : public tiny_mat<X,4,4>
 {
 public:
-	typedef tiny_mat<T,4,4> basetype;
-	typedef tiny_vec<T,3> vec3;
+	typedef tiny_mat<X,4,4> basetype;
+	typedef tiny_vec<X,3> vec3;
 
 	type_mat(){LoadIdentity();}
 	type_mat(const basetype& o):basetype(o){}
@@ -360,9 +361,9 @@ public:
 		_m(2,2)=C+v[2]*v[2]*T;
 		_m(2,3)=0.0;
 		_m(3,0)=_m(3,1)=_m(3,2)=0.0;
-		_m(3,3)=1.0;	
+		_m(3,3)=1.0;
 
-		m4=m4*_m;		
+		m4=m4*_m;
 	}
 
 	void Inverse()

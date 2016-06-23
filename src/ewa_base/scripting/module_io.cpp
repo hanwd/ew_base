@@ -1,6 +1,6 @@
 #include "ewa_base/scripting.h"
 #include "ewa_base/util/json.h"
-
+#include "ewa_base/serialization/serializer_stream.h"
 EW_ENTER
 
 
@@ -34,11 +34,11 @@ public:
 	{
 		if(v.imag()<0.0)
 		{
-			sb<<String::Format("%g%gi",v.real(),v.imag());		
+			sb<<String::Format("%g%gi",v.real(),v.imag());
 		}
 		else
 		{
-			sb<<String::Format("%g+%gi",v.real(),v.imag());		
+			sb<<String::Format("%g+%gi",v.real(),v.imag());
 		}
 
 	}
@@ -65,7 +65,7 @@ public:
 		{
 			sb<<String::Format("object:0x%p",v);
 		}
-	
+
 	}
 
 
@@ -147,7 +147,7 @@ public:
 				sb<<"\n";
 			}
 			sb<<"\n";
-		}		
+		}
 	}
 
 	static void g(StringBuffer<char>& sb,const String& v)
@@ -261,7 +261,7 @@ public:
 				sb<<"\n";
 			}
 			//sb<<"\n";
-		}		
+		}
 	}
 
 	static void g(StringBuffer<char>& sb,const String& v)
@@ -342,7 +342,7 @@ public:
 		{
 			sb<<(i== 1?aBreakers["beg0"]:aBreakers["beg1"]);
 			lk::test(bp[i].type())(sb,bp[i]);
-			sb<<(i==pm?aBreakers["end0"]:aBreakers["end1"]);	
+			sb<<(i==pm?aBreakers["end0"]:aBreakers["end1"]);
 		}
 	}
 
@@ -355,7 +355,7 @@ public:
 		{
 			sb<<(i== 1?aBreakers["beg0"]:aBreakers["beg1"]);
 			lk::test(bp[i].type())(sb,bp[i]);
-			sb<<(i==pm?aBreakers["end0"]:aBreakers["end1"]);	
+			sb<<(i==pm?aBreakers["end0"]:aBreakers["end1"]);
 		}
 	}
 
@@ -368,7 +368,7 @@ public:
 		{
 			sb<<(i== 1?aBreakers["beg0"]:aBreakers["beg1"]);
 			lk::test(bp[i].type())(sb,bp[i]);
-			sb<<(i==pm?aBreakers["end0"]:aBreakers["end1"]);	
+			sb<<(i==pm?aBreakers["end0"]:aBreakers["end1"]);
 		}
 	}
 
@@ -554,7 +554,7 @@ public:
 			_do_print_to_stringbuffer_2(sb,ewsl.ci0.nbx+1,1);
 			bool f=sb.save(variant_cast<String>(ewsl.ci0.nbx[1]));
 			ewsl.ci0.nbx[1].reset(f);
-		}			
+		}
 
 		return 1;
 	}
@@ -745,7 +745,7 @@ public:
 			else if(col!=n)
 			{
 				Exception::XError("invalid colsize");
-			}	
+			}
 		}
 
 		if(col<1) Exception::XError("invalid col");
@@ -756,7 +756,7 @@ public:
 		}
 		else
 		{
-			return adjust(darr,col);		
+			return adjust(darr,col);
 		}
 	}
 
@@ -776,7 +776,7 @@ class CallableFunctionLoadTxt : public CallableFunction
 public:
 	CallableFunctionLoadTxt():CallableFunction("io.load_txt",1)
 	{
-	
+
 	}
 
 	virtual int __fun_call(Executor& ewsl,int pm)
@@ -819,10 +819,10 @@ public:
 			return 0;
 		}
 
-		ewsl.ci0.nbx[1]=parse_json(sb);		
+		ewsl.ci0.nbx[1]=parse_json(sb);
 
 		return 1;
-	
+
 	}
 	DECLARE_OBJECT_CACHED_INFO(CallableFunctionLoadJson, ObjectInfo);
 
@@ -851,7 +851,7 @@ public:
 		arr_1t<Variant> var;
 		if(ar.file.open(*p,FLAG_FILE_RD))
 		{
-			ar.reader() & var;			
+			ar.reader() & var;
 		}
 		else
 		{
@@ -861,7 +861,7 @@ public:
 		std::copy(var.begin(), var.end(), ewsl.ci0.nbx + 1);
 
 		return var.size();
-	
+
 	}
 	DECLARE_OBJECT_CACHED_INFO(CallableFunctionLoadVar, ObjectInfo);
 
@@ -891,7 +891,7 @@ public:
 
 		if(ar.file.open(*p,FLAG_FILE_WC))
 		{
-			ar.writer() & var;			
+			ar.writer() & var;
 		}
 		else
 		{
@@ -899,7 +899,7 @@ public:
 		}
 
 		return 0;
-	
+
 	}
 	DECLARE_OBJECT_CACHED_INFO(CallableFunctionSaveVar, ObjectInfo);
 
@@ -920,7 +920,7 @@ public:
 		Variant var;
 		to_json(ewsl.ci0.nbx[1],var.ref<StringBuffer<char> >());
 		ewsl.ci0.nbx[1]=var;
-		return 1;	
+		return 1;
 	}
 	DECLARE_OBJECT_CACHED_INFO(CallableFunctionToJson, ObjectInfo);
 
@@ -947,7 +947,7 @@ public:
 			StringBuffer<char> sb=variant_cast<String>(ewsl.ci0.nbx[1]);
 			ewsl.ci0.nbx[1]=parse_json(*p);
 		}
-		return 1;	
+		return 1;
 	}
 	DECLARE_OBJECT_CACHED_INFO(CallableFunctionParseJson, ObjectInfo);
 

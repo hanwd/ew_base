@@ -1,4 +1,5 @@
 #include "ewa_base/scripting.h"
+#include "ewa_base/scripting/pl_dispatch.h"
 #include "ewa_base/math/math_op.h"
 
 EW_ENTER
@@ -61,7 +62,7 @@ public:
 		{
 			return pl1_dispatch_base<P>::value(ewsl,v1);
 		}
-		return lk::test(n)(ewsl,v1);	
+		return lk::test(n)(ewsl,v1);
 	}
 
 	PL1_func():CallableFunction(P::info().name,P::info().flag)
@@ -95,7 +96,7 @@ public:
 		{
 			return pl2_dispatch_base<P>::value(ewsl,v1,v2);
 		}
-		return lk::test(n)(ewsl,v1,v2);	
+		return lk::test(n)(ewsl,v1,v2);
 	}
 
 	PL2_func():CallableFunction(P::info().name,P::info().flag)

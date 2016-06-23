@@ -1,4 +1,5 @@
 #include "ewa_base/scripting.h"
+
 #include <limits>
 
 EW_ENTER
@@ -209,7 +210,7 @@ void init_module_number()
 	gi.add_inner<CallableMetatableT<double> >();
 	gi.add_inner<CallableMetatableT<dcomplex> >();
 
-	
+
 }
 
 EW_LEAVE

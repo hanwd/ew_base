@@ -8,43 +8,6 @@
 
 EW_ENTER
 
-inline double sindeg(double deg)
-{
-	double np=deg/90.0;
-	int64_t kp = (int64_t)np;
-	if(np==double(kp))
-	{
-		switch(kp%4)
-		{
-		case -3:case 1: return  1.0;
-		case -1:case 3: return -1.0;
-		default: return 0.0;
-		}
-	}
-	else
-	{
-		return ::sin(np*M_PI_2);
-	}
-}
-
-inline double cosdeg(double deg)
-{
-	double np=deg/90.0;
-	int kp=(int)np;
-	if(np==double(kp))
-	{
-		switch(kp%4)
-		{
-		case 0: return  1.0;
-		case -2:case 2: return -1.0;
-		default: return 0.0;
-		}
-	}
-	else
-	{
-		return ::sin(np*M_PI_2);
-	}
-}
 
 typedef tiny_vec<int32_t,3> vec3i;
 typedef tiny_vec<double,3> vec3d;

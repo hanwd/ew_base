@@ -1,4 +1,5 @@
 #include "ewa_base/basic/process.h"
+#include "ewa_base/basic/system.h"
 
 EW_ENTER
 
@@ -89,7 +90,7 @@ public:
 		if(::CreatePipe(&h1,&h2,NULL,0))
 		{
 			hPipe->hReader.reset(h1);
-			hWriter.reset(h2);	
+			hWriter.reset(h2);
 		}
 		else
 		{
@@ -99,7 +100,7 @@ public:
 		if(::CreatePipe(&h1,&h2,NULL,0))
 		{
 			hReader.reset(h1);
-			hPipe->hWriter.reset(h2);		
+			hPipe->hWriter.reset(h2);
 		}
 		else
 		{
@@ -174,7 +175,7 @@ public:
 		si.hStdInput = h1;
 
 		si.dwFlags = (h1!=NULL||h2!=NULL)?STARTF_USESTDHANDLES:0;
-		
+
 		bool flag=::CreateProcessW(NULL,sb.data(),NULL,NULL,(si.dwFlags&STARTF_USESTDHANDLES)?TRUE:FALSE,0,NULL,NULL,&si,&pi)!=FALSE;
 
 		::CloseHandle(h1);

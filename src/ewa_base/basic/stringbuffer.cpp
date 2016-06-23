@@ -1,6 +1,7 @@
 #include "ewa_base/basic/stringbuffer.h"
 #include "ewa_base/basic/codecvt.h"
 #include "ewa_base/basic/file.h"
+#include "ewa_base/basic/system.h"
 #include "ewa_base/logging/logger.h"
 
 EW_ENTER
@@ -284,7 +285,7 @@ bool StringBuffer<T>::load(const String& file,int type)
 			sb.swap(*(StringBuffer<char>*)this);
 			return true;
 		}
-		else if(sizeof(T)==2) 
+		else if(sizeof(T)==2)
 		{
 			return IConv::utf8_to_unicode(*(StringBuffer<uint16_t>*)this,kb.data(),nz);
 		}

@@ -27,8 +27,8 @@ void regex_item_char_map::update_case()
 		else if(q->get(ch-'a'+'A'))
 		{
 			q->set(ch,true);
-		}				
-	}	
+		}
+	}
 }
 
 void regex_item_char_map::add_chars(char ch)
@@ -81,7 +81,7 @@ void regex_item_repeat::update(regex_item_state& q)
 	index=q.loop++;
 
 	real_sibling=next?next:q.sibling;
-		
+
 	if(!child.get()) return;
 
 	LockState<regex_item*> lock(q.sibling,&repeat_end);
@@ -152,14 +152,14 @@ void regex_item_seq::adjust()
 					delete p2;
 					p2=p1->next;
 					continue;
-				}									
+				}
 			}
 		}
-		
+
 		p1=p2;
 		p2=p2->next;
 	}
-	
+
 }
 
 
@@ -190,7 +190,7 @@ regex_item_char_map* RegexParser::parse_char_map(const char* &p1)
 		{
 			if(p1[1]=='r'||p1[1]=='n'||p1[1]=='t'||p1[1]=='v'||p1[1]=='f')
 			{
-				q->set(lookup_table<lkt_slash>::test(p1[1]),true);				
+				q->set(lookup_table<lkt_slash>::test(p1[1]),true);
 			}
 			else if(p1[1]=='w'||p1[1]=='d'||p1[1]=='s'||p1[1]=='W'||p1[1]=='D'||p1[1]=='S')
 			{
@@ -214,7 +214,7 @@ regex_item_char_map* RegexParser::parse_char_map(const char* &p1)
 			if(c2==']') return NULL;
 			for(char ch=c1;ch<=c2;ch++) q->set(ch,true);
 			p1+=3;
-				
+
 		}
 		else
 		{
@@ -262,14 +262,14 @@ regex_item* RegexParser::parse_item(const char* &p1,bool seq)
 		p1++;
 		if(flags.get(Regex::FLAG_RE_MULTILINE))
 		{
-			return new regex_item(*p1=='^'?regex_item::ITEM_LINE_ENTER:regex_item::ITEM_LINE_LEAVE);		
+			return new regex_item(*p1=='^'?regex_item::ITEM_LINE_ENTER:regex_item::ITEM_LINE_LEAVE);
 		}
 		else
 		{
-			return new regex_item(*p1=='^'?regex_item::ITEM_EXPR_ENTER:regex_item::ITEM_EXPR_LEAVE);			
+			return new regex_item(*p1=='^'?regex_item::ITEM_EXPR_ENTER:regex_item::ITEM_EXPR_LEAVE);
 		}
 	}
-		
+
 	if(*p1=='\\')
 	{
 		p1++;
@@ -289,11 +289,11 @@ regex_item* RegexParser::parse_item(const char* &p1,bool seq)
 			{
 				q.reset(new regex_item_char_map_unicode(*q));
 			}
-			return q.release();			
+			return q.release();
 		}
 		else if(ch=='t'||ch=='r'||ch=='n'||ch=='v'||ch=='f')
 		{
-			return new regex_item_char_str(lookup_table<lkt_slash>::test(ch),flags.get(Regex::FLAG_RE_IGNORECASE));		
+			return new regex_item_char_str(lookup_table<lkt_slash>::test(ch),flags.get(Regex::FLAG_RE_IGNORECASE));
 		}
 		else
 		{
@@ -309,7 +309,7 @@ regex_item* RegexParser::parse_item(const char* &p1,bool seq)
 		p1++;
 		if(flags.get(Regex::FLAG_RE_DOTALL))
 		{
-			return new regex_item(regex_item::ITEM_CHAR_ANY);	
+			return new regex_item(regex_item::ITEM_CHAR_ANY);
 		}
 		else
 		{
@@ -336,7 +336,7 @@ regex_item* RegexParser::parse_item(const char* &p1,bool seq)
 	while(1)
 	{
 
-		if(*p1>='a'&&*p1<='z'||*p1>='A'&&*p1<='Z'||*p1>='0'&&*p1<='9'||*p1==' ')
+		if((*p1>='a'&&*p1<='z')||(*p1>='A'&&*p1<='Z')||(*p1>='0'&&*p1<='9')||*p1==' ')
 		{
 			prev=p1++;
 			continue;
@@ -361,7 +361,7 @@ regex_item* RegexParser::parse_item(const char* &p1,bool seq)
 		else
 		{
 			p1+=4;
-		}	
+		}
 
 	}
 
@@ -378,8 +378,8 @@ regex_item* RegexParser::parse_item(const char* &p1,bool seq)
 	}
 	else
 	{
-		return new regex_item_char_str(String(p0,p1),flags.get(Regex::FLAG_RE_IGNORECASE));	
-	}		
+		return new regex_item_char_str(String(p0,p1),flags.get(Regex::FLAG_RE_IGNORECASE));
+	}
 }
 
 regex_item* RegexParser::parse_item_ex(const char* &p1,bool seq)
@@ -409,7 +409,7 @@ regex_item* RegexParser::parse_item_ex(const char* &p1,bool seq)
 			q2->nmin=q2->nmax=read_number(++p1);
 			if(*p1==',')
 			{
-				q2->nmax=read_number(++p1);				
+				q2->nmax=read_number(++p1);
 			}
 			if(*p1!='}')
 			{
@@ -439,10 +439,10 @@ regex_item* RegexParser::parse_item_ex(const char* &p1,bool seq)
 			{
 				q1->nmin*=q2->nmin;
 				continue;
-			}			
+			}
 		}
 
-	
+
 		q2->child.reset(q.release());
 		q1=q2.get();
 		q.reset(q2.release());

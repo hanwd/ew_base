@@ -3,6 +3,7 @@
 
 #include "ewa_base/basic/string.h"
 #include "ewa_base/basic/bitflags.h"
+#include "ewa_base/basic/platform.h"
 
 EW_ENTER
 

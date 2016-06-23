@@ -34,7 +34,7 @@ bool regex_impl<P>::execute(regex_item_root* seq,iterator t1,iterator t2,bool ma
 		{
 			return false;
 		}
-		
+
 		return true;
 	}
 
@@ -74,7 +74,7 @@ bool regex_impl<P>::match_real(iterator& it,regex_item* sq)
 				regex_item_char_str& item(*static_cast<regex_item_char_str*>(state.curp));
 				const char* p1=item.value.c_str();
 
-				while(state.ipos !=it_end && *p1 && lk::cmap[unsigned char(*state.ipos)]==lk::cmap[unsigned char(*p1)])
+				while(state.ipos !=it_end && *p1 && lk::cmap[(unsigned char)(*state.ipos)]==lk::cmap[(unsigned char)(*p1)])
 				{
 					state.ipos++;p1++;
 				}
@@ -114,7 +114,7 @@ bool regex_impl<P>::match_real(iterator& it,regex_item* sq)
 				regex_item& item(*static_cast<regex_item*>(state.curp));
 				if(state.ipos!=it_end)
 				{
-					++state.ipos;						
+					++state.ipos;
 				}
 				else
 				{
@@ -190,7 +190,7 @@ bool regex_impl<P>::match_real(iterator& it,regex_item* sq)
 				int n=stkRepeat.back().num++;
 				if(n<item.node.nmin)
 				{
-						
+
 				}
 				else if(n==item.node.nmax||state.ipos==it_end)
 				{
@@ -211,9 +211,9 @@ bool regex_impl<P>::match_real(iterator& it,regex_item* sq)
 						if(!fallback(state))
 						{
 							return false;
-						}						
+						}
 						continue;
-					}						
+					}
 				}
 				else
 				{
@@ -232,7 +232,7 @@ bool regex_impl<P>::match_real(iterator& it,regex_item* sq)
 							return false;
 						}
 						continue;
-					}				
+					}
 				}
 
 				stkRepeat.back().pos=state.ipos;
@@ -248,7 +248,7 @@ bool regex_impl<P>::match_real(iterator& it,regex_item* sq)
 			{
 				regex_state state2(state);
 				state2.curp=static_cast<regex_item_or*>(state.curp)->child2.get();
-				arrStates.push_back(state2);		
+				arrStates.push_back(state2);
 			}
 			break;
 		case regex_item::ITEM_EXPR_ENTER:
@@ -304,7 +304,7 @@ bool regex_impl<P>::match_real(iterator& it,regex_item* sq)
 				}
 				state.ipos=ipos;
 			}
-				
+
 			break;
 		case regex_item::ITEM_SEQ:
 			{
@@ -331,12 +331,12 @@ bool regex_impl<P>::match_real(iterator& it,regex_item* sq)
 					return false;
 				}
 				if(!fallback(state)) return false;
-				continue;	
-		
+				continue;
+
 			}
 
 		default:
-			return false;				
+			return false;
 		}
 
 		state.curp=state.curp->sibling;
@@ -344,12 +344,12 @@ bool regex_impl<P>::match_real(iterator& it,regex_item* sq)
 
 	it=state.ipos;
 	return true;
-		
+
 }
 
 
 
-void regex_policy_char_match::update_match(Match& res)
+void regex_policy_char_match::update_match(arr_1t<Match::item_array>& res)
 {
 
 	class item
@@ -375,11 +375,11 @@ void regex_policy_char_match::update_match(Match& res)
 		else if(n<0)
 		{
 			q.back().str.it_end=stkSeqpos[i].pos;
-			if(q.back().num>=(int)res.matchs.size())
+			if(q.back().num>=(int)res.size())
 			{
-				res.matchs.resize(q.back().num+1);
+				res.resize(q.back().num+1);
 			}
-			res.matchs[q.back().num].push_back(q.back().str);
+			res[q.back().num].push_back(q.back().str);
 			q.pop_back();
 		}
 	}

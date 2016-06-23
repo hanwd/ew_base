@@ -10,6 +10,8 @@
 #include "ewa_base/logging/logger.h"
 #include "ewa_base/basic/lockguard.h"
 #include "ewa_base/scripting/callable_data.h"
+#include "ewa_base/collection.h"
+
 
 EW_ENTER
 
@@ -86,7 +88,7 @@ protected:
 	IOCPAccounter accounter;
 
 	SessionArray m_aSessions;
-	bst_set<DataPtrT<IocpObject> > m_aObjects; 
+	bst_set<DataPtrT<IocpObject> > m_aObjects;
 
 
 	LockFreeQueue<int> m_lkfqSessionAvailable;

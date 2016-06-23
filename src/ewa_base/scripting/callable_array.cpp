@@ -5,7 +5,7 @@
 #include "ewa_base/util/strlib.h"
 EW_ENTER
 
-template<typename T1> 
+template<typename T1>
 typename CallableWrapT<arr_xt<T1> >::infotype CallableWrapT<arr_xt<T1> >::sm_info(ObjectNameT<arr_xt<T1> >::MakeName("CallableWrap"));
 
 
@@ -243,7 +243,7 @@ int CallableWrapT<arr_xt<T> >::__getarray(Executor& ewsl,int pm)
 	{
 		ewsl.kerror("too many dims");
 	}
-	
+
 	return 1;
 
 }
@@ -370,7 +370,7 @@ int CallableWrapT<arr_xt<T> >::__setarray(Executor& ewsl,int pm)
 		}
 
 		ewsl.ci1.nsp=ewsl.ci0.nbx-1;
-		return STACK_BALANCED;
+		return CallableData::STACK_BALANCED;
 
 	}
 
@@ -442,7 +442,7 @@ int CallableWrapT<arr_xt<T> >::__setarray(Executor& ewsl,int pm)
 	}
 
 	ewsl.ci1.nsp=ewsl.ci0.nbx-1;
-	return STACK_BALANCED;
+	return CallableData::STACK_BALANCED;
 }
 
 
@@ -483,7 +483,7 @@ int CallableWrapT<arr_xt<T> >::__getarray_index_range(Executor& ewsl,int pm)
 	{
 		ewsl.kerror("invalid dim");
 	}
-	return 2;	
+	return 2;
 }
 
 template<typename T>

@@ -87,6 +87,9 @@ public:
 	typedef typename P::type type;
 	typedef typename P::const_reference const_reference;
 
+	using basetype::m_pHandle;
+	using basetype::m_pCounter;
+
 	KO_Handle(){}
 	explicit KO_Handle(const_reference v)
 	{
@@ -94,7 +97,7 @@ public:
 		{
 			m_pCounter=new RefCounter(1);
 			m_pHandle=v;
-		}	
+		}
 	}
 
 	KO_Handle(const KO_Handle& o) :basetype(o)
@@ -124,13 +127,13 @@ public:
 		{
 			P::destroy(m_pHandle);
 		}
-	
-		m_pHandle=v;		
+
+		m_pHandle=v;
 		m_pCounter=p;
 
 		if(m_pCounter)
 		{
-			m_pCounter->IncUseCount();	
+			m_pCounter->IncUseCount();
 		}
 
 	}
@@ -192,7 +195,7 @@ public:
 
 	bool unique() const
 	{
-		return use_count()==1;
+		return this->use_count()==1;
 	}
 
 	const_reference get()
@@ -226,6 +229,9 @@ public:
 	typedef KO_Base<P> basetype;
 	typedef typename P::type type;
 	typedef typename P::const_reference const_reference;
+
+	using basetype::m_pCounter;
+	using basetype::m_pHandle;
 
 	KO_Weak(){}
 

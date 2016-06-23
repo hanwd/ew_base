@@ -11,35 +11,6 @@ EW_ENTER
 
 class DLLIMPEXP_EWA_BASE Match;
 
-class match_group_data : public ObjectData
-{
-public:
-	virtual String value()=0;
-};
-
-class match_group : public ObjectT<match_group_data>
-{
-public:
-	
-};
-
-class match_result_data : public ObjectData
-{
-public:
-
-	virtual size_t size() const =0;
-	virtual match_group group(size_t i) const=0;
-
-
-};
-
-class match_result : public ObjectT<match_result_data>
-{
-public:
-	
-};
-
-
 template<typename X>
 class regex_pos_and_num_t
 {
@@ -48,13 +19,6 @@ public:
 	int num;
 	regex_pos_and_num_t():pos(),num(0){}
 	regex_pos_and_num_t(X it,int n):pos(it),num(n){}
-};
-
-template<typename X>
-class match_result_data_t : public match_result_data
-{
-public:
-	typename arr_1t<regex_pos_and_num_t<X> >::iterator it_beg,it_end;
 };
 
 
@@ -80,11 +44,9 @@ public:
 		int n_pos_seqpos;
 	};
 
-
-
 	bool not_finished(regex_state& state)
 	{
-		if(state.curp!=NULL) return true;	
+		if(state.curp!=NULL) return true;
 		if(state.ipos!=it_end && !flags.get(Regex::FLAG_RE_PARTITIAL))
 		{
 			static regex_item item(regex_item::ITEM_TRY_FALLBACK);
@@ -127,13 +89,13 @@ public:
 	void seqenter(regex_state& state)
 	{
 		state.n_pos_seqpos++;
-		stkSeqpos.push_back(regex_iterator_and_num(state.ipos, static_cast<regex_item_seq*>(state.curp)->index));	
+		stkSeqpos.push_back(regex_iterator_and_num(state.ipos, static_cast<regex_item_seq*>(state.curp)->index));
 	}
 
 	void seqleave(regex_state& state)
 	{
 		state.n_pos_seqpos++;
-		stkSeqpos.push_back(regex_iterator_and_num(state.ipos,-1));		
+		stkSeqpos.push_back(regex_iterator_and_num(state.ipos,-1));
 	}
 
 	void fallback(regex_state& state)
@@ -141,7 +103,7 @@ public:
 		stkSeqpos.resize(state.n_pos_seqpos);
 	}
 
-	void update_match(Match& res);
+	void update_match(arr_1t<Match::item_array>& res);
 };
 
 class regex_policy_char_recursive : public regex_policy_char_match
@@ -194,7 +156,7 @@ public:
 	{
 		state.n_seq_index=curp_stack.back().n_seq_shift+static_cast<regex_item_seq*>(state.curp)->index;
 		state.n_pos_seqpos++;
-		stkSeqpos.push_back(regex_iterator_and_num(state.ipos, state.n_seq_index));	
+		stkSeqpos.push_back(regex_iterator_and_num(state.ipos, state.n_seq_index));
 	}
 
 	void init_state(regex_state& state,iterator& it,regex_item* sq)
@@ -236,6 +198,11 @@ public:
 	typedef typename P::iterator iterator;
 	typedef typename P::regex_state regex_state;
 	typedef typename P::regex_iterator_and_num regex_iterator_and_num;
+
+	using P::flags;
+	using P::it_beg;
+	using P::it_end;
+	using P::it_cur;
 
 
 	bool execute(regex_item_root* seq,iterator t1,iterator t2,bool match_all);

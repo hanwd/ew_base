@@ -3,9 +3,11 @@
 
 #include "ewa_base/config.h"
 #include "ewa_base/basic/hashing.h"
+#include "ewa_base/basic/platform.h"
 #include "ewa_base/basic/string_detail.h"
 #include "ewa_base/collection/arr_1t.h"
 #include "ewa_base/memory/allocator.h"
+#include "ewa_base/basic/object.h"
 
 #ifdef _MSC_VER
 #pragma warning(disable:4307)
@@ -152,7 +154,7 @@ template<unsigned N>
 class lkt_slash
 {
 public:
-	static const unsigned value = 
+	static const unsigned value =
 		N=='t'?'\t':
 		N=='n'?'\n':
 		N=='r'?'\r':

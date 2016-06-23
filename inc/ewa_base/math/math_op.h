@@ -3,10 +3,13 @@
 #define __H_EW_MATH_MATH_OP__
 
 #include "ewa_base/math/tiny_cpx.h"
-#include "ewa_base/scripting/callable_data.h"
-#include "ewa_base/scripting/callable_class.h"
+#include "ewa_base/collection.h"
+
+//#include "ewa_base/scripting/callable_data.h"
+//#include "ewa_base/scripting/callable_class.h"
 
 EW_ENTER
+
 
 
 class DLLIMPEXP_EWA_BASE op_info
@@ -21,6 +24,7 @@ public:
 	int flag;
 };
 
+class DLLIMPEXP_EWA_BASE Variant;
 
 struct DLLIMPEXP_EWA_BASE pl_base0
 {
@@ -402,7 +406,7 @@ struct DLLIMPEXP_EWA_BASE pl_base2_mat : public pl_base2
 
 	template<typename T1,typename T2>
 	struct rebind : public arr_promote<T1,T2>{};
-		
+
 };
 
 struct DLLIMPEXP_EWA_BASE pl_add : public pl_base2_num
@@ -444,18 +448,18 @@ struct DLLIMPEXP_EWA_BASE pl_mat_mul : public pl_base2_mat
 	template<typename T1,typename T2>
 	static typename rebind<arr_xt<T1>,T2>::type g(const arr_xt<T1>& v1,const T2& v2)
 	{
-		typedef rebind<T1,T2>::type type;
+		typedef typename rebind<T1,T2>::type type;
 		arr_xt<type> result;
 		size_t sz=v1.size();
 		result.resize(v1.size_ptr(),sz);
 		for(size_t i=0;i<sz;i++) result[i]=v1[i]*v2;
 		return EW_MOVE(result);
-		
+
 	}
 	template<typename T1,typename T2>
 	static typename rebind<T1,arr_xt<T2> >::type g(const T1& v1,const arr_xt<T2>& v2)
 	{
-		typedef rebind<T1,T2>::type type;
+		typedef typename rebind<T1,T2>::type type;
 		arr_xt<type> result;
 		size_t sz=v2.size();
 		result.resize(v2.size_ptr(),sz);
@@ -466,7 +470,7 @@ struct DLLIMPEXP_EWA_BASE pl_mat_mul : public pl_base2_mat
 	template<typename T1,typename T2>
 	static typename rebind<arr_xt<T1>,arr_xt<T2> >::type g(const arr_xt<T1>& v1,const arr_xt<T2>& v2)
 	{
-		typedef rebind<T1,T2>::type type;
+		typedef typename rebind<T1,T2>::type type;
 		arr_xt<type> result;
 
 		const arr_xt_dims& s1=v1.size_ptr();
@@ -517,18 +521,18 @@ struct DLLIMPEXP_EWA_BASE pl_mat_div : public pl_base2_mat
 	template<typename T1,typename T2>
 	static typename rebind<arr_xt<T1>,T2>::type g(const arr_xt<T1>& v1,const T2& v2)
 	{
-		typedef rebind<T1,T2>::type type;
+		typedef typename rebind<T1,T2>::type type;
 		arr_xt<type> result;
 		size_t sz=v1.size();
 		result.resize(v1.size_ptr(),sz);
 		for(size_t i=0;i<sz;i++) result[i]=v1[i]/v2;
 		return EW_MOVE(result);
-		
+
 	}
 	template<typename T1,typename T2>
 	static typename rebind<T1,arr_xt<T2> >::type g(const T1& v1,const arr_xt<T2>& v2)
 	{
-		typedef rebind<T1,T2>::type type;
+		typedef typename rebind<T1,T2>::type type;
 		arr_xt<type> result;
 		Exception::XError("matrix_div_not_implement");
 		return EW_MOVE(result);
@@ -537,7 +541,7 @@ struct DLLIMPEXP_EWA_BASE pl_mat_div : public pl_base2_mat
 	template<typename T1,typename T2>
 	static typename rebind<arr_xt<T1>,arr_xt<T2> >::type g(const arr_xt<T1>& v1,const arr_xt<T2>& v2)
 	{
-		typedef rebind<T1,T2>::type type;
+		typedef typename rebind<T1,T2>::type type;
 		arr_xt<type> result;
 		Exception::XError("matrix_div_not_implement");
 		return EW_MOVE(result);
@@ -598,16 +602,16 @@ struct DLLIMPEXP_EWA_BASE pl_mat_pow : public pl_base2_mat
 	template<typename T1,typename T2>
 	static typename rebind<arr_xt<T1>,T2>::type g(const arr_xt<T1>& v1,const T2& v2)
 	{
-		typedef rebind<T1,T2>::type type;
+		typedef typename rebind<T1,T2>::type type;
 		arr_xt<type> result;
 		Exception::XError("matrix_pow_not_implement");
 		return EW_MOVE(result);
-		
+
 	}
 	template<typename T1,typename T2>
 	static typename rebind<T1,arr_xt<T2> >::type g(const T1& v1,const arr_xt<T2>& v2)
 	{
-		typedef rebind<T1,T2>::type type;
+		typedef typename rebind<T1,T2>::type type;
 		arr_xt<type> result;
 		Exception::XError("matrix_pow_not_implement");
 		return EW_MOVE(result);
@@ -616,9 +620,9 @@ struct DLLIMPEXP_EWA_BASE pl_mat_pow : public pl_base2_mat
 	template<typename T1,typename T2>
 	static typename rebind<arr_xt<T1>,arr_xt<T2> >::type g(const arr_xt<T1>& v1,const arr_xt<T2>& v2)
 	{
-		typedef rebind<T1,T2>::type type;
+		typedef typename rebind<T1,T2>::type type;
 		arr_xt<type> result;
-		Exception::XError("matrix_pow_not_implement");		
+		Exception::XError("matrix_pow_not_implement");
 		return EW_MOVE(result);
 	}
 

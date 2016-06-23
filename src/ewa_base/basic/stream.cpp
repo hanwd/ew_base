@@ -1,4 +1,10 @@
 #include "ewa_base/basic/stream.h"
+#include "ewa_base/basic/system.h"
+#include "ewa_base/basic/stringbuffer.h"
+#include "ewa_base/basic/object_ex.h"
+#include "ewa_base/net/socket.h"
+#include "ewa_base/serialization/serializer_stream.h"
+#include "ewa_base/serialization/serializer_socket.h"
 
 EW_ENTER
 
@@ -187,7 +193,7 @@ SerializerWriter& SerializerWriter::handle_tail()
 	if(seekp(0,SEEKTYPE_BEG)==0)
 	{
 		header.update();
-		send_checked((char*)&header,sizeof(header));		
+		send_checked((char*)&header,sizeof(header));
 	}
 
 	return *this;
@@ -201,10 +207,10 @@ bool SerializerReader::recv_all(char* data,int size)
 		if(n==size) return true;
 		if(n<=0)
 		{
-			return false;	
+			return false;
 		}
 		size-=n;
-		data+=n;	
+		data+=n;
 	}
 	return true;
 }
@@ -217,10 +223,10 @@ void SerializerReader::recv_checked(char* data,int size)
 		if(n==size) return;
 		if(n<=0)
 		{
-			errstr("invalid received size");		
+			errstr("invalid received size");
 		}
 		size-=n;
-		data+=n;	
+		data+=n;
 	}
 }
 
@@ -287,7 +293,7 @@ String SerializerReader::object_type(const String& )
 String SerializerWriter::object_type(const String& name)
 {
 	uint32_t sz(name.size());
-	send_checked((char*)&sz,4);	
+	send_checked((char*)&sz,4);
 	send_checked(name.c_str(),sz);
 	return name;
 }
@@ -377,7 +383,7 @@ ObjectData* CachedObjectManager::load_ptr(SerializerReader& ar,int32_t val)
 	PtrLoader &loader(aLoader[val]);
 	if(!loader.m_ptr)
 	{
-		loader.m_ptr.reset(ObjectCreator::current().CreateT<ObjectData>(name));	
+		loader.m_ptr.reset(ObjectCreator::current().CreateT<ObjectData>(name));
 		aObject[loader.m_ptr.get()]=val;
 		pendings.append(val);
 	}
@@ -422,15 +428,15 @@ void CachedObjectManager::handle_pending(SerializerWriter& ar)
 		for(size_t i=0;i<tmp.size();i++)
 		{
 			int32_t val=tmp[i];
-			if(aLoader[val].flags.get(PtrLoader::IS_LOADED)) continue;	
+			if(aLoader[val].flags.get(PtrLoader::IS_LOADED)) continue;
 			aLoader[val].flags.add(PtrLoader::IS_LOADED);
 			aOffset[val].lo=ar.tellp();
 			ar.object_type(aLoader[val].m_ptr->GetObjectName());
 			aLoader[val].m_ptr->Serialize(ar);
-			aOffset[val].hi=ar.tellp();			
+			aOffset[val].hi=ar.tellp();
 		}
 	}
-	
+
 }
 
 void CachedObjectManager::handle_pending(SerializerReader& ar,bool use_seek)
@@ -446,7 +452,7 @@ void CachedObjectManager::handle_pending(SerializerReader& ar,bool use_seek)
 			PtrLoader& loader(aLoader[val]);
 
 			if(loader.flags.get(PtrLoader::IS_LOADED)) continue;
-	
+
 			loader.flags.add(PtrLoader::IS_LOADED);
 
 			if(use_seek && !ar.seekg(aOffset[val].lo,SEEKTYPE_BEG))
@@ -465,7 +471,7 @@ void CachedObjectManager::handle_pending(SerializerReader& ar,bool use_seek)
 	}
 
 
-	
+
 }
 
 ObjectData* CachedObjectManager::read_object(SerializerReader& ar,int val)
@@ -490,7 +496,7 @@ ObjectData* CachedObjectManager::read_object(SerializerReader& ar,int val)
 		{
 			ar.errstr("seek error");
 			return NULL;
-		}		
+		}
 		load_ptr(ar,val);
 	}
 
@@ -524,7 +530,7 @@ int64_t SerializerReader::sizeg()
 	return z1;
 }
 
-int64_t SerializerWriter::sizep()	
+int64_t SerializerWriter::sizep()
 {
 	int64_t sz=tellp();
 	if(sz<0) return -1;
@@ -539,7 +545,7 @@ int64_t SerializerWriter::sizep()
 }
 
 
-int64_t SerializerDuplex::size()	
+int64_t SerializerDuplex::size()
 {
 	int64_t sz=tell();
 	if(sz<0) return -1;
@@ -598,7 +604,7 @@ bool Stream::write_to_file(const String& fp,int flag)
 		{
 			return true;
 		}
-		
+
 		break;
 	}
 
@@ -663,7 +669,7 @@ bool Stream::write_to_buffer(StringBuffer<char>& sb)
 			{
 				return false;
 			}
-		}	
+		}
 	}
 	catch(std::exception& e)
 	{
@@ -703,7 +709,7 @@ bool Stream::read_from_file(const String& fp)
 		{
 			return true;
 		}
-		
+
 		break;
 	}
 
@@ -750,7 +756,7 @@ bool Stream::read_from_buffer(StringBuffer<char>& sb)
 		return false;
 	}
 
-	return hWriter.get()->send_all(sb.data(),sb.size());	
+	return hWriter.get()->send_all(sb.data(),sb.size());
 }
 
 
@@ -804,7 +810,7 @@ void Stream::assign_reader(SharedPtrT<SerializerReader> p1)
 
 void Stream::assign_writer(SharedPtrT<SerializerWriter> p1)
 {
-	hWriter=p1;	
+	hWriter=p1;
 }
 
 

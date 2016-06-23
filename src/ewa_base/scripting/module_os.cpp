@@ -1,6 +1,8 @@
 #include "ewa_base/scripting.h"
 #include "ewa_base/threading/thread.h"
 
+#include <cstdio>
+
 EW_ENTER
 
 
@@ -274,39 +276,39 @@ CallableWrapT<TimePoint>::CallableWrapT()
 	value=Clock::now();
 }
 
-bool CallableWrapT<TimePoint>::ToValue(String& v,int) const 
+bool CallableWrapT<TimePoint>::ToValue(String& v,int) const
 {
 	TimeDetail td(value);
 	v=td.Format();
 	return true;
 }
 
-bool CallableWrapT<TimePoint>::ToValue(int64_t& v) const 
+bool CallableWrapT<TimePoint>::ToValue(int64_t& v) const
 {
 	v=value.val;
 	return true;
 }
 
-bool CallableWrapT<TimePoint>::ToValue(double& v) const 
+bool CallableWrapT<TimePoint>::ToValue(double& v) const
 {
 	v=double(value.val)/(TimeSpan::Seconds(1).val);
 	return true;
 }
 
 
-bool CallableWrapT<TimeSpan>::ToValue(int64_t& v) const 
+bool CallableWrapT<TimeSpan>::ToValue(int64_t& v) const
 {
 	v=value/TimeSpan::Seconds(1);
 	return true;
 }
 
-bool CallableWrapT<TimeSpan>::ToValue(double& v) const 
+bool CallableWrapT<TimeSpan>::ToValue(double& v) const
 {
 	v=value/TimeSpan::Seconds(1);
 	return true;
 }
 
-bool CallableWrapT<TimeSpan>::ToValue(String& v,int) const 
+bool CallableWrapT<TimeSpan>::ToValue(String& v,int) const
 {
 	double s=value/TimeSpan::Seconds(1);
 	double k=s<0?-s:+s;
@@ -496,7 +498,7 @@ public:
 	virtual int __fun_call(Executor& ewsl, int pm)
 	{
 		ewsl.check_pmc(this, pm, 1);
-		String& newcwd=ewsl.ci0.nbx[1].ref<String>();		
+		String& newcwd=ewsl.ci0.nbx[1].ref<String>();
 		ewsl.set_cwd(System::MakePath(newcwd,ewsl.get_cwd()));
 		return 1;
 	}
@@ -518,7 +520,7 @@ public:
 		ewsl.check_pmc(this, pm, 0,1);
 		String dir;
 		if(pm==1) dir=ewsl.ci0.nbx[1].ref<String>();
-		
+
 		dir=System::MakePath(dir,ewsl.get_cwd());
 
 		arr_1t<FileItem> files=FSLocal::current().FindFilesEx(dir);
@@ -592,7 +594,7 @@ public:
 		ewsl.check_pmc(this,pm,1);
 		String fp=variant_cast<String>(ewsl.ci0.nbx[1]);
 		return ERRNO_HandleResult(ewsl,FSLocal::current().Remove(System::MakePath(fp,ewsl.get_cwd())));
-		
+
 	}
 	DECLARE_OBJECT_CACHED_INFO(CallableFunctionRemove, ObjectInfo);
 };
@@ -631,7 +633,7 @@ public:
 		char buf[1024*4];
 		String fp=::tmpnam(buf);
 		ewsl.ci0.nbx[1].reset(fp);
-		return 1;		
+		return 1;
 	}
 	DECLARE_OBJECT_CACHED_INFO(CallableFunctionTmpname, ObjectInfo);
 };
@@ -668,7 +670,7 @@ public:
 			item["flag"].reset(items[i].flags.val());
 		}
 
-		return 1;	
+		return 1;
 	}
 	DECLARE_OBJECT_CACHED_INFO(CallableFunctionFiles, ObjectInfo);
 
@@ -689,7 +691,7 @@ public:
 		ewsl.check_pmc(this,pm,1);
 		String fp=variant_cast<String>(ewsl.ci0.nbx[1]);
 		ewsl.ci0.nbx[1].reset(FSLocal::current().Mkdir(System::MakePath(fp,ewsl.get_cwd())));
-		return 1;	
+		return 1;
 	}
 	DECLARE_OBJECT_CACHED_INFO(CallableFunctionMkdir, ObjectInfo);
 };
@@ -706,7 +708,7 @@ public:
 		ewsl.check_pmc(this,pm,1);
 		String fp=variant_cast<String>(ewsl.ci0.nbx[1]);
 		ewsl.ci0.nbx[1].reset(FSLocal::current().Rmdir(System::MakePath(fp,ewsl.get_cwd()),0));
-		return 1;	
+		return 1;
 	}
 	DECLARE_OBJECT_CACHED_INFO(CallableFunctionRmdir, ObjectInfo);
 };

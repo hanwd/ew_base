@@ -15,6 +15,7 @@ public:
 
 	typedef typename P::node_type node_type;
 	typedef typename P::value_proxy value_proxy;
+	typedef typename P::value_type value_type;
 
 	bst_iterator_base(node_type* p,node_type** r):m_pNode(p),m_ppRoot(r) {}
 
@@ -116,6 +117,7 @@ public:
 	typedef bst_iterator_base<P> basetype;
 	typedef typename P::node_type node_type;
 	typedef typename P::value_proxy value_proxy;
+	typedef typename P::value_type value_type;
 
 	bst_iterator():basetype(NULL,NULL) {}
 	bst_iterator(node_type* p,node_type** r):basetype(p,r) {}
@@ -175,6 +177,7 @@ public:
 	typedef bst_iterator<P,D,true> basetype;
 	typedef typename P::node_type node_type;
 	typedef typename P::value_proxy value_proxy;
+	typedef typename P::value_type value_type;
 
 	bst_iterator() {}
 	bst_iterator(node_type* p,node_type** r):basetype(p,r) {}

@@ -165,7 +165,7 @@ public:
 	{
 		if(!pHeader)
 		{
-			System::LogTrace("pHeader==NULL while calling LockFreeQueue::flags");
+			//System::LogTrace("pHeader==NULL while calling LockFreeQueue::flags");
 			static BitFlags f;
 			return f;
 		}
@@ -391,7 +391,7 @@ T LockFreeQueue<T,P>::getq()
 
 		if(pHeader->flags.get(QUEUE_TIMEOUT)) // timeout
 		{
-			System::LogTrace("getq key timeout!");
+			//System::LogTrace("getq key timeout!");
 			break;
 		}
 	}
@@ -441,7 +441,7 @@ int LockFreeQueue<T,P>::getq(T* p,int n)
 
 		if(pHeader->flags.get(QUEUE_TIMEOUT)) // timeout
 		{
-			System::LogTrace("getq key timeout!");
+			//System::LogTrace("getq key timeout!");
 			break;
 		}
 	}
@@ -510,7 +510,7 @@ int LockFreeQueue<T,P>::peek(T* p,int n)
 
 		if(pHeader->flags.get(QUEUE_TIMEOUT)) // timeout
 		{
-			System::LogTrace("getq key timeout!");
+			//System::LogTrace("getq key timeout!");
 			break;
 		}
 	}
@@ -579,7 +579,7 @@ bool LockFreeQueue<T,P>::putq(T v)
 
 		if(pHeader->flags.get(QUEUE_TIMEOUT))
 		{
-			System::LogTrace("getq key timeout!");
+			//System::LogTrace("getq key timeout!");
 			break;
 		}
 	}
@@ -628,7 +628,7 @@ int LockFreeQueue<T,P>::putq(T* p,int n)
 
 		if(pHeader->flags.get(QUEUE_TIMEOUT))
 		{
-			System::LogTrace("getq key timeout!");
+			//System::LogTrace("getq key timeout!");
 			break;
 		}
 	}

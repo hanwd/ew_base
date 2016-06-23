@@ -9,7 +9,7 @@
 #include "ewa_base/basic/codecvt.h"
 #include "ewa_base/basic/fso.h"
 #include "ewa_base/basic/language.h"
-
+#include "ewa_base/util/strlib.h"
 #include "system_data.h"
 
 
@@ -368,9 +368,9 @@ arr_1t<String> Language::GetLanguages()
 		if(!items[i].flags.get(FileItem::IS_FOLDER)) continue;
 		if(items[i].filename.c_str()[0]=='.') continue;
 		if(string_to_lower(items[i].filename)=="english") continue;
-		langs.push_back(items[i].filename);		
+		langs.push_back(items[i].filename);
 	}
-	
+
 	return langs;
 }
 

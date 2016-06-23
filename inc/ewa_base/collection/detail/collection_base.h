@@ -4,11 +4,14 @@
 
 
 #include "ewa_base/config.h"
-#include "ewa_base/basic/hashing.h"
-#include "ewa_base/memory/allocator.h"
-#include "ewa_base/memory/mempool.h"
+#include "ewa_base/basic/exception.h"
+
+//#include "ewa_base/basic/hashing.h"
+//#include "ewa_base/memory/allocator.h"
+//#include "ewa_base/memory/mempool.h"
 
 #include <memory>
+#include <algorithm>
 
 EW_ENTER
 

@@ -379,7 +379,7 @@ void bst_tree<P,A>::swap(bst_tree& o)
 {
 	std::swap(m_pRoot,o.m_pRoot);
 	std::swap(m_nSize,o.m_nSize);
-	_swap_allocator(o);
+	this->_swap_allocator(o);
 }
 
 template<typename P,typename A>

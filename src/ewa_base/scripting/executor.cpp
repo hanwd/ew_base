@@ -8,6 +8,8 @@
 #include "ewa_base/scripting/executor.h"
 #include "ewa_base/scripting/codegen.h"
 
+#include "ewa_base/scripting/pl_dispatch.h"
+
 #include "ewa_base/util/strlib.h"
 
 EW_ENTER
@@ -297,10 +299,10 @@ void Executor::_vm_handle_exception(std::exception &e)
 	StringBuffer<char> msg;
 
 	if(ExceptionEwsl* p=dynamic_cast<ExceptionEwsl*>(&e))
-	{		
+	{
 		ExceptionEwsl& v(*p);
 
-		msg<<"EWSL_Exception:";	
+		msg<<"EWSL_Exception:";
 		msg<<String::Format("%d param(s)",v.pmc);
 
 		for(int i=1;i<=v.pmc;i++)
@@ -317,7 +319,7 @@ void Executor::_vm_handle_exception(std::exception &e)
 	}
 	else
 	{
-		msg<<"CPP_Exception:" << e.what();	
+		msg<<"CPP_Exception:" << e.what();
 	}
 
 	while(1)
@@ -375,7 +377,7 @@ void Executor::_vm_handle_exception(std::exception &e)
 			break;
 		}
 
-		co_last=co_main;		
+		co_last=co_main;
 		Executor_swap_context(*this,1);
 	}
 
@@ -622,7 +624,7 @@ void Executor::_vm_run2(int k)
 			popq(ci0.sp1[cip->p1]);
 			break;
 		case XOP_SET_LOCAL_REF:
-			popq_ref(ci0.sp1[cip->p1]);			
+			popq_ref(ci0.sp1[cip->p1]);
 			break;
 		case XOP_SET_TABLE:
 			popq(tb1[variant_handler<String>::raw(ci0.dat[cip->p1])]);

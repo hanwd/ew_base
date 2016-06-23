@@ -55,7 +55,7 @@ bool Regex::execute(const String& s,Match* pres,bool match_mode)
 
 		if(!flag) return false;
 
-		impl.update_match(res);
+		impl.update_match(res.matchs);
 
 		return true;	
 	}
@@ -133,7 +133,7 @@ bool Match::search_next()
 
 	if(!flag) return false;
 
-	impl.update_match(*this);
+	impl.update_match(matchs);
 
 	return true;
 
@@ -210,7 +210,7 @@ bool RegexEx::execute(const String& s,Match* pres,bool match_mode)
 
 		if(!flag) return false;
 
-		impl.update_match(res);
+		impl.update_match(res.matchs);
 		return true;	
 	}
 	else

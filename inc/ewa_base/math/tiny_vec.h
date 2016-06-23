@@ -498,7 +498,7 @@ struct opx_scalar_vec
 };
 
 template<typename X,typename Y,int N>
-struct vec_promote : public opx_helper_promote<X,Y,cpx_promote,opx_scalar_vec<N>::rebind>{};
+struct vec_promote : public opx_helper_promote<X,Y,cpx_promote,opx_scalar_vec<N>::template rebind>{};
 
 template<typename T,int N> class hash_t<tiny_vec<T,N> > : public hash_pod<tiny_vec<T,N> > {};
 

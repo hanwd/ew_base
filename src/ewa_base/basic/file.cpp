@@ -1,4 +1,7 @@
 #include "ewa_base/basic/file.h"
+#include "ewa_base/basic/codecvt.h"
+#include "ewa_base/basic/system.h"
+
 #include <cstdio>
 
 #ifdef EW_WINDOWS

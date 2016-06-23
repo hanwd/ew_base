@@ -147,12 +147,12 @@ bool SessionServer::WaitForAccept()
 void SessionServer::OnRecvReady()
 {
 
-#ifndef _MSC_VER
+#ifndef EW_MSVC
 
 	for(;;)
 	{
 		sk_remote.sock.ensure(Socket::TCP);
-		if(!sk_local.sock.Accept(sk_remote.sock,sk_remote.peer))
+		if(!sk_local.sock.accept(sk_remote.sock,sk_remote.peer))
 		{
 			break;
 		}

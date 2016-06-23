@@ -128,7 +128,7 @@ int CallableWrapT<TimePoint>::__getindex(Executor& ewsl,const String& index)
 	}
 	else if(index=="month")
 	{
-		(*ewsl.ci1.nsp).reset(td.GetMonth());		
+		(*ewsl.ci1.nsp).reset(td.GetMonth());
 	}
 	else if(index=="day")
 	{
@@ -136,19 +136,19 @@ int CallableWrapT<TimePoint>::__getindex(Executor& ewsl,const String& index)
 	}
 	else if(index=="hour")
 	{
-		(*ewsl.ci1.nsp).reset(td.GetHour());		
+		(*ewsl.ci1.nsp).reset(td.GetHour());
 	}
 	else if(index=="minute")
 	{
-		(*ewsl.ci1.nsp).reset(td.GetMinute());		
+		(*ewsl.ci1.nsp).reset(td.GetMinute());
 	}
 	else if(index=="second")
 	{
-		(*ewsl.ci1.nsp).reset(td.GetSecond());		
+		(*ewsl.ci1.nsp).reset(td.GetSecond());
 	}
 	else if(index=="millisecond")
 	{
-		(*ewsl.ci1.nsp).reset(td.GetMilliSecond());		
+		(*ewsl.ci1.nsp).reset(td.GetMilliSecond());
 	}
 	else
 	{
@@ -198,10 +198,20 @@ int CallableWrapT<dcomplex>::__setindex(Executor& ewsl,const String& index)
 
 
 IMPLEMENT_OBJECT_INFO(CallableWrapT<bool>,ObjectInfo);
+
+
 IMPLEMENT_OBJECT_INFO(CallableWrapT<int64_t>,ObjectInfo);
+
+
 IMPLEMENT_OBJECT_INFO(CallableWrapT<double>,ObjectInfo);
+
+
 IMPLEMENT_OBJECT_INFO(CallableWrapT<String>,ObjectInfo);
+
+
 IMPLEMENT_OBJECT_INFO(CallableWrapT<dcomplex>,ObjectInfo);
+
+
 IMPLEMENT_OBJECT_INFO(CallableWrapT<ColonData>,ObjectInfo);
 
 EW_LEAVE

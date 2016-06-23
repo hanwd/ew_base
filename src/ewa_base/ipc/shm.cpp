@@ -1,6 +1,8 @@
 #include "ewa_base/ipc/shm.h"
 #include "ewa_base/basic/system.h"
+#include "ewa_base/basic/codecvt.h"
 #include "ewa_base/basic/file.h"
+
 
 #ifdef EW_WINDOWS
 #include <windows.h>

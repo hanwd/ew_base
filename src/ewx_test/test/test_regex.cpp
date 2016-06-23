@@ -46,6 +46,7 @@ void regex_test(const String& type)
 		TEST_ASSERT(P::regex_match("","a*"));
 		TEST_ASSERT(P::regex_match("a","a*"));
 		TEST_ASSERT(P::regex_match("aaa","a*"));
+		TEST_ASSERT(!P::regex_match("aaab","a*"));
 
 		TEST_ASSERT(!P::regex_match("","a+"));
 		TEST_ASSERT(P::regex_match("a","a+"));
@@ -72,7 +73,6 @@ void regex_test(const String& type)
 		TEST_ASSERT(P::regex_match("g","[^b-f]"));
 		TEST_ASSERT(!P::regex_match("b","[^b-f]"));
 
-
 		TEST_ASSERT(P::regex_match("a","a|b"));
 		TEST_ASSERT(P::regex_match("b","a|b"));
 		TEST_ASSERT(!P::regex_match("c","a|b"));
@@ -80,6 +80,7 @@ void regex_test(const String& type)
 		TEST_ASSERT(P::regex_match("abaaacaabbbaababcababaaacabbb","((b|(a|b)*)*c*(a|b)*)*"));
 	
 		TEST_ASSERT(P::regex_match("dcbaadadced","(a*b*c*d*e*)*"));
+		TEST_ASSERT(P::regex_match("dcbaadadced","(a*|b*|c*|d*|e*)*"));
 		TEST_ASSERT(P::regex_match("adsdfskdf","\\w+"));
 		TEST_ASSERT(P::regex_match("adsd fskdf","\\w+\\s+\\w+"));
 	}
@@ -93,6 +94,8 @@ void regex_test(const String& type)
 TEST_DEFINE(TEST_Regex)
 {
 	regex_test<EW_Regex>("ew::Regex");
+	//regex_test<StdRegex>("std::regex");
+	//system("pause");
 }
 
 
@@ -101,6 +104,14 @@ TEST_DEFINE(TEST_Regex2)
 
 	Match res;
 	Regex re;
+
+	re.assign("a|(ab)");
+	TEST_ASSERT(re.match("ab"));
+
+	re.assign("((.*)$)*",Regex::FLAG_RE_MULTILINE);
+	TEST_ASSERT(re.match("abc\r\ncde",res));
+	TEST_ASSERT(re.match("abc sdfsdf\ncde",res));
+	TEST_ASSERT(re.match("abc sdfsdf\ncde sdfsf\n",res));
 
 	re.assign("abc",Regex::FLAG_RE_IGNORECASE);
 	TEST_ASSERT(re.match("AbC"));

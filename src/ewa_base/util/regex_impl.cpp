@@ -44,17 +44,13 @@ bool regex_impl<X>::execute(regex_item_root* seq,iterator t1,iterator t2,bool ma
 template<typename X>
 bool regex_impl<X>::fallback(regex_state& state)
 {
-	if(arrStates.empty())
-	{
-		return false;
-	}
 
 	state=arrStates.back();
-	stkRepeat.resize(state.n_pos_repeat);
-
-	X::fallback(state);
-
+	if(!state.curp) return false;
 	arrStates.pop_back();
+
+	stkRepeat.resize(state.n_pos_repeat);
+	X::fallback(state);
 	return true;
 }
 
@@ -62,14 +58,12 @@ template<typename X>
 bool regex_impl<X>::match_real(iterator& it,regex_item* sq)
 {
 
-	arrStates.clear();
+	regex_state state;
+	X::init_state(state,it,sq);
+
+	arrStates.resize(1);
 	stkRepeat.clear();
 	stkSeqpos.clear();
-
-
-	regex_state state;
-
-	X::init_state(state,it,sq);
 	
 	while(X::not_finished(state))
 	{
@@ -333,8 +327,16 @@ bool regex_impl<X>::match_real(iterator& it,regex_item* sq)
 				continue;
 			}
 		case regex_item::ITEM_TRY_FALLBACK:
-			if(!fallback(state)) return false;
-			continue;
+			{
+				if(state.n_pos_repeat<arrStates.back().n_pos_repeat)
+				{
+					return false;
+				}
+				if(!fallback(state)) return false;
+				continue;	
+		
+			}
+
 		default:
 			return false;				
 		}

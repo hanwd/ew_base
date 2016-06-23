@@ -10,7 +10,15 @@ class CallableWrapT<Regex> : public CallableObject
 public:
 
 	int __getindex(Executor&,const String&);
+
 	Regex value;
+	String sexpr;
+
+	virtual bool ToValue(String& s,int n=0) const
+	{
+		s="regex("+sexpr+")";
+		return true;
+	}
 
 	DECLARE_OBJECT_INFO(CallableWrapT<Regex>,ObjectInfo)
 };
@@ -47,6 +55,12 @@ public:
 		}
 
 		return 1;
+	}
+
+	virtual bool ToValue(String& s,int n=0) const
+	{
+		s="match("+String::Format("size:%d",(int)value.size())+")";
+		return true;
 	}
 
 	DECLARE_OBJECT_INFO(CallableWrapT<Match>,ObjectInfo)
@@ -173,22 +187,44 @@ int CallableWrapT<Regex>::__getindex(Executor& ewsl,const String& id)
 }
 
 
-class CallableMetatableRegex : public CallableObject
+
+class CallableRegexCompile : public CallableFunction
 {
 public:
 
 	int __fun_call(Executor& ewsl,int pm)
 	{
 		ewsl.check_pmc(this,pm,1,2);
-		String str=variant_cast<String>(ewsl.ci0.nbx[1]);
+
 		DataPtrT<CallableWrapT<Regex> > preg(new CallableWrapT<Regex> );
+		preg->sexpr=variant_cast<String>(ewsl.ci0.nbx[1]);
+
 		int flag=0;
 		if(pm==2) flag=variant_cast<int>(ewsl.ci0.nbx[2]);
 
-		preg->value.assign(str,flag);
+		preg->value.assign(preg->sexpr,flag);
 		ewsl.ci0.nbx[1].reset(preg);
 		return 1;
-	};
+	}	
+
+	DECLARE_OBJECT_CACHED_INFO(CallableRegexCompile,ObjectInfo)
+};
+
+IMPLEMENT_OBJECT_INFO(CallableRegexCompile,ObjectInfo)
+
+class CallableMetatableRegex : public CallableMetatable
+{
+public:
+
+	CallableMetatableRegex()
+	{
+		value["compile"].reset(new CallableRegexCompile);
+		value["FLAG_RE_IGNORECASE"].reset(Regex::FLAG_RE_IGNORECASE);
+		value["FLAG_RE_UNICODE"].reset(Regex::FLAG_RE_UNICODE);
+		value["FLAG_RE_MULTILINE"].reset(Regex::FLAG_RE_MULTILINE);
+		value["FLAG_RE_DOTALL"].reset(Regex::FLAG_RE_DOTALL);
+		value["FLAG_RE_PARTITIAL"].reset(Regex::FLAG_RE_PARTITIAL);
+	}
 
 	DECLARE_OBJECT_CACHED_INFO(CallableMetatableRegex,ObjectInfo)
 };
@@ -198,7 +234,6 @@ IMPLEMENT_OBJECT_INFO(CallableMetatableRegex,ObjectInfo)
 void init_module_regex()
 {
 	CG_GGVar& gi(CG_GGVar::current());
-
 	gi.add(new CallableMetatableRegex,"regex");
 
 

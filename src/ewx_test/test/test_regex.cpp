@@ -10,6 +10,18 @@
 using namespace ew;
 
 
+
+
+class EW_Regex
+{
+public:
+	static bool regex_match(const char* s,const char* p)
+	{
+		Regex re(p);
+		return re.match(s);
+	}
+};
+
 class StdRegex
 {
 public:
@@ -21,23 +33,12 @@ public:
 
 };
 
-class MyRegex
-{
-public:
-	static bool regex_match(const char* s,const char* p)
-	{
-		Regex re(p);
-		return re.match(s);
-	}
-};
-
-
 template<typename P>
 void regex_test(const String& type)
 {	
 	TimePoint p1=Clock::now();
 
-	for(int i=0;i<500;i++)
+	//for(int i=0;i<500;i++)
 	{
 		TEST_ASSERT(P::regex_match("a","a"));
 		TEST_ASSERT(P::regex_match("abc","abc"));
@@ -81,10 +82,7 @@ void regex_test(const String& type)
 		TEST_ASSERT(P::regex_match("dcbaadadced","(a*b*c*d*e*)*"));
 		TEST_ASSERT(P::regex_match("adsdfskdf","\\w+"));
 		TEST_ASSERT(P::regex_match("adsd fskdf","\\w+\\s+\\w+"));
-
-
 	}
-
 
 	TimePoint p2=Clock::now();
 	this_logger().LogMessage("%s : %g ms",type,(p2-p1)/TimeSpan::MilliSeconds(1));
@@ -92,11 +90,15 @@ void regex_test(const String& type)
 }
 
 
+TEST_DEFINE(TEST_Regex)
+{
+	regex_test<EW_Regex>("ew::Regex");
+}
 
-void test_ews()
+
+TEST_DEFINE(TEST_Regex2)
 {
 
-	bool flag;
 	Match res;
 	Regex re;
 
@@ -117,7 +119,6 @@ void test_ews()
 	{
 		for(size_t i=0;i<9;i++)
 		{
-			Console::WriteLine(res[2][i]);
 			TEST_ASSERT(res[2][i]==words[i]);
 		}
 	}
@@ -134,58 +135,53 @@ void test_ews()
 	}
 	re.assign("(\\w+) (\\w+)");	
 	TEST_ASSERT(ew::regex_replace("hello world",re,"$2 $1")=="world hello");
+
+	RegexEx re2;
+	re2.prepare("id","[a-zA-z][a-zA-z0-9]*");
+	re2.prepare("value","`double`|`int`");
+	re2.prepare("sign","[\\+\\-]");
+	re2.prepare("int","`sign`?0|([1-9][0-9]*)");
+	re2.prepare("double","`int`?\\.[0-9]*([eEdD]`int`)?");
+	re2.prepare("expr","`id`\\=`value`");
+
+	re2.assign("`id`");
+	TEST_ASSERT(re2.match("a"));
+	TEST_ASSERT(re2.match("abc9e"));
+
+	re2.assign("`sign`");
+	TEST_ASSERT(re2.match("+"));
+	TEST_ASSERT(re2.match("-"));
+
+	re2.assign("`int`");
+	TEST_ASSERT(re2.match("0"));
+	TEST_ASSERT(re2.match("12"));
+	TEST_ASSERT(re2.match("+134"));
+	TEST_ASSERT(re2.match("-134"));
+
+	re2.assign("`double`");
+	TEST_ASSERT(re2.match(".123"));
+	TEST_ASSERT(re2.match("0.3"));
+	TEST_ASSERT(re2.match("1.3e12"));
+	TEST_ASSERT(re2.match("-1.34e-3"));
+
+	re2.assign("`value`");
+	TEST_ASSERT(re2.match(".123"));
+	TEST_ASSERT(re2.match("0.3"));
+	TEST_ASSERT(re2.match("1.3e12"));
+	TEST_ASSERT(re2.match("-1.34e-3"));
+	TEST_ASSERT(re2.match("0"));
+	TEST_ASSERT(re2.match("12"));
+	TEST_ASSERT(re2.match("+134"));
+	TEST_ASSERT(re2.match("-134"));
+
+	re2.assign("`expr`");
+	TEST_ASSERT(re2.match("a=0"));
+	TEST_ASSERT(re2.match("a=11"));
+	TEST_ASSERT(re2.match("a=+11"));
+	TEST_ASSERT(re2.match("a=-11"));
+	TEST_ASSERT(!re2.match("a=01"));
+
+	TEST_ASSERT(re2.match("abc=-1.32e-3"));
+	TEST_ASSERT(re2.match("A=.32E-3"));
+	TEST_ASSERT(!re2.match("9a=-1.32e-3"));	
 }
-
-void test_std()
-{
-	::clock_t t1=::clock();
-	bool flag=true;
-	try
-	{
-		std::regex re("((\\w+)\\s*)+");
-		flag=std::regex_match("The quick brown fox jumps over the lazy dog",re);
-	}
-	catch(std::exception& e)
-	{
-		::printf("%s\n",e.what());
-	}
-	::clock_t t2=::clock();
-	::printf("%g s\n",0.001*double(t2-t1));
-	system("pause");
-}
-
-TEST_DEFINE(TEST_Regex)
-{
-	//test_std();
-	//test_ews();
-
-	//regex_impl<regex_policy_char_recursive> impl;
-	//RegexParser parser(0);
-
-	//impl.item_map["id"]=parser.parse("a");
-	//impl.item_map["equal"]=parser.parse("\\=");
-	//impl.item_map["expr"]=parser.parse("`id``equal``id`");
-	//impl.item_map["stmt"]=parser.parse("`id`*\\;");
-	//impl.item_map["stmt_seq"]=parser.parse("`stmt`*");
-	//impl.item_map["block"]=parser.parse("\\{`stmt_seq`\\}");
-
-	//String sss=";;";
-	//const char* p1=sss.c_str();
-	//const char* p2=p1+sss.length();
-
-	//Regex re;
-	//re.assign("(a*\\;)*");
-	//bool flag1=re.match(sss);
-
-	//::printf("----------\n");
-
-	//bool flag2=impl.match(static_cast<regex_item_root*>(impl.item_map["stmt_seq"]),p1,p2);
-
-
-
-	regex_test<MyRegex>("ew::Regex");
-	regex_test<StdRegex>("std::regex");
-	system("pause");
-}
-
-

@@ -4,6 +4,7 @@
 #define __H_EW_UTIL_REGEX_IMPL__
 
 #include "ewa_base/basic.h"
+#include "ewa_base/util/regex.h"
 #include "regex_parser.h"
 
 EW_ENTER
@@ -14,7 +15,10 @@ class regex_policy_char
 {
 public:
 	typedef const char* iterator;
-	static const bool flag_store_result=true;
+
+	iterator it_beg,it_end,it_cur;
+
+	BitFlags flags;
 
 	class regex_state
 	{
@@ -37,9 +41,17 @@ public:
 		regex_iterator_and_num(iterator it,int n):pos(it),num(n){}
 	};
 
-	static bool not_finished(regex_state& state)
+	bool not_finished(regex_state& state)
 	{
-		return state.curp!=NULL;	
+		if(state.curp!=NULL) return true;	
+		if(state.ipos!=it_end && !flags.get(Regex::FLAG_RE_PARTITIAL))
+		{
+			static regex_item item(regex_item::ITEM_TRY_FALLBACK);
+			state.curp=&item;
+			return true;
+		}
+
+		return false;
 	}
 
 	static void init_state(regex_state& state,iterator& it,regex_item* sq)
@@ -111,8 +123,19 @@ public:
 	{
 		if(state.curp!=NULL) return true;
 		state.curp=curp_stack.back().curp;
-		if(!state.curp) return false;
+		if(!state.curp)
+		{
+			if(state.ipos!=it_end && !flags.get(Regex::FLAG_RE_PARTITIAL))
+			{
+				static regex_item item(regex_item::ITEM_TRY_FALLBACK);
+				state.curp=&item;
+				return true;
+			}
+			return false;
+		}
 
+		state.n_seq_index=curp_stack.back().n_seq_shift-1;
+		state.n_pos_curstk--;
 		curp_stack.pop_back();
 		return true;
 	}
@@ -146,7 +169,7 @@ public:
 		if(state.curp->sibling)
 		{
 			state.n_pos_curstk++;
-			curp_stack.push_back(curp_state(state.curp->sibling,state.n_seq_index));
+			curp_stack.push_back(curp_state(state.curp->sibling,state.n_seq_index+1));
 		}
 
 		state.curp=(*it).second;
@@ -168,18 +191,13 @@ public:
 	arr_1t<regex_state> arrStates;
 	arr_1t<regex_iterator_and_num> stkRepeat;
 
-
-
 	void update_match_results(Match& res);
 
 	bool fallback(regex_state& state);
 
 	bool match_real(iterator& it,regex_item* sq);
 
-	bool search(regex_item_root* seq,iterator t1,iterator t2);
-	bool match(regex_item_root* seq,iterator t1,iterator t2);
-
-	iterator it_beg,it_end,it_cur;
+	bool execute(regex_item_root* seq,iterator t1,iterator t2,bool match_all);
 };
 
 EW_LEAVE

@@ -3,48 +3,47 @@
 EW_ENTER
 
 template<typename X>
-bool regex_impl<X>::search(regex_item_root* seq,iterator t1,iterator t2)
+bool regex_impl<X>::execute(regex_item_root* seq,iterator t1,iterator t2,bool match_mode)
 {
 	if(!seq) return false;
+
+	flags=seq->flags;
 
 	it_beg=it_cur=t1;
 	it_end=t2;
 
-	regex_item_repeat repeat;
-
-	repeat.child.reset(new regex_item(regex_item::ITEM_CHAR_ANY));
-	repeat.repeat_end.match_as_much_as_possible=false;
-	repeat.child->sibling=&repeat.repeat_end;
-	repeat.update(seq);
-
-	if(!match_real(it_cur,&repeat))
+	if(match_mode)
 	{
-		return false;
+		if(!match_real(it_cur,seq))
+		{
+			return false;
+		}
+		return seq->flags.get(Regex::FLAG_RE_PARTITIAL)||it_cur==it_end;
 	}
-	return true;
+	else
+	{
+		flags.add(Regex::FLAG_RE_PARTITIAL);
+		regex_item_repeat repeat;
+
+		repeat.child.reset(new regex_item(regex_item::ITEM_CHAR_ANY));
+		repeat.repeat_end.match_as_much_as_possible=false;
+		repeat.child->sibling=&repeat.repeat_end;
+		repeat.update(seq);
+
+		if(!match_real(it_cur,&repeat))
+		{
+			return false;
+		}
+		
+		return true;
+	}
+
 }
 
-template<typename X>
-bool regex_impl<X>::match(regex_item_root* seq,iterator t1,iterator t2)
-{
-	if(!seq) return false;
-
-	it_beg=it_cur=t1;
-	it_end=t2;
-
-	if(!match_real(it_cur,seq))
-	{
-		return false;
-	}
-
-	return seq->flags.get(Regex::FLAG_RE_PARTITIAL)||it_cur==it_end;
-}
 
 template<typename X>
 bool regex_impl<X>::fallback(regex_state& state)
 {
-	::printf("fallback\n");
-
 	if(arrStates.empty())
 	{
 		return false;
@@ -65,11 +64,8 @@ bool regex_impl<X>::match_real(iterator& it,regex_item* sq)
 
 	arrStates.clear();
 	stkRepeat.clear();
+	stkSeqpos.clear();
 
-	if(X::flag_store_result)
-	{
-		stkSeqpos.clear();
-	}
 
 	regex_state state;
 
@@ -195,9 +191,9 @@ bool regex_impl<X>::match_real(iterator& it,regex_item* sq)
 			break;
 		case regex_item::ITEM_REPEAT_NEXT:
 			{
-				::printf("repeat_next\n");
 
 				regex_item_repeat_next& item(*static_cast<regex_item_repeat_next*>(state.curp));
+
 
 				int n=stkRepeat.back().num++;
 				if(n<item.node.nmin)
@@ -205,7 +201,7 @@ bool regex_impl<X>::match_real(iterator& it,regex_item* sq)
 						
 				}
 				else if(n==item.node.nmax||state.ipos==it_end)
-				{							
+				{
 					state.curp=item.node.real_sibling;
 					continue;
 				}
@@ -223,7 +219,7 @@ bool regex_impl<X>::match_real(iterator& it,regex_item* sq)
 						if(!fallback(state))
 						{
 							return false;
-						}
+						}						
 						continue;
 					}						
 				}
@@ -252,8 +248,6 @@ bool regex_impl<X>::match_real(iterator& it,regex_item* sq)
 			break;
 		case regex_item::ITEM_REPEAT:
 			{
-				::printf("repeat\n");
-
 				stkRepeat.push_back(regex_iterator_and_num(state.ipos,0));
 				state.n_pos_repeat=stkRepeat.size();
 			}
@@ -338,6 +332,9 @@ bool regex_impl<X>::match_real(iterator& it,regex_item* sq)
 				}
 				continue;
 			}
+		case regex_item::ITEM_TRY_FALLBACK:
+			if(!fallback(state)) return false;
+			continue;
 		default:
 			return false;				
 		}

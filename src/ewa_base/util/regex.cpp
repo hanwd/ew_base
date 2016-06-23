@@ -19,11 +19,6 @@ Regex::Regex(const String& s,int f)
 	assign(s,f);
 }
 
-Regex& Regex::operator=(const Regex& o)
-{
-	pimpl=o.pimpl;
-	return *this;
-}
 
 bool Regex::assign(const String& s,int f)
 {
@@ -34,72 +29,73 @@ bool Regex::assign(const String& s,int f)
 
 bool Regex::match(const String& s)
 {
-	regex_impl<regex_policy_char_match_only> impl;
+	return execute(s,NULL,true);
+}
 
-	const char* q1=s.c_str();
-	const char* q2=q1+s.length();
+
+bool Regex::execute(const String& s,Match* pres,bool match_mode)
+{
 
 	if(!pimpl) return false;
+	regex_item_root* seq=static_cast<regex_item_root*>(pimpl.get());
 
-	return impl.match(static_cast<regex_item_root*>(pimpl.get()),q1,q2);
+	if(pres)
+	{
+		Match& res(*pres);
+		regex_impl<regex_policy_char> impl;
+
+		res.matchs.clear();
+		res.orig_str=s;
+		res.orig_reg=*this;
+
+		const char* q1=res.orig_str.c_str();
+		const char* q2=q1+res.orig_str.length();
+
+		bool flag=impl.execute(seq,q1,q2,match_mode);
+
+		if(!flag) return false;
+
+		impl.update_match_results(res);
+
+		return true;	
+	}
+	else
+	{
+		regex_impl<regex_policy_char_match_only> impl;
+		const char* q1=s.c_str();
+		const char* q2=q1+s.length();
+
+		bool flag=impl.execute(seq,q1,q2,match_mode);
+		return flag;
+	}
+
 }
-
-regex_item_root* do_get_regex_item_seq(Regex& re)
-{
-	ObjectData* pitem=*(ObjectData**)&re;
-	if(!pitem) return NULL;
-	return static_cast<regex_item_root*>(pitem);
-}
-
-bool regex_execute(const String& s,Match& res,Regex& re,bool fg)
-{
-	regex_impl<regex_policy_char> impl;
-
-	res.matchs.clear();
-	res.orig_str=s;
-	res.orig_reg=re;
-
-	const char* q1=res.orig_str.c_str();
-	const char* q2=q1+res.orig_str.length();
-
-	regex_item_root* seq=do_get_regex_item_seq(re);
-
-	bool flag=fg?impl.match(seq,q1,q2):impl.search(seq,q1,q2);
-
-	if(!flag) return false;
-
-	impl.update_match_results(res);
-
-	return true;
-}
-
-
 
 bool Regex::match(const String& s,Match& m)
 {
-	return regex_execute(s,m,*this,true);
+	return execute(s,&m,true);
 }
 
 bool Regex::search(const String& s,Match& m)
 {
-	return regex_execute(s,m,*this,false);
+	return execute(s,&m,false);
 }
 
 
 
 bool regex_match(const String& s,Regex& re)
 {
-	return re.match(s);
+	return re.execute(s,NULL,true);
 }
 
 bool regex_match(const String& s,Match& res,Regex& re)
 {
-	return regex_execute(s,res,re,true);
+	return re.execute(s,&res,true);
 }
 
 bool regex_search(const String& s,Match& res,Regex& re)
 {
-	return regex_execute(s,res,re,false);
+	return re.execute(s,&res,false);
 }
 
 String regex_replace(const String& s,Regex& re,const String& p)
@@ -113,7 +109,7 @@ String regex_replace(const String& s,Regex& re,const String& p)
 
 bool Match::search_next()
 {
-	if(matchs.empty())
+	if(matchs.empty()||!orig_reg.pimpl)
 	{
 		return false;
 	}
@@ -131,9 +127,9 @@ bool Match::search_next()
 	}
 
 	regex_impl<regex_policy_char> impl;
-	regex_item_root* seq=do_get_regex_item_seq(orig_reg);
 
-	bool flag=impl.search(seq,p1,q2);
+	regex_item_root* seq=static_cast<regex_item_root*>(orig_reg.pimpl.get());
+	bool flag=impl.execute(seq,p1,q2,false);
 
 	if(!flag) return false;
 
@@ -180,6 +176,59 @@ Match::item_array::operator String() const
 	while(it!=cend()) result+="\t"+*it++;
 	return result;
 }
+
+
+bool RegexEx::prepare(const String& name,const String& expr,int f)
+{
+	RegexParser parser(f);
+	DataPtrT<ObjectData>& ptr(named_regex[name]);
+	ptr.reset(parser.parse(expr));
+	return ptr;
+}
+
+
+bool RegexEx::execute(const String& s,Match* pres,bool match_mode)
+{
+	if(!pimpl) return false;
+	regex_item_root* seq=static_cast<regex_item_root*>(pimpl.get());
+	
+	regex_impl<regex_policy_char_recursive> impl;
+	for(bst_map<String,DataPtrT<ObjectData> >::iterator it=named_regex.begin();it!=named_regex.end();++it)
+	{
+		impl.item_map.insert(std::make_pair((*it).first,static_cast<regex_item_root*>((*it).second.get())));;
+	}
+	
+	if(pres)
+	{
+		Match& res(*pres);
+
+		res.matchs.clear();
+		res.orig_str=s;
+		res.orig_reg=*this;
+
+		const char* q1=res.orig_str.c_str();
+		const char* q2=q1+res.orig_str.length();
+
+		bool flag=impl.execute(seq,q1,q2,match_mode);
+
+		if(!flag) return false;
+
+		impl.update_match_results(res);
+		return true;	
+	}
+	else
+	{
+		const char* q1=s.c_str();
+		const char* q2=q1+s.length();
+
+		bool flag=impl.execute(seq,q1,q2,match_mode);
+
+		return flag;
+	}
+
+}
+
+
 
 EW_LEAVE
 

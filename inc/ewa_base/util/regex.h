@@ -6,11 +6,14 @@
 EW_ENTER
 
 
+
 class DLLIMPEXP_EWA_BASE Match;
 
-class DLLIMPEXP_EWA_BASE Regex
+class DLLIMPEXP_EWA_BASE Regex : public Object
 {
 public:
+
+	friend class Match;
 
 	enum
 	{
@@ -26,7 +29,6 @@ public:
 	Regex(const Regex& r);
 	Regex(const String& s,int f=0);
 
-	Regex& operator=(const Regex& o);
 
 	bool assign(const String& s,int f=0);
 
@@ -35,7 +37,9 @@ public:
 
 	bool search(const String& s,Match& m);
 
-private:
+	virtual bool execute(const String& s,Match* pres,bool match_mode);
+
+protected:
 	DataPtrT<ObjectData> pimpl;
 };
 
@@ -76,6 +80,18 @@ public:
 	arr_1t<item_array> matchs;
 	String orig_str;
 	Regex orig_reg;
+};
+
+
+class DLLIMPEXP_EWA_BASE RegexEx : public Regex
+{
+public:
+
+	bool prepare(const String& name,const String& expr,int f=0);
+	virtual bool execute(const String& s,Match* pres,bool match_mode);
+
+protected:
+	bst_map<String,DataPtrT<ObjectData> > named_regex;
 };
 
 DLLIMPEXP_EWA_BASE bool regex_match(const String& s,Regex& re);

@@ -37,6 +37,7 @@ public:
 		ITEM_LINE_ENTER,
 		ITEM_LINE_LEAVE,
 		ITEM_ID,
+		ITEM_TRY_FALLBACK,
 	};
 
 	regex_item(int t):type(t),next(NULL),sibling(NULL)

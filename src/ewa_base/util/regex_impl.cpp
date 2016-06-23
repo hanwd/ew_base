@@ -2,8 +2,8 @@
 #include "ewa_base/util/regex.h"
 EW_ENTER
 
-template<typename X>
-bool regex_impl<X>::execute(regex_item_root* seq,iterator t1,iterator t2,bool match_mode)
+template<typename P>
+bool regex_impl<P>::execute(regex_item_root* seq,iterator t1,iterator t2,bool match_mode)
 {
 	if(!seq) return false;
 
@@ -41,8 +41,8 @@ bool regex_impl<X>::execute(regex_item_root* seq,iterator t1,iterator t2,bool ma
 }
 
 
-template<typename X>
-bool regex_impl<X>::fallback(regex_state& state)
+template<typename P>
+bool regex_impl<P>::fallback(regex_state& state)
 {
 
 	state=arrStates.back();
@@ -50,22 +50,20 @@ bool regex_impl<X>::fallback(regex_state& state)
 	arrStates.pop_back();
 
 	stkRepeat.resize(state.n_pos_repeat);
-	X::fallback(state);
+	P::fallback(state);
 	return true;
 }
 
-template<typename X>
-bool regex_impl<X>::match_real(iterator& it,regex_item* sq)
+template<typename P>
+bool regex_impl<P>::match_real(iterator& it,regex_item* sq)
 {
 
 	regex_state state;
-	X::init_state(state,it,sq);
+	P::init_state(state,it,sq);
 
 	arrStates.resize(1);
-	stkRepeat.clear();
-	stkSeqpos.clear();
-	
-	while(X::not_finished(state))
+
+	while(P::not_finished(state))
 	{
 		switch(state.curp->type)
 		{
@@ -310,17 +308,17 @@ bool regex_impl<X>::match_real(iterator& it,regex_item* sq)
 			break;
 		case regex_item::ITEM_SEQ:
 			{
-				X::seqenter(state);
+				P::seqenter(state);
 			}
 			break;
 		case regex_item::ITEM_SEQ_END:
 			{
-				X::seqleave(state);
+				P::seqleave(state);
 			}
 			break;
 		case regex_item::ITEM_ID:
 			{
-				if(!X::handle_item_id(state,static_cast<regex_item_id*>(state.curp)->value))
+				if(!P::handle_item_id(state,static_cast<regex_item_id*>(state.curp)->value))
 				{
 					return false;
 				}
@@ -351,8 +349,7 @@ bool regex_impl<X>::match_real(iterator& it,regex_item* sq)
 
 
 
-template<typename X>
-void regex_impl<X>::update_match_results(Match& res)
+void regex_policy_char_match::update_match(Match& res)
 {
 
 	class item
@@ -388,8 +385,8 @@ void regex_impl<X>::update_match_results(Match& res)
 	}
 }
 
-template class regex_impl<regex_policy_char>;
-template class regex_impl<regex_policy_char_match_only>;
+template class regex_impl<regex_policy_char_pointer>;
+template class regex_impl<regex_policy_char_match>;
 template class regex_impl<regex_policy_char_recursive>;
 
 EW_LEAVE

@@ -42,7 +42,7 @@ bool Regex::execute(const String& s,Match* pres,bool match_mode)
 	if(pres)
 	{
 		Match& res(*pres);
-		regex_impl<regex_policy_char> impl;
+		regex_impl<regex_policy_char_match> impl;
 
 		res.matchs.clear();
 		res.orig_str=s;
@@ -55,13 +55,13 @@ bool Regex::execute(const String& s,Match* pres,bool match_mode)
 
 		if(!flag) return false;
 
-		impl.update_match_results(res);
+		impl.update_match(res);
 
 		return true;	
 	}
 	else
 	{
-		regex_impl<regex_policy_char_match_only> impl;
+		regex_impl<regex_policy_char_pointer> impl;
 		const char* q1=s.c_str();
 		const char* q2=q1+s.length();
 
@@ -126,14 +126,14 @@ bool Match::search_next()
 		return false;
 	}
 
-	regex_impl<regex_policy_char> impl;
+	regex_impl<regex_policy_char_match> impl;
 
 	regex_item_root* seq=static_cast<regex_item_root*>(orig_reg.pimpl.get());
 	bool flag=impl.execute(seq,p1,q2,false);
 
 	if(!flag) return false;
 
-	impl.update_match_results(*this);
+	impl.update_match(*this);
 
 	return true;
 
@@ -193,10 +193,7 @@ bool RegexEx::execute(const String& s,Match* pres,bool match_mode)
 	regex_item_root* seq=static_cast<regex_item_root*>(pimpl.get());
 	
 	regex_impl<regex_policy_char_recursive> impl;
-	for(bst_map<String,DataPtrT<ObjectData> >::iterator it=named_regex.begin();it!=named_regex.end();++it)
-	{
-		impl.item_map.insert(std::make_pair((*it).first,static_cast<regex_item_root*>((*it).second.get())));;
-	}
+	impl.p_item_map=&named_regex;
 	
 	if(pres)
 	{
@@ -213,7 +210,7 @@ bool RegexEx::execute(const String& s,Match* pres,bool match_mode)
 
 		if(!flag) return false;
 
-		impl.update_match_results(res);
+		impl.update_match(res);
 		return true;	
 	}
 	else

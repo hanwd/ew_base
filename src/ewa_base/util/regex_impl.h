@@ -11,12 +11,61 @@ EW_ENTER
 
 class DLLIMPEXP_EWA_BASE Match;
 
-class regex_policy_char
+class match_group_data : public ObjectData
 {
 public:
-	typedef const char* iterator;
+	virtual String value()=0;
+};
+
+class match_group : public ObjectT<match_group_data>
+{
+public:
+	
+};
+
+class match_result_data : public ObjectData
+{
+public:
+
+	virtual size_t size() const =0;
+	virtual match_group group(size_t i) const=0;
+
+
+};
+
+class match_result : public ObjectT<match_result_data>
+{
+public:
+	
+};
+
+
+template<typename X>
+class regex_pos_and_num_t
+{
+public:
+	X pos;
+	int num;
+	regex_pos_and_num_t():pos(),num(0){}
+	regex_pos_and_num_t(X it,int n):pos(it),num(n){}
+};
+
+template<typename X>
+class match_result_data_t : public match_result_data
+{
+public:
+	typename arr_1t<regex_pos_and_num_t<X> >::iterator it_beg,it_end;
+};
+
+
+template<typename X>
+class regex_policy_base
+{
+public:
+	typedef X iterator;
 
 	iterator it_beg,it_end,it_cur;
+	typedef regex_pos_and_num_t<X> regex_iterator_and_num;
 
 	BitFlags flags;
 
@@ -25,21 +74,13 @@ public:
 	public:
 
 		regex_state():n_pos_repeat(0),n_pos_seqpos(0),curp(NULL){}
-
 		regex_item* curp;
 		iterator ipos;
 		int n_pos_repeat;
 		int n_pos_seqpos;
 	};
 
-	class regex_iterator_and_num
-	{
-	public:
-		iterator pos;
-		int num;
-		regex_iterator_and_num():pos(),num(0){}
-		regex_iterator_and_num(iterator it,int n):pos(it),num(n){}
-	};
+
 
 	bool not_finished(regex_state& state)
 	{
@@ -62,6 +103,27 @@ public:
 		state.n_pos_seqpos=0;
 	}
 
+	static bool handle_item_id(regex_state&,const String&){return false;}
+
+	static void seqenter(regex_state&){}
+	static void seqleave(regex_state&){}
+	static void fallback(regex_state&){}
+
+
+};
+
+class regex_policy_char_pointer : public regex_policy_base<const char*>
+{
+public:
+
+};
+
+class regex_policy_char_match : public regex_policy_char_pointer
+{
+public:
+
+	arr_1t<regex_iterator_and_num> stkSeqpos;
+
 	void seqenter(regex_state& state)
 	{
 		state.n_pos_seqpos++;
@@ -79,29 +141,17 @@ public:
 		stkSeqpos.resize(state.n_pos_seqpos);
 	}
 
-	static bool handle_item_id(regex_state&,const String&){return false;}
-
-
-	arr_1t<regex_iterator_and_num> stkSeqpos;
+	void update_match(Match& res);
 };
 
-class regex_policy_char_match_only : public regex_policy_char
+class regex_policy_char_recursive : public regex_policy_char_match
 {
 public:
-	static void seqenter(regex_state&){}
-	static void seqleave(regex_state&){}
-	static void fallback(regex_state&){}
-};
-
-class regex_policy_char_recursive : public regex_policy_char
-{
-public:
-	typedef regex_policy_char basetype;
+	typedef regex_policy_char_match basetype;
 
 	class regex_state : public basetype::regex_state
 	{
 	public:
-
 		regex_state():n_pos_curstk(0),n_seq_index(0){}
 		int n_pos_curstk;
 		int n_seq_index;
@@ -117,7 +167,7 @@ public:
 
 	arr_1t<curp_state> curp_stack;
 
-	bst_map<String,regex_item*> item_map;
+	bst_map<String,DataPtrT<ObjectData> >* p_item_map;
 
 	bool not_finished(regex_state& state)
 	{
@@ -143,7 +193,6 @@ public:
 	void seqenter(regex_state& state)
 	{
 		state.n_seq_index=curp_stack.back().n_seq_shift+static_cast<regex_item_seq*>(state.curp)->index;
-
 		state.n_pos_seqpos++;
 		stkSeqpos.push_back(regex_iterator_and_num(state.ipos, state.n_seq_index));	
 	}
@@ -163,8 +212,8 @@ public:
 
 	bool handle_item_id(regex_state& state,const String& name)
 	{
-		bst_map<String,regex_item*>::iterator it=item_map.find(name);
-		if(it==item_map.end()) return false;
+		bst_map<String,DataPtrT<ObjectData> >::iterator it=p_item_map->find(name);
+		if(it==p_item_map->end()) return false;
 
 		if(state.curp->sibling)
 		{
@@ -172,32 +221,33 @@ public:
 			curp_stack.push_back(curp_state(state.curp->sibling,state.n_seq_index+1));
 		}
 
-		state.curp=(*it).second;
+		state.curp=static_cast<regex_item_root*>((*it).second.get());
 		return true;
 	}
 
 };
 
-template<typename X>
-class regex_impl : public X
+template<typename P>
+class regex_impl : public P
 {
 public:
 
-	typedef typename X::iterator iterator;
-	typedef typename X::regex_state regex_state;
-	typedef typename X::regex_iterator_and_num regex_iterator_and_num;
+	typedef P policy;
+	typedef typename P::iterator iterator;
+	typedef typename P::regex_state regex_state;
+	typedef typename P::regex_iterator_and_num regex_iterator_and_num;
 
+
+	bool execute(regex_item_root* seq,iterator t1,iterator t2,bool match_all);
+
+private:
 
 	arr_1t<regex_state> arrStates;
 	arr_1t<regex_iterator_and_num> stkRepeat;
 
-	void update_match_results(Match& res);
-
 	bool fallback(regex_state& state);
-
 	bool match_real(iterator& it,regex_item* sq);
 
-	bool execute(regex_item_root* seq,iterator t1,iterator t2,bool match_all);
 };
 
 EW_LEAVE

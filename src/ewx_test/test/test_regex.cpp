@@ -196,3 +196,43 @@ TEST_DEFINE(TEST_Regex2)
 	TEST_ASSERT(re2.match("A=.32E-3"));
 	TEST_ASSERT(!re2.match("9a=-1.32e-3"));	
 }
+
+
+TEST_DEFINE(TEST_Regex3)
+{
+
+	RegexEx re2;
+
+	re2.prepare("id","[a-zA-z][a-zA-z0-9]*");
+	re2.prepare("value","`double`|`int`");
+	re2.prepare("sign","[\\+\\-]");
+	re2.prepare("int","`sign`?0|([1-9][0-9]*)");
+	re2.prepare("double","`int`?\\.[0-9]*([eEdD]`int`)?");
+	re2.prepare("explist","`expr`(\\,`expr`)*");
+	re2.prepare("item","`value`|`id`|(\\(`expr`\\))");
+	re2.prepare("item0","`item`(`dot`|`fun`)*");
+	re2.prepare("dot","\\.`id`");
+	re2.prepare("fun","\\(`explist`??\\)");
+
+	re2.prepare("op2","[\\+\\-]");
+	re2.prepare("op1","[\\*\\/]");
+	re2.prepare("item1","`item0`(`op1``item0`)*");
+	re2.prepare("item2","`item1`(`op2``item1`)*");
+	re2.prepare("expr","`item2`");
+
+	re2.assign("`expr`");
+
+	TEST_ASSERT(re2.match("a"));
+	TEST_ASSERT(re2.match("-1.3e-9"));
+	TEST_ASSERT(re2.match("-1.3e-9*3+9"));
+	TEST_ASSERT(re2.match("sin(pi*0.3)"));
+	TEST_ASSERT(re2.match("a.x"));
+	TEST_ASSERT(re2.match("b(3,4)"));
+	TEST_ASSERT(re2.match("b()"));
+
+	TEST_ASSERT(re2.match("sqrt(a.x*a.x,a.y*a.y)"));
+	TEST_ASSERT(re2.match("sqrt(a.x*a.x,a.y*a.y)+3*4+5*6/32"));
+	
+
+}
+

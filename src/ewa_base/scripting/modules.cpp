@@ -577,16 +577,44 @@ public:
 IMPLEMENT_OBJECT_INFO(CallableCommandNoop, ObjectInfo);
 
 
-void CG_GGVar::expand(const String& name)
+void CG_GGVar::expand(const String& lib)
 {
 	CG_GGVar& gi(CG_GGVar::current());
-	CallableTableEx* p = dynamic_cast<CallableTableEx*>(gi[name].kptr());
+	CallableTableEx* p = dynamic_cast<CallableTableEx*>(gi[lib].kptr());
 	if (!p) return;
-	String lib = name;
+
 	for (VariantTable::const_iterator it = p->value.begin(); it != p->value.end(); ++it)
 	{
 		gi[lib + "." + (*it).first] = (*it).second;
 	}
+}
+
+void CG_GGVar::import(CallableMetatable* p)
+{
+	if(!p) return;
+	String& lib(p->m_sClassName);
+
+	CG_GGVar& gi(CG_GGVar::current());
+
+	gi[lib].kptr(p);
+	for (VariantTable::const_iterator it = p->value.begin(); it != p->value.end(); ++it)
+	{
+		gi[lib + "." + (*it).first] = (*it).second;
+	}
+}
+
+void CG_GGVar::unload(const String& name)
+{
+	CG_GGVar& gi(CG_GGVar::current());
+	CallableTableEx* p = dynamic_cast<CallableTableEx*>(gi[name].kptr());
+
+	String lib = name;
+	if(p) for (VariantTable::const_iterator it = p->value.begin(); it != p->value.end(); ++it)
+	{
+		gi[lib + "." + (*it).first].clear();
+	}
+
+	gi[lib].clear();
 }
 
 

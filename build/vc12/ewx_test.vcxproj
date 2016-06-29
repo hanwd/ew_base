@@ -28,8 +28,12 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\ewx_test\test\appmain.cpp" />
+    <ClCompile Include="..\..\src\ewx_test\test\test_basic.cpp" />
     <ClCompile Include="..\..\src\ewx_test\test\test_collection.cpp" />
+    <ClCompile Include="..\..\src\ewx_test\test\test_gc_ptr.cpp" />
+    <ClCompile Include="..\..\src\ewx_test\test\test_memory.cpp" />
     <ClCompile Include="..\..\src\ewx_test\test\test_regex.cpp" />
+    <ClCompile Include="..\..\src\ewx_test\test\test_scripting.cpp" />
     <ClCompile Include="..\..\src\ewx_test\test\test_serializer.cpp" />
     <ClCompile Include="..\..\src\ewx_test\test\test_shm.cpp" />
     <ClCompile Include="..\..\src\ewx_test\test\test_thread.cpp" />

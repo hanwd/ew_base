@@ -173,6 +173,7 @@
       <AdditionalLibraryDirectories>..\..\lib\$(Platform)\$(Configuration)\;$(WXWIDGETS_DIR)\lib\vc_lib\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
+      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>copy "$(TargetPath)"  "..\..\bin\"</Command>

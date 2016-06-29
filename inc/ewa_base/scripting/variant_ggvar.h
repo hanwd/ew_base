@@ -19,6 +19,9 @@ public:
 	void import(const String& lib,bool reload=false);
 	void expand(const String& lib);
 
+	void import(CallableMetatable* q);
+	void unload(const String& lib);
+
 	template<typename T>
 	void add_inner();
 
@@ -26,8 +29,6 @@ public:
 	void add_inner(const String& s,int f=0);
 
 	static CG_GGVar& current();
-
-	//static CallableMetatable** sm_meta;
 
 private:
 

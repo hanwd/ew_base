@@ -25,6 +25,28 @@ public:
 
 IMPLEMENT_OBJECT_INFO(CallableWrapT<Regex>,ObjectInfo)
 
+
+template<>
+class CallableWrapT<RegexEx> : public CallableObject
+{
+public:
+
+	int __getindex(Executor&,const String&);
+
+	RegexEx value;
+	String sexpr;
+
+	virtual bool ToValue(String& s,int n=0) const
+	{
+		s="regex_ex("+sexpr+")";
+		return true;
+	}
+
+	DECLARE_OBJECT_INFO(CallableWrapT<RegexEx>,ObjectInfo)
+};
+
+IMPLEMENT_OBJECT_INFO(CallableWrapT<RegexEx>,ObjectInfo)
+
 template<>
 class CallableWrapT<Match> : public CallableObject
 {
@@ -74,13 +96,25 @@ class CallableRegexFunction : public CallableFunction
 {
 public:
 
-	Regex get_regex(Executor& ewsl)
+	Regex& get_regex(Executor& ewsl)
 	{
 		CallableWrapT<Regex>* p=dynamic_cast<CallableWrapT<Regex>*>(ewsl.ci1.nbp[StackState1::SBASE_THIS].kptr());
+		if(!p)
+		{
+			return  get_regex_ex(ewsl);
+		}
+		return p->value;
+	}
+
+	RegexEx& get_regex_ex(Executor& ewsl)
+	{
+		CallableWrapT<RegexEx>* p=dynamic_cast<CallableWrapT<RegexEx>*>(ewsl.ci1.nbp[StackState1::SBASE_THIS].kptr());
 		if(!p) ewsl.kerror("invalid regex");
 		return p->value;
 	}
 };
+
+
 
 class CallableRegexMatch : public CallableRegexFunction
 {
@@ -90,7 +124,7 @@ public:
 	{
 		ewsl.check_pmc(this,pm,1);
 		String str=variant_cast<String>(ewsl.ci0.nbx[1]);
-		Regex re=get_regex(ewsl);
+		Regex& re=get_regex(ewsl);
 		DataPtrT<CallableWrapT<Match> > pres(new CallableWrapT<Match>);
 		bool flag=re.match(str,pres->value);
 		if(flag)
@@ -119,7 +153,7 @@ public:
 	{
 		ewsl.check_pmc(this,pm,1);
 		String str=variant_cast<String>(ewsl.ci0.nbx[1]);
-		Regex re=get_regex(ewsl);
+		Regex& re=get_regex(ewsl);
 		DataPtrT<CallableWrapT<Match> > pres(new CallableWrapT<Match> );
 		bool flag=re.search(str,pres->value);
 		if(flag)
@@ -150,7 +184,7 @@ public:
 		String str1=variant_cast<String>(ewsl.ci0.nbx[1]);
 		String str2=variant_cast<String>(ewsl.ci0.nbx[2]);
 		Match res;
-		Regex re=get_regex(ewsl);
+		Regex& re=get_regex(ewsl);
 		re.search(str1,res);
 
 		ewsl.ci0.nbx[1].reset(res.replace(str2));
@@ -162,6 +196,30 @@ public:
 };
 
 IMPLEMENT_OBJECT_INFO(CallableRegexReplace,ObjectInfo)
+
+
+class CallableRegexPrepare : public CallableRegexFunction
+{
+public:
+
+	int __fun_call(Executor& ewsl,int pm)
+	{
+		ewsl.check_pmc(this,pm,2);
+		String str1=variant_cast<String>(ewsl.ci0.nbx[1]);
+		String str2=variant_cast<String>(ewsl.ci0.nbx[2]);
+
+		RegexEx& re=get_regex_ex(ewsl);
+		bool flag=re.prepare(str1,str2);
+
+		ewsl.ci0.nbx[1].reset(flag);
+
+		return 1;
+	}	
+
+	DECLARE_OBJECT_CACHED_INFO(CallableRegexPrepare,ObjectInfo)
+};
+
+IMPLEMENT_OBJECT_INFO(CallableRegexPrepare,ObjectInfo)
 
 
 int CallableWrapT<Regex>::__getindex(Executor& ewsl,const String& id)
@@ -186,6 +244,57 @@ int CallableWrapT<Regex>::__getindex(Executor& ewsl,const String& id)
 	return STACK_BALANCED;
 }
 
+
+class CallableRegexCompile2 : public CallableRegexFunction
+{
+public:
+
+	int __fun_call(Executor& ewsl,int pm)
+	{
+		ewsl.check_pmc(this,pm,1,2);
+		Regex& re=get_regex(ewsl);
+		String sexpr=variant_cast<String>(ewsl.ci0.nbx[1]);
+		int flag=0;
+		if(pm==2) flag=variant_cast<int>(ewsl.ci0.nbx[2]);
+		bool bflag=re.assign(sexpr,flag);
+		ewsl.ci0.nbx[1].reset(bflag);
+		return 1;
+	}	
+
+	DECLARE_OBJECT_CACHED_INFO(CallableRegexCompile2,ObjectInfo)
+};
+
+IMPLEMENT_OBJECT_INFO(CallableRegexCompile2,ObjectInfo)
+
+int CallableWrapT<RegexEx>::__getindex(Executor& ewsl,const String& id)
+{
+	if(id=="match")
+	{
+		(*ewsl.ci1.nsp).reset(CallableRegexMatch::sm_info.GetCachedInstance());
+	}
+	else if(id=="prepare")
+	{
+		(*ewsl.ci1.nsp).reset(CallableRegexPrepare::sm_info.GetCachedInstance());
+	}
+	else if(id=="search")
+	{
+		(*ewsl.ci1.nsp).reset(CallableRegexSearch::sm_info.GetCachedInstance());	
+	}
+	else if(id=="replace")
+	{
+		(*ewsl.ci1.nsp).reset(CallableRegexReplace::sm_info.GetCachedInstance());		
+	}
+	else if(id=="compile")
+	{
+		(*ewsl.ci1.nsp).reset(CallableRegexCompile2::sm_info.GetCachedInstance());		
+	}
+	else
+	{
+		ewsl.kerror("invalid index");
+	}
+	
+	return STACK_BALANCED;
+}
 
 
 class CallableRegexCompile : public CallableFunction
@@ -212,13 +321,34 @@ public:
 
 IMPLEMENT_OBJECT_INFO(CallableRegexCompile,ObjectInfo)
 
+
+class CallableRegexCreate : public CallableFunction
+{
+public:
+
+	int __fun_call(Executor& ewsl,int pm)
+	{
+		ewsl.check_pmc(this,pm,0);
+		DataPtrT<CallableWrapT<RegexEx> > preg(new CallableWrapT<RegexEx> );
+		ewsl.ci0.nbx[1].reset(preg);
+		return 1;
+	}	
+
+	DECLARE_OBJECT_CACHED_INFO(CallableRegexCreate,ObjectInfo)
+};
+
+IMPLEMENT_OBJECT_INFO(CallableRegexCreate,ObjectInfo)
+
+
 class CallableMetatableRegex : public CallableMetatable
 {
 public:
 
 	CallableMetatableRegex()
 	{
-		value["compile"].reset(new CallableRegexCompile);
+		value["compile"].reset(CallableRegexCompile::sm_info.GetCachedInstance());
+		value["create"].reset(CallableRegexCreate::sm_info.GetCachedInstance());
+
 		value["FLAG_RE_IGNORECASE"].reset(Regex::FLAG_RE_IGNORECASE);
 		value["FLAG_RE_UNICODE"].reset(Regex::FLAG_RE_UNICODE);
 		value["FLAG_RE_MULTILINE"].reset(Regex::FLAG_RE_MULTILINE);

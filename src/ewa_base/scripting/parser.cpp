@@ -805,7 +805,7 @@ DataPtrT<TNode_statement> read_node_handler<TNode_statement>::g(Parser& parser)
 		}
 		else if(sval=="judge")
 		{
-			q = read_node_handler<TNode_statement_switch>::g(parser);
+			q=read_node_handler<TNode_statement_switch>::g(parser);
 		}
 		else
 		{

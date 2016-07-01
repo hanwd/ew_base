@@ -32,7 +32,7 @@ bool File::open(const String& filename_,int flag_)
 	close();
 
 	DWORD option=(flag_&FLAG_FILE_CR)?OPEN_ALWAYS:OPEN_EXISTING;
-	if(flag_&FLAG_FILE_TRUNCATE) option|=TRUNCATE_EXISTING;
+	//if(flag_&FLAG_FILE_TRUNCATE) option|=TRUNCATE_EXISTING;
 
 	HANDLE hFile=(HANDLE)CreateFileW(
 					 IConv::to_wide(fn).c_str(),
@@ -58,6 +58,10 @@ bool File::open(const String& filename_,int flag_)
 	if(flag_&FLAG_FILE_APPEND)
 	{
 		seek(0,SEEKTYPE_END);
+	}
+	else if(flag_&FLAG_FILE_TRUNCATE)
+	{
+		truncate(0);
 	}
 
 	return true;

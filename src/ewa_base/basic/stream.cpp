@@ -604,8 +604,10 @@ bool Stream::write_to_file(const String& fp,int flag)
 		{
 			return true;
 		}
-
-		break;
+		else
+		{
+			break;
+		}
 	}
 
 	return false;
@@ -709,8 +711,11 @@ bool Stream::read_from_file(const String& fp)
 		{
 			return true;
 		}
+		else
+		{
+			break;		
+		}
 
-		break;
 	}
 
 	return false;

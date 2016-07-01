@@ -127,6 +127,8 @@ String IConv::from_unknown(const char* s)
 				break;
 			}
 		}
+		if(t==-1) break;
+
 		i+=n;
 	}
 

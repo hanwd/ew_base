@@ -147,6 +147,7 @@ void Executor::reset()
 {
 
 	co_this=co_main;
+	co_this->aFrame.clear();
 	co_main->nState=CallableCoroutine::STATE_RUNNING;
 
 	ci0=co_main->ci0;

@@ -63,7 +63,7 @@ void regex_item_char_map::add_chars(char ch)
 		t.add_chars(ch-'A'+'a');
 		for(int i=0;i<ndig;i++)
 		{
-			bitmap[i]|=t.bitmap[i];
+			bitmap[i]|=~t.bitmap[i];
 		}
 	}
 }

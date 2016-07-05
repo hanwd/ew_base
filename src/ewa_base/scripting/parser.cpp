@@ -870,7 +870,7 @@ DataPtrT<TNode_variable_list> read_node_handler<TNode_variable_list>::g(Parser& 
 template<>
 DataPtrT<TNode_expression> read_expr_handler<-1>::g(Parser& parser)
 {
-	//typedef arr_1t<tokItem> astr_array;
+
 	DataPtrT<TNode_expression> node;
 
 	node=read_node_handler<TNode_item>::g(parser);

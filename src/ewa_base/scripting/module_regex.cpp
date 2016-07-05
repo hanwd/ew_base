@@ -159,7 +159,7 @@ public:
 		if(flag)
 		{
 			ewsl.ci0.nbx[1].reset(flag);
-			ewsl.ci0.nbx[1].reset(pres);
+			ewsl.ci0.nbx[2].reset(pres);
 			return 2;
 		}
 		else

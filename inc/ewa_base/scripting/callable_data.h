@@ -109,6 +109,7 @@ struct type_flag : public flag_type<TL_VARIANT_TYPES::template id<T>::value>
 
 };
 
+class DLLIMPEXP_EWA_BASE JsonWriter;
 
 class DLLIMPEXP_EWA_BASE CallableData : public ObjectData
 {
@@ -169,6 +170,8 @@ public:
 	virtual bool ToValue(int64_t&) const;
 	virtual bool ToValue(bool&) const;
 	virtual bool ToValue(double&) const;
+
+	virtual bool ToJson(JsonWriter&){return false;}
 
 	bool ToValue(int32_t& v) const;
 	bool ToValue(float& v) const;

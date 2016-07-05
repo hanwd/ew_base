@@ -390,7 +390,7 @@ Variant parse_json(const String& json,bool unescape_value)
 
 
 
-void variant_to_json(const Variant& json,StringBuffer<char>& sb,const String& tb);
+void variant_to_json(const Variant& json,JsonWriter& writer);
 
 template<unsigned N>
 class variant_to_json_dispatch
@@ -398,89 +398,135 @@ class variant_to_json_dispatch
 public:
 
 	template<typename T>
-	static void g(const T& value,StringBuffer<char>& sb,const String& tb)
+	static void g(const T& value,JsonWriter& writer)
 	{
-		sb<<"\"[unknown object]\"";
+		writer.sb<<"\"[unknown object]\"";
 	}
 
-	static void g(const dcomplex& json,StringBuffer<char>& sb,const String& tb)
+	static void g(const dcomplex& value,JsonWriter& writer)
 	{
-		sb<<"\"("<<json.real()<<","<<json.imag()<<")\"";
+		writer.WriteValue(value);
 	}
 
-	static void g(int64_t json,StringBuffer<char>& sb,const String& tb)
+	static void g(int64_t value,JsonWriter& writer)
 	{
-		sb<<json;
+		writer.WriteValue(value);
 	}
 
-	static void g(double json,StringBuffer<char>& sb,const String& tb)
+	static void g(CallableData* value,JsonWriter& writer)
 	{
-		sb<<json;
-	}
-
-	static void g(bool json,StringBuffer<char>& sb,const String& tb)
-	{
-		sb<<(json?"true":"false");
-	}
-
-	static void g(const String& json,StringBuffer<char>& sb,const String& tb)
-	{
-		sb<<"\""<<string_escape(json)<<"\"";
-	}
-
-	static void g(const Variant& json,StringBuffer<char>& sb,const String& tb)
-	{
-		variant_to_json(json,sb,tb);
-	}
-
-	static void g(const VariantTable& json,StringBuffer<char>& sb,const String& tb)
-	{
-		sb<<tb<<"{"<<"\r\n";
+		if(!value)
 		{
-			String tx=tb+"\t";
-			for(size_t i=0;i<json.size();i++)
-			{
-				sb<<tx<<"\""<<json.get(i).first<<"\":";
-				g(json.get(i).second,sb,tx);
-				if(i+1<json.size()) sb<<",";
-				sb<<"\r\n";
-			}
+			writer.sb<<"null";
 		}
-		sb<<tb<<"}";
+		else if(!value->ToJson(writer))
+		{
+			writer.sb<<"\"[unknown object]\"";
+		}
+	}
+
+	static void g(double value,JsonWriter& writer)
+	{
+		writer.WriteValue(value);
+	}
+
+	static void g(bool value,JsonWriter& writer)
+	{
+		writer.WriteValue(value);
+	}
+
+	static void g(const String& value,JsonWriter& writer)
+	{
+		writer.WriteValue(value);
+	}
+
+	static void g(const Variant& value,JsonWriter& writer)
+	{
+		variant_to_json(value,writer);
+	}
+
+	static void g(const VariantTable& value,JsonWriter& writer)
+	{
+		writer.WriteValue(value);
 	}
 
 	template<typename T>
-	static void g(const arr_xt<T>& json,StringBuffer<char>& sb,const String& tb)
+	static void g(const arr_xt<T>& value,JsonWriter& writer)
 	{
-		sb<<tb<<"["<<"\r\n";
-
-		String tx=tb+"\t";
-		for(size_t i=0;i<json.size();i++)
-		{
-			g(json[i],sb,tx);
-			if(i+1<json.size()) sb<<",";
-			sb<<"\r\n";
-		}
-		sb<<tb<<"]";
+		writer.WriteValue(value);
 	}
 
-	static void value(const Variant& v,StringBuffer<char>& sb,const String& tb)
+	static void value(const Variant& v,JsonWriter& writer)
 	{
 		typedef typename flag_type<N>::type type;
-		g(variant_handler<type>::raw(v),sb,tb);
+		g(variant_handler<type>::raw(v),writer);
 	}
 };
 
-void variant_to_json(const Variant& json,StringBuffer<char>& sb,const String& tb)
+
+JsonWriter::JsonWriter(StringBuffer<char>& s):sb(s)
 {
-	typedef void (*fn)(const Variant&,StringBuffer<char>&,const String&);
+
+}
+
+void JsonWriter::WriteValue(const Variant& value)
+{
+	typedef void (*fn)(const Variant&,JsonWriter&);
 	typedef lookup_table_4bit<variant_to_json_dispatch,fn> lk;
-	lk::test(json.type())(json,sb,tb);
+	lk::test(value.type())(value,*this);
+}
+
+void JsonWriter::WriteValue(const String& value)
+{
+	sb<<"\""<<string_escape(value)<<"\"";
+}
+
+void JsonWriter::WriteValue(double value)
+{
+	sb<<value;
+}
+
+void JsonWriter::WriteValue(const dcomplex& value)
+{
+	sb<<"\"("<<value.real()<<","<<value.imag()<<")\"";
+}
+
+void JsonWriter::WriteValue(int64_t value)
+{
+	sb<<value;
+}
+
+void JsonWriter::WriteValue(bool value)
+{
+	sb<<(value?"true":"false");
+}
+
+void JsonWriter::WriteValue(const VariantTable& value)
+{
+	sb<<tb<<"{"<<"\r\n";
+	{
+		LockState<String> lock(tb,tb+"\t");
+		for(size_t i=0;i<value.size();i++)
+		{
+			WriteName(value.get(i).first);
+			WriteValue(value.get(i).second);
+			if(i+1<value.size()) sb<<",";
+			sb<<"\r\n";
+		}
+	}
+	sb<<tb<<"}";
+}
+
+void JsonWriter::WriteName(const String& name)
+{
+	sb<<tb<<"\""<<name<<"\":";
 }
 
 void to_json(const Variant& json,StringBuffer<char>& sb)
 {
-	variant_to_json_dispatch<0>::g(json,sb,"");
+	JsonWriter writer(sb);
+	writer.WriteValue(json);
+	//variant_to_json_dispatch<0>::g(json,sb,"");
 }
 
 EW_LEAVE

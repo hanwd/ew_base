@@ -8,5 +8,51 @@ EW_ENTER
 DLLIMPEXP_EWA_BASE Variant parse_json(const String& json,bool unescape_value=false);
 DLLIMPEXP_EWA_BASE void to_json(const Variant& json,StringBuffer<char>& sb);
 
+class DLLIMPEXP_EWA_BASE JsonWriter
+{
+public:
+	JsonWriter(StringBuffer<char>&);
+
+	void WriteName(const String& name);
+
+	void WriteValue(const Variant& value);
+	void WriteValue(const String& value);
+	void WriteValue(double value);
+	void WriteValue(int64_t value);
+	void WriteValue(bool value);
+	void WriteValue(const VariantTable& value);
+	void WriteValue(const dcomplex& value);
+
+
+	template<typename T>
+	void WriteValue(const arr_xt<T>& value)
+	{
+		sb<<tb<<"["<<"\r\n";
+		LockState<String> lock(tb,tb+"\t");
+		for(size_t i=0;i<value.size();i++)
+		{
+			WriteValue(value[i]);
+			if(i+1<value.size()) sb<<",";
+			sb<<"\r\n";
+		}
+		sb<<tb<<"]";
+	}
+
+
+
+	template<typename T>
+	void Write(const String& name,const T& value,bool prop_end=false)
+	{
+		WriteName(name);
+		WriteValue(value);
+		if(prop_end) sb<<",";
+		sb<<"\r\n";
+	}
+
+
+	StringBuffer<char>& sb;
+	String tb;
+};
+
 EW_LEAVE
 #endif

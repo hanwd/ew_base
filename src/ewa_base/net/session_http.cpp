@@ -138,6 +138,7 @@ SessionManager::SessionManager()
 	handler_map["BMP"].bind(&SessionHttp_Response_FILE,_1);
 	handler_map["GIF"].bind(&SessionHttp_Response_FILE,_1);
 	handler_map["ICO"].bind(&SessionHttp_Response_FILE,_1);
+	handler_map["EXE"].bind(&SessionHttp_Response_FILE,_1);
 
 	handler_map["EWSL"].bind(&SessionHttp_Response_EWSL,_1);
 }

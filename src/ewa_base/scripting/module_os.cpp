@@ -429,6 +429,44 @@ public:
 IMPLEMENT_OBJECT_INFO(CallableFunctionShell, ObjectInfo);
 
 
+class CallableFunctionExecute : public CallableFunction
+{
+public:
+
+	CallableFunctionExecute() :CallableFunction("os.execute",1){}
+
+	virtual int __fun_call(Executor& ewsl, int pm)
+	{
+		ewsl.check_pmc(this, pm, 1);
+		String *p = ewsl.ci0.nbx[1].ptr<String>();
+		if (!p)
+		{
+			ewsl.ci0.nbx[1].reset<String>("error:invalid param");
+		}
+		else
+		{
+			StringBuffer<char> sb;
+			if (System::Execute(*p, sb))
+			{
+				ewsl.ci0.nbx[1].reset<String>(sb);
+			}
+			else
+			{
+				ewsl.ci0.nbx[1].reset<String>("error:execute failed");
+			}
+		}
+
+		return 1;
+
+	}
+
+	DECLARE_OBJECT_CACHED_INFO(CallableFunctionExecute, ObjectInfo);
+
+};
+
+IMPLEMENT_OBJECT_INFO(CallableFunctionExecute, ObjectInfo);
+
+
 class CallableFunctionGetEnv : public CallableFunction
 {
 public:
@@ -601,6 +639,24 @@ public:
 IMPLEMENT_OBJECT_INFO(CallableFunctionRemove, ObjectInfo);
 
 
+class CallableFunctionExists : public CallableFunction
+{
+public:
+
+	CallableFunctionExists():CallableFunction("os.exists",0){}
+
+	virtual int __fun_call(Executor& ewsl,int pm)
+	{
+		ewsl.check_pmc(this,pm,1);
+		String fp=variant_cast<String>(ewsl.ci0.nbx[1]);
+		ewsl.ci0.nbx[1].reset(FSLocal::current().FileExists(System::MakePath(fp,ewsl.get_cwd())));
+		return 1;
+
+	}
+	DECLARE_OBJECT_CACHED_INFO(CallableFunctionExists, ObjectInfo);
+};
+IMPLEMENT_OBJECT_INFO(CallableFunctionExists, ObjectInfo);
+
 class CallableFunctionRename : public CallableFunction
 {
 public:
@@ -718,9 +774,12 @@ void init_module_os()
 {
 
 	CG_GGVar& gi(CG_GGVar::current());
+
 	gi.add_inner<CallableFunctionTime>();
 	gi.add_inner<CallableFunctionSleep>();
 	gi.add_inner<CallableFunctionShell>();
+	gi.add_inner<CallableFunctionExecute>();
+
 	gi.add_inner<CallableFunctionGetEnv>();
 	gi.add_inner<CallableFunctionLastError>();
 
@@ -734,6 +793,7 @@ void init_module_os()
 	gi.add_inner<CallableFunctionRemove>();
 	gi.add_inner<CallableFunctionRename>();
 	gi.add_inner<CallableFunctionTmpname>();
+	gi.add_inner<CallableFunctionExists>();
 
 	gi.add_inner<CallableFunctionFiles>();
 	gi.add_inner<CallableFunctionMkdir>();

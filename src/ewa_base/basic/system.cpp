@@ -242,7 +242,7 @@ public:
 		si.hStdError = hWriter0;
 		si.hStdInput = hReader0;
 
-		si.dwFlags = STARTF_USESTDHANDLES;
+		si.dwFlags = STARTF_USESTDHANDLES|STARTF_USESHOWWINDOW;
 
 		if(!::CreateProcessW(NULL,sb.data(),NULL,NULL,TRUE,0,NULL,NULL,&si,&pi))
 		{
@@ -493,6 +493,7 @@ public:
 		{
 			LockGuard<AtomicSpin> lock1(spin);
 			::fprintf(fp_logfile,"%s %s:%s\n",buf1,GetMsgLevel(lv),buf2);
+			::fflush(fp_logfile);
 		}
 		else
 		{

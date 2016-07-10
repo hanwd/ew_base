@@ -83,6 +83,97 @@ void CallableClass::__get_iterator(Executor& ewsl,int nd)
 	}
 }
 
+int CallableClass::__getarray(Executor& ewsl,int pm)
+{
+	ewsl.check_pmc(this,pm,1);
+	size_t sz=value.size();
+	Variant* _bp=ewsl.ci1.nsp;
+
+	idx_1t id0;
+	if(id0.update(_bp[0],0,sz)!=0)
+	{
+		ewsl.kerror("invalid array index");
+	}
+
+	if(id0.size==1)
+	{
+		_bp[0].reset(value[id0(0)]);
+	}
+	else
+	{
+		arr_xt<Variant> tmp;
+		tmp.resize(id0.size);
+
+		for(size_t k0=0;k0<id0.size;k0++)
+		{
+			tmp[k0]=value[id0(k0)];
+		}
+		_bp[0].reset(tmp);
+	}
+	return 1;
+}
+
+int CallableClass::__setarray(Executor& ewsl,int pm)
+{
+	ewsl.check_pmc(this,pm,1);
+
+
+	idx_1t idx;
+
+	Variant* _bp=ewsl.ci0.nbx+1;
+
+	int flag=0;
+
+
+	flag|=idx.update(_bp[0],0,value.size());
+	if(flag==1)
+	{
+		ewsl.kerror("invalid index");
+	}
+
+	Variant& val(ewsl.ci0.nbx[0]);
+
+	switch(val.type())
+	{
+	case type_flag<arr_xt<Variant> >::value:
+		{
+			arr_xt<Variant>& arr(val.ref<arr_xt<Variant> >());
+			for(size_t i=0;i<arr.size();i++) value[idx(i)]=arr[i];
+		}		
+		break;
+	default:
+			for(size_t i=0;i<idx.size;i++) value[idx(i)]=val;		
+	}
+
+	ewsl.ci1.nsp=ewsl.ci0.nbx-1;
+	return CallableData::STACK_BALANCED;
+
+	
+}
+
+int CallableClass::__getarray_index_range(Executor& ewsl,int pm)
+{
+	if(pm<0)
+	{
+		int64_t sz=((int64_t)value.size())-1;
+		ewsl.push(0);
+		ewsl.push(sz);
+		return 2;
+	}
+	else if(pm==0)
+	{
+		int64_t sz=((int64_t)value.size())-1;
+		ewsl.push(0);
+		ewsl.push(sz);
+	}
+	else
+	{
+		ewsl.kerror("invalid dim");
+	}
+	return 2;
+}
+
+
 CallableMetatable::CallableMetatable(const String& name):table_meta(value),m_sClassName(name){}
 
 void CallableMetatable::Serialize(Serializer& ar)

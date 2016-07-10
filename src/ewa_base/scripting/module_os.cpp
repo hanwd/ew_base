@@ -410,7 +410,7 @@ public:
 			StringBuffer<char> sb;
 			if (System::Execute("cmd /c " + *p, sb))
 			{
-				ewsl.ci0.nbx[1].reset<String>(sb);
+				ewsl.ci0.nbx[1].reset<String>(IConv::from_unknown(sb.c_str()));
 			}
 			else
 			{
@@ -448,7 +448,7 @@ public:
 			StringBuffer<char> sb;
 			if (System::Execute(*p, sb))
 			{
-				ewsl.ci0.nbx[1].reset<String>(sb);
+				ewsl.ci0.nbx[1].reset<String>(IConv::from_unknown(sb.c_str()));
 			}
 			else
 			{

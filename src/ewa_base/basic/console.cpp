@@ -83,9 +83,9 @@ void Console::Write(const String& s,int color)
 	ConsoleDoSetColor(color);
 
 #ifdef EW_WINDOWS
-	::printf(IConv::to_ansi(s).c_str());
+	std::cout<<(IConv::to_ansi(s).c_str());
 #else
-	::printf(s.c_str());
+	std::cout<<(s.c_str());
 #endif
 
 	ConsoleDoSetColor(oldcr);

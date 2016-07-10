@@ -492,7 +492,7 @@ VisReturnType TNodeVisitorCG_AnalyzerUnit::visit(TNode_braket* node,VisExtraPara
 
 VisReturnType TNodeVisitorCG_AnalyzerUnit::visit(TNode_expression_dot* node,VisExtraParam visp)
 {
-	return visit_it<TNode_expression>(node->tbl,visp);
+	return rvis.visit_it<TNode_expression>(node->tbl,visp);
 }
 
 VisReturnType TNodeVisitorCG_AnalyzerUnit::visit(TNode_expression_arr* node,VisExtraParam visp)

@@ -150,14 +150,35 @@ public:
 			ewsl.ci0.nbx[1].clear();
 			return 1;
 		}
+		StringBuffer<wchar_t> sb1(*pstr);
+		StringBuffer<wchar_t> sb2=variant_cast<String>(ewsl.ci0.nbx[1]);
 
-		String what=variant_cast<String>(ewsl.ci0.nbx[1]);
-		int pos=0;
+		size_t pos=0;
 		if(pm>1)
 		{
-			pos=variant_cast<int>(ewsl.ci0.nbx[2]);
+			pos=variant_cast<size_t>(ewsl.ci0.nbx[2]);
 		}
-		ewsl.ci0.nbx[1].reset(pstr->find(what,pos));
+
+		wchar_t *p=pos>=sb1.size()?NULL:wcsstr(sb1.c_str()+pos,sb2.c_str());
+
+		if(p)
+		{
+			ewsl.ci0.nbx[1].reset(p-sb1.c_str());
+		}
+		else
+		{
+			ewsl.ci0.nbx[1].reset(-1);	
+		}
+
+
+		//String what=variant_cast<String>(ewsl.ci0.nbx[1]);
+		//int pos=0;
+		//if(pm>1)
+		//{
+		//	pos=variant_cast<int>(ewsl.ci0.nbx[2]);
+		//}
+		//int pos2=pstr->find(what,pos);
+		//ewsl.ci0.nbx[1].reset(pos2);
 		return 1;
 	}
 

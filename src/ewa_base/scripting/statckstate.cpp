@@ -12,6 +12,8 @@ StackState0::StackState0()
 	sp2=NULL;
 	nbx=NULL;
 	kep=-1;
+
+	tcc=0;
 }
 
 

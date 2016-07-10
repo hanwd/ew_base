@@ -76,7 +76,9 @@ int CallableCode::__fun_call(Executor& ewsl,int pm)
 {
 	EW_ASSERT(ewsl.ci0.nbx==ewsl.ci1.nsp-pm);
 
+	ewsl.ci0.tcc=(size_t)ewsl.co_this->aCatch.size();
 	ewsl.co_this->aFrame.push_back(ewsl.ci0);
+
 
 	StackState0& ci0(ewsl.ci0);
 

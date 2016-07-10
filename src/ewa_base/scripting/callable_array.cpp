@@ -463,6 +463,9 @@ void CallableWrapT<arr_xt<T> >::__get_iterator(Executor& ewsl,int d)
 	}
 }
 
+
+
+
 template<typename T>
 int CallableWrapT<arr_xt<T> >::__getarray_index_range(Executor& ewsl,int pm)
 {

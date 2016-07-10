@@ -1,5 +1,6 @@
 #include "ewa_base/scripting.h"
 #include "ewa_base/util/json.h"
+#include "ewa_base/xml/xml_document.h"
 #include "ewa_base/serialization/serializer_stream.h"
 EW_ENTER
 
@@ -937,15 +938,13 @@ public:
 	virtual int __fun_call(Executor& ewsl,int pm)
 	{
 		ewsl.check_pmc(this,pm,1);
-		StringBuffer<char>* p=ewsl.ci0.nbx[1].ptr<StringBuffer<char> >();
-		if(p)
+		if(StringBuffer<char>* p=ewsl.ci0.nbx[1].ptr<StringBuffer<char> >())
 		{
 			ewsl.ci0.nbx[1]=parse_json(*p);
 		}
 		else
 		{
-			StringBuffer<char> sb=variant_cast<String>(ewsl.ci0.nbx[1]);
-			ewsl.ci0.nbx[1]=parse_json(*p);
+			ewsl.ci0.nbx[1]=parse_json(variant_cast<String>(ewsl.ci0.nbx[1]));
 		}
 		return 1;
 	}
@@ -954,6 +953,132 @@ public:
 };
 
 IMPLEMENT_OBJECT_INFO(CallableFunctionParseJson, ObjectInfo);
+
+
+
+template<>
+class CallableWrapT<XmlDocument> : public CallableData
+{
+public:
+	XmlDocument value;
+};
+
+class CallableXmlNode : public CallableData
+{
+public:
+
+	DataPtrT<CallableWrapT<XmlDocument> > pxmldoc;
+
+	CallableXmlNode():node(NULL),parent(NULL){}
+	CallableXmlNode(CallableWrapT<XmlDocument>* p):pxmldoc(p),node(NULL),parent(NULL)
+	{
+		if(pxmldoc)
+		{
+			parent=&pxmldoc->value;
+			node=parent->GetFirstChild();
+		}
+	}
+
+	XmlNode* node;
+	XmlNode* parent;
+
+	CallableXmlNode* ctor(XmlNode* p,XmlNode* c)
+	{
+		if(c==NULL) return NULL;
+		CallableXmlNode* nd=new CallableXmlNode(*this);
+		nd->parent=p;
+		nd->node=c;
+		return nd;
+	}
+
+	virtual int __getindex(Executor& ewsl,const String& si)
+	{
+		Variant& vtop(*ewsl.ci1.nsp);
+		if(!node)
+		{
+			vtop.clear();
+		}
+		else if(si=="first")
+		{
+			vtop.reset(ctor(node,node->GetFirstChild()));
+		}
+		else if(si=="next")
+		{
+			vtop.reset(ctor(parent,node->GetNext()));			
+		}
+		else if(si=="type")
+		{
+			vtop.reset(node->GetType());			
+		}
+		else if(si=="name")
+		{
+			vtop.reset(node->GetName());			
+		}
+		else if(si=="value")
+		{
+			vtop.reset(node->GetValue());			
+		}
+		else
+		{
+			ewsl.kerror("invalid index");
+		}
+
+		return STACK_BALANCED;
+	
+	}
+};
+
+
+class CallableFunctionParseXml : public CallableFunction
+{
+public:
+
+	CallableFunctionParseXml():CallableFunction("io.parse_xml",1){}
+
+	virtual int __fun_call(Executor& ewsl,int pm)
+	{
+		ewsl.check_pmc(this,pm,1);
+		String xml=variant_cast<String>(ewsl.ci0.nbx[1]);
+		DataPtrT<CallableWrapT<XmlDocument> > nd(new CallableWrapT<XmlDocument>);
+		if(!nd->value.LoadStr(xml.c_str()))
+		{
+			ewsl.ci0.nbx[1].clear();
+		}
+		else
+		{
+			ewsl.ci0.nbx[1].kptr(new CallableXmlNode(nd.get()));
+		}
+		return 1;	
+	}
+	DECLARE_OBJECT_CACHED_INFO(CallableFunctionParseXml, ObjectInfo);
+};
+IMPLEMENT_OBJECT_INFO(CallableFunctionParseXml, ObjectInfo);
+
+
+class CallableFunctionLoadXml : public CallableFunction
+{
+public:
+
+	CallableFunctionLoadXml():CallableFunction("io.load_xml",1){}
+
+	virtual int __fun_call(Executor& ewsl,int pm)
+	{
+		ewsl.check_pmc(this,pm,1);
+		String xml=variant_cast<String>(ewsl.ci0.nbx[1]);
+		DataPtrT<CallableWrapT<XmlDocument> > nd(new CallableWrapT<XmlDocument>);
+		if(!nd->value.LoadXml(xml.c_str()))
+		{
+			ewsl.ci0.nbx[1].clear();
+		}
+		else
+		{
+			ewsl.ci0.nbx[1].kptr(new CallableXmlNode(nd.get()));
+		}
+		return 1;	
+	}
+	DECLARE_OBJECT_CACHED_INFO(CallableFunctionLoadXml, ObjectInfo);
+};
+IMPLEMENT_OBJECT_INFO(CallableFunctionLoadXml, ObjectInfo);
 
 
 
@@ -966,12 +1091,15 @@ void init_module_io()
 	gi.add_inner<CallableFunctionLoadTxt>();
 	gi.add_inner<CallableFunctionSaveTxt>();
 	gi.add_inner<CallableFunctionLoadJson>();
+	gi.add_inner<CallableFunctionLoadXml>();
+
 
 	gi.add_inner<CallableFunctionPuts>();
 	gi.add_inner<CallableFunctionPrint>();
 	gi.add_inner<CallableFunctionPrintLn>();
 	gi.add_inner<CallableFunctionPrintEx>();
 	gi.add_inner<CallableFunctionShowTemp>();
+	gi.add_inner<CallableFunctionParseXml>();
 
 	gi.add_inner<CallableFunctionToJson>();
 	gi.add_inner<CallableFunctionParseJson>();

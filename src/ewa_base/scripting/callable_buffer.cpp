@@ -49,6 +49,7 @@ public:
 };
 IMPLEMENT_OBJECT_INFO_T1(CallableFunctionBufferLengthT, ObjectInfo);
 
+
 template<typename T>
 class CallableFunctionBufferSaveT : public CallableFunction
 {

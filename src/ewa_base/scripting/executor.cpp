@@ -241,6 +241,8 @@ inline bool Executor_stackframe_leave(Executor& ewsl,int pm)
 	ewsl.ci0=ewsl.co_this->aFrame.back();
 	ewsl.co_this->aFrame.pop_back();
 
+	ewsl.co_this->aCatch.resize(ewsl.ci0.tcc);
+
 	int kep=ewsl.ci0.kep;
 
 	if(kep>=0)

@@ -133,6 +133,10 @@ public:
 	virtual int __getindex(Executor&,const String&); // top.s
 	virtual int __setindex(Executor&,const String&); // top.s=val
 
+	virtual int __getarray(Executor& ewsl,int pm);
+	virtual int __setarray(Executor& ewsl,int pm);
+	virtual int __getarray_index_range(Executor& ewsl,int pm);
+
 	bool ToValue(String& v,int) const;
 
 	void Serialize(Serializer& ar);

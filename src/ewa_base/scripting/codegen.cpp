@@ -226,6 +226,23 @@ void CG_Local::leave2()
 }
 
 
+void CG_Local::add_r()
+{
+
+	CG_Block* p=m_nLocalStk.back();
+	while(p)
+	{
+		//if(p==m_nLocalGrp.back()) break;
+
+		if(p->flags.get(CG_Block::FLAG_EXCEPT))
+		{
+			cgen.emit(XOP_TRY_LEAVE);
+		}
+
+		p=p->parent;
+	}
+}
+
 void CG_Local::add_b(int lv)
 {
 	if(m_nLocalStk.empty())

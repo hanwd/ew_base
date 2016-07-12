@@ -128,6 +128,15 @@ TEST_DEFINE(TEST_Scripting_Executor1)
 	TEST_ASSERT(ewsl.eval<String>("1.25")==String("1.25"));
 	TEST_ASSERT(ewsl.eval<double>("'1.25'")==1.25);
 	TEST_ASSERT(ewsl.eval<int64_t>("'123'")==123);
+
+	ewsl.execute("function fn(){exit(1,2,3);};fn();return 4,5,6;",0,3);
+	Variant a,b,c;
+	ewsl.popq(c);
+	ewsl.popq(b);
+	ewsl.popq(a);
+	TEST_ASSERT(variant_cast<int64_t>(1)==1);
+	TEST_ASSERT(variant_cast<int64_t>(b)==2);
+	TEST_ASSERT(variant_cast<int64_t>(c)==3);
 }
 
 

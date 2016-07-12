@@ -49,6 +49,7 @@ public:
 	size_t local_max();
 	size_t capture_num();
 
+	void add_r();
 	void add_b(int lv);
 	void add_c(int lv);
 	void set_b(int jp);

@@ -21,8 +21,6 @@ public:
 
 	DataPtrT<CallableCode> frm;
 
-	int tcc;
-
 	StackState0();
 
 };

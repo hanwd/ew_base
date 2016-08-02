@@ -416,6 +416,8 @@ void Executor::_vm_run1(int d)
 		}
 	}
 
+	EW_ASSERT(co_this->aCatch.empty());
+
 }
 
 

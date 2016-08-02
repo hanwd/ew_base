@@ -776,6 +776,7 @@ VisReturnType TNodeVisitorCG_GeneratorRValue::visit(TNode_statement_block* node,
 VisReturnType TNodeVisitorCG_GeneratorRValue::visit(TNode_statement_return* node,VisExtraParam)
 {
 	int n=node->value->accept(*this,-2);
+	cgen.back().cg_local.add_r();
 	cgen.emit(XOP_HALT,n);
 	return def_value();
 }

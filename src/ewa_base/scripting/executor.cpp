@@ -241,8 +241,6 @@ inline bool Executor_stackframe_leave(Executor& ewsl,int pm)
 	ewsl.ci0=ewsl.co_this->aFrame.back();
 	ewsl.co_this->aFrame.pop_back();
 
-	ewsl.co_this->aCatch.resize(ewsl.ci0.tcc);
-
 	int kep=ewsl.ci0.kep;
 
 	if(kep>=0)
@@ -398,14 +396,14 @@ void Executor::_vm_handle_exception(std::exception &e)
 
 }
 
-void Executor::_vm_run1(int d)
+void Executor::_vm_run1()
 {
 
 	while (ci0.nip)
 	{
 		try
 		{
-			_vm_run2(d);
+			_vm_run2();
 
 			EW_ASSERT(co_this==co_main);
 			EW_ASSERT(co_this->aFrame.empty());
@@ -421,7 +419,7 @@ void Executor::_vm_run1(int d)
 }
 
 
-void Executor::_vm_run2(int k)
+void Executor::_vm_run2()
 {
 
 	Executor& ewsl(*this);
@@ -440,6 +438,7 @@ void Executor::_vm_run2(int k)
 			{
 				co_main->aFrame[0].sp2=ewsl.ci0.nbx;
 				co_main->aFrame.resize(1);
+				co_main->aCatch.clear();
 				co_this=co_main;
 				co_last.reset(NULL);
 			}
@@ -820,7 +819,7 @@ void Executor::_vm_check_ret(int ret)
 	{
 		if(ci0.nip!=NULL)
 		{
-			_vm_run1(ci0.kep);
+			_vm_run1();
 		}
 	}
 	else
@@ -892,7 +891,7 @@ bool Executor::callx(int pmc,int kep)
 		{
 			if(ci0.nip!=NULL)
 			{
-				_vm_run1(kep);
+				_vm_run1();
 			}
 		}
 		else

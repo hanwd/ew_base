@@ -13,7 +13,6 @@ StackState0::StackState0()
 	nbx=NULL;
 	kep=-1;
 
-	tcc=0;
 }
 
 

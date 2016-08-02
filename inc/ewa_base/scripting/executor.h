@@ -135,8 +135,8 @@ protected:
 
 	VariantTable tb1_internal;
 
-	void _vm_run1(int kep);
-	void _vm_run2(int kep);
+	void _vm_run1();
+	void _vm_run2();
 	void _vm_check_ret(int ret);
 
 	void _vm_handle_exception(std::exception &e);

@@ -15,14 +15,21 @@ public:
 
 	const char* pchar;
 
+
 	Variant parse(const String& json)
 	{
 		pchar = json.c_str();
-
-		Variant value;
-		if (parse_value(value))
+		try
 		{
-			return value;
+			Variant value;
+			if(parse_value(value))
+			{
+				return value;		
+			}
+		}
+		catch(...)
+		{
+
 		}
 
 		return Variant();
@@ -258,6 +265,8 @@ public:
 					break;
 				case '/':
 				case '\\':
+				case '\"':
+				case '\'':
 					sb.push_back(p[1]);
 					break;
 				case 'u':

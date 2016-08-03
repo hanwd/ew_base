@@ -20,6 +20,30 @@ public:
 	}
 };
 
+class CallableFunctionResponseRedirect : public CallableFunction
+{
+public:
+	XopInst inst[2];
+	CallableFunctionResponseRedirect()
+	{
+		inst[0].op=XOP_EXIT;
+		inst[1].op=XOP_EXIT;
+	}
+
+	int __fun_call(Executor& ewsl,int pm)
+	{
+		ewsl.check_pmc(this,pm,1);
+		VariantTable& tb(ewsl.ci1.nbp[StackState1::SBASE_THIS].ref<VariantTable>());
+		tb["status"].reset(301);
+		tb["location"]=ewsl.ci0.nbx[1];
+		ewsl.ci0.nip=inst;
+		return 0;
+	}
+	DECLARE_OBJECT_CACHED_INFO(CallableFunctionResponseRedirect, ObjectInfo);
+
+};
+IMPLEMENT_OBJECT_INFO(CallableFunctionResponseRedirect, ObjectInfo);
+
 class DLLIMPEXP_EWA_BASE SessionHttpResponse : public CallableTableEx
 {
 public:
@@ -28,6 +52,7 @@ public:
 		value["buffer"].kptr(new CallableWrapT<StringBuffer<char> >);
 		value["status"].reset(200);
 		value["type"].reset("");
+		value["redirect"].reset(CallableFunctionResponseRedirect::sm_info.CreateObject());
 	}
 };
 
@@ -56,29 +81,36 @@ void SessionHttp_Response_404(SessionHttp& http)
 
 void SessionHttp_Response_FILE(SessionHttp& http)
 {
+
 	if(!http.chunked_stream.open(http.filepath,FLAG_FILE_RD))
 	{
 		http.httpstatus=404;
 		return;
 	}
 
-	int64_t sz=http.chunked_stream.reader().sizeg();
-	if(sz<0)
+	http.length=http.chunked_stream.reader().sizeg();
+	if(http.length<0)
 	{
 		System::LogError("invalid file size");
 		http.Disconnect();
 		return;
 	}
 
-	if(sz>1024*8)
+	//SessionHttp::map_type::iterator it=http.props.find("Range");
+	//if(it!=http.props.end())
+	//{
+
+	//}
+
+	if(http.length>1024*8)
 	{
 		http.flags.add(SessionHttp::FLAG_RESPONSE_CHUNKED);
 		return;
 	}
 
-	http.sb.resize(sz);
-	int s1=http.chunked_stream.recv(http.sb.data(),sz);
-	if(s1==sz)
+	http.sb.resize(http.length);
+	int s1=http.chunked_stream.recv(http.sb.data(),http.length);
+	if(s1==http.length)
 	{
 		return;
 	}
@@ -101,26 +133,25 @@ void SessionHttp_Response_EWSL(SessionHttp& http)
 	ewsl.push(response);
 	ewsl.push(http.Target.server_objects);
 
-	if(ewsl.execute_file(http.filepath,4))
+	bool flag=ewsl.execute_file(http.filepath,4);
+
+	http.httpstatus=variant_cast<int>(response->value["status"]);
+	if(http.httpstatus==301)
 	{
-		http.httpstatus=variant_cast<int>(response->value["status"]);
-		if(http.httpstatus==301)
+		http.props["Location"]=variant_cast<String>(response->value["location"]);
+	}
+	else if(flag)
+	{
+		http.sb.swap(response->value["buffer"].ref<StringBuffer<char> >());
+		if(http.sb.empty())
 		{
-			http.props["Location"]=variant_cast<String>(response->value["location"]);
-		}
-		else
-		{
-			http.sb.swap(response->value["buffer"].ref<StringBuffer<char> >());
-			if(http.sb.empty())
-			{
-				http.filepath=response->value["download"].ref<String>();
-				SessionHttp_Response_FILE(http);
-				//http.props["Download"]=;
-			}
+			http.filepath=response->value["download"].ref<String>();
+			SessionHttp_Response_FILE(http);
 		}
 	}
 	else
 	{
+		http.httpstatus=501;
 		http.sb<<"server_error";
 	}
 
@@ -145,6 +176,8 @@ SessionManager::SessionManager()
 
 void SessionManager::HandleRequest(SessionHttp& http)
 {
+	if(http.uri=="/") http.uri="/default.ewsl";
+
 	http.filepath=server_path+http.uri;
 	String exts=string_to_upper(string_split(http.filepath,".").back());
 	handler_maptype::iterator it=handler_map.find(exts);
@@ -155,7 +188,12 @@ void SessionManager::HandleRequest(SessionHttp& http)
 	}
 	else
 	{
-		SessionHttp_Response_404(http);
+		http.httpstatus=404;
+	}
+
+	if(http.httpstatus==404)
+	{
+		SessionHttp_Response_404(http);	
 	}
 }
 
@@ -245,6 +283,7 @@ void SessionHttp::HandleRequest()
 
 	sb.clear();
 
+	length=-1;
 	Target.HandleRequest(*this);
 
 	StringBuffer<char> sb1;
@@ -260,6 +299,10 @@ void SessionHttp::HandleRequest()
 	if(httpstatus==301)
 	{
 		sb1<<"Location: " <<props["Location"]<<"\r\n\r\n";
+	}
+	else if(length>0)
+	{
+		sb1<<"Content-Length:"<<length<<"\r\n\r\n";
 	}
 	else if(flags.get(FLAG_RESPONSE_CHUNKED))
 	{
@@ -278,7 +321,6 @@ void SessionHttp::HandleRequest()
 	}
 
 	sb1.swap(sb);
-
 	AsyncSend(sb.c_str(),sb.size());
 
 }
@@ -405,51 +447,77 @@ void SessionHttp::OnSendCompleted(TempOlapPtr& q)
 		return;
 	}
 
-
 	static const int CHUNKED_BUFFER_SIZE=1024*8;
-
 	char buf[CHUNKED_BUFFER_SIZE];
-	char *p1=buf+16;
-	int s1=CHUNKED_BUFFER_SIZE-18;
 
-	int sz=chunked_stream.recv(p1,s1);
-	if(sz>0)
+	if(length<0)
 	{
-		char* p2=p1+sz;
 
-		*--p1='\n';
-		*--p1='\r';
-		int32_t tmp=sz;
-		for(int tmp=sz;tmp>0;tmp=tmp/16)
+		char *p1=buf+16;
+		int s1=CHUNKED_BUFFER_SIZE-18;
+
+		int sz=chunked_stream.recv(p1,s1);
+		if(sz>0)
 		{
-			int d=tmp%16;
-			char ch=d<10?'0'+d:'A'-10+d;
-			*--p1=ch;
+			char* p2=p1+sz;
+
+			*--p1='\n';
+			*--p1='\r';
+			int32_t tmp=sz;
+			for(int tmp=sz;tmp>0;tmp=tmp/16)
+			{
+				int d=tmp%16;
+				char ch=d<10?'0'+d:'A'-10+d;
+				*--p1=ch;
+			}
+
+			if(sz+7<s1)
+			{
+				flags.del(FLAG_RESPONSE_CHUNKED);
+				memcpy(p2,"\r\n0\r\n\r\n",7);
+				p2+=7;
+			}
+			else
+			{
+				*p2++='\r';
+				*p2++='\n';
+			}
+
+			AsyncSend(p1,p2-p1);
+			return;
 		}
 
-		if(sz+7<s1)
+		flags.del(FLAG_RESPONSE_CHUNKED);
+		AsyncSend("0\r\n\r\n",5);
+
+		if(sz<0)
 		{
-			flags.del(FLAG_RESPONSE_CHUNKED);
-			memcpy(p2,"\r\n0\r\n\r\n",7);
-			p2+=7;
+			System::LogTrace("stream read error");
+		}
+	}
+	else
+	{
+		int sz=chunked_stream.recv(buf,CHUNKED_BUFFER_SIZE);
+		if(sz>0)
+		{
+			if(length>sz)
+			{
+				length-=sz;
+				AsyncSend(buf,sz);
+			}
+			else
+			{
+				flags.del(FLAG_RESPONSE_CHUNKED);
+				AsyncSend(buf,length);			
+			}
 		}
 		else
 		{
-			*p2++='\r';
-			*p2++='\n';
+			System::LogTrace("stream read error");
+			Disconnect();
 		}
-
-		AsyncSend(p1,p2-p1);
-		return;
 	}
 
-	flags.del(FLAG_RESPONSE_CHUNKED);
-	AsyncSend("0\r\n\r\n",5);
-
-	if(sz<0)
-	{
-		System::LogTrace("stream read error");
-	}
 
 }
 

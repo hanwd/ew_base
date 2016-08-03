@@ -127,7 +127,7 @@ public:
 	String anchor;
 	String filepath;
 
-	int length;
+	int64_t length;
 
 	int phase;
 	BitFlags flags;

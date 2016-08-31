@@ -30,6 +30,8 @@ public:
 	BitFlags flags;
 
 	virtual bool DoUpdateValue(DState&){return true;}
+	virtual bool DoCheckParam(DState&){return true;}
+
 	virtual bool DoTransferData(TableSerializer&){return true;}
 
 };
@@ -121,7 +123,8 @@ public:
 	SymbolManager(){}
 
 	bool UpdateValue();
-	bool DoUpdateValue(DState& ds);
+	bool DoUpdateValue(DState& dp);
+	bool DoUpdateValue(DState& dp,const String& name);
 
 	void gp_add(const String& s)
 	{
@@ -230,6 +233,7 @@ public:
 	void link(const String& s,BitFlags& v,int m);
 
 	void link(const String& s,String& v);
+	void link(const String& s,String& v,const String& d);
 
 	template<typename T>
 	void link_t(const String& s,arr_1t<T>& v)
@@ -285,12 +289,11 @@ public:
 
 	DState(Executor& k,SymbolManager* s=NULL);
 
-
 	LitePtrT<SymbolManager> psmap;
+	arr_1t<SymbolManager*> asmap;
+
 	Executor& lexer;
 	BitFlags flags;
-
-	arr_1t<SymbolManager*> asmap;
 
 	enum
 	{
@@ -329,16 +332,22 @@ public:
 	template<typename T>
 	bool DoUpdateValue(NamedReferenceT<T>& p)
 	{
-		if((phase==1 && !link_t<T>(p.name,p))||!p)
-		{
-			return false;
+		if(phase==DPHASE_VAR)
+		{ 
+			if(!link_t<T>(p.name,p))
+			{
+				return false;
+			}
+			if(!p)
+			{
+				return false;
+			}
 		}
 
 		if(test(p.get()) && !p->DoUpdateValue(*this))
 		{
 			return false;
 		}
-
 		return true;
 	}
 

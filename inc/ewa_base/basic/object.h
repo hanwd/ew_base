@@ -168,18 +168,13 @@ public:
 
 
 	// Increase reference count of p2, decrease reference count of p1
-	static void locked_reset(ObjectData*&p1,ObjectData* p2)
+	template<typename T>
+	static typename tl::enable_if_c<tl::is_convertible<T,ObjectData> >::type locked_reset(T*& p1,T* p2)
 	{
 		if(p1==p2) return;
 		if(p2) p2->IncRef();
 		if(p1) p1->DecRef();
 		p1=p2;
-	}
-
-	template<typename T>
-	static typename tl::enable_if_c<tl::is_convertible<T,ObjectData>,void>::type locked_reset(T*& p1,ObjectData* p2)
-	{
-		locked_reset(reinterpret_cast<ObjectData*&>(p1),p2);
 	}
 
 	DECLARE_OBJECT_INFO(ObjectData,ObjectInfo)

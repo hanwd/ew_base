@@ -21,20 +21,28 @@ bool SymbolManager::UpdateValue()
 	return DoUpdateValue(ds);
 }
 
-bool SymbolManager::DoUpdateValue(DState& ds)
+bool SymbolManager::DoUpdateValue(DState& dp,const String& name)
 {
-	DState::LockerSM lock(ds,*this);
+	CallableSymbol* p=get_item_t<CallableSymbol>(name);
+	if(!p) return true;
+
+	DState::LockerSM lock(dp,*this);
+	return p->DoUpdateValue(dp);
+}
+
+bool SymbolManager::DoUpdateValue(DState& dp)
+{
+	DState::LockerSM lock(dp,*this);
 
 	for(size_t i=0;i<m_aSymbol.size();i++)
 	{
 		CallableSymbol* p=dynamic_cast<CallableSymbol*>(m_aSymbol.get(i).second.get());
-		if(ds.test(p))
+		if(!dp.test(p)) continue;
+
+		if(!p->DoUpdateValue(dp))
 		{
-			if(!p->DoUpdateValue(ds))
-			{
-				return false;
-			}
-		}
+			return false;
+		}	
 	}
 
 	return true;

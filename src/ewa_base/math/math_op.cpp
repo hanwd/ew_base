@@ -7,6 +7,10 @@ EW_ENTER
 op_info::op_info(const String& s,int f):name(s),op_name("__"+string_split(s,".").back()),flag(f){}
 op_info::op_info(const String& s,const String& o,int f):name(s),op_name(o),flag(f){}
 
+bool is_nan(double d)
+{
+	return !(d>0.0||d<=0.0);
+}
 
 template<>
 double numeric_trait_floating<double>::min_value()
@@ -27,7 +31,6 @@ double numeric_trait_floating<double>::nan_value()
 	static double d= ::sin(max_value());
 	return d;
 }
-
 
 
 template<typename T>

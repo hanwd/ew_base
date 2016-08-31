@@ -335,6 +335,17 @@ public:
 		}
 	}
 
+	void Scale(X v)
+	{
+		basetype& m4(*this);
+		for(size_t i=0;i<4;i++)
+		{
+			m4(i,0)*=v;
+			m4(i,1)*=v;
+			m4(i,2)*=v;
+		}	
+	}
+
 	void Rotate(double d,const vec3& v)
 	{
 		if(d==0.0) return;
@@ -369,6 +380,19 @@ public:
 	void Inverse()
 	{
 		(*this)=m4_inverse(*this);
+	}
+
+	void MultMatrix(const type_mat& m)
+	{
+		basetype& m4(*this);
+		m4=m4*m;
+	}
+
+	void MultMatrix(const type_mat& m,double u)
+	{
+		Scale(u);
+		MultMatrix(m);
+		Scale(1.0/u);
 	}
 
 };

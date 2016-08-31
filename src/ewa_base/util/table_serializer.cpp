@@ -67,4 +67,23 @@ void TableSerializer::link(const String& s,String& v)
 	}
 }
 
+void TableSerializer::link(const String& s,String& v,const String& d)
+{
+	if(type==WRITER)
+	{
+		value[s].reset(v);
+	}
+	if(type==READER)
+	{
+		int id=value.find1(s);
+		if(id>=0)
+		{
+			v=pl_cast<String>::g(value.get(id).second);
+		}
+		else
+		{
+			v=d;
+		}
+	}
+}
 EW_LEAVE

@@ -16,14 +16,14 @@ public:
 
 	void load_min()
 	{
-		lo.seta(+std::numeric_limits<double>::max());
-		hi.seta(-std::numeric_limits<double>::max());
+		lo.seta(+std::numeric_limits<T>::max());
+		hi.seta(-std::numeric_limits<T>::max());
 	}
 
 	void load_max()
 	{
-		lo.seta(-std::numeric_limits<double>::max());
-		hi.seta(+std::numeric_limits<double>::max());
+		lo.seta(-std::numeric_limits<T>::max());
+		hi.seta(+std::numeric_limits<T>::max());
 	}
 
 
@@ -41,6 +41,42 @@ public:
 			}
 		}
 		return true;
+	}
+
+	bool test_x(T v)
+	{
+		return v>=lo[0] && v<=hi[0];
+	}
+
+	bool test_y(T v)
+	{
+		return v>=lo[1] && v<=hi[1];
+	}
+
+	bool test_z(T v)
+	{
+		return v>=lo[2] && v<=hi[2];
+	}
+
+	bool test(const tiny_vec<T,N>& v)
+	{
+		for(int i=0;i<N;i++)
+		{
+			if(v[i]>=lo[i] && v[i]<=hi[i]) continue;
+			return false;
+		}
+		return true;
+	}
+
+	template<int X>
+	bool test_n(const tiny_vec<T,N>& v)
+	{
+		return v[X]>=lo[X] && v[X]<=hi[X];
+	}
+
+	typename tl::enable_if<N==3,bool>::type test(T x,T y,T z)
+	{
+		return test_x(x) && test_y(y) && test_z(z);
 	}
 
 	void add_x(T v)

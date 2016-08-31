@@ -6,6 +6,8 @@
 #include "ewa_base/math/tiny_mat.h"
 #include "ewa_base/math/tiny_box.h"
 
+#define M_LIGHTSPEED 2.99792458e8
+
 EW_ENTER
 
 
@@ -27,6 +29,8 @@ class box3s
 public:
 	vec3s lo,hi;
 };
+
+bool is_nan(double d);
 
 template<typename T>
 class DLLIMPEXP_EWA_BASE numeric_trait_floating

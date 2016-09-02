@@ -11,31 +11,6 @@
 EW_ENTER
 
 
-template<typename T,typename P>
-class vv_cast : public P
-{
-public:
-
-	using P::g;
-
-	template<unsigned N>
-	struct fk
-	{
-		static T value(const Variant& v)
-		{
-			EW_ASSERT(N==v.type());
-			return P::g(variant_handler<typename flag_type<N>::type>::raw(v));
-		}
-	};
-
-	typedef T (*fn)(const Variant&);
-
-	static inline T g(const Variant& v)
-	{
-		return lookup_table_4bit<fk,fn>::test(v.type())(v);
-	}
-
-};
 
 
 template<typename T>
@@ -117,7 +92,9 @@ public:
 	static type g(bool v){return (type)v;}
 	static type g(int32_t v){return (type)v;}
 	static type g(int64_t v){return (type)v;}
-	static type g(size_t v){return (type)v;}
+	static type g(uint32_t v){return (type)v;}
+	static type g(uint64_t v){return (type)v;}
+
 	static type g(float v){return (type)v;}
 	static type g(double v){return (type)v;}
 
@@ -173,7 +150,8 @@ public:
 
 };
 
-template<> class pl_cast_base<size_t> : public kany_cast_number<size_t>{};
+template<> class pl_cast_base<uint32_t> : public kany_cast_number<uint32_t>{};
+template<> class pl_cast_base<uint64_t> : public kany_cast_number<uint64_t>{};
 template<> class pl_cast_base<int32_t> : public kany_cast_number<int32_t>{};
 template<> class pl_cast_base<int64_t> : public kany_cast_number<int64_t>{};
 template<> class pl_cast_base<float> : public kany_cast_number<float>{};
@@ -335,6 +313,33 @@ public:
 
 };
 
+
+
+template<typename T,typename P>
+class vv_cast : public P
+{
+public:
+
+	using P::g;
+
+	template<unsigned N>
+	struct fk
+	{
+		static T value(const Variant& v)
+		{
+			EW_ASSERT(N==v.type());
+			return P::g(variant_handler<typename flag_type<N>::type>::raw(v));
+		}
+	};
+
+	typedef T (*fn)(const Variant&);
+
+	static inline T g(const Variant& v)
+	{
+		return lookup_table_4bit<fk,fn>::test(v.type())(v);
+	}
+
+};
 
 template<typename T>
 class pl_cast : public vv_cast<T,pl_cast_base<T> >

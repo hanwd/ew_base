@@ -174,8 +174,11 @@ public:
 	virtual bool ToJson(JsonWriter&){return false;}
 
 	bool ToValue(int32_t& v) const;
+	bool ToValue(uint32_t& v) const;
+	bool ToValue(uint64_t& v) const;
+
 	bool ToValue(float& v) const;
-	bool ToValue(size_t& v) const;
+
 
 	inline CallableData* Clone(int t=0)
 	{

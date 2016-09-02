@@ -108,7 +108,14 @@ bool CallableData::ToValue(float& v) const
 	return true;
 }
 
-bool CallableData::ToValue(size_t& v) const
+bool CallableData::ToValue(uint32_t& v) const
+{
+	int64_t tmp;if(!ToValue(tmp)) return false;
+	v=tmp;
+	return true;
+}
+
+bool CallableData::ToValue(uint64_t& v) const
 {
 	int64_t tmp;if(!ToValue(tmp)) return false;
 	v=tmp;

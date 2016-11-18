@@ -537,6 +537,9 @@
     <ClInclude Include="..\..\src\ewa_base\util\regex_impl.h">
       <Filter>source\util</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\inc\ewa_base\math\random.h">
+      <Filter>include\math</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\ewa_base\basic\atomic.cpp">
@@ -874,6 +877,9 @@
     </ClCompile>
     <ClCompile Include="..\..\src\ewa_base\scripting\module_regex.cpp">
       <Filter>source\scripting</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewa_base\math\random.cpp">
+      <Filter>source\math</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

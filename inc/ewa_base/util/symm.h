@@ -13,6 +13,45 @@ class DLLIMPEXP_EWA_BASE TableSerializer;
 class DLLIMPEXP_EWA_BASE DState;
 
 
+class DLLIMPEXP_EWA_BASE DExprItem
+{
+public:
+	String name,value,desc;
+
+	DExprItem(const String& n,const String& v,const String& d=""):name(n),value(v),desc(d){}
+	DExprItem(){}
+
+
+	void Serialize(Serializer& ar)
+	{
+		ar & name & value & desc;
+	}
+};
+
+inline bool operator==(const DExprItem& lhs,const DExprItem& rhs)
+{
+	return lhs.name==rhs.name && lhs.value==rhs.value && lhs.desc==rhs.desc;
+}
+inline bool operator!=(const DExprItem& lhs,const DExprItem& rhs)
+{
+	return !(lhs==rhs);
+}
+
+template<>
+class hash_t<DExprItem>
+{
+public:
+	inline uint32_t operator()(const DExprItem& val)
+	{
+		hash_t<String> h2;
+		return h2(val.name)^h2(val.value)^h2(val.desc);
+	}
+};
+
+
+DEFINE_OBJECT_NAME(DExprItem,"expritem");
+
+
 class DLLIMPEXP_EWA_BASE CallableSymbol : public CallableData
 {
 public:
@@ -109,7 +148,7 @@ public:
 
 	size_t depth(){return m_aStack.size();}
 
-	
+
 	size_t size(){return m_aSymbol.size();}
 
 	CallableSymbol* get_item(size_t i)
@@ -207,6 +246,19 @@ public:
 	String name;
 };
 
+class DWhen
+{
+public:
+
+	int t_begin,t_end,t_step;
+
+	DWhen()
+	{
+		t_begin=t_end=0;
+		t_step=-1;
+	}
+};
+
 class DLLIMPEXP_EWA_BASE TableSerializer : public Object
 {
 public:
@@ -234,6 +286,14 @@ public:
 
 	void link(const String& s,String& v);
 	void link(const String& s,String& v,const String& d);
+
+	void link(const String& s,DWhen& v)
+	{
+		link(s+".t_begin",v.t_begin);
+		link(s+".t_end",v.t_end);
+		link(s+".t_step",v.t_step);
+
+	}
 
 	template<typename T>
 	void link_t(const String& s,arr_1t<T>& v)
@@ -281,6 +341,18 @@ public:
 
 	mat4d m4;
 	box3d b3;
+};
+
+enum
+{
+	DPHASE_NIL,
+	DPHASE_VAR,
+	DPHASE_SHP,
+	DPHASE_ACT,
+	DPHASE_VAL,
+
+	DPHASE_MIN=DPHASE_VAR,
+	DPHASE_MAX=DPHASE_VAL,
 };
 
 class DLLIMPEXP_EWA_BASE DState : public Object
@@ -333,7 +405,7 @@ public:
 	bool DoUpdateValue(NamedReferenceT<T>& p)
 	{
 		if(phase==DPHASE_VAR)
-		{ 
+		{
 			if(!link_t<T>(p.name,p))
 			{
 				return false;

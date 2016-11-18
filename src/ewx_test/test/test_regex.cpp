@@ -105,6 +105,7 @@ TEST_DEFINE(TEST_Regex2)
 	Match res;
 	Regex re;
 
+
 	re.assign("a|(ab)");
 	TEST_ASSERT(re.match("ab"));
 

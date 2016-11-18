@@ -7,6 +7,7 @@
 #include <string>
 
 #include <stdio.h>
+#include <iostream>
 
 #ifdef EW_WINDOWS
 #include <windows.h>
@@ -60,24 +61,30 @@ inline void String::_do_format_integer(T v_)
 	_do_append(p1,p2-p1);
 }
 
-
-inline int String::_do_prinfv(const char* s,va_list vl)
+inline int String::_do_prinfv(const char* format,va_list argptr)
 {
-	int _n1 = vsnprintf(NULL, 0, s, vl);
-	if (_n1 < 0)
+	va_list argptr_copy;
+	va_copy(argptr_copy,argptr);
+	int n1=vsnprintf(0,0,format,argptr_copy);
+	va_end(argptr_copy);
+
+	if(n1<0)
 	{
+		System::LogTrace("n1!<0 in String::_do_printfv.");
 		return -1;
 	}
 
-	char* _pnewstr = StringDetail::str_alloc(_n1);
-	int _n2 = vsnprintf(_pnewstr, _n1, s, vl);
-
-	EW_ASSERT(_n1 == _n2);
-
+	char* pbuf=StringDetail::str_alloc(n1);
+	int n2=vsnprintf(pbuf,n1+1,format,argptr);
 	StringDetail::str_free(m_ptr);
-	m_ptr = _pnewstr;
+	m_ptr=pbuf;
 
-	return _n2;
+	if(n1!=n2)
+	{
+		System::LogTrace("n1!=n2 in String::_do_printfv. n1=%d,n2=%d",n1,n2);
+	}
+
+	return n1;
 
 }
 
@@ -93,7 +100,7 @@ String::String(const StringBuffer<unsigned char>& o)
 String::String(const StringBuffer<wchar_t>& o)
 {
 	m_ptr=StringDetail::str_empty();
-	_do_assign(o.c_str(),o.size());	
+	_do_assign(o.c_str(),o.size());
 }
 
 String::String(const unsigned char* p)
@@ -175,8 +182,10 @@ String String::FormatV(const char* s,va_list arglist)
 
 String String::FormatImpl(const char* s,...)
 {
-	va_list arglist;
+
 	String ret;
+
+	va_list arglist;
 	va_start(arglist,s);
 	ret._do_prinfv(s,arglist);
 	va_end(arglist);
@@ -407,7 +416,7 @@ int String::find (const String& s, int pos) const
 {
 	size_t n=size();
 	if (unsigned(pos) >= n) return -1;
-	const char* p = ::strstr(m_ptr + pos, s.c_str());	
+	const char* p = ::strstr(m_ptr + pos, s.c_str());
 	return p == NULL ? -1 : p - m_ptr;
 }
 

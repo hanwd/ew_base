@@ -40,6 +40,7 @@ template class MpFixedSizePool<20,0,1>;
 template class MpFixedSizePool<40,0,1>;
 template class MpFixedSizePool<64,1,1>;
 template class MpFixedSizePool<80,0,1>;
+template class MpFixedSizePool<88,0,1>;
 
 EW_THREAD_TLS MpAllocCachedNoLock* tls_tc_data;
 

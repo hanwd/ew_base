@@ -30,9 +30,12 @@ public:
 
 	bool ToValue(String& v,int) const;
 
+	DECLARE_OBJECT_INFO(CallableFunction,ObjectInfo);
+
 protected:
 	String m_sName;
 	DataPtrT<HelpData> m_pHelp;
+
 };
 
 

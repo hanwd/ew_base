@@ -49,7 +49,7 @@ class serial_type
 public:
 
 	static const int value=tl::is_convertible<T,ObjectData>::value?Serializer::PTRTAG_CACHED:
-		tl::is_convertible<T,Object>::value?Serializer::PTRTAG_OBJ: 
+		tl::is_convertible<T,Object>::value?Serializer::PTRTAG_OBJ:
 		tl::is_pod<T>::value?Serializer::PTRTAG_POD:Serializer::PTRTAG_CLS;
 };
 
@@ -74,6 +74,23 @@ class serial_switch;
 
 template<typename A,typename T>
 class serial_pod;
+
+
+template<typename A,typename T>
+class serial_pod
+{
+public:
+	static const int value=tl::is_pod<T>::value;
+	static void g(SerializerReader& ar,T& val)
+	{
+		ar.recv_checked((char*)&val,sizeof(T));
+	}
+	static void g(SerializerWriter& ar,T& val)
+	{
+		ar.send_checked((char*)&val,sizeof(T));
+	}
+};
+
 
 template<typename A,typename I,typename T>
 class serial_pod_cast : public serial_pod<A,T>
@@ -113,25 +130,11 @@ public:
 	}
 };
 
-template<typename A,typename T>
-class serial_pod
-{
-public:
-	static const int value=tl::is_pod<T>::value;
-	static void g(SerializerReader& ar,T& val)
-	{
-		ar.recv_checked((char*)&val,sizeof(T));
-	}
-	static void g(SerializerWriter& ar,T& val)
-	{
-		ar.send_checked((char*)&val,sizeof(T));
-	}
-};
-
 template<typename A> class serial_pod<A,bool> : public serial_pod_cast<A,bool,char> {};
-template<typename A> class serial_pod<A,long> : public serial_pod_cast<A,long,int64_t> {};
-template<typename A> class serial_pod<A,unsigned long> : public serial_pod_cast<A,unsigned long,int64_t> {};
+//template<typename A> class serial_pod<A,long> : public serial_pod_cast<A,long,int64_t> {};
+//template<typename A> class serial_pod<A,unsigned long> : public serial_pod_cast<A,unsigned long,int64_t> {};
 template<typename A> class serial_pod<A,wchar_t> : public serial_pod_cast<A,wchar_t,int32_t> {};
+
 
 
 template<typename A,typename T,bool>
@@ -244,7 +247,7 @@ public:
 
 	static void g(SerializerWriter& ar, type& val)
 	{
-		int n=ar.size_count(val.size());
+		//int n=ar.size_count(val.size());
 		for (iterator it = val.begin(); it != val.end(); it++)
 		{
 			ar << (*it);
@@ -641,7 +644,7 @@ public:
 		{
 			d[7]=d[7]^d[i];
 			x[i]=d[i];
-		}	
+		}
 
 		d[7]=d[7]^d[6];
 		if(d[7]!=0)

@@ -193,7 +193,7 @@ void SessionManager::HandleRequest(SessionHttp& http)
 
 	if(http.httpstatus==404)
 	{
-		SessionHttp_Response_404(http);	
+		SessionHttp_Response_404(http);
 	}
 }
 
@@ -266,9 +266,8 @@ String SessionManager::NewSessionId()
 SessionHttp::SessionHttp(SessionManager& t):Target(t)
 {
 	phase=0;
-	httpstatus=200;
 	length=-1;
-
+	httpstatus=200;
 	lines.push_back(0);
 }
 
@@ -463,7 +462,7 @@ void SessionHttp::OnSendCompleted(TempOlapPtr& q)
 
 			*--p1='\n';
 			*--p1='\r';
-			int32_t tmp=sz;
+			//int32_t tmp=sz;
 			for(int tmp=sz;tmp>0;tmp=tmp/16)
 			{
 				int d=tmp%16;
@@ -508,7 +507,7 @@ void SessionHttp::OnSendCompleted(TempOlapPtr& q)
 			else
 			{
 				flags.del(FLAG_RESPONSE_CHUNKED);
-				AsyncSend(buf,length);			
+				AsyncSend(buf,length);
 			}
 		}
 		else
@@ -665,7 +664,7 @@ void MultiPartFormData::_handle_phase1()
 
 void MultiPartFormData::_handle_phase2()
 {
-	StringBuffer<char>& sb(Target.sb);
+	//StringBuffer<char>& sb(Target.sb);
 
 	const char* pt=_find_boundary(pcur+length_tag,pend);
 	if(pt==NULL)
@@ -674,7 +673,7 @@ void MultiPartFormData::_handle_phase2()
 		return;
 	}
 
-	int sz=pt-2-pcur;
+	//int sz=pt-2-pcur;
 
 	Target.query[name].ref<String>().assign(pcur,pt-2);
 
@@ -692,7 +691,7 @@ void MultiPartFormData::_handle_phase2()
 
 void MultiPartFormData::_handle_phase3()
 {
-	StringBuffer<char>& sb(Target.sb);
+	//StringBuffer<char>& sb(Target.sb);
 
 	const char* pt=_find_boundary(pcur+length_tag,pend);
 	if(pt!=NULL)

@@ -39,7 +39,7 @@ bool CmdLineParser::parse(const arr_1t<String>& argv)
 
 	int argc=argv.size();
 
-	size_t nParamCount=(size_t)m_aCmdLineOptions[""].tags;
+	int nParamCount=m_aCmdLineOptions[""].tags;
 
 	for (int i = 1; i < argc; i++)
 	{
@@ -89,21 +89,26 @@ bool CmdLineParser::parse(const arr_1t<String>& argv)
 		{
 			m_aParams.push_back(pa);
 
-			if (m_aParams.size() > nParamCount)
-			{
-				if (nParamCount == 0)
-				{
-					this_logger().PrintLn("no param allown");
-				}
-				else
-				{
-					this_logger().PrintLn("too many params");
-				}
-				return false;
-			}
+
 		}
 	}
+
+	if(nParamCount>=0 && (int)m_aParams.size()!=nParamCount)
+	{
+		if (nParamCount == 0)
+		{
+			this_logger().PrintLn("no_param_allown");
+		}
+		else
+		{
+			this_logger().PrintLn("invalid_param_count:%d needed",nParamCount);
+		}
+
+		return false;
+	}
+
 	return true;
+
 }
 
 bool CmdLineParser::parse(int argc, char** argv)

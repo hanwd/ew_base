@@ -1,6 +1,8 @@
 #include "system_data.h"
 
+#ifdef EW_MSVC
 #include "windows.h"
+#endif
 
 EW_ENTER
 

@@ -34,6 +34,8 @@ TEST_DEFINE(TEST_Scripting_variant)
 	TEST_ASSERT(variant_cast<int>(d)==10);	// cast string "10" to int
 	TEST_ASSERT(variant_cast<String>(e)==String("15"));	// cast int64_t 15 to string "15"
 
+	d.reset("abc");
+	TEST_ASSERT(variant_cast<int>(d,33)==33);
 
 }
 
@@ -317,8 +319,8 @@ TEST_DEFINE(TEST_Scripting_Executor2)
 "		return false,...;"
 "	}"
 "};"
-"println('pcall(math.add,1,2))',pcall(math.add,1,2));"
-"println('pcall(math.add,1,nil))',pcall(math.add,1,nil));"
+"println('pcall(math.add,1,2) ->',pcall(math.add,1,2));"
+"println('pcall(math.add,1,nil) ->',pcall(math.add,1,nil));"
 );
 
 }

@@ -163,8 +163,8 @@ public:
 
 		if(::pipe(fd)<0)
 		{
-			reader.close();
-			writer.close();
+			reader.reset();
+			writer.reset();
 			return false;
 		}
 		else
@@ -183,10 +183,10 @@ public:
 
 	static void close_pipe(impl_type& impl)
 	{
-		impl.close();
-		if(impl.serv)
+		impl.reset();
+		if(impl.serv.ok())
 		{
-			impl.serv.close();
+			impl.serv.reset();
 			String tmp=make_pipename(impl.name);
 			unlink(tmp.c_str());
 			impl.name="";
@@ -211,7 +211,7 @@ public:
 
 	static bool create_namedpipe(impl_type& impl,const String& name_)
 	{
-		if(impl.serv) close_pipe(impl);
+		if(impl.serv.ok()) close_pipe(impl);
 
 		String name=make_pipename(name_);
 		int fd;
@@ -256,7 +256,7 @@ public:
 				return false;
 			}
 
-			if ((clifd = accept(impl.serv, (struct sockaddr *)&un, &len)) >= 0)
+			if ((clifd = accept(impl.serv.get(), (struct sockaddr *)&un, &len)) >= 0)
 			{
 				break;
 			}
@@ -303,7 +303,7 @@ public:
 
 	static void disconnect_namedpipe(impl_type& impl)
 	{
-		impl.close();
+		impl.reset();
 	}
 
 	static bool connect_namedpipe(impl_type& impl,const String& name,int t)
@@ -314,7 +314,7 @@ public:
 
 	static int read_pipe(impl_type& impl,char* buf_,int len_)
 	{
-		int dwRet=read(impl,buf_,len_);
+		int dwRet=read(impl.get(),buf_,len_);
 		if(dwRet>0)
 		{
 			return dwRet;
@@ -327,7 +327,7 @@ public:
 
 	static int write_pipe(impl_type& impl,const char* buf_,int len_)
 	{
-		int dwRet=write(impl,buf_,len_);
+		int dwRet=write(impl.get(),buf_,len_);
 		if(dwRet>0)
 		{
 			return dwRet;

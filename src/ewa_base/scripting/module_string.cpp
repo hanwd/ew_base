@@ -108,7 +108,7 @@ public:
 	int __fun_call(Executor& ewsl, int pm)
 	{
 		ewsl.check_pmc(this, pm, 1);
-		return do_apply(ewsl, variant_cast<String>(ewsl.ci0.nbx[1]));
+		return this->do_apply(ewsl, variant_cast<String>(ewsl.ci0.nbx[1]));
 	}
 };
 
@@ -143,7 +143,7 @@ public:
 
 	int __fun_call(Executor& ewsl, int pm)
 	{
-		
+
 		String* pstr=ewsl.ci1.nbp[StackState1::SBASE_THIS].ptr<String>();
 		if(pm==0||!pstr)
 		{
@@ -167,7 +167,7 @@ public:
 		}
 		else
 		{
-			ewsl.ci0.nbx[1].reset(-1);	
+			ewsl.ci0.nbx[1].reset(-1);
 		}
 
 
@@ -343,7 +343,11 @@ public:
 		_aStrings=string_split(s0,s1);
 		arr_xt<Variant> _aVariants;
 		_aVariants.resize(_aStrings.size());
-		std::transform(_aStrings.begin(),_aStrings.end(),_aVariants.begin(),[](const String& s){Variant v;v.reset(s);return v;});				
+		for(size_t i=0;i<_aStrings.size();i++)
+		{
+			_aVariants[i].reset(_aStrings[i]);
+		}
+		//std::transform(_aStrings.begin(),_aStrings.end(),_aVariants.begin(),[](const String& s){Variant v;v.reset(s);return v;});
 		ewsl.ci0.nbx[1].reset(_aVariants);
 		return 1;
 	}

@@ -101,8 +101,8 @@ public:
 	int32_t chksum;
 	int32_t padding;
 
-	void update(){chksum=crc32(this,(char*)&chksum-(char*)this);}
-	bool check(){ return chksum==crc32(this,(char*)&chksum-(char*)this);}
+	void update(){chksum=(int32_t)crc32(this,(char*)&chksum-(char*)this);}
+	bool check(){ return chksum==(int32_t)crc32(this,(char*)&chksum-(char*)this);}
 };
 
 
@@ -713,7 +713,7 @@ bool Stream::read_from_file(const String& fp)
 		}
 		else
 		{
-			break;		
+			break;
 		}
 
 	}

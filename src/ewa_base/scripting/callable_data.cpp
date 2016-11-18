@@ -122,6 +122,6 @@ bool CallableData::ToValue(uint64_t& v) const
 	return true;
 }
 
-//IMPLEMENT_OBJECT_INFO(CallableData,ObjectInfo);
+IMPLEMENT_OBJECT_INFO(CallableData,ObjectInfo);
 
 EW_LEAVE

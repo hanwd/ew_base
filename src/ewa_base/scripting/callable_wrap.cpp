@@ -196,13 +196,13 @@ int CallableWrapT<dcomplex>::__setindex(Executor& ewsl,const String& index)
 	return CallableData::STACK_BALANCED;
 }
 
-
+//template<>
 IMPLEMENT_OBJECT_INFO(CallableWrapT<bool>,ObjectInfo);
 
-
+//template<>
 IMPLEMENT_OBJECT_INFO(CallableWrapT<int64_t>,ObjectInfo);
 
-
+//template<>
 IMPLEMENT_OBJECT_INFO(CallableWrapT<double>,ObjectInfo);
 
 
@@ -211,7 +211,7 @@ IMPLEMENT_OBJECT_INFO(CallableWrapT<String>,ObjectInfo);
 
 IMPLEMENT_OBJECT_INFO(CallableWrapT<dcomplex>,ObjectInfo);
 
-
+//template<>
 IMPLEMENT_OBJECT_INFO(CallableWrapT<ColonData>,ObjectInfo);
 
 EW_LEAVE

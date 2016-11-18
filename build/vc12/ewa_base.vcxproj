@@ -88,6 +88,7 @@
     <ClInclude Include="..\..\inc\ewa_base\math\math_def.h" />
     <ClInclude Include="..\..\inc\ewa_base\math\math_op.h" />
     <ClInclude Include="..\..\inc\ewa_base\math\math_promote.h" />
+    <ClInclude Include="..\..\inc\ewa_base\math\random.h" />
     <ClInclude Include="..\..\inc\ewa_base\math\tiny_box.h" />
     <ClInclude Include="..\..\inc\ewa_base\math\tiny_cpx.h" />
     <ClInclude Include="..\..\inc\ewa_base\math\tiny_mat.h" />
@@ -215,6 +216,7 @@
     <ClCompile Include="..\..\src\ewa_base\logging\log_console.cpp" />
     <ClCompile Include="..\..\src\ewa_base\logging\log_target.cpp" />
     <ClCompile Include="..\..\src\ewa_base\math\math_op.cpp" />
+    <ClCompile Include="..\..\src\ewa_base\math\random.cpp" />
     <ClCompile Include="..\..\src\ewa_base\memory\allocator.cpp" />
     <ClCompile Include="..\..\src\ewa_base\memory\gc_ptr.cpp" />
     <ClCompile Include="..\..\src\ewa_base\memory\mempool.cpp" />

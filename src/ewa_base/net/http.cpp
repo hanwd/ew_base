@@ -148,7 +148,7 @@ bool HttpBase::parse(const StringBuffer<char>& sb)
 
 HttpResponse::HttpResponse()
 {
-		
+
 }
 
 bool HttpResponse::parse(const StringBuffer<char>& sb)
@@ -234,11 +234,17 @@ DataPtrT<HttpResponse> HttpRequest::Execute()
 	if (!postdata.empty())
 	{
 		arr_1t<String> pd;
+#ifdef EW_MSVC
 		std::for_each(postdata.begin(), postdata.end(), [&pd](indexer_map<String, String>::value_type& v)
 		{
 			pd.push_back(v.first + "=" + v.second);
 		});
-
+#else
+		for(auto it=postdata.begin();it!= postdata.end();it++)
+		{
+			pd.push_back((*it).first + "=" + (*it).second);
+		}
+#endif
 		sb << string_join(pd.begin(), pd.end(), "&");
 		sb<<"\r\n";
 	}
@@ -263,7 +269,7 @@ DataPtrT<HttpResponse> HttpRequest::Execute()
 	sb.clear();
 
 	for(;;)
-	{	
+	{
 		int len=socket.recv(buf.data(),buf.size());
 
 		if(len<0)
@@ -292,7 +298,7 @@ DataPtrT<HttpResponse> HttpRequest::Execute()
 		return NULL;
 	}
 
-	return res;		
+	return res;
 }
 
 EW_LEAVE

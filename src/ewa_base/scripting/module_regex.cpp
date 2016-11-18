@@ -62,7 +62,7 @@ public:
 			{
 				ewsl.kerror("invalid result");
 			}
-			ewsl.ci0.nbx[1].reset(String(value[nd]));		
+			ewsl.ci0.nbx[1].reset(String(value[nd]));
 		}
 		else if(n==2)
 		{
@@ -72,8 +72,8 @@ public:
 			{
 				ewsl.kerror("invalid result");
 			}
-			ewsl.ci0.nbx[1].reset(String(value[n1][n2]));			
-		
+			ewsl.ci0.nbx[1].reset(String(value[n1][n2]));
+
 		}
 
 		return 1;
@@ -168,7 +168,7 @@ public:
 			return 1;
 		}
 	}
-	
+
 	DECLARE_OBJECT_CACHED_INFO(CallableRegexSearch,ObjectInfo)
 };
 
@@ -190,7 +190,7 @@ public:
 		ewsl.ci0.nbx[1].reset(res.replace(str2));
 
 		return 1;
-	}	
+	}
 
 	DECLARE_OBJECT_CACHED_INFO(CallableRegexReplace,ObjectInfo)
 };
@@ -214,7 +214,7 @@ public:
 		ewsl.ci0.nbx[1].reset(flag);
 
 		return 1;
-	}	
+	}
 
 	DECLARE_OBJECT_CACHED_INFO(CallableRegexPrepare,ObjectInfo)
 };
@@ -230,17 +230,17 @@ int CallableWrapT<Regex>::__getindex(Executor& ewsl,const String& id)
 	}
 	else if(id=="search")
 	{
-		(*ewsl.ci1.nsp).reset(CallableRegexSearch::sm_info.GetCachedInstance());	
+		(*ewsl.ci1.nsp).reset(CallableRegexSearch::sm_info.GetCachedInstance());
 	}
 	else if(id=="replace")
 	{
-		(*ewsl.ci1.nsp).reset(CallableRegexReplace::sm_info.GetCachedInstance());		
+		(*ewsl.ci1.nsp).reset(CallableRegexReplace::sm_info.GetCachedInstance());
 	}
 	else
 	{
 		ewsl.kerror("invalid index");
 	}
-	
+
 	return STACK_BALANCED;
 }
 
@@ -259,7 +259,7 @@ public:
 		bool bflag=re.assign(sexpr,flag);
 		ewsl.ci0.nbx[1].reset(bflag);
 		return 1;
-	}	
+	}
 
 	DECLARE_OBJECT_CACHED_INFO(CallableRegexCompile2,ObjectInfo)
 };
@@ -278,21 +278,21 @@ int CallableWrapT<RegexEx>::__getindex(Executor& ewsl,const String& id)
 	}
 	else if(id=="search")
 	{
-		(*ewsl.ci1.nsp).reset(CallableRegexSearch::sm_info.GetCachedInstance());	
+		(*ewsl.ci1.nsp).reset(CallableRegexSearch::sm_info.GetCachedInstance());
 	}
 	else if(id=="replace")
 	{
-		(*ewsl.ci1.nsp).reset(CallableRegexReplace::sm_info.GetCachedInstance());		
+		(*ewsl.ci1.nsp).reset(CallableRegexReplace::sm_info.GetCachedInstance());
 	}
 	else if(id=="compile")
 	{
-		(*ewsl.ci1.nsp).reset(CallableRegexCompile2::sm_info.GetCachedInstance());		
+		(*ewsl.ci1.nsp).reset(CallableRegexCompile2::sm_info.GetCachedInstance());
 	}
 	else
 	{
 		ewsl.kerror("invalid index");
 	}
-	
+
 	return STACK_BALANCED;
 }
 
@@ -314,7 +314,7 @@ public:
 		preg->value.assign(preg->sexpr,flag);
 		ewsl.ci0.nbx[1].reset(preg);
 		return 1;
-	}	
+	}
 
 	DECLARE_OBJECT_CACHED_INFO(CallableRegexCompile,ObjectInfo)
 };
@@ -332,7 +332,7 @@ public:
 		DataPtrT<CallableWrapT<RegexEx> > preg(new CallableWrapT<RegexEx> );
 		ewsl.ci0.nbx[1].reset(preg);
 		return 1;
-	}	
+	}
 
 	DECLARE_OBJECT_CACHED_INFO(CallableRegexCreate,ObjectInfo)
 };
@@ -349,11 +349,11 @@ public:
 		value["compile"].reset(CallableRegexCompile::sm_info.GetCachedInstance());
 		value["create"].reset(CallableRegexCreate::sm_info.GetCachedInstance());
 
-		value["FLAG_RE_IGNORECASE"].reset(Regex::FLAG_RE_IGNORECASE);
-		value["FLAG_RE_UNICODE"].reset(Regex::FLAG_RE_UNICODE);
-		value["FLAG_RE_MULTILINE"].reset(Regex::FLAG_RE_MULTILINE);
-		value["FLAG_RE_DOTALL"].reset(Regex::FLAG_RE_DOTALL);
-		value["FLAG_RE_PARTITIAL"].reset(Regex::FLAG_RE_PARTITIAL);
+		value["FLAG_RE_IGNORECASE"].reset((int)Regex::FLAG_RE_IGNORECASE);
+		value["FLAG_RE_UNICODE"].reset((int)Regex::FLAG_RE_UNICODE);
+		value["FLAG_RE_MULTILINE"].reset((int)Regex::FLAG_RE_MULTILINE);
+		value["FLAG_RE_DOTALL"].reset((int)Regex::FLAG_RE_DOTALL);
+		value["FLAG_RE_PARTITIAL"].reset((int)Regex::FLAG_RE_PARTITIAL);
 	}
 
 	DECLARE_OBJECT_CACHED_INFO(CallableMetatableRegex,ObjectInfo)

@@ -116,7 +116,7 @@ void LogPtr::Handle(const LogRecord& o)
 
 void LogCache::Serialize(Serializer& ar)
 {
-	ar & aRecords;
+	//ar & aRecords;
 }
 
 void LogCache::Handle(const LogRecord& o)

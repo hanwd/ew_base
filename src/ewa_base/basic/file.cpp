@@ -204,7 +204,7 @@ bool File::open(const String& filename_,int flag_)
 int64_t File::size()
 {
 	struct stat statbuf;
-	if(fstat(impl,&statbuf)<0)
+	if(fstat(impl.get(),&statbuf)<0)
 	{
 		System::CheckError("File::Size Error");
 		return -1;
@@ -217,7 +217,7 @@ int64_t File::size()
 
 int32_t File::read(char* buf,size_t len)
 {
-	int nLen= ::read(impl,buf,len);
+	int nLen= ::read(impl.get(),buf,len);
 	if(nLen<0)
 	{
 		System::CheckError("File::Read Error");
@@ -228,7 +228,7 @@ int32_t File::read(char* buf,size_t len)
 
 int32_t File::write(const char* buf,size_t len)
 {
-	int nLen=::write(impl,buf,len);
+	int nLen=::write(impl.get(),buf,len);
 	if(nLen<0)
 	{
 		System::CheckError("File::Write Error");
@@ -249,7 +249,7 @@ int64_t File::tell()
 
 int64_t File::seek(int64_t pos,int t)
 {
-	return lseek(impl,pos,t);
+	return lseek(impl.get(),pos,t);
 }
 
 
@@ -266,7 +266,7 @@ void File::flush()
 void File::truncate(size_t size_)
 {
 	seek(size_,SEEKTYPE_BEG);
-	ftruncate(impl,size_);
+	ftruncate(impl.get(),size_);
 }
 
 #endif

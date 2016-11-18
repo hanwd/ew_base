@@ -109,7 +109,14 @@ public:
 		return flag==0;
 	}
 
+	void kptr(CallableData* p);
+
 	inline CallableData* kptr()
+	{
+		return flag==-1?data.pval:NULL;
+	}
+
+	inline const CallableData* kptr() const
 	{
 		return flag==-1?data.pval:NULL;
 	}
@@ -119,12 +126,9 @@ public:
 		return flag==-1?data.pval->GetMetaTable():CallableData::sm_meta[flag];
 	}
 
-	inline const CallableData* kptr() const
-	{
-		return flag==-1?data.pval:NULL;
-	}
 
-	void kptr(CallableData* p);
+
+	
 
 	template<typename T>
 	inline typename tl::enable_cv<T,CallableData>::type kptr(const DataPtrT<T>& p)

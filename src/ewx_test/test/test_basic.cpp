@@ -46,7 +46,7 @@ void test_atomic()
 
 	TEST_ASSERT(val.exchange(-1)==0);
 	TEST_ASSERT(val==-1);
-	ATOMIC_TYPE::type expected=2;
+	typename ATOMIC_TYPE::type expected=2;
 
 	TEST_ASSERT(!val.compare_exchange(expected,-3));
 	TEST_ASSERT(val==-1);
@@ -68,7 +68,7 @@ void test_atomic()
 	TEST_ASSERT(val.fetch_or(9)==8);
 	TEST_ASSERT(val==9);
 	TEST_ASSERT(val.fetch_and(1)==9);
-	TEST_ASSERT(val.load()==1);	
+	TEST_ASSERT(val.load()==1);
 	TEST_ASSERT(val.fetch_xor(1)==1);
 	TEST_ASSERT(val==0);
 
@@ -77,7 +77,7 @@ void test_atomic()
 
 	ThreadAtomic<ATOMIC_TYPE> thrd;
 	thrd.test();
-	
+
 }
 
 TEST_DEFINE(TEST_Atomic)
@@ -86,18 +86,23 @@ TEST_DEFINE(TEST_Atomic)
 	test_atomic<AtomicUint32>();
 	test_atomic<AtomicInt64>();
 	test_atomic<AtomicUint64>();
-
 }
 
 TEST_DEFINE(TEST_String)
 {
+	static int n=0;
 
+	printf("%d\n",n++);
 	String s1;
 	String s2("hello");
+
 	TEST_ASSERT(s1=="");
 	TEST_ASSERT(s1.size()==0);
 	TEST_ASSERT(s1!=s2);
 	TEST_ASSERT(s2.size()==5);
+
+	printf("%d\n",n++);
+
 	s1=s2;
 	TEST_ASSERT(s1==s2);
 
@@ -110,12 +115,19 @@ TEST_DEFINE(TEST_String)
 
 	TEST_ASSERT(s3.size()==5);
 
+	printf("%d\n",n++);
+
 	String s5(s2);
 	s5+=s3;
 	String s6;
 	s6<<s2<<s3;
 
+	printf("%d %s %s\n",n++,s2.c_str(),s3.c_str());
+String::Format("%s%s",s2,s3);
+	printf("%d\n",n++);
 	String s7=String::Format("%s%s",s2,s3);
+
+	printf("%d\n",n++);
 
 	TEST_ASSERT(s2+s3==s4);
 	TEST_ASSERT(s5==s4);
@@ -123,6 +135,8 @@ TEST_DEFINE(TEST_String)
 	TEST_ASSERT(s7==s4);
 
 	String s8;
+
+	printf("%d\n",n++);
 
 	s8="";
 	s8<<'A';
@@ -159,6 +173,7 @@ TEST_DEFINE(TEST_String)
 	s8<<-i64;
 	TEST_ASSERT(s8=="-123456890123456890");
 
+	printf("%d\n",n++);
 
 	uint32_t u32=12345678;
 	s8="";
@@ -173,6 +188,8 @@ TEST_DEFINE(TEST_String)
 	float32_t f32=1.25;
 	s8="";
 	s8<<f32;
+
+	printf("%d\n",n++);
 
 	float64_t f64=2.125;
 	s8="";

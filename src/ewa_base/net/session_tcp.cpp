@@ -26,7 +26,7 @@ bool SessionTCP::AsyncSend(const char* data,size_t size)
 			q.reset(new MyOverLappedEx);
 		}
 
-		size_t sz=std::min(size,IPacket::MAX_PACKET_SIZE);
+		size_t sz=std::min<size_t>(size,IPacket::MAX_PACKET_SIZE);
 
 		q->flags = size > IPacket::MAX_PACKET_SIZE ? 1:0;
 		q->size = sz;

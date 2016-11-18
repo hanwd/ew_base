@@ -1,6 +1,7 @@
 
 #include "ewa_base/util/json.h"
-
+#include "ewa_base/scripting/callable_array.h"
+#include "ewa_base/util/strlib.h"
 EW_ENTER
 
 
@@ -24,7 +25,7 @@ public:
 			Variant value;
 			if(parse_value(value))
 			{
-				return value;		
+				return value;
 			}
 		}
 		catch(...)

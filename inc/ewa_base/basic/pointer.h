@@ -53,21 +53,20 @@ public:
 
 	bool cast_and_set(ObjectData* b)
 	{
-		T* p=dynamic_cast<T*>(b);
-
-		if(p)
-		{
-			basetype::reset(p);
-			return true;
-		}
-
+		basetype::reset(dynamic_cast<T*>(b));
+		if(this->m_ptr) return true;
 		if(b && b->GetRef()==0)
 		{
 			delete b;
 		}
-
-		basetype::reset(NULL);
 		return false;
+	}
+
+	template<typename Y>
+	bool cast_and_set(DataPtrT<Y> b)
+	{
+		basetype::reset(dynamic_cast<T*>(b.get()));
+		return this->m_ptr!=NULL;
 	}
 
 };

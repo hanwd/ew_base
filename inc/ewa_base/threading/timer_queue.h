@@ -23,7 +23,7 @@ public:
 	//};
 
 	const TimePoint tdue;
-	ITimer(TimerQueue& q,ITask* j,const TimePoint& t):tque(q),hjob(j),tdue(t){}
+	ITimer(TimerQueue& q,ITask* j,const TimePoint& t):tdue(t),tque(q),hjob(j){}
 
 protected:
 

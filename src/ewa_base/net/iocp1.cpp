@@ -54,7 +54,7 @@ int IOCPPool::Register(Session* pkey)
 	struct epoll_event ev;
 	ev.data.ptr=pkey;
 	ev.events=EPOLLERR|EPOLLHUP;//|EPOLLIN;//|EPOLLONESHOT|EPOLLET;
-	int bRet=epoll_ctl(hIOCPhandler,EPOLL_CTL_ADD,pkey->sk_local.sock,&ev);
+	int bRet=epoll_ctl(hIOCPhandler.get(),EPOLL_CTL_ADD,pkey->sk_local.sock,&ev);
 	if(bRet==-1)
 	{
 		pkey->state.store(Session::STATE_READY);
@@ -307,7 +307,7 @@ void IOCPPool::svc_del(int n)
 #ifndef EW_WINDOWS
 
 	struct epoll_event ev;
-	epoll_ctl(hIOCPhandler,EPOLL_CTL_DEL,pkey->sk_local.sock,&ev);
+	epoll_ctl(hIOCPhandler.get(),EPOLL_CTL_DEL,pkey->sk_local.sock,&ev);
 
 #endif
 
@@ -705,7 +705,7 @@ void IOCPPool::svc_worker()
 
 	while (!test_canceled())
 	{
-		int nfds=epoll_wait(hIOCPhandler,evts,1,1000);
+		int nfds=epoll_wait(hIOCPhandler.get(),evts,1,1000);
 
 		if(nfds<0)
 		{

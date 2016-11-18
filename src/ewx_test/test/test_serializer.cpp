@@ -5,7 +5,6 @@
 #include "ewa_base/serialization.h"
 #include "ewa_base/scripting.h"
 
-
 using namespace ew;
 
 template<typename T1,typename T2>
@@ -191,9 +190,9 @@ TEST_DEFINE(TEST_SerializerSeek)
 			String& s1=p3->value["abc"].ref<String>();
 			String& s2=p3->value["cde"].ref<String>();
 			TEST_ASSERT(s1=="hello");
-			TEST_ASSERT(s2=="world");		
+			TEST_ASSERT(s2=="world");
 		}
-		
+
 		TEST_ASSERT(p1 && p1->val==1.0);
 		TEST_ASSERT(p2 && p2->val==2.0);
 	}

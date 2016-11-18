@@ -15,11 +15,15 @@ public:
 
 	friend class Match;
 
-	static const int FLAG_RE_IGNORECASE	=1<<0;
-	static const int FLAG_RE_UNICODE	=1<<1;
-	static const int FLAG_RE_MULTILINE	=1<<2;
-	static const int FLAG_RE_DOTALL		=1<<3;
-	static const int FLAG_RE_PARTITIAL	=1<<4;
+	enum
+	{
+		FLAG_RE_IGNORECASE	=1<<0,
+		FLAG_RE_UNICODE		=1<<1,
+		FLAG_RE_MULTILINE	=1<<2,
+		FLAG_RE_DOTALL		=1<<3,
+		FLAG_RE_PARTITIAL	=1<<4,	
+	};
+
 
 	Regex();
 	Regex(const Regex& r);

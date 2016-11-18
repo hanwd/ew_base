@@ -103,8 +103,12 @@ class DLLIMPEXP_EWA_BASE IPacket
 {
 public:
 
-	static const size_t MIN_PACKET_SIZE=16;
-	static const size_t MAX_PACKET_SIZE=1024*4;
+	enum
+	{
+		MIN_PACKET_SIZE=16,
+		MAX_PACKET_SIZE=1024*4,	
+	};
+
 
 	uint32_t kcrc;
 	uint16_t size;

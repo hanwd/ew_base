@@ -2,6 +2,7 @@
 #define __H_EW_MATH_TINY_BOX__
 
 #include "ewa_base/math/tiny_vec.h"
+#include <limits>
 
 EW_ENTER
 
@@ -27,7 +28,7 @@ public:
 	}
 
 
-	bool is_valid() const 
+	bool is_valid() const
 	{
 		if(N>0 && lo[0]>hi[0]) return false;
 		if(N>1 && lo[1]>hi[1]) return false;

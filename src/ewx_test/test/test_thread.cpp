@@ -50,7 +50,7 @@ public:
 class ITimerTest : public ITask
 {
 public:
-	
+
 	void svc(ITimerHolder& h)
 	{
 		TimePoint t1=Clock::now();
@@ -247,13 +247,13 @@ class ThreadSync : public ThreadMulti
 {
 public:
 
-	size_t count;
+	size_t size;
 	size_t type;
 	size_t result;
 
 	ThreadSync()
 	{
-		count=4;
+		size=4;
 	}
 
 	Functor<void()> svc_handler;
@@ -261,7 +261,7 @@ public:
 	template<typename L>
 	void svc_real(L& thelock)
 	{
-		for(size_t i=0; i<1024*1024/count; i++)
+		for(size_t i=0; i<1024*1024/size; i++)
 		{
 			thelock.lock();
 			result++;
@@ -277,8 +277,9 @@ public:
 
 		TimePoint tp1=Clock::now();
 		result=0;
-		activate(count);
-		wait();
+		this->activate(size);
+		this->wait();
+
 		TimePoint tp2=Clock::now();
 
 		svc_handler.clear();

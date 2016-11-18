@@ -787,7 +787,7 @@ public:
 		StringBuffer<char> sb;
 		if(!sb.load(file,FILE_TYPE_TEXT))
 		{
-			ewsl.kerror("invalid filename");
+			ewsl.kerror("invalid file");
 		}
 		ewsl.ci0.nbx[1]=parse_array(sb);
 		return 1;

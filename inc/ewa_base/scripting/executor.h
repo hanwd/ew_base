@@ -5,6 +5,7 @@
 #include "ewa_base/scripting/variant_ggvar.h"
 #include "ewa_base/scripting/callable_coroutine.h"
 #include "ewa_base/scripting/codegen.h"
+#include "ewa_base/threading/thread_mutex.h"
 
 EW_ENTER
 
@@ -130,6 +131,8 @@ public:
 	DataPtrT<CallableCoroutine> co_this;
 	DataPtrT<CallableCoroutine> co_main;
 	DataPtrT<CallableCoroutine> co_last;
+
+	Mutex mutex;
 
 protected:
 

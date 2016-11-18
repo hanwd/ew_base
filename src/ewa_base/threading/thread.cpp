@@ -198,6 +198,7 @@ bool ThreadCustom::activate()
 void Thread::wait()
 {
 	LockGuard<Mutex> lock1(m_thrd_mutex);
+
 	if (m_nAlive == 0) return;
 	while(1)
 	{
@@ -205,6 +206,7 @@ void Thread::wait()
 		if (m_nAlive == 0) break;
 		on_wait_noop();
 	}
+
 }
 
 bool Thread::wait_for(int rel_time)

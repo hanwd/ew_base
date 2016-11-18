@@ -158,7 +158,6 @@ const String& System::GetModulePath()
 	return sModulePath;
 }
 
-#ifdef EW_WINDOWS
 
 class SerializerReaderProcess : public SerializerReader
 {
@@ -302,7 +301,6 @@ bool System::Execute(const String& s, StringBuffer<char>& result)
 
 }
 
-#endif
 
 
 bool System::Execute(const String& s)
@@ -359,6 +357,26 @@ bool System::Execute(const String& s)
 		System::LogTrace("System::Exectue:%s",s);
 		return true;
 	}
+}
+
+
+Stream System::ExecuteRedirect(const String& s,bool* status)
+{
+
+	if(status) *status=false;
+	return Stream();
+}
+
+bool System::Execute(const String& s, StringBuffer<char>& result)
+{
+	bool flag(false);
+	Stream stream=ExecuteRedirect(s,&flag);
+
+	if(!flag) return false;
+
+	stream.write_to_buffer(result);
+	return true;
+
 }
 
 #endif
@@ -625,7 +643,7 @@ bool DllModule::Open(const String& dll)
 void* DllModule::GetSymbol(const String& s)
 {
 	if(!impl.ok()) return NULL;
-	return dlsym(impl,s.c_str());
+	return dlsym(impl.get(),s.c_str());
 }
 
 #endif
@@ -751,8 +769,9 @@ String System::GetCwd()
 	DWORD rc=::GetCurrentDirectoryW(BUFFER_LENGTH,path);
 	return path;
 #else
-	char buffer[MAXPATH];
-	return getcwd(buffer,MAXPATH);
+	const int maxpath=1024;
+	char buffer[maxpath];
+	return getcwd(buffer,maxpath);
 #endif
 }
 
@@ -761,7 +780,7 @@ bool System::SetCwd(const String& s)
 #ifdef EW_WINDOWS
 	return ::SetCurrentDirectoryW(IConv::to_wide(s).c_str())!=FALSE;
 #else
-
+	return false;
 #endif
 }
 
@@ -773,7 +792,8 @@ size_t System::Backtrace(void** stack,size_t frames)
 #elif defined(EW_WINDOWS)
     return 0;
 #else
-	return backtrace(stack,frames);
+	//return backtrace(stack,frames);
+	return 0;
 #endif
 }
 

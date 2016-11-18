@@ -45,13 +45,15 @@ bool FSLocal::FindFiles(const String& folder,arr_1t<FileItem>& items,const Strin
 	}
 
 	return !items.empty();
-
+#else
+	return false;
 #endif
 
 }
 
 bool FSLocal::DownloadToFile(const String& fp,const String& localfile,int flag)
 {
+#ifdef EW_WINDOWS
 	if(flag&FLAG_FILE_APPEND)
 	{
 		return FSObject::DownloadToFile(fp,localfile,flag);
@@ -60,11 +62,15 @@ bool FSLocal::DownloadToFile(const String& fp,const String& localfile,int flag)
 	{
 		return ::CopyFileW(IConv::to_wide(fp).c_str(),IConv::to_wide(localfile).c_str(),(flag&FLAG_FILE_CR)?TRUE:FALSE)==TRUE;
 	}
+#else
+	return false;
+#endif
 
 }
 
 bool FSLocal::UploadFromFile(const String& localfile,const String& fp,int flag)
 {
+#ifdef EW_WINDOWS
 	if(flag&FLAG_FILE_APPEND)
 	{
 		return FSObject::UploadFromFile(localfile,fp,flag);
@@ -73,6 +79,9 @@ bool FSLocal::UploadFromFile(const String& localfile,const String& fp,int flag)
 	{
 		return ::CopyFileW(IConv::to_wide(localfile).c_str(),IConv::to_wide(fp).c_str(),(flag&FLAG_FILE_CR)?TRUE:FALSE)==TRUE;
 	}
+#else
+	return false;
+#endif
 }
 
 bool FSLocal::DownloadToBuffer(const String& fp,StringBuffer<char>& sb)
@@ -87,9 +96,12 @@ bool FSLocal::UploadFromBuffer(StringBuffer<char>& sb,const String& fp,int flag)
 
 bool FSLocal::Mkdir(const String& fp)
 {
-
+#ifdef EW_WINDOWS
 	BOOL ret=CreateDirectoryW(IConv::to_wide(fp).c_str(),NULL);
 	return ret!=FALSE;
+#else
+	return false;
+#endif
 
 }
 
@@ -129,21 +141,27 @@ bool FSLocal::Rmdir(const String& fp,int flag)
 
 bool FSLocal::Rename(const String& fp_old,const String& fp_new,int flag)
 {
+#ifdef EW_WINDOWS
 	DWORD dwflag=MOVEFILE_COPY_ALLOWED ;
 	if(flag!=0)	dwflag|=MOVEFILE_REPLACE_EXISTING;
 
 	BOOL ret=::MoveFileExW(IConv::to_wide(fp_old).c_str(),IConv::to_wide(fp_new).c_str(),dwflag);
 	return ret!=0;
-
+#else
+	return false;
+#endif
 	//int bRet=::rename(IConv::to_ansi(fp_old).c_str(),IConv::to_ansi(fp_new).c_str());
 	//return bRet==0;
 }
 
 bool FSLocal::Remove(const String& fp)
 {
+#ifdef EW_WINDOWS
 	BOOL ret=DeleteFileW(IConv::to_wide(fp).c_str());
 	return ret!=FALSE;
-
+#else
+	return false;
+#endif
 	//int bRet=::remove(IConv::to_ansi(fp).c_str());
 	//return bRet==0;
 }

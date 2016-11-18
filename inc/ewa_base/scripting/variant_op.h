@@ -267,53 +267,6 @@ public:
 
 };
 
-template<typename T>
-class pl_cast_base<arr_xt<T> >
-{
-public:
-	typedef arr_xt<T> type;
-
-	template<typename O>
-	static type g(const O&){Exception::XBadCast();return type();}
-
-	static type g(bool v){type t;t.resize(1);t(0)=pl_cast_base<T>::g(v);return t;}
-	static type g(int32_t v){type t;t.resize(1);t(0)=pl_cast_base<T>::g(v);return t;}
-	static type g(int64_t v){type t;t.resize(1);t(0)=pl_cast_base<T>::g(v);return t;}
-	static type g(float v){type t;t.resize(1);t(0)=pl_cast_base<T>::g(v);return t;}
-	static type g(double v){type t;t.resize(1);t(0)=pl_cast_base<T>::g(v);return t;}
-	static type g(const String& v){type t;t.resize(1);t(0)=pl_cast_base<T>::g(v);return t;}
-
-	static const type& g(const type& v){return v;}
-
-	template<typename O>
-	static type g(const arr_1t<O>& v)
-	{
-		type t;
-		t.resize(v.size());
-		for(size_t i=0;i<v.size();i++) t[i]=vv_cast<T,pl_cast_base<T> >::g(v[i]);
-		return t;
-	}
-
-	template<typename O>
-	static type g(const arr_xt<O>& v)
-	{
-		type t;
-		t.resize(v.size_ptr());
-
-		for(size_t k5=0;k5<v.size(5);k5++)
-		for(size_t k4=0;k4<v.size(4);k4++)
-		for(size_t k3=0;k3<v.size(3);k3++)
-		for(size_t k2=0;k2<v.size(2);k2++)
-		for(size_t k1=0;k1<v.size(1);k1++)
-		for(size_t k0=0;k0<v.size(0);k0++)
-			t(k0,k1,k2,k3,k4,k5)=vv_cast<T,pl_cast_base<T> >::g(v(k0,k1,k2,k3,k4,k5));
-
-		return t;
-	}
-
-};
-
-
 
 template<typename T,typename P>
 class vv_cast : public P
@@ -395,8 +348,60 @@ public:
 	}
 };
 
+
+template<typename T>
+class pl_cast_base<arr_xt<T> >
+{
+public:
+	typedef arr_xt<T> type;
+
+	template<typename O>
+	static type g(const O&){Exception::XBadCast();return type();}
+
+	static type g(bool v){type t;t.resize(1);t(0)=pl_cast_base<T>::g(v);return t;}
+	static type g(int32_t v){type t;t.resize(1);t(0)=pl_cast_base<T>::g(v);return t;}
+	static type g(int64_t v){type t;t.resize(1);t(0)=pl_cast_base<T>::g(v);return t;}
+	static type g(float v){type t;t.resize(1);t(0)=pl_cast_base<T>::g(v);return t;}
+	static type g(double v){type t;t.resize(1);t(0)=pl_cast_base<T>::g(v);return t;}
+	static type g(const String& v){type t;t.resize(1);t(0)=pl_cast_base<T>::g(v);return t;}
+
+	static const type& g(const type& v){return v;}
+
+	template<typename O>
+	static type g(const arr_1t<O>& v)
+	{
+		type t;
+		t.resize(v.size());
+		for(size_t i=0;i<v.size();i++) t[i]=vv_cast<T,pl_cast_base<T> >::g(v[i]);
+		return t;
+	}
+
+	template<typename O>
+	static type g(const arr_xt<O>& v)
+	{
+		type t;
+		t.resize(v.size_ptr());
+
+		for(size_t k5=0;k5<v.size(5);k5++)
+		for(size_t k4=0;k4<v.size(4);k4++)
+		for(size_t k3=0;k3<v.size(3);k3++)
+		for(size_t k2=0;k2<v.size(2);k2++)
+		for(size_t k1=0;k1<v.size(1);k1++)
+		for(size_t k0=0;k0<v.size(0);k0++)
+			t(k0,k1,k2,k3,k4,k5)=vv_cast<T,pl_cast_base<T> >::g(v(k0,k1,k2,k3,k4,k5));
+
+		return t;
+	}
+
+};
+
+
+
 template<typename T,typename T2>
 T variant_cast(const T2& v){return pl_cast<T>::g(v);}
+
+template<typename T,typename T2>
+T variant_cast(const T2& v,const T& d){return pl_cast<T>::g(v,d);}
 
 
 template<typename P,unsigned N>

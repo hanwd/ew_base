@@ -454,7 +454,7 @@ regex_item* RegexParser::parse_item_ex(const char* &p1,bool seq)
 
 regex_item_seq* RegexParser::parse_seq(const char* &p1)
 {
-	std::vector<regex_item*> items;
+	arr_1t<regex_item*> items;
 
 	while(*p1&&*p1!=')')
 	{

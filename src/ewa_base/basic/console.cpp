@@ -104,7 +104,7 @@ void Console::WriteLine(const String& s,int color)
 	::printf("\n");
 #else
 	::printf(s.c_str());
-	::printf(L"\n");
+	::printf("\n");
 #endif
 
 	ConsoleDoSetColor(oldcr);

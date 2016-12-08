@@ -9,31 +9,34 @@
     <ClCompile Include="..\..\src\ewx_test\test\appmain.cpp">
       <Filter>test</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\ewx_test\test\test_serializer.cpp">
+      <Filter>test</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewx_test\test\test_basic.cpp">
+      <Filter>test</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\src\ewx_test\test\test_collection.cpp">
       <Filter>test</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\ewx_test\test\test_serializer.cpp">
+    <ClCompile Include="..\..\src\ewx_test\test\test_gc_ptr.cpp">
+      <Filter>test</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewx_test\test\test_iocp.cpp">
+      <Filter>test</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewx_test\test\test_memory.cpp">
+      <Filter>test</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewx_test\test\test_regex.cpp">
+      <Filter>test</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewx_test\test\test_scripting.cpp">
       <Filter>test</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\ewx_test\test\test_shm.cpp">
       <Filter>test</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\ewx_test\test\test_thread.cpp">
-      <Filter>test</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\ewx_test\test\test_regex.cpp">
-      <Filter>test</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\ewx_test\test\test_basic.cpp">
-      <Filter>test</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\ewx_test\test\test_gc_ptr.cpp">
-      <Filter>test</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\ewx_test\test\test_memory.cpp">
-      <Filter>test</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\ewx_test\test\test_scripting.cpp">
       <Filter>test</Filter>
     </ClCompile>
   </ItemGroup>

@@ -118,6 +118,7 @@ public:
 
 
 	void clear();
+	size_t shrink();
 
 	void save_ptr(SerializerWriter& ar,ObjectData* ptr,bool write_index=false);
 	ObjectData* load_ptr(SerializerReader& ar,int pos);

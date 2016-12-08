@@ -173,21 +173,70 @@ public:
 };
 
 
-template<unsigned N>
-class lkt_number16b
-{
-public:
-	static const unsigned char value1 = (N >= '0'&&N <= '9') ? (N - '0') : 0xFF;
-	static const unsigned char value2 = (N >= 'A'&&N <= 'F') ? (N + 10 - 'A') : value1;
-	static const unsigned char value3 = (N >= 'a'&&N <= 'f') ? (N + 10 - 'a') : value2;
-	static const unsigned char value = value3;
-};
+
 
 template<unsigned N>
 class lkt_number10b
 {
 public:
 	static const unsigned char value = (N >= '0'&&N <= '9') ? (N - '0') : 0xFF;
+};
+
+template<unsigned N>
+class lkt_number16b
+{
+public:
+	static const unsigned upperN=lkt2uppercase<N>::value;
+	static const unsigned char value = (upperN >= 'A'&&upperN <= 'F') ? (upperN + 10 - 'A') : lkt_number10b<N>::value;
+};
+
+template<unsigned N>
+class lkt_number08b
+{
+public:
+	static const unsigned char value = (N >= '0'&&N <= '7') ? (N - '0') : 0xFF;
+};
+
+template<unsigned N>
+class lkt_number02b
+{
+public:
+	static const unsigned char value = (N >= '0'&&N <= '1') ? (N - '0') : 0xFF;
+};
+
+template<unsigned N>
+class lkt_is_character
+{
+public:
+	static const int value=(N>='a'&&N<='z')||(N>='A'&&N<='Z');
+};
+
+template<unsigned N>
+class lkt_is_number10
+{
+public:
+	static const int value=(N>='0'&&N<='9');
+};
+
+template<unsigned N>
+class lkt_is_number08
+{
+public:
+	static const int value=(N>='0'&&N<='7');
+};
+
+template<unsigned N>
+class lkt_is_number02
+{
+public:
+	static const int value=(N>='0'&&N<='1');
+};
+
+template<unsigned N>
+class lkt_is_number16
+{
+public:
+	static const int value=lkt_is_number10<N>::value||(N>='a'&&N<='f')||(N>='A'&&N<='F');
 };
 
 template<unsigned N>

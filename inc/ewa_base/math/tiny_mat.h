@@ -308,6 +308,12 @@ public:
 	type_mat(){LoadIdentity();}
 	type_mat(const basetype& o):basetype(o){}
 
+	bool IsIdentity() const
+	{
+		static mat4d id;
+		return *this==id;
+	}
+
 	void LoadIdentity()
 	{
 		basetype& m4(*this);
@@ -316,7 +322,8 @@ public:
 		m4=diag(v4);
 	}
 
-	void Translate(const vec3& v)
+	template<typename Y>
+	void Translate(const tiny_vec<Y,3>& v)
 	{
 		basetype& m4(*this);
 		m4(0,3)+=m4(0,0)*v[0]+m4(0,1)*v[1]+m4(0,2)*v[2];
@@ -324,7 +331,8 @@ public:
 		m4(2,3)+=m4(2,0)*v[0]+m4(2,1)*v[1]+m4(2,2)*v[2];
 	}
 
-	void Scale(const vec3& v)
+	template<typename Y>
+	void Scale(const tiny_vec<Y,3>& v)
 	{
 		basetype& m4(*this);
 		for(size_t i=0;i<4;i++)
@@ -346,30 +354,31 @@ public:
 		}	
 	}
 
-	void Rotate(double d,const vec3& v)
+	template<typename Y>
+	void Rotate(double deg,const tiny_vec<Y,3>& dir)
 	{
-		if(d==0.0) return;
-		double L=v.length();
+		if(deg==0.0) return;
+		double L=dir.length();
 		if(L==0.0) return;
 
 		basetype& m4(*this);
 		basetype  _m;
 
-		double C=cosdeg(d);
-		double S=sindeg(d);
+		double C=cosdeg(deg);
+		double S=sindeg(deg);
 		double T=1.0-C;
 
-		_m(0,0)=C+v[0]*v[0]*T;
-		_m(0,1)=v[0]*v[1]*T-v[2]*S;
-		_m(0,2)=v[0]*v[2]*T+v[1]*S;
+		_m(0,0)=C+dir[0]*dir[0]*T;
+		_m(0,1)=dir[0]*dir[1]*T-dir[2]*S;
+		_m(0,2)=dir[0]*dir[2]*T+dir[1]*S;
 		_m(0,3)=0.0;
-		_m(1,0)=v[0]*v[1]*T+v[2]*S;
-		_m(1,1)=C+v[1]*v[1]*T;
-		_m(1,2)=v[1]*v[2]*T-v[0]*S;
+		_m(1,0)=dir[0]*dir[1]*T+dir[2]*S;
+		_m(1,1)=C+dir[1]*dir[1]*T;
+		_m(1,2)=dir[1]*dir[2]*T-dir[0]*S;
 		_m(1,3)=0.0;
-		_m(2,0)=v[0]*v[2]*T-v[1]*S;
-		_m(2,1)=v[1]*v[2]*T+v[0]*S;
-		_m(2,2)=C+v[2]*v[2]*T;
+		_m(2,0)=dir[0]*dir[2]*T-dir[1]*S;
+		_m(2,1)=dir[1]*dir[2]*T+dir[0]*S;
+		_m(2,2)=C+dir[2]*dir[2]*T;
 		_m(2,3)=0.0;
 		_m(3,0)=_m(3,1)=_m(3,2)=0.0;
 		_m(3,3)=1.0;
@@ -388,11 +397,12 @@ public:
 		m4=m4*m;
 	}
 
-	void MultMatrix(const type_mat& m,double u)
+	void MultMatrix(type_mat m,double u)
 	{
-		Scale(u);
+		m(0,3)*=u;
+		m(1,3)*=u;
+		m(2,3)*=u;
 		MultMatrix(m);
-		Scale(1.0/u);
 	}
 
 };

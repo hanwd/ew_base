@@ -17,40 +17,6 @@ void tokState::inc()
 }
 
 
-template<unsigned N>
-class lkt_is_character
-{
-public:
-	static const int value=(N>='a'&&N<='z')||(N>='A'&&N<='Z');
-};
-
-template<unsigned N>
-class lkt_is_number10
-{
-public:
-	static const int value=(N>='0'&&N<='9');
-};
-
-template<unsigned N>
-class lkt_is_number08
-{
-public:
-	static const int value=(N>='0'&&N<='7');
-};
-
-template<unsigned N>
-class lkt_is_number02
-{
-public:
-	static const int value=(N>='0'&&N<='1');
-};
-
-template<unsigned N>
-class lkt_is_number16
-{
-public:
-	static const int value=lkt_is_number10<N>::value||(N>='a'&&N<='f')||(N>='A'&&N<='F');
-};
 
 template<unsigned N>
 class lkt_is_namestart
@@ -164,6 +130,13 @@ void Scanner::read_number_t()
 	return;
 }
 
+template<unsigned N>
+class lkt_is_character_or_0
+{
+public:
+	static const int value=(N>='a'&&N<='z')||(N>='A'&&N<='Z')||N=='0';
+};
+
 void Scanner::read_number()
 {
 	mychar_ptr p1=stok.pcur;
@@ -196,11 +169,25 @@ void Scanner::read_number()
 
 
 	skip<lkt_is_number10>(stok);
-	if (stok.pcur[0] == '.'&&stok.pcur[1] >='0'&& stok.pcur[1] <='9')
+	if (stok.pcur[0] == '.')
 	{
-		tokitem.type=TOK_DOUBLE;
-		stok.inc();
-		skip<lkt_is_number10>(stok);
+		if(stok.pcur[1] >='0'&& stok.pcur[1] <='9')
+		{
+			tokitem.type=TOK_DOUBLE;
+			stok.inc();
+			skip<lkt_is_number10>(stok);		
+		}
+		else if(stok.pcur[1] =='#')
+		{
+			tokitem.type=TOK_DOUBLE;
+			stok.inc();
+			stok.inc();
+			skip<lkt_is_character_or_0>(stok);	
+		}
+		else
+		{
+			tokitem.type=TOK_INTEGER;	
+		}
 	}
 	else
 	{

@@ -31,22 +31,26 @@ public:
 };
 
 bool is_nan(double d);
+bool is_nan(float d);
 
 template<typename T>
 class DLLIMPEXP_EWA_BASE numeric_trait_floating
 {
 public:
-	static double nan_value();
-	static double min_value();
-	static double max_value();
+	typedef T type;
+	static T min_value();
+	static T max_value();
+	static T inf_value();
+	static T nan_value();
 };
 
 template<typename T>
 class DLLIMPEXP_EWA_BASE numeric_trait_integer
 {
 public:
-	static double min_value();
-	static double max_value();
+	typedef T type;
+	static T min_value();
+	static T max_value();
 };
 
 template<typename T>
@@ -55,8 +59,6 @@ class DLLIMPEXP_EWA_BASE numeric_trait : public tl::meta_if<tl::integer_type::id
 public:
 
 };
-
-
 
 EW_LEAVE
 #endif

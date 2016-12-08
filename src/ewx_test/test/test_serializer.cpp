@@ -174,6 +174,7 @@ TEST_DEFINE(TEST_SerializerSeek)
 		DataPtrT<float_string> p1;
 		DataPtrT<float_string> p2;
 		DataPtrT<CallableTableEx> p3;
+		DataPtrT<ObjectData> p4;
 
 		SerializerReader &reader(sf.reader());
 
@@ -182,6 +183,8 @@ TEST_DEFINE(TEST_SerializerSeek)
 		p3.reset(dynamic_cast<CallableTableEx*>(reader.read_object(3)));
 		p1.reset(dynamic_cast<float_string*>(reader.read_object(1)));
 		p2.reset(dynamic_cast<float_string*>(reader.read_object(2)));
+		p4.reset(reader.read_object(4));
+
 
 		TEST_ASSERT(p3);
 
@@ -190,11 +193,24 @@ TEST_DEFINE(TEST_SerializerSeek)
 			String& s1=p3->value["abc"].ref<String>();
 			String& s2=p3->value["cde"].ref<String>();
 			TEST_ASSERT(s1=="hello");
-			TEST_ASSERT(s2=="world");
+			TEST_ASSERT(s2=="world");		
 		}
 
 		TEST_ASSERT(p1 && p1->val==1.0);
 		TEST_ASSERT(p2 && p2->val==2.0);
+
+		TEST_ASSERT_EQ(reader.cached_objects().shrink(),0);
+		p3.reset(NULL);
+		TEST_ASSERT_EQ(reader.cached_objects().shrink(),2);
+
+		DataPtrT<CallableTableEx> p5(new CallableTableEx);
+		p5->value["abc"].ref<String>();
+		p5->value["cde"].ref<String>();
+
+		p3.reset(dynamic_cast<CallableTableEx*>(reader.read_object(3)));
+		TEST_ASSERT_EQ(reader.cached_objects().shrink(),0);
+		TEST_ASSERT(p3 && p4.get()==p3->value["abc"].kptr());
 	}
 
+	
 }

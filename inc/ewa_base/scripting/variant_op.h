@@ -122,7 +122,11 @@ public:
 		}
 		else
 		{
-			int64_t k;if(v.ToNumber(&k)) return (type)k;
+			int64_t k;
+			if(v.ToNumber(&k))
+			{
+				return g(k);
+			}
 			Exception::XBadCast();return type();
 		}
 	}
@@ -303,11 +307,17 @@ public:
 
 	using basetype::g;
 
-	static inline T g(const Variant& v,const T& d)
+	static inline T g(const char* v)
+	{
+		return basetype::g(v);
+	}
+
+	template<typename X>
+	static inline T g(const X& v,const T& d)
 	{
 		try
 		{
-			return basetype::g(v);
+			return g(v);
 		}
 		catch(...)
 		{
@@ -396,12 +406,12 @@ public:
 };
 
 
-
 template<typename T,typename T2>
 T variant_cast(const T2& v){return pl_cast<T>::g(v);}
 
 template<typename T,typename T2>
 T variant_cast(const T2& v,const T& d){return pl_cast<T>::g(v,d);}
+
 
 
 template<typename P,unsigned N>

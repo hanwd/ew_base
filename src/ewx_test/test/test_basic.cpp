@@ -2,97 +2,32 @@
 #include "ewa_base/testing/test.h"
 #include "ewa_base/basic.h"
 #include "ewa_base/threading.h"
+#include "ewa_base/math/math_def.h"
 
 #include <time.h>
 
 using namespace ew;
 
-template<typename ATOMIC_TYPE>
-class ThreadAtomic : public ThreadMulti
+template<typename X>
+void test_floating_trait()
 {
-public:
-	static const int N=1024*64;
+	typedef typename X::type type;
 
-	ATOMIC_TYPE val;
-	void svc()
-	{
-		for(int i=0;i<N;i++) val++;
-	}
-
-	void test()
-	{
-		val=0;
-		if(!activate(4)) return;
-		wait();
-		TEST_ASSERT(val==4*N);
-	}
-};
-
-template<typename ATOMIC_TYPE>
-void test_atomic()
-{
-	ATOMIC_TYPE val;
-	TEST_ASSERT(val==0);
-
-	TEST_ASSERT(val++==0);
-	TEST_ASSERT(val==1);
-	TEST_ASSERT(++val==2);
-	TEST_ASSERT(val==2);
-
-	TEST_ASSERT(val--==2);
-	TEST_ASSERT(val==1);
-	TEST_ASSERT(--val==0);
-	TEST_ASSERT(val==0);
-
-	TEST_ASSERT(val.exchange(-1)==0);
-	TEST_ASSERT(val==-1);
-	typename ATOMIC_TYPE::type expected=2;
-
-	TEST_ASSERT(!val.compare_exchange(expected,-3));
-	TEST_ASSERT(val==-1);
-	TEST_ASSERT(expected==-1);
-
-	expected=val;
-	TEST_ASSERT(val.compare_exchange(expected,-3));
-	TEST_ASSERT(val==-3);
-
-
-	val=0;
-	TEST_ASSERT(val.fetch_add(3)==0);
-	TEST_ASSERT(val==3);
-	TEST_ASSERT(val.fetch_sub(3)==3);
-	TEST_ASSERT(val==0);
-
-
-	val=8;
-	TEST_ASSERT(val.fetch_or(9)==8);
-	TEST_ASSERT(val==9);
-	TEST_ASSERT(val.fetch_and(1)==9);
-	TEST_ASSERT(val.load()==1);
-	TEST_ASSERT(val.fetch_xor(1)==1);
-	TEST_ASSERT(val==0);
-
-	val.store(10);
-	TEST_ASSERT(val.get()==10);
-
-	ThreadAtomic<ATOMIC_TYPE> thrd;
-	thrd.test();
+	TEST_ASSERT(ew::is_nan(X::nan_value()));
+	TEST_ASSERT(X::max_value()==std::numeric_limits<type>::max());
+	TEST_ASSERT(X::min_value()==-std::numeric_limits<type>::max());
 
 }
 
-TEST_DEFINE(TEST_Atomic)
+TEST_DEFINE(TEST_Number)
 {
-	test_atomic<AtomicInt32>();
-	test_atomic<AtomicUint32>();
-	test_atomic<AtomicInt64>();
-	test_atomic<AtomicUint64>();
+	test_floating_trait<numeric_trait<double> >();
+	test_floating_trait<numeric_trait<float> >();
 }
 
 TEST_DEFINE(TEST_String)
 {
-	static int n=0;
 
-	printf("%d\n",n++);
 	String s1;
 	String s2("hello");
 
@@ -100,8 +35,6 @@ TEST_DEFINE(TEST_String)
 	TEST_ASSERT(s1.size()==0);
 	TEST_ASSERT(s1!=s2);
 	TEST_ASSERT(s2.size()==5);
-
-	printf("%d\n",n++);
 
 	s1=s2;
 	TEST_ASSERT(s1==s2);
@@ -115,19 +48,15 @@ TEST_DEFINE(TEST_String)
 
 	TEST_ASSERT(s3.size()==5);
 
-	printf("%d\n",n++);
-
 	String s5(s2);
 	s5+=s3;
 	String s6;
 	s6<<s2<<s3;
 
-	printf("%d %s %s\n",n++,s2.c_str(),s3.c_str());
-String::Format("%s%s",s2,s3);
-	printf("%d\n",n++);
+	String::Format("%s%s",s2,s3);
+
 	String s7=String::Format("%s%s",s2,s3);
 
-	printf("%d\n",n++);
 
 	TEST_ASSERT(s2+s3==s4);
 	TEST_ASSERT(s5==s4);
@@ -135,8 +64,6 @@ String::Format("%s%s",s2,s3);
 	TEST_ASSERT(s7==s4);
 
 	String s8;
-
-	printf("%d\n",n++);
 
 	s8="";
 	s8<<'A';
@@ -173,8 +100,6 @@ String::Format("%s%s",s2,s3);
 	s8<<-i64;
 	TEST_ASSERT(s8=="-123456890123456890");
 
-	printf("%d\n",n++);
-
 	uint32_t u32=12345678;
 	s8="";
 	s8<<u32;
@@ -189,12 +114,9 @@ String::Format("%s%s",s2,s3);
 	s8="";
 	s8<<f32;
 
-	printf("%d\n",n++);
-
 	float64_t f64=2.125;
 	s8="";
 	s8<<f64;
-
 
 }
 
@@ -547,5 +469,87 @@ TEST_DEFINE(TEST_Pointer)
 
 	p4.reset();
 
+}
+
+
+template<typename ATOMIC_TYPE>
+class ThreadAtomic : public ThreadMulti
+{
+public:
+	static const int N=1024*64;
+
+	ATOMIC_TYPE val;
+	void svc()
+	{
+		for(int i=0;i<N;i++) val++;
+	}
+
+	void test()
+	{
+		val=0;
+		if(!activate(4)) return;
+		wait();
+		TEST_ASSERT(val==4*N);
+	}
+};
+
+template<typename ATOMIC_TYPE>
+void test_atomic()
+{
+	ATOMIC_TYPE val;
+	TEST_ASSERT(val==0);
+
+	TEST_ASSERT(val++==0);
+	TEST_ASSERT(val==1);
+	TEST_ASSERT(++val==2);
+	TEST_ASSERT(val==2);
+
+	TEST_ASSERT(val--==2);
+	TEST_ASSERT(val==1);
+	TEST_ASSERT(--val==0);
+	TEST_ASSERT(val==0);
+
+	TEST_ASSERT(val.exchange(-1)==0);
+	TEST_ASSERT(val==-1);
+	typename ATOMIC_TYPE::type expected=2;
+
+	TEST_ASSERT(!val.compare_exchange(expected,-3));
+	TEST_ASSERT(val==-1);
+	TEST_ASSERT(expected==-1);
+
+	expected=val;
+	TEST_ASSERT(val.compare_exchange(expected,-3));
+	TEST_ASSERT(val==-3);
+
+
+	val=0;
+	TEST_ASSERT(val.fetch_add(3)==0);
+	TEST_ASSERT(val==3);
+	TEST_ASSERT(val.fetch_sub(3)==3);
+	TEST_ASSERT(val==0);
+
+
+	val=8;
+	TEST_ASSERT(val.fetch_or(9)==8);
+	TEST_ASSERT(val==9);
+	TEST_ASSERT(val.fetch_and(1)==9);
+	TEST_ASSERT(val.load()==1);
+	TEST_ASSERT(val.fetch_xor(1)==1);
+	TEST_ASSERT(val==0);
+
+	val.store(10);
+	TEST_ASSERT(val.get()==10);
+
+	ThreadAtomic<ATOMIC_TYPE> thrd;
+	thrd.test();
+
+}
+
+TEST_DEFINE(TEST_Atomic)
+{
+	test_atomic<AtomicInt32>();
+	test_atomic<AtomicUint32>();
+	test_atomic<AtomicInt64>();
+	test_atomic<AtomicUint64>();
 }
 

@@ -44,6 +44,10 @@
 		break;\
 	}\
 
+#define TEST_ASSERT_EQ(X,Y) TEST_ASSERT_MSG((X)==(Y),#X"=="#Y" is FALSE")
+#define TEST_ASSERT_NE(X,Y) TEST_ASSERT_MSG((X)!=(Y),#X"!="#Y" is FALSE")
+
+
 
 #define TEST_DEFINE(X) \
 	class Test##X : public ew::Test\

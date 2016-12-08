@@ -470,8 +470,24 @@ void CachedObjectManager::handle_pending(SerializerReader& ar,bool use_seek)
 		}
 	}
 
+}
 
-
+size_t CachedObjectManager::shrink()
+{
+	size_t _nCount=0;
+	for(size_t _nLastCount=-1;_nLastCount!=_nCount;)
+	{
+		_nLastCount=_nCount;
+		for(size_t i=1;i<aLoader.size();i++)
+		{
+			if(!aLoader[i].m_ptr || aLoader[i].m_ptr->GetRef()>1) continue;
+			aObject.erase(aLoader[i].m_ptr.get());
+			aLoader[i].flags.del(PtrLoader::IS_LOADED);
+			aLoader[i].m_ptr.reset(NULL);
+			_nCount++;
+		}	
+	}
+	return _nCount;
 }
 
 ObjectData* CachedObjectManager::read_object(SerializerReader& ar,int val)

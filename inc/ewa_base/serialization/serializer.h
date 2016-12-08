@@ -247,11 +247,12 @@ public:
 
 	static void g(SerializerWriter& ar, type& val)
 	{
-		//int n=ar.size_count(val.size());
-		for (iterator it = val.begin(); it != val.end(); it++)
+		int n=ar.size_count(val.size());
+		for (iterator it = val.begin(); it != val.end(); it++,n--)
 		{
 			ar << (*it);
 		}
+		EW_ASSERT(n==0);
 	}
 
 };

@@ -357,6 +357,11 @@ public:
 	tiny_vec(const storage_type& o):storage(o){}
 	tiny_vec(){tiny_opx<T,T,N>::eq_set(data(),T());}
 
+	template<typename Y>
+	tiny_vec(const tiny_vec<Y,N>& o)
+	{
+		tiny_opx<T,Y,N>::eq_set(data(),o.data());
+	}
 
 	tiny_vec(const T& v1,const T& v2)
 	{

@@ -14,9 +14,12 @@ EW_ENTER
 typedef tiny_vec<int32_t,3> vec3i;
 typedef tiny_vec<double,3> vec3d;
 typedef tiny_vec<double,2> vec2d;
+typedef tiny_vec<float,3> vec3f;
+typedef tiny_vec<float,2> vec2f;
 
 typedef tiny_box<int32_t,3> box3i;
 typedef tiny_box<double,3> box3d;
+typedef tiny_box<float,3> box3f;
 
 typedef type_mat<double,4,4> mat4d;
 

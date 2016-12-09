@@ -301,8 +301,9 @@ bool Scanner_read_sign(const char* &p)
 	return false;
 }
 
-bool Scanner_read_number(const char* p,double& v)
+bool Scanner_read_number(const char* &p,double& v)
 {
+	while(*p==' '||*p=='\t') p++;
 
 	bool sign=Scanner_read_sign(p);
 
@@ -321,6 +322,10 @@ bool Scanner_read_number(const char* p,double& v)
 			{
 				return false;
 			}
+		}
+		else
+		{
+			p+=1;
 		}
 	}
 	else if(p[0]!='.')
@@ -367,7 +372,7 @@ bool Scanner_read_number(const char* p,double& v)
 		bool sign2=Scanner_read_sign(++p);
 		int64_t v3(0);
 		string_read_uint_t<lkt_number10b>(p,v3,10);
-		dpart*=::pow(10.0,v3);
+		dpart*=::pow(10.0,sign2?-v3:v3);
 	}
 	
 	v= sign?-dpart:dpart;

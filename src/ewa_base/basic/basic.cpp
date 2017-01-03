@@ -17,6 +17,11 @@ void OnAssertFailure(const char* msg,const char* file,long line)
 	System::DebugBreak();
 }
 
+void OnNoop()
+{
+
+}
+
 DLLIMPEXP_EWA_BASE tl::int2type<1> _1;
 DLLIMPEXP_EWA_BASE tl::int2type<2> _2;
 DLLIMPEXP_EWA_BASE tl::int2type<3> _3;

@@ -24,14 +24,14 @@ template<>
 class LockPolicyDefault<wxWindow>
 {
 public:
-	static void lock(wxWindow& w)
+	static void lock(wxWindow* w)
 	{
-		w.Freeze();
+		w->Freeze();
 	}
 
-	static void unlock(wxWindow& w)
+	static void unlock(wxWindow* w)
 	{
-		w.Thaw();
+		w->Thaw();
 	}
 };
 

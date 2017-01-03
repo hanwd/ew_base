@@ -51,7 +51,7 @@ public:
 	virtual VisReturnType visit(TNode_expression_op*,VisExtraParam);
 	virtual VisReturnType visit(TNode_expression_op1*,VisExtraParam);
 	virtual VisReturnType visit(TNode_expression_op2*,VisExtraParam);
-	virtual VisReturnType visit(TNode_expression_opn*, VisExtraParam);
+	virtual VisReturnType visit(TNode_item_select*, VisExtraParam);
 
 	virtual VisReturnType visit(TNode_expression_op_assign*,VisExtraParam);
 	virtual VisReturnType visit(TNode_expression_call*,VisExtraParam);

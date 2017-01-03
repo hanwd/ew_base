@@ -2,6 +2,7 @@
 #include "ewa_base/basic/codecvt.h"
 #include "ewa_base/basic/file.h"
 #include "ewa_base/basic/system.h"
+#include "ewa_base/basic/lookuptable.h"
 #include "ewa_base/logging/logger.h"
 
 EW_ENTER

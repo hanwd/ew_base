@@ -47,7 +47,7 @@ VisReturnType TNodeVisitorVisitBase::visit(TNode_val_empty* node,VisExtraParam v
 VisReturnType TNodeVisitorVisitBase::visit(TNode_statement_switch* node,VisExtraParam visp){return visit_base(node,visp);}
 VisReturnType TNodeVisitorVisitBase::visit(TNode_statement_try* node,VisExtraParam visp){return visit_base(node,visp);}
 VisReturnType TNodeVisitorVisitBase::visit(TNode_statement_throw* node,VisExtraParam visp){return visit_base(node,visp);}
-VisReturnType TNodeVisitorVisitBase::visit(TNode_expression_opn* node, VisExtraParam visp){ return visit_base(node, visp); }
+VisReturnType TNodeVisitorVisitBase::visit(TNode_item_select* node, VisExtraParam visp){ return visit_base(node, visp); }
 
 
 VisReturnType TNodeVisitorRecursive::visit(TNode_variable_list* node,VisExtraParam p)
@@ -96,11 +96,11 @@ VisReturnType TNodeVisitorRecursive::visit(TNode_expression_op2* node,VisExtraPa
 	return def_value();
 }
 
-VisReturnType TNodeVisitorRecursive::visit(TNode_expression_opn* node,VisExtraParam p)
+VisReturnType TNodeVisitorRecursive::visit(TNode_item_select* node,VisExtraParam p)
 {
-	for (size_t i = 0; i < node->param.size(); i++)
+	for (size_t i = 0; i < node->exp_list->aList.size(); i++)
 	{
-		if(node->param[i]) node->param[i]->accept(*this,p);
+		if (node->exp_list->aList[i]) node->exp_list->aList[i]->accept(*this, p);
 	}
 	return def_value();
 }

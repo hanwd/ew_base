@@ -3,6 +3,7 @@
 
 #include "ewa_base/basic/object.h"
 #include "ewa_base/basic/pointer.h"
+#include "ewa_base/basic/bitflags.h"
 #include "ewa_base/collection/arr_1t.h"
 
 EW_ENTER
@@ -14,7 +15,6 @@ class DLLIMPEXP_EWA_BASE ObjectGroup
 
 	typedef DataPtrT<ObjectData> value_proxy;
 	typedef arr_1t<value_proxy> impl_proxy;
-
 
 public:
 
@@ -165,7 +165,7 @@ public:
 	ObjectCreator();
 	static ObjectCreator& current();
 
-	Object* Create(const String& name){return m_refData?m_refData->Create(name):NULL;}
+	Object* Create(const String& name);
 
 	template<typename T>
 	T* CreateT(const String& name)
@@ -183,6 +183,42 @@ public:
 };
 
 
+class InvokeParam : public Object
+{
+public:
+	enum
+	{
+		TYPE_NONE,
+		TYPE_INIT,
+		TYPE_FINI,
+		TYPE_TRY_RELEASE_MEM,
+	};
+
+	explicit InvokeParam(int t) :type(t){}
+
+	const int type;
+	BitFlags flags;
+};
+
+class TracedObject
+{
+public:
+
+	TracedObject();
+	TracedObject(const TracedObject&);
+	TracedObject& operator=(const TracedObject&);
+	virtual ~TracedObject();
+
+	static void Invoke(InvokeParam&);
+	static void Invoke(int t);
+
+protected:
+	virtual void DoInvoke(InvokeParam&);
+
+private:
+	TracedObject* m_pNext;
+	static void DoLinkObject(TracedObject* p, bool a);
+};
 
 EW_LEAVE
 #endif

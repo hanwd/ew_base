@@ -13,8 +13,6 @@ Mutex test_msg_spin;
 
 void TestMgr::Tested(bool v,const char* msg,const char* fn,int ln)
 {
-
-
 	LockGuard<Mutex> lock1(test_msg_spin);
 	if(!m_pCurrentTest)
 	{
@@ -46,7 +44,7 @@ TestMgr::~TestMgr()
 void TestMgr::AddTest(Test* t)
 {
 	if(t==NULL) return;
-	tests.push_back(t);
+	m_aTests.push_back(t);
 }
 
 
@@ -63,6 +61,30 @@ void TestMgr::Run(int argc_,char** argv_)
 	m_nUnitFailed=0;
 	m_nTestPassed=0;
 	m_nTestFailed=0;
+
+
+	arr_1t<Test*> tests;
+	if (argc == 1)
+	{
+		tests = m_aTests;
+	}
+	else
+	{
+		for (arr_1t<Test*>::iterator it = m_aTests.begin(); it != m_aTests.end(); ++it)
+		{
+			if ((*it)->GetName() == argv[1])
+			{
+				tests.push_back(*it);
+				break;
+			}
+		}
+
+		if (tests.empty())
+		{
+			logger.LogMessage("Test(%s) Not Found!", argv[1]);
+			return;
+		}
+	}
 
 	logger.LogMessage("TestMgr: %d Tests",tests.size());
 	logger.PrintLn("---------------------------------------");

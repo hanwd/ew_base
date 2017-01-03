@@ -27,6 +27,11 @@ String LogTarget::Format(const LogRecord& o) const
 
 	String msg;
 
+	if (flags.get(FLAG_SHOWRANK))
+	{
+		msg.Printf("[%2d]", o.m_nId);
+	}
+
 	if(flags.get(FLAG_SHOWDATE))
 	{
 		if(flags.get(FLAG_SHOWTIME))

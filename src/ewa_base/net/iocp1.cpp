@@ -106,7 +106,7 @@ IOCPPool::IOCPPool(const String& name_,int maxconn_):m_sName(name_)
 	}
 
 
-	flags().add(FLAG_DYNAMIC);
+	flags.add(FLAG_DYNAMIC);
 
 	m_nCanClose.set();
 

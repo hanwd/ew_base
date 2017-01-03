@@ -756,7 +756,7 @@ void CG_GGVar::_init()
 "	local z=r;\n"
 "	return reduce_k(s,def(x,y,k)\n"
 "	{\n"
-"		return k==0?y#x..z..y;\n"
+"		return ?(k==0,y,x..z..y);\n"
 "	});\n"
 "};\n"
 "function reduce(x,f,n)\n"

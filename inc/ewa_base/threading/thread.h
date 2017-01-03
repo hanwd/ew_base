@@ -26,10 +26,7 @@ public:
 
 	// Copy construct and assign operator, NOTE these methods do NOT really copy any running threads.
 	Thread(const Thread& o);
-	Thread& operator=(const Thread&)
-	{
-		return *this;
-	}
+	Thread& operator=(const Thread&);
 
 	virtual ~Thread();
 
@@ -114,15 +111,10 @@ public:
 
 	// Thread flags, currently only support FLAG_DYNAMIC.
 	// If FLAG_DYNAMIC is set, then new threads can be activated while alive.
-	BitFlags& flags()
-	{
-		return m_nFlags;
-	}
+	BitFlags flags;
 
-	void bind_cpu(int c1)
-	{
-		m_aBindCpu.push_back(c1);
-	}
+	void bind_cpu(int c1);
+	void bind_cpu(const arr_1t<int>& cu);
 
 	static uintptr_t id();
 
@@ -134,15 +126,13 @@ protected:
 	Mutex m_thrd_mutex;
 	Condition m_cond_state_changed;
 	Condition m_cond_thrd_empty;
-
-	BitFlags m_nFlags;
-
+	
 	arr_1t<int> m_aBindCpu;
 
-	bool _do_activate(int n);
+	bool _do_activate(size_t n);
 	void _init();
 
-	virtual void on_wait_noop(){}
+	virtual void on_wait_noop();
 
 };
 
@@ -150,31 +140,27 @@ class DLLIMPEXP_EWA_BASE ThreadMulti : public Thread
 {
 public:
 
-	ThreadMulti();
 
-
-	// Start one thread calling entry point
+	// Start 1 thread calling entry point
 	virtual bool activate();
 
-	// Start N threads calling entry point
-	virtual bool activate(int n);
+	// Start n threads calling entry point
+	virtual bool activate(size_t n);
 };
 
 class DLLIMPEXP_EWA_BASE ThreadEx : public Thread
 {
 public:
 
-	ThreadEx() {}
 
 	typedef Functor<void()> factor_type;
 
 	typedef arr_1t<factor_type> InvokerGroup;
 
-
 	// Start a group of threads.
 	bool activate(InvokerGroup& g);
 
-	// Start one thread calling fac().
+	// Start 1 thread calling fac().
 	bool activate(const factor_type& fac,size_t n=1);
 
 };
@@ -183,7 +169,6 @@ class DLLIMPEXP_EWA_BASE ThreadCustom : public ThreadEx
 {
 public:
 	typedef ThreadEx basetype;
-	ThreadCustom() {}
 
 	// Start a group of threads calling entry points defined in m_aThreads.
 	virtual bool activate();

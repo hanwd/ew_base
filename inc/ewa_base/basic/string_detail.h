@@ -1,5 +1,5 @@
-#ifndef __H_EW_STRING_ARGS_H__
-#define __H_EW_STRING_ARGS_H__
+#ifndef __H_EW_STRING_DETAIL_H__
+#define __H_EW_STRING_DETAIL_H__
 
 #include "ewa_base/config.h"
 #include "ewa_base/basic/exception.h"

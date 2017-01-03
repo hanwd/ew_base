@@ -9,6 +9,7 @@
 #include "ewa_base/basic/bitflags.h"
 #include "ewa_base/basic/stream.h"
 #include "ewa_base/basic/file.h"
+#include "ewa_base/basic/exception.h"
 
 #define EW_FUNCTION_TRACER(lv) FunctionTracer __function_tracer(__FUNCTION__,lv);
 
@@ -112,22 +113,35 @@ public:
 	typedef type const_reference;
 	static type invalid_value(){return NULL;}
 	static void destroy(type& o);
+	static type open(const String& file);
 };
 
-class DLLIMPEXP_EWA_BASE DllModule
+class DLLIMPEXP_EWA_BASE DllModule : public Object
 {
 public:
 	typedef KO_Handle<KO_Policy_module> impl_type;
 
-	bool Open(const String& dll);
-	void Close();
+	DllModule();
 
+	bool Open(const String& dll,int f=0);
+	void Close();
 	void* GetSymbol(const String& s);
 
-	bool IsOpen(){return impl.ok();}
+	bool IsOk(){return impl.ok();}
+
+	template<typename T>
+	T* GetSymbolEx(const String& name, T*& func){ func = (T*)GetSymbol(name); return func; }
+
+	enum
+	{
+		FLAG_INITAL_OPEN				=1<<0,
+		FLAG_ON_SYMBOL_NOT_FOUND_CLOSE	=1<<1,
+		FLAG_SEARCH_PATHS				=1<<2,
+	};
 
 protected:
 	impl_type impl;
+	BitFlags flags;
 };
 
 EW_LEAVE

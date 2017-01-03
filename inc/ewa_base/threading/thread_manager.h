@@ -18,12 +18,26 @@ public:
 	friend class ThreadImpl;
 
 	void wait();
-	void close();
+	void close(bool and_wait=false);
+
 	int count();
-
 	bool ok();
-
 	static ThreadManager& current();
+
+	class DLLIMPEXP_EWA_BASE ThreadLink
+	{
+	public:
+		ThreadLink() :head(NULL), size(0){}
+
+		void append(ThreadImpl* p);
+		void remove(ThreadImpl* p);
+		bool getnum(arr_1t<ThreadImpl*>&,size_t n);
+
+		ThreadImpl* getone();
+
+		ThreadImpl* head;
+		uintptr_t size;
+	};
 
 protected:
 
@@ -33,12 +47,12 @@ protected:
 	int m_nThreadMax;
 	BitFlags m_nFlags;
 	AtomicInt32 m_nThreadNum;
-	AtomicInt32 m_nThreadJob;
 
-	Mutex m_thrd_mutex;
-	LitePtrT<ThreadImpl> m_pThreads_free;
+	ThreadLink list_free, list_work;
+
 	Condition m_cond_thrd_empty;
 	Condition m_thrd_attached;
+	Mutex m_thrd_mutex;
 
 };
 

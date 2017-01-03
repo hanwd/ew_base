@@ -3,20 +3,16 @@
 #define __H_EW_TESTING_TEST__
 
 
+#include "ewa_base/basic/bitflags.h"
 #include "ewa_base/logging/logger.h"
 #include "ewa_base/collection/arr_1t.h"
 
 #define TEST_ASSERT_MSG(X,Y) \
-	try\
-	{\
-		ew::TestMgr::current().Tested((X),Y,__FILE__,__LINE__);\
-	}\
-	catch(...)\
-	{\
-		ew::TestMgr::current().Tested(false,Y,__FILE__,__LINE__);\
-	}
+	{bool flag;try{flag=(X);}catch(...){flag=false;};ew::TestMgr::current().Tested(flag,Y,__FILE__,__LINE__);}
 
-#define TEST_ASSERT(X) TEST_ASSERT_MSG(X,#X)
+
+#define TEST_ASSERT(X) TEST_ASSERT_MSG(X,#X" is FALSE")
+
 
 #define TEST_ASSERT_THROW(X,Y) \
 	for(;;)\
@@ -28,7 +24,7 @@
 			break;\
 		} \
 		catch(...){}\
-		TEST_ASSERT_MSG(false,#X);\
+		TEST_ASSERT_MSG(false,#X" NOT THROW "#Y);\
 		break;\
 	}\
 
@@ -40,12 +36,12 @@
 			TEST_ASSERT_MSG(true,#X);\
 			break;\
 		} \
-		TEST_ASSERT_MSG(false,#X);\
+		TEST_ASSERT_MSG(false,#X" NOT THROW");\
 		break;\
 	}\
 
-#define TEST_ASSERT_EQ(X,Y) TEST_ASSERT_MSG((X)==(Y),#X"=="#Y" is FALSE")
-#define TEST_ASSERT_NE(X,Y) TEST_ASSERT_MSG((X)!=(Y),#X"!="#Y" is FALSE")
+#define TEST_ASSERT_EQ(X,Y) TEST_ASSERT_MSG((X)==(Y),#X" and "#Y" are NOT EQUAL")
+#define TEST_ASSERT_NE(X,Y) TEST_ASSERT_MSG((X)!=(Y),#X" and "#Y" are EQUAL")
 
 
 
@@ -85,7 +81,9 @@ public:
 	virtual ~Test() {}
 
 	virtual void Run();
-	virtual void RunTest()=0;
+	virtual void RunTest() = 0;
+
+	const String& GetName(){ return m_sName; }
 
 protected:
 	String m_sName;
@@ -113,13 +111,14 @@ public:
 
 	int argc;
 	char** argv;
+	BitFlags flags;
 
 protected:
 	int m_nUnitPassed;
 	int m_nUnitFailed;
 	int m_nTestPassed;
 	int m_nTestFailed;
-	arr_1t<Test*> tests;
+	arr_1t<Test*> m_aTests;
 	Test* m_pCurrentTest;
 
 };

@@ -1,5 +1,6 @@
 #include "ewa_base/basic/hashing.h"
 #include "ewa_base/basic/stringbuffer.h"
+#include "ewa_base/basic/scanner_helper.h"
 
 EW_ENTER
 

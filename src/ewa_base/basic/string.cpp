@@ -1,12 +1,15 @@
 
 #include "string_impl.h"
 #include "ewa_base/basic/string.h"
+#include "ewa_base/basic/string_detail.h"
 #include "ewa_base/basic/stringbuffer.h"
+#include "ewa_base/basic/lookuptable.h"
+#include "ewa_base/basic/scanner_helper.h"
 #include "ewa_base/basic/system.h"
 #include "ewa_base/basic/codecvt.h"
 #include <string>
-
-#include <stdio.h>
+#include <limits>
+#include <cstdio>
 #include <iostream>
 
 #ifdef EW_WINDOWS
@@ -241,160 +244,35 @@ String& String::operator+=(const wchar_t* p)
 
 }
 
-template<template<unsigned> class H>
-bool string_read_uint_t(const char* &p,int64_t& v,uint32_t h)
-{
-	unsigned char w;
-	for(v=0;(w=lookup_table<H>::test(p[0]))!=0xFF;p++)
-	{
-		v=v*h+w;
-	}
-	return true;
-}
 
-bool string_read_uint(const char* &p,int64_t& v)
-{
-	v=0;
-
-	char ch=p[0];
-	if(ch=='0')
-	{
-		ch=lookup_table<lkt2uppercase>::test(*++p);
-		if(ch=='X')
-		{
-			return string_read_uint_t<lkt_number16b>(++p,v,16);
-		}
-		else if(ch=='B')
-		{
-			return string_read_uint_t<lkt_number02b>(++p,v,2);		
-		}
-		else if(ch>='1'&&ch<='9')
-		{
-			return string_read_uint_t<lkt_number08b>(++p,v,8);		
-		}
-		else if(ch=='0')
-		{
-			return false;
-		}
-		else
-		{
-			return true;
-		}
-	}
-	else
-	{
-		return string_read_uint_t<lkt_number10b>(p,v,10);
-	}
-}
-
-bool Scanner_read_sign(const char* &p)
-{
-	if(p[0]=='-')
-	{
-		p++;
-		return true;
-	}
-	else if(p[0]=='+')
-	{
-		p++;
-	}
-	return false;
-}
-
-bool Scanner_read_number(const char* &p,double& v)
-{
-	while(*p==' '||*p=='\t') p++;
-
-	bool sign=Scanner_read_sign(p);
-
-	int64_t ipart(0);
-
-	if(p[0]=='0')
-	{
-		if(p[1]!='.')
-		{
-			if(string_read_uint(p,ipart))
-			{
-				v=sign?-double(ipart):double(ipart);
-				return true;
-			}
-			else
-			{
-				return false;
-			}
-		}
-		else
-		{
-			p+=1;
-		}
-	}
-	else if(p[0]!='.')
-	{
-		if(!string_read_uint_t<lkt_number10b>(p,ipart,10))
-		{
-			return false;
-		}		
-	}
-
-	double dpart(ipart);
-
-	if (p[0] == '.')
-	{
-		if(*++p=='#')
-		{
-			if(p[1]=='I'&&p[2]=='N'&&p[3]=='F')
-			{
-				v=sign?-numeric_trait_floating<double>::max_value():numeric_trait_floating<double>::max_value();
-				return true;
-			}
-			if((p[1]=='I'&&p[2]=='N'&&p[3]=='D')||(p[1]=='N'&&p[2]=='A'&&p[3]=='N')||(p[1]!=0 && p[2]=='N'&&p[3]=='A'))
-			{
-				v=sign?-numeric_trait_floating<double>::nan_value():numeric_trait_floating<double>::nan_value();
-				return true;
-			}
-			else
-			{
-				return false;
-			}
-		}
-		else
-		{
-			int64_t v2(0);
-			const char* p0=p;
-			string_read_uint_t<lkt_number10b>(p,v2,10);
-			dpart+=double(v2)*::pow(0.1,p-p0);
- 		}
-	}
-
-
-	if(p[0]=='e'||p[0]=='E')
-	{
-		bool sign2=Scanner_read_sign(++p);
-		int64_t v3(0);
-		string_read_uint_t<lkt_number10b>(p,v3,10);
-		dpart*=::pow(10.0,sign2?-v3:v3);
-	}
-	
-	v= sign?-dpart:dpart;
-	return true;
-	
-}
 
 bool String::ToNumber(int64_t* val) const
 {
 	if(!val) return false;
-	const char* p=m_ptr;
-	bool sign=Scanner_read_sign(p);
+
+	const char* p(m_ptr);
+	bool sign = ScannerHelper<const char*>::read_sign(p);
 
 	int64_t v(0);
+
 	const char* p0=p;
-	if(!string_read_uint(p,v))
+	if (!ScannerHelper<const char*>::read_uint(p, v))
 	{
 		return false;
 	}
 	if(p==p0)
 	{
 		return false;
+	}
+	else if (*p=='e'||*p=='E')
+	{
+		double dval(0.0);
+		if (!ScannerHelper<const char*>::read_number(p0,dval))
+		{
+			return false;
+		}
+		*val = dval;
+		return true;
 	}
 
 	*val=sign?-v:v;
@@ -411,13 +289,13 @@ bool String::ToNumber(int32_t* val) const
 		return false;
 	}
 
-	if(tmp>(int64_t)numeric_trait<int32_t>::max_value())
+	if(tmp>(int64_t)std::numeric_limits<int32_t>::max())
 	{
-		tmp=numeric_trait<int32_t>::max_value();
+		tmp = std::numeric_limits<int32_t>::max();
 	}
-	else if(tmp<(int64_t)numeric_trait<int32_t>::min_value())
+	else if (tmp<(int64_t)std::numeric_limits<int32_t>::lowest())
 	{
-		tmp=numeric_trait<int32_t>::min_value();
+		tmp = std::numeric_limits<int32_t>::lowest();
 	}
 
 	*val=tmp;
@@ -427,9 +305,10 @@ bool String::ToNumber(int32_t* val) const
 bool String::ToNumber(float32_t* val) const
 {
 	if(!val) return false;
-	const char* p=m_ptr;
+
 	double tmp;
-	if(!Scanner_read_number(p,tmp))
+	const char* p(m_ptr);
+	if (!ScannerHelper<const char*>::read_number(p, tmp))
 	{
 		return false;
 	}
@@ -442,8 +321,8 @@ bool String::ToNumber(float32_t* val) const
 bool String::ToNumber(float64_t* val) const
 {
 	if(!val) return false;
-	const char* p=m_ptr;
-	return Scanner_read_number(p,*val);
+	const char* p(m_ptr);
+	return ScannerHelper<const char*>::read_number(p, *val);
 }
 
 

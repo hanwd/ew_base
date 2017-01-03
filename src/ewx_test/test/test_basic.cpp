@@ -8,22 +8,6 @@
 
 using namespace ew;
 
-template<typename X>
-void test_floating_trait()
-{
-	typedef typename X::type type;
-
-	TEST_ASSERT(ew::is_nan(X::nan_value()));
-	TEST_ASSERT(X::max_value()==std::numeric_limits<type>::max());
-	TEST_ASSERT(X::min_value()==-std::numeric_limits<type>::max());
-
-}
-
-TEST_DEFINE(TEST_Number)
-{
-	test_floating_trait<numeric_trait<double> >();
-	test_floating_trait<numeric_trait<float> >();
-}
 
 TEST_DEFINE(TEST_String)
 {
@@ -52,8 +36,6 @@ TEST_DEFINE(TEST_String)
 	s5+=s3;
 	String s6;
 	s6<<s2<<s3;
-
-	String::Format("%s%s",s2,s3);
 
 	String s7=String::Format("%s%s",s2,s3);
 
@@ -100,6 +82,7 @@ TEST_DEFINE(TEST_String)
 	s8<<-i64;
 	TEST_ASSERT(s8=="-123456890123456890");
 
+
 	uint32_t u32=12345678;
 	s8="";
 	s8<<u32;
@@ -110,13 +93,15 @@ TEST_DEFINE(TEST_String)
 	s8<<u64;
 	TEST_ASSERT(s8=="123456890123456890");
 
-	float32_t f32=1.25;
+	float32_t f32=1.25,f32_2;
 	s8="";
 	s8<<f32;
+	TEST_ASSERT(s8.ToNumber(&f32_2) && f32_2==f32);
 
-	float64_t f64=2.125;
+	float64_t f64=2.125,f64_2;
 	s8="";
 	s8<<f64;
+	TEST_ASSERT(s8.ToNumber(&f64_2) && f64_2==f64);
 
 }
 

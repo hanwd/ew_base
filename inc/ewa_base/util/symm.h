@@ -21,11 +21,9 @@ public:
 	DExprItem(const String& n,const String& v,const String& d=""):name(n),value(v),desc(d){}
 	DExprItem(){}
 
+	bool FromVariant(const Variant& v);
 
-	void Serialize(Serializer& ar)
-	{
-		ar & name & value & desc;
-	}
+	void Serialize(Serializer& ar);
 };
 
 inline bool operator==(const DExprItem& lhs,const DExprItem& rhs)

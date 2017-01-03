@@ -203,7 +203,9 @@ void operator delete[](void*,int,const char*,int);
 #ifndef NDEBUG
 #define EW_ASSERT(x) if(!(x)) ew::OnAssertFailure(#x,__FILE__,__LINE__);
 #define EW_STATIC_ASSERT(x) {char buffer[(x)?1:0];(void)&buffer;}
+#define EW_NOOP() 
 #else
+#define EW_NOOP() ew::OnNoop()
 #define EW_ASSERT(x)
 #define EW_STATIC_ASSERT(x)
 #endif
@@ -233,8 +235,8 @@ class DLLIMPEXP_EWA_BASE NonCopyable
 	NonCopyable(const NonCopyable&);
 	NonCopyable& operator=(const NonCopyable&);
 protected:
-	NonCopyable() {}
-	~NonCopyable() {}
+	EW_FORCEINLINE NonCopyable() {}
+	EW_FORCEINLINE ~NonCopyable() {}
 };
 
 template<typename T> class ObjectNameT;
@@ -273,6 +275,7 @@ class DLLIMPEXP_EWA_BASE TimePoint;
 DLLIMPEXP_EWA_BASE extern const char const_empty_buffer[64];
 
 void DLLIMPEXP_EWA_BASE OnAssertFailure(const char* what,const char* file,long line);
+void DLLIMPEXP_EWA_BASE OnNoop();
 
 DLLIMPEXP_EWA_BASE const String& Translate(const String& msg);
 DLLIMPEXP_EWA_BASE const String& Translate(const String& msg,const String& def);

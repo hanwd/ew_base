@@ -150,14 +150,65 @@ String Match::replace(const String& dst) const
 			sb.push_back(*p1++);
 			continue;
 		}
+
 		if(p1[1]>='0'&&p1[1]<='9')
 		{
-			int n=p1[1]-'0';
-			if(n<(int)matchs.size())
+			p1++;
+
+			int64_t v = 0;
+			ScannerHelper<const char*>::read_uint(p1, v);
+			if(size_t(v)<matchs.size())
 			{
-				sb<<matchs[n];
+				sb<<matchs[v];
 			}
+			else
+			{
+
+			}	
+		}
+		else if (p1[1] == '{')
+		{
 			p1+=2;
+			int64_t v = 0;
+			ScannerHelper<const char*>::skip<lkt_whitespace>(p1);
+			ScannerHelper<const char*>::read_uint(p1, v);
+			if (*p1 == '.')
+			{
+				p1++;
+
+				int64_t v2 = 0;
+				ScannerHelper<const char*>::read_uint(p1, v2);
+
+				if (size_t(v) < matchs.size() && size_t(v2) < matchs[v].size())
+				{
+					sb << matchs[v][v2];
+				}
+				else
+				{
+
+				}
+
+			}
+			else
+			{
+				if (size_t(v) < (int)matchs.size())
+				{
+					sb << matchs[v];
+				}
+				else
+				{
+
+				}
+			}
+			ScannerHelper<const char*>::skip<lkt_whitespace>(p1);
+			if (*p1 == '}')
+			{
+				p1++;
+			}
+			else
+			{
+				return "--error-format--";
+			}
 		}
 		else
 		{

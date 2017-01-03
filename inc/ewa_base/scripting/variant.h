@@ -455,7 +455,7 @@ inline T& Variant::get()
 template<typename T>
 inline const T& Variant::get() const
 {
-	const T* p=variant_handler<T>::ptr(*this);
+	const T* p=variant_handler<T>::ptr(*(Variant*)this);
 	if(!p) Exception::XBadCast();
 	return *p;
 }

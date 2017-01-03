@@ -11,7 +11,7 @@
 
 EW_ENTER
 
-// RingBufferBase one thread read/one thread write
+
 template<typename T>
 class DLLIMPEXP_EWA_BASE LinearBuffer : private NonCopyable
 {

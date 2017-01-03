@@ -473,6 +473,7 @@ public:
 	SystemLoggerData()
 	{
 		bEnabled=true;
+		fp_logfile = NULL;
 	}
 
 	~SystemLoggerData()
@@ -592,6 +593,49 @@ void DllModule::Close()
 	impl.reset();
 }
 
+DllModule::DllModule()
+{
+	flags.clr(FLAG_INITAL_OPEN);
+}
+
+bool DllModule::Open(const String& dll,int f)
+{
+	flags.clr(f);
+	flags.del(FLAG_INITAL_OPEN);
+
+	arr_1t<String> files;
+	if (flags.get(FLAG_SEARCH_PATHS))
+	{
+		if (sizeof(intptr_t) == 4)
+		{
+			files.append(dll);
+			files.append("x86/"+dll);
+		}
+		else
+		{
+			files.append(dll);
+			files.append("x64/"+dll);
+		}		
+	}
+	else
+	{
+		files.append(dll);
+	}
+
+	KO_Policy_module::type p = KO_Policy_module::invalid_value();
+	for (size_t i = 0; i < files.size(); i++)
+	{
+		p = KO_Policy_module::open(files[i]);
+		if (p!=KO_Policy_module::invalid_value())
+		{
+			impl.reset(p);
+			return true;
+		}
+	}
+
+	return false;
+}
+
 #ifdef EW_WINDOWS
 
 void KO_Policy_module::destroy(type& o)
@@ -599,27 +643,22 @@ void KO_Policy_module::destroy(type& o)
 	::FreeLibrary(*(HMODULE*)&o);
 }
 
-bool DllModule::Open(const String& dll)
+KO_Policy_module::type KO_Policy_module::open(const String& file)
 {
-	HMODULE p=::LoadLibraryW(IConv::to_wide(dll).c_str());
-	if(!p)
-	{
-		return false;
-	}
-	impl.reset(p);
-	return true;
+	return LoadLibraryW(IConv::to_wide(file).c_str());
 }
-
-
 
 void* DllModule::GetSymbol(const String& s)
 {
-#ifdef EW_MSVC
 	if(!impl.ok()) return NULL;
-	return ::GetProcAddress(*(HMODULE*)&impl,s.c_str());
-#else
-    return NULL;
-#endif
+
+	void * pfunc = ::GetProcAddress(*(HMODULE*)&impl, s.c_str());
+
+	if (!pfunc && flags.get(FLAG_ON_SYMBOL_NOT_FOUND_CLOSE))
+	{
+		Close();
+	}
+	return pfunc;
 }
 
 #else
@@ -629,15 +668,9 @@ void KO_Policy_module::destroy(type& o)
 	dlclose(o);
 }
 
-bool DllModule::Open(const String& dll)
+KO_Policy_module::type KO_Policy_module::open(const String& file)
 {
-	void* p=dlopen(dll.c_str(),RTLD_LAZY);
-	if(!p)
-	{
-		return false;
-	}
-	impl.reset(p);
-	return true;
+	return dlopen(file.c_str(),RTLD_LAZY)
 }
 
 void* DllModule::GetSymbol(const String& s)

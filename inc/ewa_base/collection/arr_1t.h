@@ -35,6 +35,8 @@ public:
 	inline arr_1t(){}
 	inline arr_1t(const arr_1t& o):basetype(o){}
 	inline explicit arr_1t(const A& al):basetype(al){}
+	
+	explicit arr_1t(size_t n){ resize(n); }
 
 	inline arr_1t& operator=(const arr_1t& o){impl=o.impl;return *this;}
 

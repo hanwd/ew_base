@@ -7,41 +7,50 @@
 EW_ENTER
 
 
-class DLLIMPEXP_EWA_BASE BitFlags
+template<typename T>
+class DLLIMPEXP_EWA_BASE BitFlags_t
 {
 public:
+	typedef T type;
 
-	inline BitFlags(int32_t flag=0):m_nFlags(flag){}
-	inline bool get(int32_t flag) const{return (m_nFlags&flag)!=0;}
-	inline void add(int32_t flag){m_nFlags|=flag;}
-	inline void del(int32_t flag){m_nFlags&=~flag;}
-	inline void clr(int32_t flag=0){m_nFlags=flag;}
-	inline void inv(int32_t flag){m_nFlags^=flag;}
+	inline BitFlags_t(type flag = 0) :m_nFlags(flag){}
+	inline bool get(type flag) const{ return (m_nFlags&flag) != 0; }
+	inline void add(type flag){ m_nFlags |= flag; }
+	inline void del(type flag){ m_nFlags &= ~flag; }
+	inline void clr(type flag = 0){ m_nFlags = flag; }
+	inline void inv(type flag){ m_nFlags ^= flag; }
 	inline int32_t val() const{return m_nFlags;}
 
-	void set(int32_t flag,bool v);	// set flag   if(v) add(flag) else del(flag)
+	void set(type flag, bool v)
+	{
+		if (v) add(flag); else del(flag);
+	}
 
 private:
-	int32_t m_nFlags;
+	type m_nFlags;
 };
 
-inline bool operator==(const BitFlags lhs,const BitFlags rhs)
+template<typename T>
+inline bool operator==(const BitFlags_t<T> lhs, const BitFlags_t<T> rhs)
 {
 	return lhs.val()==rhs.val();
 }
 
-inline bool operator!=(const BitFlags lhs,const BitFlags rhs)
+template<typename T>
+inline bool operator!=(const BitFlags_t<T> lhs, const BitFlags_t<T> rhs)
 {
 	return lhs.val()!=rhs.val();
 }
 
+typedef BitFlags_t<int32_t> BitFlags;
+typedef BitFlags_t<int64_t> BitFlags64;
 
 EW_LEAVE
 
 namespace tl
 {
-	template<>
-	struct is_pod<ew::BitFlags> : public value_type<true>{};
+	template<typename T>
+	struct is_pod<ew::BitFlags_t<T> > : public value_type<true>{};
 };
 
 #endif

@@ -14,6 +14,7 @@ DLLIMPEXP_EWA_BASE void tc_cleanup();
 
 bool ThreadImpl::sm_bReqexit=false;
 
+
 void ThreadImpl::set_priority(int n)
 {
 	if(n<0) n=0;
@@ -37,159 +38,71 @@ void thread_impl_entry_real(ThreadImpl* impl)
 	}
 }
 
+template<typename G>
+static bool ThreadImpl::activate_t(Thread& thrd, G& g)
+{
+	size_t n = g.size();
+	if (n == 0) return false;
+
+	ThreadManager& tmgr(ThreadManager::current());
+
+	LockGuard<Mutex> lock1(tmgr.m_thrd_mutex);
+	if (tmgr.m_nFlags.get(ThreadImpl::THREADMANAGER_DISABLED))
+	{
+		return false;
+	}
+
+	LockGuard<Mutex> lock2(thrd.m_thrd_mutex);
+	if (!thrd.flags.get(Thread::FLAG_DYNAMIC) && thrd.m_nAlive != 0)
+	{
+		return false;
+	}
+
+	arr_1t<ThreadImpl*> _aThreads;
+
+	if (!tmgr.list_free.getnum(_aThreads, n))
+	{
+		return false;
+	}
+
+	EW_ASSERT(_aThreads.size() == n);
+
+	for (size_t i = 0; i<n; i++)
+	{
+		if (i<thrd.m_aBindCpu.size())
+		{
+			_aThreads[i]->thrd_affinity = thrd.m_aBindCpu[i];
+		}
+		else
+		{
+			_aThreads[i]->thrd_affinity = -1;
+		}
+		_aThreads[i]->set_thread(&thrd, g[i], i);
+	}
+
+	thrd.m_nAlive += n;
+	tmgr.m_thrd_attached.notify_all();
+
+	return true;
+}
 
 bool ThreadImpl::activate(Thread& thrd,ThreadEx::InvokerGroup& g)
 {
-	ThreadManager& tmgr(ThreadManager::current());
-
-	int n=(int)g.size();
-	if(n<=0) return false;
-
-	LockGuard<Mutex> lock1(tmgr.m_thrd_mutex);
-	if(tmgr.m_nFlags.get(ThreadImpl::THREADMANAGER_DISABLED))
-	{
-		return false;
-	}
-
-	LockGuard<Mutex> lock2(thrd.m_thrd_mutex);
-	if(!thrd.m_nFlags.get(Thread::FLAG_DYNAMIC) && thrd.m_nAlive!=0)
-	{
-		return false;
-	}
-
-	arr_1t<ThreadImpl*> _aThreads;
-	_aThreads.resize(n,NULL);
-
-	for(int i=0; i<n; i++)
-	{
-		_aThreads[i]=ThreadImpl::get_thread();
-		if(!_aThreads[i])
-		{
-			for(int j=0; j<i; j++)
-			{
-				_aThreads[i]->set_thread(NULL,ThreadEx::factor_type(),-1);
-			}
-			return false;
-		}
-		if(i<(int)thrd.m_aBindCpu.size())
-		{
-			_aThreads[i]->thrd_affinity=thrd.m_aBindCpu[i];
-		}
-		else
-		{
-			_aThreads[i]->thrd_affinity=-1;
-		}
-		_aThreads[i]->set_thread(&thrd,g[i],i);
-	}
-
-	thrd.m_nAlive+=n;
-	tmgr.m_thrd_attached.notify_all();
-
-	return true;
+	return activate_t(thrd, g);
 }
 
-bool ThreadImpl::activate(Thread& thrd,int n)
+bool ThreadImpl::activate(Thread& thrd,size_t n)
 {
-	ThreadManager& tmgr(ThreadManager::current());
-
-	if(n<=0) return false;
-
-	LockGuard<Mutex> lock1(tmgr.m_thrd_mutex);
-	if(tmgr.m_nFlags.get(ThreadImpl::THREADMANAGER_DISABLED))
+	class FakeGroup
 	{
-		return false;
-	}
-
-	LockGuard<Mutex> lock2(thrd.m_thrd_mutex);
-	if(!thrd.m_nFlags.get(Thread::FLAG_DYNAMIC) && thrd.m_nAlive!=0)
-	{
-		return false;
-	}
-
-	arr_1t<ThreadImpl*> _aThreads;
-	_aThreads.resize(n,NULL);
-
-	for(int i=0; i<n; i++)
-	{
-		_aThreads[i]=ThreadImpl::get_thread();
-		if(!_aThreads[i])
-		{
-			for(int j=0; j<i; j++)
-			{
-				_aThreads[i]->set_thread(NULL,ThreadEx::factor_type(),-1);
-			}
-			return false;
-		}
-		if(i<(int)thrd.m_aBindCpu.size())
-		{
-			_aThreads[i]->thrd_affinity=thrd.m_aBindCpu[i];
-		}
-		else
-		{
-			_aThreads[i]->thrd_affinity=-1;
-		}
-		_aThreads[i]->set_thread(&thrd,ThreadEx::factor_type(),i);
-	}
-
-	thrd.m_aBindCpu.clear();
-	thrd.m_nAlive+=n;
-	tmgr.m_thrd_attached.notify_all();
-
-	return true;
+	public:
+		size_t sz;
+		FakeGroup(int n) :sz(n){}
+		size_t size(){ return sz; }
+		ThreadEx::factor_type operator[](size_t){ return ThreadEx::factor_type(); }
+	}g(n);
+	return activate_t(thrd, g);
 }
-
-ThreadImpl* ThreadImpl::get_thread()
-{
-	ThreadManager& tmgr(ThreadManager::current());
-
-	ThreadImpl* impl=NULL;
-
-	if(tmgr.m_pThreads_free)
-	{
-		impl=tmgr.m_pThreads_free;
-		tmgr.m_pThreads_free=impl->pNext;
-		if(tmgr.m_pThreads_free)
-		{
-			tmgr.m_pThreads_free->pPrev=NULL;
-		}
-
-	}
-	else
-	{
-		impl= new ThreadImpl();
-		if(!impl->create())
-		{
-			System::CheckError("unable to create thread");
-
-			delete impl;
-			return NULL;
-		}
-	}
-	return impl;
-}
-
-bool ThreadImpl::put_thread(ThreadImpl* impl)
-{
-	ThreadManager& tmgr(ThreadManager::current());
-
-	if( tmgr.m_nFlags.get(ThreadImpl::THREADMANAGER_DISABLED) )
-	{
-		return false;
-	}
-
-	impl->pNext=tmgr.m_pThreads_free;
-	impl->pPrev=NULL;
-	if(tmgr.m_pThreads_free)
-	{
-		tmgr.m_pThreads_free->pPrev=impl;
-	}
-	tmgr.m_pThreads_free=impl;
-
-	return true;
-
-}
-
-
 
 ThreadImpl::ThreadImpl()
 {
@@ -279,15 +192,14 @@ void ThreadImpl::svc()
 			{
 				if(tmgr.m_nFlags.get(ThreadImpl::THREADMANAGER_NOCAHCING|ThreadImpl::THREADMANAGER_DISABLED))
 				{
-					if(pPrev) pPrev->pNext=pNext;
-					if(pNext) pNext->pPrev=pPrev;
+					tmgr.list_free.remove(this);
 					return;
 				}
 				tmgr.m_thrd_attached.wait(lock1);
 			}
-			tmgr.m_nThreadJob++;
-		}
 
+			tmgr.list_work.append(this);
+		}
 
 		set_priority(50);
 		set_affinity(thrd_affinity);
@@ -299,6 +211,7 @@ void ThreadImpl::svc()
 			{
 				if(!invoker)
 				{
+					thrd_log.Id(thrd_rank);
 					thrd_ptr->svc();
 				}
 				else
@@ -329,17 +242,26 @@ void ThreadImpl::svc()
 
 		{
 			LockGuard<Mutex> lock1(tmgr.m_thrd_mutex);
-			tmgr.m_nThreadJob--;
-			if(!put_thread(this))
+			tmgr.list_work.remove(this);
+			if (tmgr.m_nFlags.get(ThreadImpl::THREADMANAGER_NOCAHCING | ThreadImpl::THREADMANAGER_DISABLED))
 			{
 				return;
 			}
+			tmgr.list_free.append(this);
 		}
 	}
-
-
 }
 
+
+CoroutineMain& ThreadImpl::cort_main()
+{
+	if (!cort_ptr)
+	{
+		cort_ptr.reset(new CoroutineMain);
+		cort_ptr->init();
+	}
+	return *cort_ptr;
+}
 
 class ThreadMain : public Thread
 {
@@ -402,11 +324,7 @@ public:
 
 	static ThreadManagerImpl& current();
 
-	~ThreadManagerImpl()
-	{
-		close();
-		wait();
-	}
+	~ThreadManagerImpl(){close(true);}
 };
 
 ThreadManagerImpl* _g_pThreadManager=NULL;

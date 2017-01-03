@@ -3,6 +3,7 @@
 #include "ewa_base/xml/xml_document.h"
 #include "ewa_base/basic/bitflags.h"
 #include "ewa_base/basic/stringbuffer.h"
+#include "ewa_base/basic/scanner_helper.h"
 
 #include <fstream>
 
@@ -10,9 +11,13 @@ EW_ENTER
 
 
 
-class XmlParser : public ParserBase
+class XmlParser : public Object
 {
 public:
+
+	typedef ScannerHelper<const char*> helper;
+	typedef helper::type mychar;
+	typedef helper::pointer mychar_ptr;
 
 	XmlParser(XmlDocument& xmldoc_);
 

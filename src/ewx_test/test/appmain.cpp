@@ -1,23 +1,20 @@
 #include "ewa_base.h"
-#include <cstdio>
-#include <algorithm>
 
 
-
-int main(int argc,char** argv)
+int main(int argc, char** argv)
 {
 	using namespace ew;
 
+
 	mp_check_leak(1);
 
-	System::SetLogFile("ew.log",true);
+	System::SetLogFile("ewx_test.log",true);
 
-	System::LogTrace("----  process enter   -------");
+	System::LogTrace("----  test enter   -------");
 	TestMgr::current().Run(argc,argv);
-	System::LogTrace("----  process leave   -------");
+	System::LogTrace("----  test leave   -------");
 
-	ThreadManager::current().close();
-	ThreadManager::current().wait();
+	ThreadManager::current().close(true);
 
 	Console::Pause();
 	return 0;

@@ -3,6 +3,7 @@
 #include "ewa_base/scripting/executor.h"
 #include "ewa_base/util/strlib.h"
 #include "ewa_base/basic/system.h"
+#include "ewa_base/basic/scanner_helper.h"
 
 EW_ENTER
 
@@ -16,7 +17,6 @@ public:
 		value["anchor"].reset(o.anchor);
 		value["clientip"].reset(o.sk_local.peer.host());
 		value["query"].ref<VariantTable>().swap(o.query);
-
 	}
 };
 
@@ -55,9 +55,6 @@ public:
 		value["redirect"].reset(CallableFunctionResponseRedirect::sm_info.CreateObject());
 	}
 };
-
-
-
 
 
 void SessionHttp_Response_404(SessionHttp& http)
@@ -146,6 +143,16 @@ void SessionHttp_Response_EWSL(SessionHttp& http)
 		if(http.sb.empty())
 		{
 			http.filepath=response->value["download"].ref<String>();
+
+			String filename = response->value["filename"].ref<String>();
+			if (!filename.empty())
+			{
+				const char* p1 = filename.c_str();
+				const char* p2 = p1 + ::strlen(p1);
+				while (p2 > p1 && p2[-1] != '\\' && p2[-1] != '/') p2--;
+				http.extraheader << "Content-Disposition: attachment; filename=\"" << p2 << "\";\r\n";
+			}
+
 			SessionHttp_Response_FILE(http);
 		}
 	}
@@ -295,6 +302,11 @@ void SessionHttp::HandleRequest()
 		sb1<<"Set-Cookie: "<<(*it).first<<"="<<string_escape((*it).second)<<"; path=/; \r\n";
 	}
 
+	if (!extraheader.empty())
+	{
+		sb1 << extraheader;
+	}
+
 	if(httpstatus==301)
 	{
 		sb1<<"Location: " <<props["Location"]<<"\r\n\r\n";
@@ -381,7 +393,7 @@ void SessionHttp::_ParseRequestHeaders()
 		const char* p1=p+lines[i-1];
 		const char* p2=p1;
 
-		ParserBase::skip<lkt_not_colon>(p2);
+		ScannerHelper<const char*>::skip<lkt_not_colon>(p2);
 		if(*p2==0) continue;
 
 		if(p2)

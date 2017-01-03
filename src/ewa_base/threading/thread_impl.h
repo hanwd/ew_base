@@ -20,10 +20,10 @@ public:
 		THREADMANAGER_NOCAHCING	=1<<1,
 	};
 
-	static ThreadImpl* get_thread();
-	static bool put_thread(ThreadImpl* impl);
+	template<typename G>
+	static bool activate_t(Thread& thrd,G& g);
 
-	static bool activate(Thread& thrd,int n);
+	static bool activate(Thread& thrd,size_t n);
 	static bool activate(Thread& thrd,ThreadEx::InvokerGroup& g);
 
 	ThreadImpl();
@@ -46,15 +46,7 @@ public:
 
 	String last_error;
 
-	CoroutineMain& cort_main()
-	{
-		if(!cort_ptr)
-		{
-			cort_ptr.reset(new CoroutineMain);
-			cort_ptr->init();
-		}
-		return *cort_ptr;
-	}
+	CoroutineMain& cort_main();
 
 	int thrd_rank;
 	int thrd_priority;
@@ -85,8 +77,12 @@ public:
 		}
 		return *tc_impl_data;
 	}
-};
 
+
+	static void link_append(ThreadManager::ThreadLink& link, ThreadImpl* p);
+	static void link_remove(ThreadManager::ThreadLink& link, ThreadImpl* p);
+	static ThreadImpl* link_getone(ThreadManager::ThreadLink& link);
+};
 
 
 EW_LEAVE

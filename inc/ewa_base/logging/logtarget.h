@@ -23,7 +23,8 @@ public:
 		FLAG_SHOWALL	=1<<1,
 		FLAG_SHOWDATE	=1<<2,
 		FLAG_SHOWTIME	=1<<3,
-		FLAG_COLORED	=1<<4,
+		FLAG_SHOWRANK	=1<<4,
+		FLAG_COLORED	=1<<8,
 	};
 
 	LogTarget();

@@ -36,32 +36,6 @@ public:
 bool is_nan(double d);
 bool is_nan(float d);
 
-template<typename T>
-class DLLIMPEXP_EWA_BASE numeric_trait_floating
-{
-public:
-	typedef T type;
-	static T min_value();
-	static T max_value();
-	static T inf_value();
-	static T nan_value();
-};
-
-template<typename T>
-class DLLIMPEXP_EWA_BASE numeric_trait_integer
-{
-public:
-	typedef T type;
-	static T min_value();
-	static T max_value();
-};
-
-template<typename T>
-class DLLIMPEXP_EWA_BASE numeric_trait : public tl::meta_if<tl::integer_type::id<T>::value!=-1, numeric_trait_integer<T>, numeric_trait_floating<T> >::type
-{
-public:
-
-};
 
 EW_LEAVE
 #endif

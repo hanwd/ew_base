@@ -1,5 +1,7 @@
 #include "regex_impl.h"
 #include "ewa_base/util/regex.h"
+#include "ewa_base/basic/lookuptable.h"
+
 EW_ENTER
 
 template<typename P>

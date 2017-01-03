@@ -291,8 +291,8 @@ static void lock_mutex2(T1& m1,T2& m2)
 template<typename T1,typename T2>
 static void unlock_mutex2(T1& m1,T2& m2)
 {
-	m1.unlock();
 	m2.unlock();
+	m1.unlock();
 }
 
 

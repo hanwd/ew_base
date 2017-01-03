@@ -10,14 +10,19 @@ class LockPolicyDefault
 {
 public:
 
-	static inline void lock(T& mtx)
+	static inline void lock(T* mtx)
 	{
-		mtx.lock();
+		mtx->lock();
 	}
 
-	static inline void unlock(T& mtx)
+	static inline void unlock(T* mtx)
 	{
-		mtx.unlock();
+		mtx->unlock();
+	}
+
+	static inline bool try_lock(T* mtx)
+	{
+		return mtx->try_lock();
 	}
 
 };
@@ -28,14 +33,19 @@ class LockGuard : public NonCopyable
 {
 public:
 
+	inline LockGuard(T& mtx_,bool already_locked):mtx(mtx_)
+	{
+		if (!already_locked) P::lock(&mtx);
+	}
+
 	inline LockGuard(T& mtx_):mtx(mtx_)
 	{
-		P::lock(mtx);
+		P::lock(&mtx);
 	}
 
 	inline ~LockGuard()
 	{
-		P::unlock(mtx);
+		P::unlock(&mtx);
 	}
 
 	operator T&()
@@ -48,6 +58,47 @@ private:
 };
 
 
+class DLLIMPEXP_EWA_BASE LockGuard2 : public NonCopyable
+{
+public:
+	typedef void(*unlock_func)(void*);
+
+	inline LockGuard2() :pmtx(NULL){}
+
+	template<typename T>
+	inline LockGuard2(T& v) : pmtx(NULL){ try_lock(v); }
+
+	inline ~LockGuard2()
+	{
+		if (pmtx) func(pmtx);
+	}
+
+
+	template<typename T,typename P = LockPolicyDefault<T> >
+	bool try_lock(T& v)
+	{
+		if (!P::try_lock(&v)) return false;
+		if (pmtx) func(pmtx);
+		pmtx = &v;
+		func = (unlock_func)P::unlock;		
+		return true;
+	}
+
+	void release()
+	{ 
+		if (!pmtx) return;
+		func(pmtx);
+		pmtx = NULL;
+	}
+
+	inline operator bool(){ return pmtx!=NULL; }
+
+private:
+	void* pmtx;
+	unlock_func func;
+};
+
+
 template<typename T>
 class LockState : public NonCopyable
 {
@@ -55,18 +106,19 @@ public:
 	T oldvalue;
 	T& value;
 
-	LockState(T& v,const T n=T()):value(v)
+	inline LockState(T& v,const T n=T()):value(v)
 	{
 		oldvalue=value;
 		value=n;
 	}
 
-	~LockState()
+	inline ~LockState()
 	{
 		value=oldvalue;
 	}
 
 };
+
 
 EW_LEAVE
 #endif

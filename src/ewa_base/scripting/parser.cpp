@@ -235,6 +235,27 @@ DataPtrT<TNode_item> read_node_handler<TNode_item>::g(Parser& parser)
 	{
 		node=read_node_handler<TNode_val_class>::g(parser);
 	}
+	else if(parser.test(TOK_QUESTION))
+	{
+		DataPtrT<TNode_item_select> q = new TNode_item_select(parser.pcur[-1]);
+
+		if (!parser.test(TOK_BRA1))
+		{
+			parser.kexpected("'('");
+		}
+
+		q->exp_list=read_node_handler<TNode_expression_list>::g(parser);
+		parser.match(TOK_KET1);
+
+		if (!q->exp_list || q->exp_list->aList.size() != 3)
+		{
+			parser.kerror("?(cond,value_if_true,value_if_false) expected");
+		}
+
+
+		node = q;
+	
+	}
 	else if(parser.pcur[0].type==TOK_SEMICOLON||parser.pcur[0].type==TOK_COLON||parser.pcur[0].type==TOK_COMMA)
 	{
 		return new TNode_val_empty;
@@ -338,18 +359,18 @@ DataPtrT<TNode_expression> read_expr_handler<1>::g(Parser& parser)
 
 		DataPtrT<TNode_expression> item(read_expr_handler<N + 1>::g(parser));
 
-		while (parser.test(TOK_QUESTION))
-		{
-			DataPtrT<TNode_expression_opn> opn = new TNode_expression_opn(parser.pcur[-1]);
-			opn->param.resize(3);
-			opn->param[0].swap(item);
+		//while (parser.test(TOK_QUESTION))
+		//{
+		//	DataPtrT<TNode_item_select> opn = new TNode_item_select(parser.pcur[-1]);
+		//	opn->param.resize(3);
+		//	opn->param[0].swap(item);
 
-			opn->param[1]=read_expr_handler<N + 1>::g(parser);
-			parser.match(TOK_SHARP);
-			opn->param[2]=read_expr_handler<N + 1>::g(parser);
+		//	opn->param[1]=read_expr_handler<N + 1>::g(parser);
+		//	parser.match(TOK_SHARP);
+		//	opn->param[2]=read_expr_handler<N + 1>::g(parser);
 
-			item = opn;
-		}
+		//	item = opn;
+		//}
 
 		node->aList.append(item.get());
 

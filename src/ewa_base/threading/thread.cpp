@@ -12,7 +12,6 @@ void Thread::_init()
 {
 	m_nState=0;
 	m_nAlive=0;
-	m_nFlags=0;
 }
 
 Thread::Thread()
@@ -25,6 +24,10 @@ Thread::Thread(const Thread& o)
 	_init();
 }
 
+Thread& Thread::operator=(const Thread&)
+{
+	return *this;
+}
 
 Thread::~Thread()
 {
@@ -40,6 +43,7 @@ int Thread::count()
 {
 	return m_nAlive;
 }
+
 
 void Thread::cancel()
 {
@@ -97,6 +101,19 @@ bool Thread::test_canceled()
 	return ThreadImpl::sm_bReqexit;
 }
 
+void Thread::bind_cpu(int c1)
+{
+	m_aBindCpu.push_back(c1);
+}
+
+void Thread::bind_cpu(const arr_1t<int>& cu)
+{
+	m_aBindCpu = cu;
+}
+
+void Thread::on_wait_noop(){}
+
+
 Thread& Thread::this_thread()
 {
 	return *ThreadImpl::this_data().thrd_ptr;
@@ -151,10 +168,6 @@ void Thread::on_exception()
 	}
 }
 
-ThreadMulti::ThreadMulti()
-{
-
-}
 
 bool ThreadEx::activate(const factor_type& fac,size_t n)
 {
@@ -169,7 +182,7 @@ bool ThreadEx::activate(InvokerGroup& g)
 }
 
 
-bool Thread::_do_activate(int n)
+bool Thread::_do_activate(size_t n)
 {
 	return ThreadImpl::activate(*this,n);
 }
@@ -179,7 +192,7 @@ bool Thread::activate()
 	return _do_activate(1);
 }
 
-bool ThreadMulti::activate(int n)
+bool ThreadMulti::activate(size_t n)
 {
 	return _do_activate(n);
 }

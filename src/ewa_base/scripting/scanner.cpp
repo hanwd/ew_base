@@ -1,20 +1,8 @@
 #include "ewa_base/scripting/scanner.h"
+#include "ewa_base/basic/lookuptable.h"
 
 EW_ENTER
 
-void tokState::inc()
-{
-	if(pcur[0]=='\n')
-	{
-		++line;
-		cpos=1;
-	}
-	else
-	{
-		++cpos;
-	}
-	++pcur;
-}
 
 
 
@@ -118,7 +106,7 @@ void Scanner::read_number_t()
 	if(stok.pcur[0]=='i'||stok.pcur[0]=='j')
 	{
 		tokitem.type=TOK_IMAGPART;
-		stok.inc();
+		++stok;
 	}
 
 	if(lookup_table<lkt_is_name>::test(*stok.pcur))
@@ -145,23 +133,23 @@ void Scanner::read_number()
 	{
 		if(stok.pcur[1]=='x'||stok.pcur[1]=='X')
 		{
-			stok.inc();
-			stok.inc();
+			++stok;
+			++stok;
 			read_number_t<lkt_is_number16,16>();
 			return;
 		}
 
 		if(stok.pcur[1]=='b'||stok.pcur[1]=='b')
 		{
-			stok.inc();
-			stok.inc();
+			++stok;
+			++stok;
 			read_number_t<lkt_is_number02,2>();
 			return;
 		}	
 
 		if(stok.pcur[1]>='1'||stok.pcur[1]<'8')
 		{
-			stok.inc();
+			++stok;
 			read_number_t<lkt_is_number08,8>();
 			return;
 		}
@@ -174,14 +162,14 @@ void Scanner::read_number()
 		if(stok.pcur[1] >='0'&& stok.pcur[1] <='9')
 		{
 			tokitem.type=TOK_DOUBLE;
-			stok.inc();
+			++stok;
 			skip<lkt_is_number10>(stok);		
 		}
 		else if(stok.pcur[1] =='#')
 		{
 			tokitem.type=TOK_DOUBLE;
-			stok.inc();
-			stok.inc();
+			++stok;
+			++stok;
 			skip<lkt_is_character_or_0>(stok);	
 		}
 		else
@@ -196,10 +184,16 @@ void Scanner::read_number()
 
 	if(stok.pcur[0]=='e')
 	{
-		stok.inc();
-		if(stok.pcur[0]=='+'||stok.pcur[0]=='-')
+		tokitem.type = TOK_DOUBLE;
+
+		++stok;
+		if (stok.pcur[0]=='-')
 		{
-			stok.inc();
+			++stok;
+		}
+		else if(stok.pcur[0]=='+')
+		{
+			++stok;
 		}
 		skip<lkt_is_number10>(stok);
 	}
@@ -208,7 +202,7 @@ void Scanner::read_number()
 	if(stok.pcur[0]=='i'||stok.pcur[0]=='j')
 	{
 		tokitem.type=TOK_IMAGPART;
-		stok.inc();
+		++stok;
 	}
 
 
@@ -221,9 +215,9 @@ void Scanner::read_number()
 void Scanner::read_string_raw(char br)
 {
 
-	stok.inc();
-	stok.inc();
-	stok.inc();
+	++stok;
+	++stok;
+	++stok;
 
 	mychar_ptr p1 = stok.pcur;
 	for (;;)
@@ -233,9 +227,9 @@ void Scanner::read_string_raw(char br)
 		if (stok.pcur[0] == br && stok.pcur[1]==br && stok.pcur[2]==br)
 		{
 			tokitem.word.assign(p1, stok.pcur);
-			stok.inc();
-			stok.inc();
-			stok.inc();
+			++stok;
+			++stok;
+			++stok;
 			break;
 		}
 
@@ -245,7 +239,7 @@ void Scanner::read_string_raw(char br)
 			return;
 		}
 
-		stok.inc();
+		++stok;
 	}
 	
 
@@ -261,7 +255,7 @@ void Scanner::read_string(char br)
 
 	while(stok.pcur[0]==br)
 	{
-		stok.inc();
+		++stok;
 		for(;;)
 		{
 			mychar_ptr p1=stok.pcur;
@@ -270,7 +264,7 @@ void Scanner::read_string(char br)
 
 			if(stok.pcur[0]==br)
 			{
-				stok.inc();
+				++stok;
 				break;
 			}
 			if(stok.pcur[0]=='\0')
@@ -322,10 +316,10 @@ void Scanner::read_string(char br)
 						}
 						sb.append(sa.begin(), sa.end());						
 
-						stok.inc();	
-						stok.inc();
-						stok.inc();
-						stok.inc();
+						++stok;	
+						++stok;
+						++stok;
+						++stok;
 						break;						
 					}
 				break;
@@ -339,7 +333,7 @@ void Scanner::read_string(char br)
 				case '\r':
 					if (stok.pcur[2] == '\n')
 					{
-						stok.inc();
+						++stok;
 						break;
 					}
 				default:
@@ -347,13 +341,13 @@ void Scanner::read_string(char br)
 					break;
 				}
 
-				stok.inc();
-				stok.inc();
+				++stok;
+				++stok;
 			}
 			else
 			{
 				sb.append(stok.pcur[0]);
-				stok.inc();
+				++stok;
 			}
 		}
 		skip<lkt_whitespace>(stok);
@@ -368,10 +362,10 @@ void Scanner::read_string(char br)
 void Scanner::read_op2_a()
 {
 	mychar_ptr p1=stok.pcur;
-	stok.inc();
+	++stok;
 	if(stok.pcur[0]=='=')
 	{
-		stok.inc();
+		++stok;
 		mychar_ptr p2=stok.pcur;
 		gen_item(TOK_OP,p1,p2);
 		return;
@@ -386,14 +380,14 @@ void Scanner::read_op2_b()
 	mychar_ptr p1=stok.pcur;
 	if(stok.pcur[1]==stok.pcur[0]||stok.pcur[1]=='=')
 	{
-		stok.inc();
-		stok.inc();
+		++stok;
+		++stok;
 		mychar_ptr p2=stok.pcur;
 		gen_item(TOK_OP,p1,p2);
 		return;
 	}
 
-	stok.inc();
+	++stok;
 	mychar_ptr p2=stok.pcur;
 	gen_item(TOK_OP,p1,p2);		
 }
@@ -401,16 +395,16 @@ void Scanner::read_op2_b()
 void Scanner::read_op2_c()
 {
 	mychar_ptr p1=stok.pcur;
-	stok.inc();
+	++stok;
 
 	if(stok.pcur[-1]==stok.pcur[0])
 	{
-		stok.inc();
+		++stok;
 	}
 
 	if(stok.pcur[0]=='=')
 	{
-		stok.inc();
+		++stok;
 	}
 
 	mychar_ptr p2=stok.pcur;
@@ -420,8 +414,8 @@ void Scanner::read_op2_c()
 // comment /* ... */
 void Scanner::read_comment2()
 {
-	stok.inc();
-	stok.inc();
+	++stok;
+	++stok;
 	if(stok.pcur[0]=='\0')
 	{
 		kerror("unexpected end of string");
@@ -434,7 +428,7 @@ void Scanner::read_comment2()
 
 	int n=1;
 
-	stok.inc();
+	++stok;
 	for(;;)
 	{
 		skip<lkt_is_comment2>(stok);
@@ -445,7 +439,7 @@ void Scanner::read_comment2()
 		}
 		if(stok.pcur[-1]=='*')
 		{
-			stok.inc();
+			++stok;
 			if(--n==0)
 			{
 				break;
@@ -455,7 +449,7 @@ void Scanner::read_comment2()
 		{
 			n++;
 		}
-		stok.inc();
+		++stok;
 	}
 
 	mychar_ptr p2=stok.pcur-2;
@@ -467,8 +461,8 @@ void Scanner::read_comment2()
 // comment // ...
 void Scanner::read_comment1()
 {
-	stok.inc();
-	stok.inc();
+	++stok;
+	++stok;
 
 	int _lastline=stok.line;
 
@@ -484,27 +478,27 @@ void Scanner::read_comment1()
 void Scanner::read_dot()
 {
 	mychar_ptr p1=stok.pcur;
-	stok.inc();
+	++stok;
 
 	switch(stok.pcur[0])
 	{
 	case '*':
-		if(stok.pcur[1]=='*') stok.inc();
+		if(stok.pcur[1]=='*') ++stok;
 	case '/':
 	case '\\':
-		stok.inc();
+		++stok;
 		tokitem.type=TOK_OP;
 		if (stok.pcur[0] == '=')
 		{
-			stok.inc();
+			++stok;
 		}
 		tokitem.word.assign(p1, stok.pcur);
 		break;
 	case '.':
-		stok.inc();
+		++stok;
 		if(stok.pcur[0]=='.')
 		{
-			stok.inc();
+			++stok;
 			tokitem.type=TOK_ID;
 			tokitem.word.assign(p1,3);
 		}
@@ -614,7 +608,7 @@ bool Scanner::parse(const String& s_)
 	stok.pcur=pbeg;
 	stok.line=1;
 	stok.cpos=1;
-	stok.last=TOK_END;
+	last=TOK_END;
 
 	for(;;)
 	{
@@ -665,11 +659,11 @@ bool Scanner::parse(const String& s_)
 			if(stok.pcur[1]=='=')
 			{
 				mychar_ptr p1=stok.pcur;
-				stok.inc();
-				stok.inc();
+				++stok;
+				++stok;
 				if(stok.pcur[0]=='=')
 				{
-					stok.inc();
+					++stok;
 				}
 				gen_item(TOK_OP,p1,stok.pcur);
 
@@ -677,8 +671,8 @@ bool Scanner::parse(const String& s_)
 			else if (stok.pcur[1] == '>')
 			{
 				mychar_ptr p1=stok.pcur;
-				stok.inc();
-				stok.inc();
+				++stok;
+				++stok;
 				gen_item(TOK_EQGT, p1, stok.pcur);
 			}
 			else
@@ -690,7 +684,7 @@ bool Scanner::parse(const String& s_)
 			if(stok.pcur[1]=='>')
 			{
 				mychar_ptr p1=stok.pcur;
-				stok.inc();stok.inc();
+				++stok;++stok;
 				gen_item(TOK_PTR,p1,stok.pcur);
 				break;
 			}
@@ -772,14 +766,14 @@ void Scanner::new_item(tokType t)
 {
 	tokitem.type=t;
 	tokitem.word.assign(stok.pcur,1);
-	stok.inc();
+	++stok;
 	add_item();
 }
 void Scanner::new_item(tokType t, const String& s)
 {
 	tokitem.type=t;
 	tokitem.word=s;
-	stok.inc();
+	++stok;
 	add_item();
 }
 

@@ -1,5 +1,6 @@
 #include "regex_parser.h"
 #include "ewa_base/util/regex.h"
+#include "ewa_base/basic/lookuptable.h"
 
 EW_ENTER
 
@@ -165,9 +166,13 @@ void regex_item_seq::adjust()
 
 int RegexParser::read_number(const char* &p1)
 {
-	int n=0;
-	while(*p1>='0'&&*p1<='9') n=n*10+(*p1++ - '0');
-	return n;
+	int64_t v = 0;
+	helper::read_uint(p1, v);
+	return v;
+
+	//int n=0;
+	//while(*p1>='0'&&*p1<='9') n=n*10+(*p1++ - '0');
+	//return n;
 }
 
 regex_item_char_map* RegexParser::parse_char_map(const char* &p1)
@@ -175,7 +180,7 @@ regex_item_char_map* RegexParser::parse_char_map(const char* &p1)
 	if(*p1!='[') return NULL;
 
 	AutoPtrT<regex_item_char_map> q(new regex_item_char_map);
-	p1++;
+	++p1;
 
 	bool inv=false;
 	if(*p1=='^')
@@ -388,7 +393,7 @@ regex_item* RegexParser::parse_item_ex(const char* &p1,bool seq)
 	if(!q.get()) return NULL;
 
 	regex_item_repeat* q1=NULL;
-	for(;*p1=='*'||*p1=='+'||*p1=='?'||*p1=='{';p1++)
+	for(;*p1=='*'||*p1=='+'||*p1=='?'||*p1=='{';++p1)
 	{
 		AutoPtrT<regex_item_repeat> q2(new regex_item_repeat);
 		if(*p1=='*')
@@ -423,7 +428,7 @@ regex_item* RegexParser::parse_item_ex(const char* &p1,bool seq)
 
 		if(p1[1]=='?')
 		{
-			p1++;
+			++p1;
 			q2->repeat_end.match_as_much_as_possible=false;
 		}
 

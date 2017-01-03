@@ -31,7 +31,6 @@
     <ClCompile Include="..\..\src\ewx_test\test\test_basic.cpp" />
     <ClCompile Include="..\..\src\ewx_test\test\test_collection.cpp" />
     <ClCompile Include="..\..\src\ewx_test\test\test_gc_ptr.cpp" />
-    <ClCompile Include="..\..\src\ewx_test\test\test_iocp.cpp" />
     <ClCompile Include="..\..\src\ewx_test\test\test_memory.cpp" />
     <ClCompile Include="..\..\src\ewx_test\test\test_regex.cpp" />
     <ClCompile Include="..\..\src\ewx_test\test\test_scripting.cpp" />

@@ -2,6 +2,8 @@
 #include "ewa_base/util/json.h"
 #include "ewa_base/scripting/callable_array.h"
 #include "ewa_base/util/strlib.h"
+#include "ewa_base/basic/lookuptable.h"
+
 EW_ENTER
 
 

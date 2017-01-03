@@ -8,7 +8,7 @@ EW_ENTER
 
 ThreadPool::ThreadPool()
 {
-	flags().add(Thread::FLAG_DYNAMIC);
+	flags.add(Thread::FLAG_DYNAMIC);
 	m_nWorkerMin=1;
 	m_nWorkerMax=4;
 	m_nWorkerNum=0;

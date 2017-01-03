@@ -264,7 +264,8 @@ public:
 		FLAG_MIN			=basetype::FLAG_MAX,
 		FLAG_WITH_BRAKET1	=FLAG_MIN<<1,
 		FLAG_WITH_BRAKET2	=FLAG_MIN<<2,
-		FLAG_MAX			=FLAG_MIN<<3,
+		FLAG_WITH_QUESTION	=FLAG_MIN<<3,
+		FLAG_MAX			=FLAG_MIN<<4,
 	};
 
 	TNode_braket(){row_size=-1;}
@@ -368,22 +369,24 @@ public:
 
 
 
-class DLLIMPEXP_EWA_BASE TNode_expression_opn : public TNode_expression_op
+class DLLIMPEXP_EWA_BASE TNode_item_select : public TNode_item
 {
 public:
-	typedef TNode_expression_op basetype;
+	typedef TNode_item basetype;
 
-	TNode_expression_opn(){}
-	TNode_expression_opn(const String& v) :basetype(v){}
-	TNode_expression_opn(const tokItem& v) :basetype(v){}
+	TNode_item_select(){}
+	TNode_item_select(const String& v) :basetype(v){}
+	TNode_item_select(const tokItem& v) :basetype(v){}
 
-	arr_1t<DataPtrT<TNode_expression> > param;
-	virtual int size() const{ return (int)param.size(); }
-	virtual TNode_expression* getp(int n){ if (unsigned(n) >= param.size()) return NULL; return param[n].get(); }
+	DataPtrT<TNode_expression_list> exp_list;
+
+	//arr_1t<DataPtrT<TNode_expression> > param;
+	//virtual int size() const{ return (int)param.size(); }
+	//virtual TNode_expression* getp(int n){ if (unsigned(n) >= param.size()) return NULL; return param[n].get(); }
 
 	virtual int pm_count(){ return 1; }
 
-	SYNTAX_TNODE_ACCEPT(TNode_expression_opn);
+	SYNTAX_TNODE_ACCEPT(TNode_item_select);
 };
 
 template<unsigned N>

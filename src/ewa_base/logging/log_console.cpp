@@ -43,11 +43,18 @@ LogConsole::LogConsole()
 
 void LogConsole::Handle(const LogRecord& o)
 {
+	if (!flags.get(FLAG_SHOWALL) && o.m_nId != 0)
+	{
+		return;
+	}
+
 	if(o.m_nLevel==LOGLEVEL_COMMAND)
 	{
 		if(o.m_sMessage=="clc")
 		{
+#ifdef EW_WINDOWS
 			system("cls");
+#endif
 		}
 		return;
 	}

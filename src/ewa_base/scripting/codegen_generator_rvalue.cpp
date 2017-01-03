@@ -296,18 +296,18 @@ indexer_map<String,DataPtrT<xop2_info> >& _g_get_mp_op2()
 	return mp_op2;
 }
 
-VisReturnType TNodeVisitorCG_GeneratorRValue::visit(TNode_expression_opn* node, VisExtraParam)
+VisReturnType TNodeVisitorCG_GeneratorRValue::visit(TNode_item_select* node, VisExtraParam)
 {
 	if (node->token.word == "?")
 	{
-		node->param[0]->accept(*this, 1);
+		node->exp_list->aList[0]->accept(*this, 1);
 		cgen.emit(XOP_JUMP_0);
 		int jp = cgen.inst_pos();
-		node->param[1]->accept(*this, 1);
+		node->exp_list->aList[1]->accept(*this, 1);
 		cgen.emit(XOP_JUMP);
 		int je = cgen.inst_pos();
 		cgen.set_jp(jp);
-		node->param[2]->accept(*this, 1);
+		node->exp_list->aList[2]->accept(*this, 1);
 		cgen.set_jp(je);
 	}
 	else

@@ -3,6 +3,7 @@
 
 #include "ewa_base/basic.h"
 #include "ewa_base/collection/indexer_map.h"
+#include "ewa_base/basic/scanner_helper.h"
 
 EW_ENTER
 
@@ -57,20 +58,7 @@ public:
 };
 
 
-class DLLIMPEXP_EWA_BASE tokState
-{
-public:
-	typedef char mychar;
-	typedef const mychar* mychar_ptr;
-
-	mychar_ptr pcur; //current position
-	size_t line;
-	size_t cpos;
-	int last;
-
-	void inc();
-
-};
+typedef char_pos_t < char >  tokState;
 
 class DLLIMPEXP_EWA_BASE Parser;
 
@@ -78,8 +66,8 @@ class DLLIMPEXP_EWA_BASE ScannerBase : public Object
 {
 public:
 
-	typedef tokState::mychar mychar;
-	typedef tokState::mychar_ptr mychar_ptr;
+	typedef tokState::type mychar;
+	typedef tokState::pointer mychar_ptr;
 
 protected:
 
@@ -91,6 +79,7 @@ protected:
 	mychar_ptr pbeg; 
 	mychar_ptr pend;
 	tokState stok;
+	int last;
 
 	tokItem tokitem;
 

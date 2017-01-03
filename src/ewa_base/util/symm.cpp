@@ -3,6 +3,37 @@
 
 EW_ENTER
 
+
+bool DExprItem::FromVariant(const Variant& v)
+{
+	try
+	{
+		const arr_xt<Variant>& value(v.get<arr_xt<Variant> >());
+		DExprItem item;
+		if (value.size() < 2) return false;
+		item.name = variant_cast<String>(value[0]);
+		item.value = variant_cast<String>(value[1]);
+		if (value.size()>2)
+		{
+			item.desc = variant_cast<String>(value[2]);
+		}
+		*this = item;
+		return true;
+	}
+	catch (...)
+	{
+
+	}
+
+	return false;
+}
+
+
+void DExprItem::Serialize(Serializer& ar)
+{
+	ar & name & value & desc;
+}
+
 SymbolItem::SymbolItem(const String& n) 
 :name(n)
 {

@@ -2,17 +2,7 @@
 
 EW_ENTER
 
-
-void BitFlags::set(int32_t f,bool v)
-{
-	if(v)
-	{
-		add(f);
-	}
-	else
-	{
-		del(f);
-	}
-}
+template class BitFlags_t < int32_t > ;
+template class BitFlags_t < int64_t > ;
 
 EW_LEAVE

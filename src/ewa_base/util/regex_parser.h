@@ -3,6 +3,7 @@
 #define __H_EW_UTIL_REGEX_PARSER__
 
 #include "ewa_base/basic.h"
+#include "ewa_base/basic/scanner_helper.h"
 #include <stdio.h>
 
 EW_ENTER
@@ -343,7 +344,8 @@ public:
 class RegexParser
 {
 public:
-	typedef const char* iterator;
+
+	typedef ScannerHelper<const char*> helper;
 
 	RegexParser(int f):flags(f){}
 

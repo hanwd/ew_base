@@ -50,7 +50,7 @@ class DLLIMPEXP_EWA_BASE TNode_statement_return;
 class DLLIMPEXP_EWA_BASE TNode_statement_throw;
 class DLLIMPEXP_EWA_BASE TNode_statement_try;
 
-class DLLIMPEXP_EWA_BASE TNode_expression_opn;
+class DLLIMPEXP_EWA_BASE TNode_item_select;
 
 // for future use
 
@@ -112,7 +112,7 @@ public:
 
 	virtual VisReturnType visit(TNode_extern1*,VisExtraParam){return def_value();}
 	virtual VisReturnType visit(TNode_extern2*,VisExtraParam){return def_value();}
-	virtual VisReturnType visit(TNode_expression_opn*,VisExtraParam){return def_value();}
+	virtual VisReturnType visit(TNode_item_select*,VisExtraParam){return def_value();}
 
 	virtual VisReturnType visit(TNode_statement_macro*,VisExtraParam){return def_value();}
 	virtual VisReturnType visit(TNode_statement_throw*,VisExtraParam){return def_value();}
@@ -172,7 +172,7 @@ public:
 
 	virtual VisReturnType visit(TNode_extern1*,VisExtraParam){return def_value();}
 	virtual VisReturnType visit(TNode_extern2*,VisExtraParam){return def_value();}
-	virtual VisReturnType visit(TNode_expression_opn*, VisExtraParam);
+	virtual VisReturnType visit(TNode_item_select*, VisExtraParam);
 
 	virtual VisReturnType visit(TNode_statement_macro*,VisExtraParam){return def_value();}
 
@@ -195,7 +195,7 @@ public:
 	virtual VisReturnType visit(TNode_expression_op*,VisExtraParam);
 	virtual VisReturnType visit(TNode_expression_op1*,VisExtraParam);
 	virtual VisReturnType visit(TNode_expression_op2*,VisExtraParam);
-	virtual VisReturnType visit(TNode_expression_opn*,VisExtraParam);
+	virtual VisReturnType visit(TNode_item_select*,VisExtraParam);
 
 	virtual VisReturnType visit(TNode_expression_call*,VisExtraParam);
 	virtual VisReturnType visit(TNode_expression_dot*,VisExtraParam);
@@ -248,7 +248,7 @@ public:
 
 	virtual VisReturnType visit(TNode_extern1*,VisExtraParam){return def_value();}
 	virtual VisReturnType visit(TNode_extern2*,VisExtraParam){return def_value();}
-	virtual VisReturnType visit(TNode_expression_opn*,VisExtraParam){return def_value();}
+	virtual VisReturnType visit(TNode_item_select*,VisExtraParam){return def_value();}
 	virtual VisReturnType visit(TNode_statement_macro*,VisExtraParam){return def_value();}
 	virtual VisReturnType visit(TNode_statement_throw*,VisExtraParam){return def_value();}
 	virtual VisReturnType visit(TNode_statement_try*,VisExtraParam){return def_value();}

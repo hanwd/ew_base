@@ -607,11 +607,11 @@ VisReturnType TNodeVisitorCG_AnalyzerRValue::visit(TNode_expression_op2* node,Vi
 	return def_value();
 }
 
-VisReturnType TNodeVisitorCG_AnalyzerRValue::visit(TNode_expression_opn* node,VisExtraParam p)
+VisReturnType TNodeVisitorCG_AnalyzerRValue::visit(TNode_item_select* node,VisExtraParam p)
 {
-	for (size_t i = 0; i < node->param.size(); i++)
+	for (size_t i = 0; i < node->exp_list->aList.size(); i++)
 	{
-		if(node->param[i]) visit_it<TNode_expression>(node->param[i],p);
+		if (node->exp_list->aList[i]) visit_it<TNode_expression>(node->exp_list->aList[i], p);
 	}
 	return def_value();
 }

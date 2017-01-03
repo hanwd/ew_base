@@ -87,7 +87,7 @@ void EvtGroup::DoAppendItem(const arr_1t<EvtItem>& a)
 		EvtBase* vp=ec.get(item.sname);
 		if(!vp) continue;
 		
-		if(item.flags==0)
+		if(item.flags.val()==0)
 		{
 			impl.append(vp->cast_command());
 		}

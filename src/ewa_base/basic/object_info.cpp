@@ -71,6 +71,11 @@ ObjectCreator& ObjectCreator::current()
 	return gInstance;
 }
 
+Object* ObjectCreator::Create(const String& name)
+{
+	return m_refData ? m_refData->Create(name) : NULL;
+}
+
 ObjectInfo::ObjectInfo(const String& s)
 :m_sClassName(s)
 {

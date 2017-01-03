@@ -107,7 +107,18 @@ TEST_DEFINE(TEST_Regex2)
 
 
 	re.assign("a|(ab)");
+	TEST_ASSERT(re.match("a"));
 	TEST_ASSERT(re.match("ab"));
+	TEST_ASSERT(!re.match("b"));
+	TEST_ASSERT(!re.match("ac"));
+	TEST_ASSERT(!re.match("abc"));
+
+	re.assign("a|(ab)", Regex::FLAG_RE_PARTITIAL);
+	TEST_ASSERT(re.match("a"));
+	TEST_ASSERT(re.match("ab"));
+	TEST_ASSERT(!re.match("b"));
+	TEST_ASSERT(re.match("ac"));
+	TEST_ASSERT(re.match("abc"));
 
 	re.assign("((.*)$)*",Regex::FLAG_RE_MULTILINE);
 	TEST_ASSERT(re.match("abc\r\ncde",res));
@@ -134,6 +145,10 @@ TEST_DEFINE(TEST_Regex2)
 			TEST_ASSERT(res[2][i]==words[i]);
 		}
 	}
+	else
+	{
+		TEST_ASSERT_MSG(false, "match failed");
+	}
 
 	re.assign("\\w+");
 	if(re.search(aaa,res))
@@ -145,8 +160,18 @@ TEST_DEFINE(TEST_Regex2)
 			TEST_ASSERT(res[0]==words[nd++]);
 		}
 	}
-	re.assign("(\\w+) (\\w+)");	
-	TEST_ASSERT(ew::regex_replace("hello world",re,"$2 $1")=="world hello");
+
+
+	re.assign("(\\w+) (\\w+)");
+	TEST_ASSERT(ew::regex_replace("hello world", re, "$2 $1") == "world hello");
+	TEST_ASSERT(ew::regex_replace("hello world", re, "$2 $1 $0") == "world hello hello world");
+
+
+	re.assign("((\\w+)\\s*)+");
+	//aaa="The quick brown fox jumps over the lazy dog"
+	TEST_ASSERT(ew::regex_replace(aaa, re, "${2.0} ${2.3}") == "The fox");
+	TEST_ASSERT(ew::regex_replace(aaa, re, "${2.1}") == "quick");
+	TEST_ASSERT(ew::regex_replace(aaa, re, "${1.0}${1.7}${1.3}${1.4}${1.5}${1.6}${1.2}${1.8}") == "The lazy fox jumps over the brown dog");
 
 	RegexEx re2;
 	re2.prepare("id","[a-zA-z][a-zA-z0-9]*");
@@ -231,8 +256,8 @@ TEST_DEFINE(TEST_Regex3)
 	TEST_ASSERT(re2.match("b(3,4)"));
 	TEST_ASSERT(re2.match("b()"));
 
-	TEST_ASSERT(re2.match("sqrt(a.x*a.x,a.y*a.y)"));
-	TEST_ASSERT(re2.match("sqrt(a.x*a.x,a.y*a.y)+3*4+5*6/32"));
+	TEST_ASSERT(re2.match("pow(a.x*a.x+a.y*a.y,0.5)"));
+	TEST_ASSERT(re2.match("add(a.x*a.x,a.y*a.y)+3*4+5*6/32"));
 	
 
 }

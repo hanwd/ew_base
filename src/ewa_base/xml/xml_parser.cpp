@@ -294,7 +294,7 @@ inline void XmlParser::parse_string1()
 	pcur+=1;
 	for(;;)
 	{
-		skip<lkt_string_key1>(pcur);
+		helper::skip<lkt_string_key1>(pcur);
 		if(pcur[0]=='\'')
 		{
 			pcur+=1;
@@ -329,7 +329,7 @@ inline void XmlParser::parse_string2()
 	pcur+=1;
 	for(;;)
 	{
-		skip<lkt_string_key2>(pcur);
+		helper::skip<lkt_string_key2>(pcur);
 		if(pcur[0]=='\"')
 		{
 			pcur+=1;
@@ -366,11 +366,11 @@ inline void XmlParser::parse_value()
 		parse_string2();
 		break;
 	default:
-		skip<lkt_attr_value>(pcur);
+		helper::skip<lkt_attr_value>(pcur);
 		while (pcur[0] == '/'&&pcur[1] != '>')
 		{
 			pcur++;
-			skip<lkt_attr_value>(pcur);
+			helper::skip<lkt_attr_value>(pcur);
 		}
 	}
 }
@@ -386,7 +386,7 @@ inline void XmlParser::parse_comment_node()
 
 	mychar_ptr p1=pcur;
 
-	skip<lkt_not_gt>(pcur);
+	helper::skip<lkt_not_gt>(pcur);
 	if(pcur[0]!='>')
 	{
 		kexpected(">");
@@ -428,7 +428,7 @@ inline void XmlParser::parse_doctype_node()
 
 	for(;;)
 	{
-		skip<lkt_not_ltgt>(pcur);
+		helper::skip<lkt_not_ltgt>(pcur);
 		if(pcur[0]=='>')
 		{
 			pcur+=1;
@@ -462,7 +462,7 @@ inline void XmlParser::parse_cdata()
 	mychar_ptr tagvalue1=pcur;
 	for(;;)
 	{
-		skip<lkt_not_gt>(pcur);
+		helper::skip<lkt_not_gt>(pcur);
 		if(pcur[0]=='\0')
 		{
 			kexpected("]]>");
@@ -487,7 +487,7 @@ inline void XmlParser::parse_instruction_node()
 {
 	pcur+=2;
 	mychar_ptr p1=pcur;
-	skip<lkt_name>(pcur);
+	helper::skip<lkt_name>(pcur);
 	mychar_ptr p2=pcur;
 
 
@@ -525,7 +525,7 @@ inline void XmlParser::parse_subnodes()
 	for(;;)
 	{
 		tagvalue1=pcur;
-		skip<lkt_whitespace>(pcur);
+		helper::skip<lkt_whitespace>(pcur);
 		if(pcur[0]=='<')
 		{
 			switch(pcur[1])
@@ -533,9 +533,9 @@ inline void XmlParser::parse_subnodes()
 			case '/':
 				pcur+=2;
 				tagvalue1=pcur;
-				skip<lkt_name>(pcur);
+				helper::skip<lkt_name>(pcur);
 				tagvalue2=pcur;
-				skip<lkt_whitespace>(pcur);
+				helper::skip<lkt_whitespace>(pcur);
 				if(pcur[0]!='>')
 				{
 					kexpected(">");
@@ -578,7 +578,7 @@ inline void XmlParser::parse_subnodes()
 		}
 		else
 		{
-			skip<parse_data_key>(pcur);
+			helper::skip<parse_data_key>(pcur);
 			if(pcur[0]!='<')
 			{
 				if(pcur[0]=='\0')
@@ -608,21 +608,21 @@ inline void XmlParser::parse_attributes()
 	for(;;)
 	{
 
-		skip<lkt_whitespace>(pcur);
+		helper::skip<lkt_whitespace>(pcur);
 		if (!lookup_table<lkt_attr_name>::test(pcur[0])) return;
 
 		mychar_ptr attrname1=pcur;
-		skip<lkt_attr_name>(pcur);
+		helper::skip<lkt_attr_name>(pcur);
 		mychar_ptr attrname2=pcur;
 
 		AutoPtrT<XmlAttribute> attr(CreateAttr());
 
-		skip<lkt_whitespace>(pcur);
+		helper::skip<lkt_whitespace>(pcur);
 
 		if(pcur[0]=='=')
 		{
 			pcur+=1;
-			skip<lkt_whitespace>(pcur);
+			helper::skip<lkt_whitespace>(pcur);
 
 			mychar_ptr attrvalue1=pcur;
 			parse_value();
@@ -642,7 +642,7 @@ inline void XmlParser::parse_element_node()
 	pcur+=1;
 
 	mychar_ptr tagname1=pcur;
-	skip<lkt_name>(pcur);
+	helper::skip<lkt_name>(pcur);
 	mychar_ptr tagname2=pcur;
 
 	XmlNode* pnode=CreateNode();

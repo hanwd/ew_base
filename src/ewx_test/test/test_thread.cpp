@@ -97,7 +97,7 @@ TEST_DEFINE(TEST_Thread)
 	TEST_ASSERT(thrd2.alive());
 	TEST_ASSERT(thrd2.count()==10);
 	TEST_ASSERT(!thrd2.activate(3));
-	thrd2.flags().add(Thread::FLAG_DYNAMIC);
+	thrd2.flags.add(Thread::FLAG_DYNAMIC);
 	TEST_ASSERT(thrd2.activate(3));
 	TEST_ASSERT(thrd2.count()==13);
 
@@ -110,7 +110,7 @@ TEST_DEFINE(TEST_Thread)
 
 	AAA aa;
 	ThreadEx thrd3;
-	thrd3.flags().add(Thread::FLAG_DYNAMIC);
+	thrd3.flags.add(Thread::FLAG_DYNAMIC);
 	thrd3.activate(&hello);
 
 	auto fn = hbind(&AAA::my_run,&aa);

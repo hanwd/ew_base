@@ -126,6 +126,7 @@ public:
 	String method;
 	String anchor;
 	String filepath;
+	String extraheader;
 
 	int64_t length;
 

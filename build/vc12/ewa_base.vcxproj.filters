@@ -360,12 +360,6 @@
     <ClInclude Include="..\..\inc\ewa_base\serialization\serializer_buffer.h">
       <Filter>include\serialization</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\inc\ewa_base\serialization\serializer_socket.h">
-      <Filter>include\serialization</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\inc\ewa_base\serialization\serializer_stream.h">
-      <Filter>include\serialization</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\src\ewa_base\net\socket_impl_detail.h">
       <Filter>source\net</Filter>
     </ClInclude>
@@ -544,6 +538,12 @@
       <Filter>include\basic</Filter>
     </ClInclude>
     <ClInclude Include="..\..\inc\ewa_base\basic\scanner_helper.h">
+      <Filter>include\basic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewa_base\basic\dlink.h">
+      <Filter>include\basic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewa_base\basic\formater.h">
       <Filter>include\basic</Filter>
     </ClInclude>
   </ItemGroup>
@@ -779,12 +779,6 @@
     <ClCompile Include="..\..\src\ewa_base\serialization\serializer_buffer.cpp">
       <Filter>source\serialization</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\ewa_base\serialization\serializer_socket.cpp">
-      <Filter>source\serialization</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\ewa_base\serialization\serializer_stream.cpp">
-      <Filter>source\serialization</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\src\ewa_base\testing\test.cpp">
       <Filter>source\testing</Filter>
     </ClCompile>
@@ -891,6 +885,12 @@
       <Filter>source\basic</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\ewa_base\basic\object_ex.cpp">
+      <Filter>source\basic</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewa_base\basic\dlink.cpp">
+      <Filter>source\basic</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewa_base\basic\formater.cpp">
       <Filter>source\basic</Filter>
     </ClCompile>
   </ItemGroup>

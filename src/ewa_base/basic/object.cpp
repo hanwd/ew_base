@@ -7,14 +7,15 @@ void Object::Serialize(Serializer&)
 
 }
 
-void ObjectData::on_destroy() 
+void ObjectData::on_fini_counter() 
 {
+	m_counter=0;
 	delete this;
 }
 
-void ObjectData::on_created() 
+void ObjectData::on_init_counter() 
 {
-
+	m_counter=3;
 }
 
 

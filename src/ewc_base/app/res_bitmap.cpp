@@ -640,9 +640,9 @@ public:
 			ewsl.kerror("invalid file");
 		}
 
-		SerializerFile ar;
+		SerializerStream ar;
 
-		if(!ar.file.open(fn,FLAG_FILE_WR|FLAG_FILE_CR))
+		if(!ar.open(fn,FLAG_FILE_WR|FLAG_FILE_CR))
 		{
 
 		}
@@ -671,9 +671,9 @@ public:
 			ewsl.kerror("invalid file");
 		}
 
-		SerializerFile ar;
+		SerializerStream ar;
 
-		if(!ar.file.open(fn,FLAG_FILE_RD))
+		if(!ar.open(fn,FLAG_FILE_RD))
 		{
 
 		}

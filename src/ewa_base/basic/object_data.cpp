@@ -9,10 +9,11 @@ EW_ENTER
 
 ObjectData::~ObjectData()
 {
-	if(m_refcount.get()!=0)
-	{
-		System::LogTrace("m_refcount==%d while ObjectData destruct",m_refcount.get());
-	}
+	//int d=GetRef();
+	//if(d)
+	//{
+	//	System::LogTrace("m_refcount==%d while ObjectData destruct",d);
+	//}
 }
 
 

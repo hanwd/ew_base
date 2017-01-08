@@ -1,7 +1,8 @@
 #include "ewa_base/scripting.h"
 #include "ewa_base/util/json.h"
 #include "ewa_base/xml/xml_document.h"
-#include "ewa_base/serialization/serializer_stream.h"
+//#include "ewa_base/serialization/serializer_stream.h"
+
 EW_ENTER
 
 
@@ -847,10 +848,10 @@ public:
 			return 0;
 		}
 
-		SerializerFile ar;
+		SerializerStream ar;
 
 		arr_1t<Variant> var;
-		if(ar.file.open(*p,FLAG_FILE_RD))
+		if(ar.open(*p,FLAG_FILE_RD))
 		{
 			ar.reader() & var;
 		}
@@ -885,12 +886,12 @@ public:
 			return 0;
 		}
 
-		SerializerFile ar;
+		SerializerStream ar;
 
 		arr_1t<Variant> var;
 		var.assign(ewsl.ci0.nbx + 2, pm - 1);
 
-		if(ar.file.open(*p,FLAG_FILE_WC))
+		if(ar.open(*p,FLAG_FILE_WC))
 		{
 			ar.writer() & var;
 		}

@@ -117,36 +117,45 @@ class DLLIMPEXP_EWA_BASE ObjectData : public Object
 {
 public:
 
-	ObjectData(){}
-	ObjectData(const ObjectData&){}
+	ObjectData():m_counter(0){}
+	ObjectData(const ObjectData&):m_counter(0){}
 
 	ObjectData& operator=(const ObjectData&){return *this;}
 	~ObjectData();
 
-	// Increase reference counter,
-	inline void IncRef()
+
+	EW_FORCEINLINE void IncRef()
 	{
-		EW_ASSERT(m_refcount.get()>=0);
-		if(m_refcount++==0)
+		if(m_counter)
 		{
-			on_created();
+			volatile uintptr_t* pcounter_addr=m_counter&0x1?&m_counter:(volatile uintptr_t*)m_counter;
+			*pcounter_addr+=2;
+		}
+		else
+		{
+			on_init_counter();
 		}
 	}
 
-	// Decrease reference counter,
-	inline void DecRef()
+	EW_FORCEINLINE void DecRef()
 	{
-		EW_ASSERT(m_refcount.get()>0);
-		if(--m_refcount==0)
+		EW_ASSERT(m_counter!=0);
+
+		volatile uintptr_t* pcounter_addr=m_counter&0x1?&m_counter:(volatile uintptr_t*)m_counter;
+		if(*pcounter_addr==3)
 		{
-			on_destroy();
+			on_fini_counter();
+		}
+		else
+		{
+			*pcounter_addr-=2;
 		}
 	}
 
 	// Get reference count.
-	inline int GetRef() const
+	EW_FORCEINLINE int GetRef() const
 	{
-		return m_refcount.get();
+		return (m_counter&0x1?m_counter:*(volatile uintptr_t*)m_counter)>>1;
 	}
 
 	virtual ObjectData* DoClone(ObjectCloneState&);
@@ -181,12 +190,11 @@ public:
 
 protected:
 
-	virtual void on_destroy();
-	virtual void on_created();
+	virtual void on_fini_counter();
+	virtual void on_init_counter();
 
-	mutable AtomicInt32 m_refcount;
+	volatile uintptr_t m_counter;
 };
-
 
 
 class DLLIMPEXP_EWA_BASE ObjectCloneState

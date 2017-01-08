@@ -52,7 +52,7 @@ public:
 TEST_DEFINE(TEST_Serializer)
 {
 
-	Stream stream;
+	SerializerStream stream;
 
 	sample_data dat[2];
 
@@ -122,7 +122,9 @@ TEST_DEFINE(TEST_Serializer)
 		TEST_ASSERT(dat[1].ivals[i]==dat[0].ivals[i]);
 	}
 
-	SerializerBuffer sbuf;
+
+	SerializerStream sbuf;
+	sbuf.assign(new IStreamBuffer);
 
 	double v1[4]= {1.234,234.0,323,432};
 	double v2[4];
@@ -138,7 +140,7 @@ TEST_DEFINE(TEST_Serializer)
 	}
 
 	TEST_ASSERT(memcmp(v1,v2,sizeof(double)*4)==0);
-	TEST_ASSERT(sbuf.skip()); // reader reach the end of buffer
+	//TEST_ASSERT(sbuf.skip()); // reader reach the end of buffer
 }
 
 
@@ -146,9 +148,9 @@ TEST_DEFINE(TEST_SerializerSeek)
 {
 	typedef serializable_data<float,String> float_string;
 
-	SerializerFile sf;
+	SerializerStream sf;
 
-	if(sf.file.open("seekable.dat",FLAG_FILE_WC))
+	if(sf.open("seekable.dat",FLAG_FILE_WC))
 	{
 
 		SerializerWriter &writer(sf.writer());
@@ -167,9 +169,9 @@ TEST_DEFINE(TEST_SerializerSeek)
 		writer & Serializer::head & p1 & p2 & p3 & Serializer::tail;
 
 	}
-	sf.file.close();
+	sf.close();
 
-	if(sf.file.open("seekable.dat",FLAG_FILE_RD))
+	if(sf.open("seekable.dat",FLAG_FILE_RD))
 	{
 		DataPtrT<float_string> p1;
 		DataPtrT<float_string> p2;

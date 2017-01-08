@@ -9,11 +9,11 @@
 EW_ENTER
 
 
-class DLLIMPEXP_EWA_BASE SerializerBuffer : public SerializerDuplex
+class DLLIMPEXP_EWA_BASE IStreamBuffer : public IStreamData
 {
 public:
 
-	SerializerBuffer();
+	IStreamBuffer();
 
 	// skip data, return true if gptr()==gend();
 	bool skip();
@@ -52,8 +52,8 @@ public:
 		return lbuf.last();
 	}
 
-	int send(const char* data,int size);
-	int recv(char* data,int size);
+	int send(const char* data,size_t size);
+	int recv(char* data,size_t size);
 
 protected:
 	

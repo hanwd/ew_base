@@ -159,13 +159,13 @@ const String& System::GetModulePath()
 }
 
 
-class SerializerReaderProcess : public SerializerReader
+class SerializerReaderProcess : public IStreamData
 {
 public:
 	HANDLE hReader, hWriter;
 	PROCESS_INFORMATION pi;
 
-	int recv(char* buf,int len)
+	int recv(char* buf,size_t len)
 	{
 		DWORD nRead(0);
 		if(::ReadFile(hReader,buf,len,&nRead,NULL)==FALSE)
@@ -182,7 +182,7 @@ public:
 		return nRead;
 	}
 
-	int send(const char* buf,int len)
+	int send(const char* buf,size_t len)
 	{
 		DWORD nWrite(0);
 		if(::WriteFile(hWriter,buf,len,&nWrite,NULL)==FALSE)
@@ -272,7 +272,7 @@ Stream System::ExecuteRedirect(const String& s,bool* status)
 
 	System::LogTrace("System::Exectue:%s", s);
 
-	SharedPtrT<SerializerReaderProcess> proc(new SerializerReaderProcess);
+	DataPtrT<SerializerReaderProcess> proc(new SerializerReaderProcess);
 
 	Stream stream;
 	if(proc->Execute(s))

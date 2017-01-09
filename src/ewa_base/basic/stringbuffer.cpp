@@ -11,8 +11,8 @@ template<typename T>
 template<typename G>
 inline void StringBuffer<T>::_do_format_integer(G v_)
 {
-	T buf[32];
-	T* p2=buf+31;
+	T buf[64];
+	T* p2=buf+63;
 	T* p1=StringDetail::str_format(p2,v_);
 	basetype::append(p1,p2-p1);
 }
@@ -561,6 +561,12 @@ StringBuffer<T>& StringBuffer<T>::operator<<(const StringBuffer& v)
 {
 	basetype::append(v.data(),v.size());
 	return (*this);
+}
+
+template<typename T>
+bool StringBuffer<T>::enlarge_size_by(size_t sz)
+{
+	return impl.enlarge_size_by(sz);
 }
 
 

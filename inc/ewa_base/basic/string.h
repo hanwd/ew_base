@@ -4,7 +4,8 @@
 #include "ewa_base/config.h"
 #include "ewa_base/basic/hashing.h"
 #include "ewa_base/basic/string_detail.h"
-
+#include "ewa_base/basic/stringbuffer.h"
+#include "ewa_base/basic/formater.h"
 
 EW_ENTER
 
@@ -82,13 +83,13 @@ public:
 		return (*this)+=o.c_str();
 	}
 
-#define STRING_FORMAT_IMPL1(X,Y) return X;
-#define STRING_FORMAT_IMPL2(X,Y) return FormatImpl(X)
-	STRING_FORMAT_FUNCTIONS_2(static String Format, STRING_FORMAT_IMPL1, STRING_FORMAT_IMPL2, )
-
-#define STRING_PRINTF_IMPL1(X,Y) return (*this)=X;
-#define STRING_PRINTF_IMPL2(X,Y) return (*this)=FormatImpl(X);
-	STRING_FORMAT_FUNCTIONS_2(String& Printf, STRING_PRINTF_IMPL1, STRING_PRINTF_IMPL2, )
+//#define STRING_FORMAT_IMPL1(X,Y) return X;
+//#define STRING_FORMAT_IMPL2(X,Y) return FormatImpl(X)
+//	STRING_FORMAT_FUNCTIONS_2(static String Format, STRING_FORMAT_IMPL1, STRING_FORMAT_IMPL2, )
+//
+//#define STRING_PRINTF_IMPL1(X,Y) return (*this)=X;
+//#define STRING_PRINTF_IMPL2(X,Y) return (*this)=FormatImpl(X);
+//	STRING_FORMAT_FUNCTIONS_2(String& Printf, STRING_PRINTF_IMPL1, STRING_PRINTF_IMPL2, )
 
 	static String FormatV(const char* s,va_list vl);
 	String& PrintfV(const char* s,va_list vl);
@@ -131,6 +132,10 @@ public:
 
 	int find(char c, int pos = 0) const;
 	int find(const String& s, int pos = 0) const;
+
+
+	STRING_FORMATER_FORMAT_FUNCS_2(static String Format,return sb.sb;)
+	STRING_FORMATER_FORMAT_FUNCS_2(String Printf,*this=sb.sb;return *this;)
 
 private:
 
@@ -264,5 +269,6 @@ inline const char* StringParamCast::g(const String& v)
 
 
 EW_LEAVE
+
 
 #endif

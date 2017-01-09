@@ -8,7 +8,7 @@
 #include "ewa_base/basic/string_detail.h"
 #include "ewa_base/collection/arr_1t.h"
 #include "ewa_base/memory/allocator.h"
-#include "ewa_base/basic/object.h"
+
 
 #ifdef _MSC_VER
 #pragma warning(disable:4307)
@@ -95,13 +95,13 @@ public:
 		return (*this)<<v.c_str();
 	}
 
+	bool enlarge_size_by(size_t sz);
+
 protected:
 
 	template<typename G>
 	void _do_format_integer(G v);
 };
-
-DEFINE_OBJECT_NAME_T(StringBuffer,"Buffer");
 
 template<typename T> class hash_t<StringBuffer<T> >
 {

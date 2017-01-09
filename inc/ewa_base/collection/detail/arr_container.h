@@ -146,6 +146,13 @@ public:
 		return m_base[n];
 	}
 
+	bool enlarge_size_by(size_t sz)
+	{
+		if(m_end1+sz>m_end2) return false;
+		m_end1+=sz;
+		return true;
+	}
+
 protected:
 
 	template<typename It>

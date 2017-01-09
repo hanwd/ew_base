@@ -203,6 +203,37 @@ public:
 
 
 
+#define STRING_FORMATER_FORMAT_FUNCS_3(X,Y,Z)\
+template<typename T0,\
+	typename T1=tl::nulltype,\
+	typename T2=tl::nulltype,\
+	typename T3=tl::nulltype,\
+	typename T4=tl::nulltype,\
+	typename T5=tl::nulltype,\
+	typename T6=tl::nulltype,\
+	typename T7=tl::nulltype,\
+	typename T8=tl::nulltype,\
+	typename T9=tl::nulltype\
+>\
+X(\
+	const T0& v0,\
+	const T1& v1=T1(),\
+	const T2& v2=T2(),\
+	const T3& v3=T3(),\
+	const T4& v4=T4(),\
+	const T5& v5=T5(),\
+	const T6& v6=T6(),\
+	const T7& v7=T7(),\
+	const T8& v8=T8(),\
+	const T9& v9=T9()\
+)\
+{\
+	Y sb(StringParamCast::g(v0));\
+	StringFormater::Format(sb,v1,v2,v3,v4,v5,v6,v7,v8,v9);\
+	Z;\
+}
+
+#define STRING_FORMATER_FORMAT_FUNCS_2(X,Z) STRING_FORMATER_FORMAT_FUNCS_3(X,FormatStateSb,Z)
 
 EW_LEAVE
 #endif

@@ -3,13 +3,260 @@
 
 #include "ewa_base/config.h"
 #include "ewa_base/basic/stringbuffer.h"
-#include "ewa_base/basic/string.h"
+#include "ewa_base/basic/scanner_helper.h"
 
 EW_ENTER
 
+class FormatBuffer
+{
+public:
 
+	void clear(){m_size=0;}
 
+	char* c_str(){p_base[m_size]=0;return p_base;}
 
+	char* data(){return p_base;}
+
+	size_t size(){return m_size;}
+
+	size_t capacity(){return m_capacity;}
+
+	void append(const char* p,size_t n)
+	{
+		if(n+m_size>=m_capacity)
+		{			
+			reserve(n+m_size);
+		}
+
+		memcpy(p_base+m_size,p,n);
+		m_size+=n;
+	}
+
+	#define FORMAT_INT_TYPE(X) FormatBuffer& operator<<(X n){char buf[64];char* p2=buf+63;char* p1=StringDetail::str_format(p2,n);	append(p1,p2-p1);return *this;}
+
+	FORMAT_INT_TYPE(int)
+	FORMAT_INT_TYPE(unsigned)
+	FORMAT_INT_TYPE(int64_t)
+	FORMAT_INT_TYPE(uint64_t)
+
+	FormatBuffer& operator<<(const String& n);
+
+	FormatBuffer& operator<<(const StringBuffer<char>& s)
+	{
+		append(s.data(),s.size());
+		return *this;
+	}
+
+	FormatBuffer()
+	{
+		p_base=internal_data;
+		m_capacity=sizeof(internal_data);
+		m_size=0;
+	}
+
+	~FormatBuffer()
+	{
+		if(p_base!=internal_data)
+		{
+			mp_free(p_base);
+		}
+	}
+
+	void reserve(size_t n)
+	{
+		if(n<m_capacity) return;
+
+		size_t sz2=(n+1024*8)&~(1024*4-1);
+		char* ptmp=(char*)mp_alloc(sz2);
+		if(!ptmp) Exception::XBadAlloc();
+		memcpy(ptmp,p_base,m_size);
+		if(p_base!=internal_data)
+		{
+			mp_free(p_base);
+		}
+		p_base=ptmp;
+		m_capacity=sz2;
+	}
+
+private:
+
+	char* p_base;
+	size_t m_size;
+	size_t m_capacity;
+	char internal_data[1024*4];
+};
+
+class FormatState0
+{
+public:
+	typedef const char* char_pointer;
+
+	char_pointer p1,p2;
+	char_pointer f1,f2;
+
+	int64_t n_vpos;
+	int64_t n_vpos_old;
+	int64_t n_fmt_width[2];
+	int n_fmt_flag;
+	int n_fmt_type;
+
+	bool b_fmt_ok;
+
+	void init(char_pointer p){p1=p2=p;n_vpos=0;}
+};
+
+class FormatState1 : public FormatState0
+{
+public:
+
+	FormatBuffer a_fmt_buffer;
+
+	void fmt_enter()
+	{
+		b_fmt_ok=true;
+		a_fmt_buffer.clear();
+		n_fmt_width[0]=n_fmt_width[1]=0;
+		fmt_append("%",1);
+	}
+
+	bool fmt_test()
+	{
+		if(b_fmt_ok)
+		{
+			f1=a_fmt_buffer.c_str();
+			f2=f1+a_fmt_buffer.size();
+			if(a_fmt_buffer.size()==1)
+			{
+				f1=f2=NULL;
+			}
+		}
+		return b_fmt_ok;
+	}
+
+	bool fmt_leave()
+	{
+		if(!b_fmt_ok)
+		{
+			n_vpos=n_vpos_old;
+		}
+		return b_fmt_ok;
+	}
+
+	void fmt_append(const char* x1,const char* x2)
+	{
+		a_fmt_buffer.append(x1,x2-x1);
+	}
+
+	void fmt_append(const char* p,size_t n)
+	{
+		a_fmt_buffer.append(p,n);
+	}
+
+	template<typename G>
+	void fmt_width(const G&,int i)
+	{
+		b_fmt_ok=false;
+	}
+
+	void fmt_width(int d,int i)
+	{
+		n_fmt_width[i]=d;
+		a_fmt_buffer<<d;
+	}
+	
+};
+
+template<typename S>
+class FormatStateT : public FormatState1
+{
+public:
+
+	FormatStateT(char_pointer p){init(p);}
+
+	operator const char*()
+	{
+		return sb.c_str();
+	}
+
+	S sb;
+
+	void str_append_s(const char* x)
+	{
+		str_append(x);
+	}
+
+	void str_append_s(const String& x);
+
+	template<typename G>
+	void str_append_s(const G&)
+	{
+		str_append("??");
+	}
+
+	void str_append(const String& s);
+
+	void str_append(char_pointer x1)
+	{
+		sb.append(x1,::strlen(x1));
+	}
+
+	void str_append(char_pointer x1,char_pointer x2)
+	{
+		sb.append(x1,x2-x1);
+	}
+
+	template<typename G>
+	void str_append_t(const G& o)
+	{
+		sb<<o;
+	}
+
+	template<typename G>
+	void str_format_t(const G& o)
+	{
+
+		if(f1==f2)
+		{
+			str_append_t(o);
+		}
+		else if(f1[1]=='s')
+		{
+			str_append_s(o);
+		}
+		else if(f2[-1]=='n')
+		{
+
+		}
+		else
+		{
+
+			unsigned kwd=std::max(unsigned(n_fmt_width[0]),unsigned(n_fmt_width[1]));
+
+			sb.reserve(kwd+sb.size());
+			
+			int nd=sprintf(sb.data()+sb.size(),f1,o);
+			if(nd>=0)
+			{
+				sb.enlarge_size_by(nd);
+			}
+			else
+			{
+				b_fmt_ok=false;
+			}		
+
+		}	
+	}
+
+	void str_format_t(const tl::nulltype&)
+	{
+		b_fmt_ok=false;
+	}
+
+};
+	
+
+typedef FormatStateT<StringBuffer<char> > FormatStateSb;
+typedef FormatStateT<FormatBuffer > FormatStateFb;
 
 class StringFormater
 {
@@ -23,8 +270,6 @@ public:
 		int type;
 		int size;
 	};
-
-	static const indexer_map<String,int>& get_type_spec_map();
 
 	enum
 	{
@@ -41,157 +286,8 @@ public:
 		TYPE_UNSIGNED=1<<6
 	};
 
-	class buffer
-	{
-	public:
-		char stat[1024];
-		char* addr;
-		size_t size;
-
-		char* get_buffer(size_t s)
-		{
-			if(s<=size) return addr;
-			if(addr!=stat)
-			{
-				mp_free(addr);
-			}
-			addr=(char*)mp_alloc(s);
-			if(!addr)
-			{
-				Exception::XBadAlloc();
-			}
-			size=s;
-			return addr;
-		}
-
-		buffer()
-		{
-			addr=stat;
-			size=1024;			
-		}
-
-		~buffer()
-		{
-			if(addr!=stat)
-			{
-				mp_free(addr);
-			}
-		}
-
-	};
-
-	class state
-	{
-	public:
-		typedef const char* char_pointer;
-		state(char_pointer p):p1(p),p2(p),kp(0),fg(0),sz(0){}
-		state(const String& s):p1(s.c_str()),p2(s.c_str()),kp(0),fg(0),sz(0){}
-
-		char_pointer p1,p2,f1,f2;
-
-		int64_t kp;
-		int fg;
-		int ty;
-		StringBuffer<char> sb;
-		buffer ss;
-		buffer fb;
-		int64_t wd;
-		int64_t dd;
-
-		int sz;
-
-		operator String()
-		{
-			return sb;
-		}
-
-		void append_s(const char* x)
-		{
-			append(x);
-		}
-
-		void append_s(const String& x)
-		{
-			append(x.c_str());
-		}
-
-		template<typename G>
-		void append_s(const G&)
-		{
-			append("??");
-		}
-
-		void append(const String& s)
-		{
-			append(s.c_str());
-		}
-
-		void append(char_pointer x1)
-		{
-			char_pointer x2=x1+::strlen(x1);
-			append(x1,x2);
-		}
-
-		void append(char_pointer x1,char_pointer x2)
-		{
-			sb.append(x1,x2);
-		}
-
-		template<typename G>
-		void append_t(const G& o)
-		{
-			sb<<o;
-		}
-	};
-	
-
-	template<typename G>
-	static bool DoFromat(state& st,const G& o)
-	{
-		if(st.f1==st.f2)
-		{
-			st.append_t(o);
-		}
-		else if(st.f2[-1]=='s')
-		{
-			st.append_s(o);
-		}
-		else if(st.f2[-1]=='n')
-		{
-
-		}
-		else if(st.f2-st.f1<1000)
-		{
-			char* fb=st.fb.get_buffer(st.f2-st.f1+2);
-			fb[0]='%';
-			memcpy(fb+1,st.f1,st.f2-st.f1);
-			fb[st.f2-st.f1+1]=0;
-
-			unsigned wd=unsigned(st.wd)+unsigned(st.dd);
-			char* ss=st.ss.get_buffer(wd+512);
-			
-			int nd=sprintf(ss,fb,o);
-			if(nd>=0)
-			{
-				st.append(ss,ss+nd);
-			}
-			else
-			{
-				return false;
-			}
-			
-
-		}
-
-		return true;
-	
-	}
-
-	static bool DoFromat(state&,const nil_type&)
-	{
-		return false;
-	}
-
+	template<typename T0>
+	static bool handle(T0& st);
 
 	template<typename T0,
 		typename T1=nil_type,
@@ -204,7 +300,7 @@ public:
 		typename T8=nil_type,
 		typename T9=nil_type
 	>
-	static String Format(const T0& v0,
+	static void Format(T0& st,
 	const T1& v1=T1(),
 	const T2& v2=T2(),
 	const T3& v3=T3(),
@@ -217,132 +313,111 @@ public:
 	
 	)
 	{
-		const indexer_map<String,int>& hmap(get_type_spec_map());
 
-		state st(v0);
-
-		while(*st.p2)
+		while(handle(st))
 		{
-			if(*st.p2=='%')
-			{
-				if(st.p2[1]=='%')
-				{
-					st.append(st.p1,++st.p2);
-					st.p1=++st.p2;
-					continue;
-				}
+			st.fmt_enter();
 
-				st.append(st.p1,st.p2);
-				st.p1=st.p2++;
-					
-				if(*st.p2=='{')
+			if(st.n_fmt_flag!=0)
+			{
+
+				st.f1=st.p2;
+
+				while(*st.p2=='+'||*st.p2=='-'||*st.p2=='0'||*st.p2==' '||*st.p2=='#') st.p2++;
+
+				for(int i=0;i<2;i++)
 				{
-					ScannerHelper<const char*>::read_uint(++st.p2,st.kp);
-					if(*st.p2!=',')
+					if(*st.p2!='*')
 					{
-						st.fg=0;
+						ScannerHelper<const char*>::read_uint(st.p2,st.n_fmt_width[i]);
 					}
 					else
 					{
-						st.fg=-1;	
-						++st.p2;		
+						st.fmt_append(st.f1,st.p2);
+						st.f1=++st.p2;
+
+						switch(st.n_vpos++)
+						{
+						case 1:st.fmt_width(v1,i);break;
+						case 2:st.fmt_width(v2,i);break;
+						case 3:st.fmt_width(v3,i);break;
+						case 4:st.fmt_width(v4,i);break;
+						case 5:st.fmt_width(v5,i);break;
+						case 6:st.fmt_width(v6,i);break;
+						case 7:st.fmt_width(v7,i);break;
+						case 8:st.fmt_width(v8,i);break;
+						case 9:st.fmt_width(v9,i);break;
+						default:st.fmt_width(tl::nulltype(),i);break;
+						}
 					}
-				}
-				else
-				{
-					st.fg=1;
-					st.kp++;
-				}
 
-				if(st.fg!=0)
-				{
-					st.f1=st.p2;
-					st.wd=0;
-					st.dd=0;
-
-					if(*st.p2=='+'||*st.p2=='-') st.p2++;
-					if(*st.p2=='0') st.p2++;
-					if(*st.p2=='+'||*st.p2=='-') st.p2++;
-
-					ScannerHelper<const char*>::read_uint(st.p2,st.wd);
 					if(*st.p2=='.')
 					{
 						st.p2++;
-						ScannerHelper<const char*>::read_uint(st.p2,st.dd);
-					}
-
-					if(st.p2[0]=='h'||st.p2[0]=='l')
-					{
-						if(st.p2[1]==st.p2[0])
-						{
-							//st.ty=hmap[String(st.p2,st.p2+3)];
-							st.p2+=3;
-						}
-						else
-						{
-							//st.ty=hmap[String(st.p2,st.p2+2)];
-							st.p2+=2;			
-						}
-					}
-					else if(st.p2[0]=='j'||st.p2[0]=='z'||st.p2[0]=='t'||st.p2[0]=='L')
-					{
-						//st.ty=hmap[String(st.p2,st.p2+2)];
-						st.p2+=2;	
 					}
 					else
 					{
-						//st.ty=hmap[String(st.p2,st.p2+1)];
-						st.p2+=1;		
+						break;
 					}
+				}
+		
 
-					st.f2=st.p2;
-
-					if(st.ty==0)
+				if(st.p2[0]=='h'||st.p2[0]=='l')
+				{
+					if(st.p2[1]==st.p2[0])
 					{
-						continue;
-					}				
+						st.p2+=3;
+					}
+					else
+					{
+						st.p2+=2;			
+					}
+				}
+				else if(st.p2[0]=='j'||st.p2[0]=='z'||st.p2[0]=='t'||st.p2[0]=='L')
+				{
+					st.p2+=2;	
 				}
 				else
 				{
-					st.f1=st.f2;
-				}
-					
-				if(st.fg<=0)
-				{
-					if(*st.p2++!='}')
-					{
-						System::LogTrace("invalid format");
-						continue;
-					}
+					st.p2+=1;		
 				}
 
-				bool flag=false;
-				switch(st.kp)
-				{
-				case 1: flag=DoFromat(st,v1);break;
-				case 2: flag=DoFromat(st,v2);break;
-				case 3: flag=DoFromat(st,v3);break;
-				case 4: flag=DoFromat(st,v4);break;
-				case 5: flag=DoFromat(st,v5);break;
-				case 6: flag=DoFromat(st,v6);break;
-				case 7: flag=DoFromat(st,v7);break;
-				case 8: flag=DoFromat(st,v8);break;
-				case 9: flag=DoFromat(st,v9);break;
-				}
-
-				if(!flag) continue;
-
-				st.p1=st.p2;		
-
+				st.fmt_append(st.f1,st.p2);		
 			}
-			else
+
+					
+			if(st.n_fmt_flag<=0)
 			{
-				st.p2++;
-			}					
+				if(*st.p2++!='}')
+				{
+					st.b_fmt_ok=false;					
+					continue;
+				}
+			}
+
+			if(st.fmt_test()) switch(st.n_vpos)
+			{
+			case 1: st.str_format_t(v1);break;
+			case 2: st.str_format_t(v2);break;
+			case 3: st.str_format_t(v3);break;
+			case 4: st.str_format_t(v4);break;
+			case 5: st.str_format_t(v5);break;
+			case 6: st.str_format_t(v6);break;
+			case 7: st.str_format_t(v7);break;
+			case 8: st.str_format_t(v8);break;
+			case 9: st.str_format_t(v9);break;
+			}
+
+			if(!st.fmt_leave())
+			{
+				continue;
+			}
+
+
+			st.p1=st.p2;
+					
 		}
 
-		st.append(st.p1,st.p2);
-		return st;
 	}
 };
 

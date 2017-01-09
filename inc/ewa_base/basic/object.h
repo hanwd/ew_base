@@ -2,14 +2,21 @@
 #define __H_EW_BASIC_OBJECT__
 
 
-#include "ewa_base/basic/atomic.h"
-#include "ewa_base/basic/string.h"
+#include "ewa_base/basic/object_info.h"
 #include "ewa_base/collection/indexer_map.h"
 
 #define DECLARE_OBJECT_INFO(TYPE,INFO)	\
 	public:\
 	typedef INFO infobase;\
 	typedef ObjectInfoT<TYPE,INFO> infotype;\
+	static infotype sm_info;\
+	virtual infobase& GetObjectInfo() const{return sm_info;}\
+	virtual const String& GetObjectName() const {return sm_info.GetName();}
+
+#define DECLARE_OBJECT_INFO_NO_CREATE(TYPE,INFO)	\
+	public:\
+	typedef INFO infobase;\
+	typedef INFO infotype;\
 	static infotype sm_info;\
 	virtual infobase& GetObjectInfo() const{return sm_info;}\
 	virtual const String& GetObjectName() const {return sm_info.GetName();}
@@ -49,50 +56,8 @@
 
 #define IMPLEMENT_OBJECT_INFO_N1(TYPE,INFO)	IMPLEMENT_OBJECT_INFO_NAME_N1(TYPE,INFO,#TYPE)
 
+
 EW_ENTER
-
-class DLLIMPEXP_EWA_BASE Object;
-class DLLIMPEXP_EWA_BASE Serializer;
-
-class DLLIMPEXP_EWA_BASE ObjectInfo : private NonCopyable
-{
-public:
-
-	ObjectInfo(const String& s);
-
-	const String& GetName() const;
-
-	virtual Object* CreateObject()=0;
-
-	virtual Object* GetCachedInstance();
-
-	virtual Object* GetHelperObject(const String&);
-
-	template<typename T>
-	T* GetHelperObjectT(const String& name)
-	{
-		return dynamic_cast<T*>(GetHelperObject(name));
-	}
-
-protected:
-	virtual ~ObjectInfo();
-	String m_sClassName;
-};
-
-
-
-template<typename T,typename INFO=ObjectInfo>
-class ObjectInfoT : public INFO
-{
-public:
-	typedef INFO basetype;
-	ObjectInfoT(const String &name):basetype(name) {}
-
-	Object *CreateObject()
-	{
-		return new T();
-	}
-};
 
 
 
@@ -117,14 +82,14 @@ class DLLIMPEXP_EWA_BASE ObjectData : public Object
 {
 public:
 
-	ObjectData(){}
-	ObjectData(const ObjectData&){}
+	EW_FORCEINLINE ObjectData(){}
+	EW_FORCEINLINE ObjectData(const ObjectData&){}
 
-	ObjectData& operator=(const ObjectData&){return *this;}
+	EW_FORCEINLINE ObjectData& operator=(const ObjectData&){return *this;}
 	~ObjectData();
 
 	// Increase reference counter,
-	inline void IncRef()
+	EW_FORCEINLINE void IncRef()
 	{
 		EW_ASSERT(m_refcount.get()>=0);
 		if(m_refcount++==0)
@@ -134,7 +99,7 @@ public:
 	}
 
 	// Decrease reference counter,
-	inline void DecRef()
+	EW_FORCEINLINE void DecRef()
 	{
 		EW_ASSERT(m_refcount.get()>0);
 		if(--m_refcount==0)
@@ -144,7 +109,7 @@ public:
 	}
 
 	// Get reference count.
-	inline int GetRef() const
+	EW_FORCEINLINE int GetRef() const
 	{
 		return m_refcount.get();
 	}

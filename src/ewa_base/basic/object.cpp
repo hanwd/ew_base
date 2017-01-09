@@ -7,27 +7,6 @@ void Object::Serialize(Serializer&)
 
 }
 
-void ObjectData::on_destroy() 
-{
-	delete this;
-}
-
-void ObjectData::on_created() 
-{
-
-}
-
-
-ObjectData* ObjectData::Clone(int t)
-{
-	ObjectCloneState cs(t);
-	return cs.clone(this);
-}
-
-ObjectData* ObjectData::DoClone(ObjectCloneState&)
-{
-	return this;
-}
 
 ObjectData* ObjectCloneState::clone(ObjectData* d)
 {

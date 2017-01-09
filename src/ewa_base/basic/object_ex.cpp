@@ -6,72 +6,108 @@
 EW_ENTER
 
 
-
-TracedObject* traced_object_header = NULL;
-AtomicSpin trace_object_mutex;
-
-void TracedObject::DoInvoke(InvokeParam&){}
-
-void TracedObject::Invoke(int t)
+ObjectGroup::ObjectGroup()
 {
-	InvokeParam ctx(t);
-	Invoke(ctx);
+
 }
 
-void TracedObject::Invoke(InvokeParam& ctx)
+ObjectGroup::ObjectGroup(const ObjectGroup& o) :impl(o.impl)
 {
-	LockGuard<AtomicSpin> locker(trace_object_mutex);
-	for (TracedObject* p = traced_object_header; p; p = p->m_pNext)
+	for (size_t i = 0; i<impl.size(); i++)
 	{
-		p->DoInvoke(ctx);
+		impl[i]->IncRef();
 	}
 }
 
-void TracedObject::DoLinkObject(TracedObject* p, bool a)
+ObjectGroup& ObjectGroup::operator=(const ObjectGroup& o)
 {
-	LockGuard<AtomicSpin> locker(trace_object_mutex);
-
-	if (a)
-	{
-		p->m_pNext = traced_object_header;
-		traced_object_header = p;
-	}
-	else if (traced_object_header == p)
-	{
-		traced_object_header = traced_object_header->m_pNext;
-
-	}
-	else if (traced_object_header)
-	{
-		for (TracedObject*prev = traced_object_header; TracedObject* next = prev->m_pNext; prev = next)
-		{
-			if (next != p) continue;
-			prev->m_pNext = next->m_pNext;
-			break;
-		}
-	}
-
-}
-
-TracedObject::TracedObject() :m_pNext(NULL)
-{
-	DoLinkObject(this, true);
-}
-
-TracedObject::TracedObject(const TracedObject&) : m_pNext(NULL)
-{
-	DoLinkObject(this, true);
-}
-
-TracedObject& TracedObject::operator=(const TracedObject&)
-{
+	if (this == &o) return *this;
+	ObjectGroup(o).swap(*this);
 	return *this;
 }
 
-TracedObject::~TracedObject()
+ObjectGroup::~ObjectGroup()
 {
-	DoLinkObject(this, false);
+	clear();
 }
 
+
+ObjectGroup::value_proxy& ObjectGroup::operator[](size_t n)
+{
+	return __proxy()[n];
+}
+const ObjectGroup::value_proxy& ObjectGroup::operator[](size_t n) const
+{
+	return __proxy()[n];
+}
+
+ObjectGroup::value_proxy& ObjectGroup::back()
+{
+	return __proxy().back();
+}
+const ObjectGroup::value_proxy& ObjectGroup::back() const
+{
+	return __proxy().back();
+}
+
+size_t ObjectGroup::size() const
+{
+	return impl.size();
+}
+
+bool ObjectGroup::empty() const
+{
+	return impl.empty();
+}
+
+void ObjectGroup::append(ObjectData* d)
+{
+	if (!d) return;
+	impl.push_back(d);
+	d->IncRef();
+}
+
+void ObjectGroup::Serialize(Serializer& ar)
+{
+	if (ar.is_reader())
+	{
+		arr_1t<DataPtrT<ObjectData> > tmp;
+		ar & tmp;
+		impl.swap(*(impl_type*)&tmp);
+	}
+	else
+	{
+		ar & impl;
+	}
+
+}
+
+void ObjectGroup::remove(ObjectData* d)
+{
+	for (size_t i = 0; i<impl.size(); i++)
+	{
+		if (impl[i] == d)
+		{
+			std::swap(impl[i], impl.back());
+			impl.pop_back();
+			d->DecRef();
+			return;
+		}
+	}
+}
+
+void ObjectGroup::clear()
+{
+	for (size_t i = 0; i<impl.size(); i++)
+	{
+		impl[i]->DecRef();
+	}
+	impl.clear();
+}
+
+void ObjectGroup::swap(ObjectGroup& o)
+{
+	impl.swap(o.impl);
+}
 
 EW_LEAVE

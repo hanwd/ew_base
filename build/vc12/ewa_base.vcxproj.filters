@@ -546,6 +546,9 @@
     <ClInclude Include="..\..\inc\ewa_base\basic\scanner_helper.h">
       <Filter>include\basic</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\inc\ewa_base\basic\object_info.h">
+      <Filter>include\basic</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\ewa_base\basic\atomic.cpp">

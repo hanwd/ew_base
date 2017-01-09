@@ -34,7 +34,8 @@ public:
 	void svc();
 	bool svc_enter();
 	void svc_leave();
-	bool create();
+
+	static ThreadImpl* create_one();
 
 	void set_priority(int n);
 	void set_affinity(int n);
@@ -58,8 +59,9 @@ public:
 	ThreadEx::factor_type invoker;
 
 
-	LitePtrT<ThreadImpl> pNext;
-	LitePtrT<ThreadImpl> pPrev;
+	LitePtrT<ThreadImpl> ptr_next;
+	LitePtrT<ThreadImpl> ptr_prev;
+	LitePtrT<ThreadManager::ThreadLink> ptr_link;
 
 	static bool sm_bReqexit;
 
@@ -78,10 +80,6 @@ public:
 		return *tc_impl_data;
 	}
 
-
-	static void link_append(ThreadManager::ThreadLink& link, ThreadImpl* p);
-	static void link_remove(ThreadManager::ThreadLink& link, ThreadImpl* p);
-	static ThreadImpl* link_getone(ThreadManager::ThreadLink& link);
 };
 
 

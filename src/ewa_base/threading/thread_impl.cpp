@@ -58,26 +58,23 @@ static bool ThreadImpl::activate_t(Thread& thrd, G& g)
 		return false;
 	}
 
-	arr_1t<ThreadImpl*> _aThreads;
-
-	if (!tmgr.list_free.getnum(_aThreads, n))
+	ThreadImpl* pthrd = tmgr.list_free.getnum(n);
+	if (!pthrd)
 	{
 		return false;
 	}
-
-	EW_ASSERT(_aThreads.size() == n);
-
 	for (size_t i = 0; i<n; i++)
 	{
 		if (i<thrd.m_aBindCpu.size())
 		{
-			_aThreads[i]->thrd_affinity = thrd.m_aBindCpu[i];
+			pthrd->thrd_affinity = thrd.m_aBindCpu[i];
 		}
 		else
 		{
-			_aThreads[i]->thrd_affinity = -1;
+			pthrd->thrd_affinity = -1;
 		}
-		_aThreads[i]->set_thread(&thrd, g[i], i);
+		pthrd->set_thread(&thrd, g[i], i);
+		pthrd = pthrd->ptr_next;
 	}
 
 	thrd.m_nAlive += n;
@@ -120,11 +117,38 @@ ThreadImpl::~ThreadImpl()
 	}
 }
 
-bool ThreadImpl::create()
+ThreadImpl* ThreadImpl::create_one()
 {
-	thrd_created=ThreadImpl_detail::thread_create(thrd_id,this);
-	return thrd_created;
+	ThreadImpl* impl;
+	try
+	{
+		impl = new ThreadImpl();
+	}
+	catch (...)
+	{
+		return NULL;
+	}
+
+	impl->thrd_created=ThreadImpl_detail::thread_create(impl->thrd_id,impl);
+
+	if (!impl->thrd_created)
+	{
+		System::CheckError("unable to create thread");
+
+		delete impl;
+		return NULL;
+	}
+
+	return impl;
+
 }
+
+
+//bool ThreadImpl::create()
+//{
+//	thrd_created=ThreadImpl_detail::thread_create(thrd_id,this);
+//	return thrd_created;
+//}
 
 
 void ThreadImpl::set_thread(Thread* p,ThreadEx::factor_type v,int i)
@@ -313,9 +337,21 @@ public:
 };
 
 
-class ThreadManagerImpl : public ThreadManager
+
+class ThreadManagerImpl : public ThreadManager, private ObjectInfo
 {
 public:
+
+	ThreadManagerImpl() :ObjectInfo("ThreadManager"){}
+
+	void DoInvoke(InvokeParam& ipm)
+	{
+		if (ipm.type == InvokeParam::TYPE_FINI)
+		{
+			ThreadManager::current().close(true);
+		}
+	}
+
 	ThreadMain thrd_main;
 	ThreadDummy thrd_dummy;
 
@@ -326,6 +362,7 @@ public:
 
 	~ThreadManagerImpl(){close(true);}
 };
+
 
 ThreadManagerImpl* _g_pThreadManager=NULL;
 

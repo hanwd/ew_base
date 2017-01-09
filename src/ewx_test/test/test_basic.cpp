@@ -37,6 +37,8 @@ TEST_DEFINE(TEST_String)
 	String s6;
 	s6<<s2<<s3;
 
+	String::Format("%s%s",s2,s3);
+
 	String s7=String::Format("%s%s",s2,s3);
 
 

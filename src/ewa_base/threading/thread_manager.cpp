@@ -32,22 +32,16 @@ void _g_signal_terminate(int param)
 	}
 
 	ThreadImpl::sm_bReqexit = true;
-
 }
 
 
 
 ThreadManager::ThreadManager()
 {
-
 	signal(SIGTERM, _g_signal_terminate);
 	signal(SIGINT, _g_signal_terminate);
-
 	m_nThreadMax=10;
 	m_nThreadNum=0;
-	//m_nThreadJob=0;
-
-
 }
 
 
@@ -92,93 +86,83 @@ void ThreadManager::wait()
 
 void ThreadManager::ThreadLink::append(ThreadImpl* p)
 {
-	p->pPrev = NULL;
-	p->pNext = head;
+	EW_ASSERT(p->ptr_link == NULL);
 
-	if (head)
+	p->ptr_link=this;
+	if (tail)
 	{
-		head->pPrev = p;
+		p->ptr_prev = tail;
+		p->ptr_next = NULL;
+		tail->ptr_next = p;
+		tail = p;
 	}
-
-	head = p;
-
+	else
+	{
+		p->ptr_prev = NULL;
+		p->ptr_next = NULL;
+		head = tail= p;
+	}
 	++size;
 }
 
 void ThreadManager::ThreadLink::remove(ThreadImpl* p)
 {
-	if (p->pPrev)
+	if (p->ptr_link != this)
 	{
-		p->pPrev->pNext = p->pNext;
+		EW_ASSERT(false);
+		return;
+	}
+	p->ptr_link=NULL;
+
+	if (p->ptr_prev)
+	{
+		p->ptr_prev->ptr_next = p->ptr_next;
 	}
 	else
 	{
-		head = p->pNext;
+		head = p->ptr_next;
 	}
 
-	if (p->pNext)
+	if (p->ptr_next)
 	{
-		p->pNext->pPrev = p->pPrev;
+		p->ptr_next->ptr_prev = p->ptr_prev;
 	}
-
+	else
+	{
+		tail = p->ptr_prev;
+	}
 	--size;
 }
 
-bool ThreadManager::ThreadLink::getnum(arr_1t<ThreadImpl*>& thrds,size_t n)
+ThreadImpl* ThreadManager::ThreadLink::getnum(size_t n)
 {
-	try
+	while (size < n)
 	{
-		thrds.resize(n);
+		ThreadImpl* p = ThreadImpl::create_one();
+		if (!p) return NULL;
+		append(p);
 	}
-	catch (...)
-	{
-		return false;
-	}
-
+	ThreadImpl* p1 = head;
 	for (size_t i = 0; i < n; i++)
 	{
-		thrds[i] = getone();
-		if (!thrds[i])
-		{
-			return false;
-		}
+		head->ptr_link = NULL;
+		head = head->ptr_next;
 	}
-	return true;
-}
 
-ThreadImpl* ThreadManager::ThreadLink::getone()
-{
-	if (!head)
+	if (head)
 	{
-		ThreadImpl* impl;
-		try
-		{
-			impl = new ThreadImpl();
-		}
-		catch (...)
-		{
-			return NULL;
-		}
-
-		if (!impl->create())
-		{
-			System::CheckError("unable to create thread");
-
-			delete impl;
-			return NULL;
-		}
-		return impl;
+		head->ptr_prev->ptr_next = NULL;
+		head->ptr_prev = NULL;
+	}
+	else
+	{
+		tail = NULL;
 	}
 
-	ThreadImpl* p = head;
-	head = p->pNext;
-	if (head) head->pPrev = NULL;
-	--size;
+	size -= n;
 
-	p->pNext = p->pPrev = NULL;
-	return p;
+	return p1;
 }
-
 
 
 EW_LEAVE

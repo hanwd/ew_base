@@ -239,6 +239,20 @@ protected:
 	EW_FORCEINLINE ~NonCopyable() {}
 };
 
+class DLLIMPEXP_EWA_BASE NonCopyableAndNonNewable
+{
+	NonCopyableAndNonNewable(const NonCopyableAndNonNewable&);
+	NonCopyableAndNonNewable& operator=(const NonCopyableAndNonNewable&);
+protected:
+	EW_FORCEINLINE NonCopyableAndNonNewable() {}
+	EW_FORCEINLINE ~NonCopyableAndNonNewable() {}
+
+	static void* operator new(size_t);
+	static void* operator new(size_t, const char*, int);
+	static void* operator new(size_t, void* p);
+};
+
+
 template<typename T> class ObjectNameT;
 
 #pragma push_macro("new")

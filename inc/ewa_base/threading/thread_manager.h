@@ -27,15 +27,15 @@ public:
 	class DLLIMPEXP_EWA_BASE ThreadLink
 	{
 	public:
-		ThreadLink() :head(NULL), size(0){}
+		ThreadLink() :head(NULL), tail(NULL),size(0){}
 
 		void append(ThreadImpl* p);
 		void remove(ThreadImpl* p);
-		bool getnum(arr_1t<ThreadImpl*>&,size_t n);
 
-		ThreadImpl* getone();
+		ThreadImpl* getnum(size_t n);
 
 		ThreadImpl* head;
+		ThreadImpl* tail;
 		uintptr_t size;
 	};
 

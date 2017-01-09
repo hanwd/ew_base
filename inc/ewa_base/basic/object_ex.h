@@ -183,42 +183,7 @@ public:
 };
 
 
-class InvokeParam : public Object
-{
-public:
-	enum
-	{
-		TYPE_NONE,
-		TYPE_INIT,
-		TYPE_FINI,
-		TYPE_TRY_RELEASE_MEM,
-	};
 
-	explicit InvokeParam(int t) :type(t){}
-
-	const int type;
-	BitFlags flags;
-};
-
-class TracedObject
-{
-public:
-
-	TracedObject();
-	TracedObject(const TracedObject&);
-	TracedObject& operator=(const TracedObject&);
-	virtual ~TracedObject();
-
-	static void Invoke(InvokeParam&);
-	static void Invoke(int t);
-
-protected:
-	virtual void DoInvoke(InvokeParam&);
-
-private:
-	TracedObject* m_pNext;
-	static void DoLinkObject(TracedObject* p, bool a);
-};
 
 EW_LEAVE
 #endif

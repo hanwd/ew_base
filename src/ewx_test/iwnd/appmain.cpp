@@ -21,9 +21,10 @@ int ew_main()
 	mp_check_leak(1);
 
 	System::SetLogFile("ew.log",true);
-
 	System::LogTrace("----  process enter   -------");
-	
+
+	ObjectInfo::Invoke(InvokeParam::TYPE_INIT);	
+
 	WndManager& wm(WndManager::current());
 
 // ×¢²á²å¼þ
@@ -74,8 +75,7 @@ int ew_main()
 		wm.app.conf.Save("config/default.conf");
 	}
 
-	ThreadManager::current().close();
-	ThreadManager::current().wait();
+	ObjectInfo::Invoke(InvokeParam::TYPE_FINI);
 
 	System::LogTrace("----  process leave   -------");
 	return 0;

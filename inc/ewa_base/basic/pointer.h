@@ -49,6 +49,13 @@ public:
 		basetype::reset((X*)o.get());
 	}
 
+#ifdef EW_C11
+	DataPtrT(DataPtrT&& o)
+	{
+		swap(o);
+	}
+#endif
+
 	DataPtrT(T *p=NULL):basetype(p) {}
 
 	bool cast_and_set(ObjectData* b)

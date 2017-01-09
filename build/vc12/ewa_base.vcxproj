@@ -46,6 +46,7 @@
     <ClInclude Include="..\..\inc\ewa_base\basic\lookuptable.h" />
     <ClInclude Include="..\..\inc\ewa_base\basic\object.h" />
     <ClInclude Include="..\..\inc\ewa_base\basic\object_ex.h" />
+    <ClInclude Include="..\..\inc\ewa_base\basic\object_info.h" />
     <ClInclude Include="..\..\inc\ewa_base\basic\platform.h" />
     <ClInclude Include="..\..\inc\ewa_base\basic\pointer.h" />
     <ClInclude Include="..\..\inc\ewa_base\basic\pointer_detail.h" />

@@ -29,10 +29,18 @@ public:
 		return m_ptr;
 	}
 
-	inline pointer operator=(pointer p)
+
+	inline LitePtrT operator=(pointer p)
 	{
 		m_ptr=p;
-		return m_ptr;
+		return *this;
+	}
+
+	template<typename Y>
+	inline LitePtrT& operator=(Y* p)
+	{
+		m_ptr=p;
+		return *this;
 	}
 };
 

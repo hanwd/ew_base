@@ -6,7 +6,7 @@
 #include "ewa_base/threading/thread_mutex.h"
 #include "ewa_base/basic/pointer.h"
 #include "ewa_base/basic/bitflags.h"
-
+#include "ewa_base/basic/dlink.h"
 
 EW_ENTER
 
@@ -24,22 +24,12 @@ public:
 	bool ok();
 	static ThreadManager& current();
 
-	class DLLIMPEXP_EWA_BASE ThreadLink
-	{
-	public:
-		ThreadLink() :head(NULL), tail(NULL),size(0){}
+	typedef DLinkT<ThreadImpl> ThreadLink;
 
-		void append(ThreadImpl* p);
-		void remove(ThreadImpl* p);
-
-		ThreadImpl* getnum(size_t n);
-
-		ThreadImpl* head;
-		ThreadImpl* tail;
-		uintptr_t size;
-	};
 
 protected:
+
+	bool ensure_free_size(size_t n);
 
 	ThreadManager();
 	~ThreadManager();

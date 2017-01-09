@@ -3,35 +3,35 @@
 
 EW_ENTER
 
-SerializerBuffer::SerializerBuffer()
+IStreamBuffer::IStreamBuffer()
 {
 
 }
 
-bool SerializerBuffer::skip()
+bool IStreamBuffer::skip()
 {
 	return lbuf.skip();
 }
 
 // assign m_pBuffer
-void SerializerBuffer::assign(char* pbuf,size_t size)
+void IStreamBuffer::assign(char* pbuf,size_t size)
 {
 	lbuf.assign(pbuf,size);
 }
 
 // allocate buffer
-void SerializerBuffer::alloc(size_t bufsize)
+void IStreamBuffer::alloc(size_t bufsize)
 {
 	lbuf.alloc(bufsize);
 }
 
 
-int SerializerBuffer::send(const char* data,int size)
+int IStreamBuffer::send(const char* data,size_t size)
 {
 	return lbuf.send(data,size);
 }
 
-int SerializerBuffer::recv(char* data,int size)
+int IStreamBuffer::recv(char* data,size_t size)
 {
 	return lbuf.recv(data,size);
 }

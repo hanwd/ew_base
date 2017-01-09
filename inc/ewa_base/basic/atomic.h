@@ -63,7 +63,7 @@ public:
 
 // AtomicIntT, T must be 32bit or 64bit signed/unsigned integer or pointer
 template<typename T>
-class DLLIMPEXP_EWA_BASE AtomicIntT
+class DLLIMPEXP_EWA_BASE AtomicIntT  : public mp_obj
 {
 public:
 

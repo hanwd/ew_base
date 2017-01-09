@@ -58,13 +58,14 @@ static bool ThreadImpl::activate_t(Thread& thrd, G& g)
 		return false;
 	}
 
-	ThreadImpl* pthrd = tmgr.list_free.getnum(n);
-	if (!pthrd)
-	{
-		return false;
-	}
+	if(!tmgr.ensure_free_size(n)) return false;
+
+	DLinkT<ThreadImpl>::iterator it=tmgr.list_free.begin();
+
 	for (size_t i = 0; i<n; i++)
 	{
+		ThreadImpl* pthrd=*it++;
+
 		if (i<thrd.m_aBindCpu.size())
 		{
 			pthrd->thrd_affinity = thrd.m_aBindCpu[i];
@@ -74,7 +75,7 @@ static bool ThreadImpl::activate_t(Thread& thrd, G& g)
 			pthrd->thrd_affinity = -1;
 		}
 		pthrd->set_thread(&thrd, g[i], i);
-		pthrd = pthrd->ptr_next;
+		pthrd->link_to(&tmgr.list_work);
 	}
 
 	thrd.m_nAlive += n;
@@ -111,6 +112,8 @@ ThreadImpl::ThreadImpl()
 
 ThreadImpl::~ThreadImpl()
 {
+	link_to(NULL);
+
 	if(thrd_created)
 	{
 		ThreadImpl_detail::thread_destroy(thrd_id);
@@ -142,13 +145,6 @@ ThreadImpl* ThreadImpl::create_one()
 	return impl;
 
 }
-
-
-//bool ThreadImpl::create()
-//{
-//	thrd_created=ThreadImpl_detail::thread_create(thrd_id,this);
-//	return thrd_created;
-//}
 
 
 void ThreadImpl::set_thread(Thread* p,ThreadEx::factor_type v,int i)
@@ -216,13 +212,13 @@ void ThreadImpl::svc()
 			{
 				if(tmgr.m_nFlags.get(ThreadImpl::THREADMANAGER_NOCAHCING|ThreadImpl::THREADMANAGER_DISABLED))
 				{
-					tmgr.list_free.remove(this);
+					link_to(NULL);
 					return;
 				}
+				link_to(&tmgr.list_free);
 				tmgr.m_thrd_attached.wait(lock1);
 			}
-
-			tmgr.list_work.append(this);
+			link_to(&tmgr.list_work);
 		}
 
 		set_priority(50);
@@ -266,12 +262,12 @@ void ThreadImpl::svc()
 
 		{
 			LockGuard<Mutex> lock1(tmgr.m_thrd_mutex);
-			tmgr.list_work.remove(this);
 			if (tmgr.m_nFlags.get(ThreadImpl::THREADMANAGER_NOCAHCING | ThreadImpl::THREADMANAGER_DISABLED))
 			{
+				link_to(NULL);
 				return;
 			}
-			tmgr.list_free.append(this);
+			link_to(&tmgr.list_free);
 		}
 	}
 }

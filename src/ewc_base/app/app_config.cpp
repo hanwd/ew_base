@@ -9,8 +9,8 @@ EW_ENTER
 
 bool AppConfig::Load(const String& s)
 {
-	SerializerFile ar;
-	if(!ar.file.open(s,FLAG_FILE_RD))
+	SerializerStream ar;
+	if(!ar.open(s,FLAG_FILE_RD))
 	{
 		return false;
 	}
@@ -29,8 +29,8 @@ bool AppConfig::Load(const String& s)
 
 bool AppConfig::Save(const String& s)
 {
-	SerializerFile ar;
-	if(!ar.file.open(s,FLAG_FILE_WR|FLAG_FILE_CR))
+	SerializerStream ar;
+	if(!ar.open(s,FLAG_FILE_WR|FLAG_FILE_CR))
 	{
 		return false;
 	}

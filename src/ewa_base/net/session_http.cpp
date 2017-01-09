@@ -85,7 +85,7 @@ void SessionHttp_Response_FILE(SessionHttp& http)
 		return;
 	}
 
-	http.length=http.chunked_stream.reader().sizeg();
+	http.length=http.chunked_stream.sizeg();
 	if(http.length<0)
 	{
 		System::LogError("invalid file size");

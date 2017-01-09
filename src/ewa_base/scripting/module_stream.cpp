@@ -126,7 +126,7 @@ public:
 	virtual int __fun_call(Executor& ewsl,int pm)
 	{
 		ewsl.check_pmc(this, pm,0);
-		ewsl.ci1.nbp[StackState1::SBASE_THIS].ref<Stream>().writer().flush();
+		ewsl.ci1.nbp[StackState1::SBASE_THIS].ref<Stream>().get_writer()->flush();
 		return 0;
 	}
 	DECLARE_OBJECT_CACHED_INFO(CallableFunctionStreamFlush, ObjectInfo);

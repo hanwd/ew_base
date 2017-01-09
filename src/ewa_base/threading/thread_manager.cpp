@@ -84,84 +84,16 @@ void ThreadManager::wait()
 	m_nFlags=oldflag;
 }
 
-void ThreadManager::ThreadLink::append(ThreadImpl* p)
+
+bool ThreadManager::ensure_free_size(size_t n)
 {
-	EW_ASSERT(p->ptr_link == NULL);
-
-	p->ptr_link=this;
-	if (tail)
-	{
-		p->ptr_prev = tail;
-		p->ptr_next = NULL;
-		tail->ptr_next = p;
-		tail = p;
-	}
-	else
-	{
-		p->ptr_prev = NULL;
-		p->ptr_next = NULL;
-		head = tail= p;
-	}
-	++size;
-}
-
-void ThreadManager::ThreadLink::remove(ThreadImpl* p)
-{
-	if (p->ptr_link != this)
-	{
-		EW_ASSERT(false);
-		return;
-	}
-	p->ptr_link=NULL;
-
-	if (p->ptr_prev)
-	{
-		p->ptr_prev->ptr_next = p->ptr_next;
-	}
-	else
-	{
-		head = p->ptr_next;
-	}
-
-	if (p->ptr_next)
-	{
-		p->ptr_next->ptr_prev = p->ptr_prev;
-	}
-	else
-	{
-		tail = p->ptr_prev;
-	}
-	--size;
-}
-
-ThreadImpl* ThreadManager::ThreadLink::getnum(size_t n)
-{
-	while (size < n)
+	while (list_free.size() < n)
 	{
 		ThreadImpl* p = ThreadImpl::create_one();
-		if (!p) return NULL;
-		append(p);
+		if (!p) return false;
+		p->link_to(&list_free);
 	}
-	ThreadImpl* p1 = head;
-	for (size_t i = 0; i < n; i++)
-	{
-		head->ptr_link = NULL;
-		head = head->ptr_next;
-	}
-
-	if (head)
-	{
-		head->ptr_prev->ptr_next = NULL;
-		head->ptr_prev = NULL;
-	}
-	else
-	{
-		tail = NULL;
-	}
-
-	size -= n;
-
-	return p1;
+	return true;
 }
 
 

@@ -10,7 +10,7 @@ extern EW_THREAD_TLS ThreadImpl* tc_impl_data;
 
 class DLLIMPEXP_EWA_BASE MpAllocCachedNoLock;
 
-class DLLIMPEXP_EWA_BASE ThreadImpl : public mp_obj, private NonCopyable
+class DLLIMPEXP_EWA_BASE ThreadImpl : public mp_obj, public DLinkNode
 {
 public:
 
@@ -58,9 +58,15 @@ public:
 	ThreadImpl_detail::thread_t thrd_id;
 	ThreadEx::factor_type invoker;
 
+	void link_to(ThreadManager::ThreadLink *p)
+	{
+		if(ptr_link==p) return;
 
-	LitePtrT<ThreadImpl> ptr_next;
-	LitePtrT<ThreadImpl> ptr_prev;
+		if(ptr_link) ptr_link->UnLink(this);
+		ptr_link=p;
+		if(ptr_link) ptr_link->LinkNext(this);
+	}
+
 	LitePtrT<ThreadManager::ThreadLink> ptr_link;
 
 	static bool sm_bReqexit;

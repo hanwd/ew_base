@@ -7,16 +7,16 @@ EW_ENTER
 
 
 
-void ObjectData::on_destroy()
+void ObjectData::on_init_counter() 
 {
+	m_counter=3;
+}
+
+void ObjectData::on_fini_counter() 
+{
+	m_counter=0;
 	delete this;
 }
-
-void ObjectData::on_created()
-{
-
-}
-
 
 ObjectData* ObjectData::Clone(int t)
 {
@@ -29,15 +29,31 @@ ObjectData* ObjectData::DoClone(ObjectCloneState&)
 	return this;
 }
 
+
 ObjectData::~ObjectData()
 {
-	if(m_refcount.get()!=0)
+	if(m_counter!=0)
 	{
-		System::LogTrace("m_refcount==%d while ObjectData destruct",m_refcount.get());
+		System::LogTrace("m_counter!=0 while ObjectData destruct");
 	}
 }
 
 
+ObjectData* ObjectCloneState::clone(ObjectData* d)
+{
+	int n=aClonedState.find1(d);
+	if(n>=0)
+	{
+		return aClonedState.get(n).second;
+	}
+
+	ObjectData* v=d->DoClone(*this);
+	aClonedState[d]=v;
+
+	return v;
+}
+
+void ObjectCloneState::clear(){aClonedState.clear();}
 
 IMPLEMENT_OBJECT_INFO(ObjectData,ObjectInfo)
 

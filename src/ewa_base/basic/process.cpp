@@ -5,11 +5,11 @@ EW_ENTER
 
 
 
-class DLLIMPEXP_EWA_BASE SerializerReaderPipe : public SerializerReader
+class DLLIMPEXP_EWA_BASE SerializerReaderPipe : public IStreamData
 {
 public:
 
-	virtual int recv(char* buf,int len)
+	virtual int recv(char* buf,size_t len)
 	{
 		if(flags.get(FLAG_READER_FAILBIT)) return -1;
 #ifdef EW_WINDOWS
@@ -26,7 +26,7 @@ public:
 #endif
 	}
 
-	virtual int send(const char* buf,int len)
+	virtual int send(const char* buf,size_t len)
 	{
 		if(flags.get(FLAG_WRITER_FAILBIT)) return -1;
 #ifdef EW_WINDOWS
@@ -91,7 +91,7 @@ public:
 		hWriter.reset();
 		hStream.close();
 
-		SharedPtrT<SerializerReaderPipe> hPipe(new SerializerReaderPipe);
+		DataPtrT<SerializerReaderPipe> hPipe(new SerializerReaderPipe);
 
 		HANDLE h1,h2;
 		if(::CreatePipe(&h1,&h2,NULL,0))

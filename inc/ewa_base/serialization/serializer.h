@@ -13,6 +13,8 @@
 #include "ewa_base/collection/bst_set.h"
 #include "ewa_base/collection/bst_map.h"
 
+#include "ewa_base/serialization/cachedobjects.h"
+
 #pragma push_macro("new")
 #undef new
 #include <complex>
@@ -34,6 +36,211 @@ namespace tl
 };
 
 EW_ENTER
+
+
+class DLLIMPEXP_EWA_BASE SerializerReader;
+class DLLIMPEXP_EWA_BASE SerializerWriter;
+
+class DLLIMPEXP_EWA_BASE Serializer : private NonCopyable
+{
+protected:
+
+	Serializer(int t);
+
+public:
+
+	struct internal_head{void Serialize(Serializer& ar){ar.handle_head();}};
+	struct internal_tail{void Serialize(Serializer& ar){ar.handle_tail();}};
+
+	static internal_head head;
+	static internal_tail tail;
+
+	enum
+	{
+		READER=1,
+		WRITER=2,
+	};
+
+	enum
+	{
+		PTRTAG_CLS		=-3,		//class pointer (but NOT Object)
+		PTRTAG_POD		=-2,		//POD pointer
+		PTRTAG_OBJ		=-1,		//Object and its derived class pointer
+		PTRTAG_NIL		= 0,		//NULL pointer
+		PTRTAG_CACHED	= 1,
+	};
+
+	enum
+	{
+
+		FLAG_OFFSET_TABLE	=1<<8,
+
+	};
+
+	virtual ~Serializer() {}
+
+	bool is_reader(){return type==READER;}
+	bool is_writer(){return type==WRITER;}
+
+	virtual void errstr(const String& msg);
+	virtual void errver();
+
+	virtual bool good() const{return !flags.get(FLAG_READER_FAILBIT|FLAG_WRITER_FAILBIT);}
+	virtual void flush(){}
+
+	virtual Serializer& tag(char ch)=0;
+	virtual Serializer& tag(const char* msg)=0;
+
+	virtual int local_version(int v)=0;
+	virtual int size_count(int n)=0;
+
+	virtual String object_type(const String& name)=0;
+
+	int global_version();
+	void global_version(int v);
+
+	virtual void close(){}
+
+	BitFlags flags;
+
+	virtual SerializerWriter& writer();
+	virtual SerializerReader& reader();
+
+	virtual Serializer& handle_head()=0;
+	virtual Serializer& handle_tail()=0;
+
+protected:
+	const int32_t type;
+	int32_t gver;
+
+};
+
+
+
+class DLLIMPEXP_EWA_BASE SerializerEx : public Serializer
+{
+protected:
+	SerializerEx(int t);
+
+public:
+
+	CachedObjectManager& cached_objects();
+
+	void stream_data(DataPtrT<IStreamData> p);
+	DataPtrT<IStreamData> stream_data(){return p_stream_data;}
+
+protected:
+	DataPtrT<CachedObjectManager> p_cached_objects;
+	DataPtrT<IStreamData> p_stream_data;
+
+};
+
+
+
+class DLLIMPEXP_EWA_BASE SerializerReader : public SerializerEx
+{
+public:
+	SerializerReader():SerializerEx(READER) {}
+
+	int64_t seekg(int64_t p,int t){return p_stream_data->seekg(p,t);}
+	int64_t tellg(){return p_stream_data->tellg();}
+	int64_t sizeg(){return p_stream_data->sizeg();}
+	int recv(char* data,size_t size){return p_stream_data->recv(data,size);}
+
+	bool recv_all(char* data,int size);
+	void recv_checked(char* data,int size);
+
+	virtual String object_type(const String& name);
+
+	virtual SerializerReader& tag(char ch);
+	virtual SerializerReader& tag(const char* msg);
+
+	virtual int local_version(int v);
+	virtual int size_count(int);
+
+	virtual bool good(){return !p_stream_data->flags.get(FLAG_READER_FAILBIT);}
+
+
+	ObjectData* read_object(int val);
+
+	virtual SerializerReader& handle_head();
+	virtual SerializerReader& handle_tail();
+
+};
+
+class DLLIMPEXP_EWA_BASE SerializerWriter : public SerializerEx
+{
+public:
+
+	SerializerWriter():SerializerEx(WRITER) {}
+
+	int64_t seekp(int64_t p,int t){return p_stream_data->seekp(p,t);}
+	int64_t tellp(){return p_stream_data->tellp();}
+	int64_t sizep(){return p_stream_data->sizep();}
+	int send(const char* data,size_t size){return p_stream_data->send(data,size);}
+
+	bool send_all(const char* data,int size);
+	void send_checked(const char* data,int size);
+
+	String object_type(const String& name);
+
+	virtual SerializerWriter& tag(char ch);
+	virtual SerializerWriter& tag(const char* msg);
+
+	virtual int local_version(int v);
+	virtual int size_count(int);
+
+	virtual bool good(){return !p_stream_data->flags.get(FLAG_WRITER_FAILBIT);}
+
+	virtual SerializerWriter& handle_head();
+	virtual SerializerWriter& handle_tail();
+
+};
+
+class DLLIMPEXP_EWA_BASE SerializerStream : public Stream
+{
+public:
+
+	SerializerWriter& writer()
+	{
+		wr.stream_data(hWriter);
+		return wr;
+	}
+
+	SerializerReader& reader()
+	{
+		rd.stream_data(hReader);
+		return rd;
+	}
+
+protected:
+	SerializerReader rd;
+	SerializerWriter wr;
+};
+
+
+class DLLIMPEXP_EWA_BASE serial_header
+{
+public:
+	serial_header()
+	{
+		offset=0;
+		size=0;
+	}
+
+	char tags[4];
+	int32_t flags;
+	int32_t gver;
+	int32_t size;
+	int64_t offset;
+	int32_t chksum;
+	int32_t padding;
+
+	void update(){chksum=(int32_t)crc32(this,(char*)&chksum-(char*)this);}
+	bool check(){ return chksum==(int32_t)crc32(this,(char*)&chksum-(char*)this);}
+};
+
+
 
 DEFINE_OBJECT_NAME(std::complex<float32_t>,"c32");
 DEFINE_OBJECT_NAME(std::complex<float64_t>,"c64");
@@ -766,14 +973,14 @@ SerializerWriter& operator <<(Serializer& ar_,T& val)
 }
 
 template<typename T>
-SerializerDuplex& operator >>(SerializerDuplex& ar,T& val)
+SerializerStream& operator >>(SerializerStream& ar,T& val)
 {
 	ar.reader() >> val;
 	return ar;
 }
 
 template<typename T>
-SerializerDuplex& operator <<(SerializerDuplex& ar,T& val)
+SerializerStream& operator <<(SerializerStream& ar,T& val)
 {
 	ar.writer() << val;
 	return ar;

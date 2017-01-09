@@ -7,7 +7,7 @@
 EW_ENTER
 
 
-class CreatorUseInfo : public Creator
+class DLLIMPEXP_EWA_BASE CreatorUseInfo : public Creator
 {
 public:
 
@@ -36,6 +36,8 @@ public:
 
 	void Remove(ObjectInfo* info)
 	{
+		dlink.UnLink(info);
+
 		String name = info->GetName();
 		if (name.empty())
 		{
@@ -51,6 +53,8 @@ public:
 			System::LogTrace("info=NULL in CreatorUseInfo::Register");
 			return;
 		}
+
+		dlink.LinkNext(info);
 
 		String name=info->GetName();
 		if(name.empty())
@@ -81,6 +85,8 @@ public:
 
 
 	indexer_map<String,ObjectInfo*> kmap;
+
+	DLinkT<ObjectInfo> dlink;
 };
 
 ObjectCreator::ObjectCreator()
@@ -100,55 +106,14 @@ Object* ObjectCreator::Create(const String& name)
 }
 
 
-ObjectInfo* g_pObjectLinkHead;
-ObjectInfo* g_pObjectLinkTail;
-
-void ObjectInfo::_LinkAppend(ObjectInfo* p)
-{
-	p->m_pNext = p->m_pPrev = NULL;
-	if (!g_pObjectLinkTail)
-	{
-		g_pObjectLinkHead = g_pObjectLinkTail = p;
-	}
-	else
-	{
-		g_pObjectLinkTail->m_pNext = p;
-		p->m_pPrev = g_pObjectLinkTail;
-		g_pObjectLinkTail = p;
-	}
-}
-
-void ObjectInfo::_LinkRemove(ObjectInfo* p)
-{
-	if (p->m_pPrev)
-	{
-		p->m_pPrev->m_pNext = p->m_pNext;
-	}
-	else
-	{
-		g_pObjectLinkHead = p->m_pNext;
-	}
-
-	if (p->m_pNext)
-	{
-		p->m_pNext->m_pPrev = p->m_pPrev;
-	}
-	else
-	{
-		g_pObjectLinkTail = p->m_pPrev;
-	}
-}
-
 ObjectInfo::ObjectInfo(const String& s)
 :m_sClassName(s)
 {
-	_LinkAppend(this);
 	CreatorUseInfo::current().Append(this);
 }
 
 ObjectInfo::~ObjectInfo()
 {
-	_LinkRemove(this);
 	CreatorUseInfo::current().Remove(this);
 }
 
@@ -172,9 +137,10 @@ void ObjectInfo::Invoke(const String& s)
 
 void ObjectInfo::Invoke(InvokeParam& ipm)
 {
-	for (ObjectInfo* p = g_pObjectLinkHead; p;p=p->m_pNext)
+	CreatorUseInfo& ci(CreatorUseInfo::current());
+	for(auto it=ci.dlink.begin();it!=ci.dlink.end();++it)
 	{
-		ipm.OnInvoke(p);
+		ipm.OnInvoke(*it);
 	}
 }
 

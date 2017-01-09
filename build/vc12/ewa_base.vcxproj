@@ -35,8 +35,10 @@
     <ClInclude Include="..\..\inc\ewa_base\basic\cmdline.h" />
     <ClInclude Include="..\..\inc\ewa_base\basic\codecvt.h" />
     <ClInclude Include="..\..\inc\ewa_base\basic\console.h" />
+    <ClInclude Include="..\..\inc\ewa_base\basic\dlink.h" />
     <ClInclude Include="..\..\inc\ewa_base\basic\exception.h" />
     <ClInclude Include="..\..\inc\ewa_base\basic\file.h" />
+    <ClInclude Include="..\..\inc\ewa_base\basic\formater.h" />
     <ClInclude Include="..\..\inc\ewa_base\basic\fso.h" />
     <ClInclude Include="..\..\inc\ewa_base\basic\functor.h" />
     <ClInclude Include="..\..\inc\ewa_base\basic\functor_detail.h" />
@@ -141,10 +143,9 @@
     <ClInclude Include="..\..\inc\ewa_base\scripting\callable_class.h" />
     <ClInclude Include="..\..\inc\ewa_base\scripting\callable_table.h" />
     <ClInclude Include="..\..\inc\ewa_base\serialization.h" />
+    <ClInclude Include="..\..\inc\ewa_base\serialization\cachedobjects.h" />
     <ClInclude Include="..\..\inc\ewa_base\serialization\serializer.h" />
     <ClInclude Include="..\..\inc\ewa_base\serialization\serializer_buffer.h" />
-    <ClInclude Include="..\..\inc\ewa_base\serialization\serializer_socket.h" />
-    <ClInclude Include="..\..\inc\ewa_base\serialization\serializer_stream.h" />
     <ClInclude Include="..\..\inc\ewa_base\testing\test.h" />
     <ClInclude Include="..\..\inc\ewa_base\threading.h" />
     <ClInclude Include="..\..\inc\ewa_base\threading\coroutine.h" />
@@ -189,8 +190,10 @@
     <ClCompile Include="..\..\src\ewa_base\basic\codecvt.cpp" />
     <ClCompile Include="..\..\src\ewa_base\basic\codecvt_gbktable.cpp" />
     <ClCompile Include="..\..\src\ewa_base\basic\console.cpp" />
+    <ClCompile Include="..\..\src\ewa_base\basic\dlink.cpp" />
     <ClCompile Include="..\..\src\ewa_base\basic\exception.cpp" />
     <ClCompile Include="..\..\src\ewa_base\basic\file.cpp" />
+    <ClCompile Include="..\..\src\ewa_base\basic\formater.cpp" />
     <ClCompile Include="..\..\src\ewa_base\basic\fso.cpp" />
     <ClCompile Include="..\..\src\ewa_base\basic\hashing.cpp" />
     <ClCompile Include="..\..\src\ewa_base\basic\language.cpp" />
@@ -278,10 +281,11 @@
     <ClCompile Include="..\..\src\ewa_base\scripting\callable_function.cpp" />
     <ClCompile Include="..\..\src\ewa_base\scripting\callable_class.cpp" />
     <ClCompile Include="..\..\src\ewa_base\scripting\callable_table.cpp" />
+    <ClCompile Include="..\..\src\ewa_base\serialization\cachedobjects.cpp" />
     <ClCompile Include="..\..\src\ewa_base\serialization\serializer.cpp" />
     <ClCompile Include="..\..\src\ewa_base\serialization\serializer_buffer.cpp" />
-    <ClCompile Include="..\..\src\ewa_base\serialization\serializer_socket.cpp" />
-    <ClCompile Include="..\..\src\ewa_base\serialization\serializer_stream.cpp" />
+    <ClCompile Include="..\..\src\ewa_base\serialization\serialize_reader.cpp" />
+    <ClCompile Include="..\..\src\ewa_base\serialization\serialize_writer.cpp" />
     <ClCompile Include="..\..\src\ewa_base\testing\test.cpp" />
     <ClCompile Include="..\..\src\ewa_base\testing\test_mgr.cpp" />
     <ClCompile Include="..\..\src\ewa_base\threading\coroutine.cpp" />

@@ -100,11 +100,11 @@ void Console::WriteLine(const String& s,int color)
 	ConsoleDoSetColor(color);
 
 #ifdef EW_WINDOWS
-	::printf(IConv::to_ansi(s).c_str());
-	::printf("\n");
+	::puts(IConv::to_ansi(s).c_str());
+	//::puts("\n");
 #else
-	::printf(s.c_str());
-	::printf("\n");
+	::puts(s.c_str());
+	//::puts("\n");
 #endif
 
 	ConsoleDoSetColor(oldcr);

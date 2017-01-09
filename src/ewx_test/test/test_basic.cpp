@@ -3,10 +3,14 @@
 #include "ewa_base/basic.h"
 #include "ewa_base/threading.h"
 #include "ewa_base/math/math_def.h"
+#include "ewa_base/basic/scanner_helper.h"
+#include "ewa_base/scripting/variant_op.h"
+#include "ewa_base/basic/formater.h"
 
 #include <time.h>
 
 using namespace ew;
+
 
 
 TEST_DEFINE(TEST_String)
@@ -296,6 +300,8 @@ TEST_DEFINE(TEST_Functor)
 
 }
 
+
+
 TEST_DEFINE(TEST_Basic_other)
 {
 
@@ -539,4 +545,6 @@ TEST_DEFINE(TEST_Atomic)
 	test_atomic<AtomicInt64>();
 	test_atomic<AtomicUint64>();
 }
+
+
 

@@ -213,7 +213,7 @@ void RingBuffer::clear()
 
 
 template<typename T>
-bool LinearBuffer<T>::_grow(size_type _newsize)
+bool LinearBufferEx<T>::_grow(size_type _newsize)
 {
 	if(pBuffer!=NULL && pBuffer!=aBuff.data())
 	{
@@ -231,10 +231,10 @@ bool LinearBuffer<T>::_grow(size_type _newsize)
 
 template class LinearBuffer<char>;
 template class LinearBuffer<unsigned char>;
-//template class LinearBuffer<short>;
-//template class LinearBuffer<unsigned short>;
-//template class LinearBuffer<int>;
-//template class LinearBuffer<unsigned int>;
 template class LinearBuffer<wchar_t>;
+template class LinearBufferEx<char>;
+template class LinearBufferEx<unsigned char>;
+template class LinearBufferEx<wchar_t>;
+
 
 EW_LEAVE

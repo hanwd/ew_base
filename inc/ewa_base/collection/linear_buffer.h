@@ -5,7 +5,6 @@
 
 #include "ewa_base/collection/arr_1t.h"
 #include "ewa_base/collection/arr_xt.h"
-#include "ewa_base/basic/atomic.h"
 #include "ewa_base/basic/stringbuffer.h"
 #include "ewa_base/logging/logger.h"
 
@@ -28,13 +27,6 @@ public:
 	void rewind()
 	{
 		wr_pos=rd_pos=0;
-	}
-
-	// rewind and reserve buffer of size_
-	void rewind(size_type size_)
-	{
-		aBuff.resize(size_);
-		_xbuf();
 	}
 
 	bool skip()
@@ -107,14 +99,15 @@ public:
 		return sz_buf-wr_pos;
 	}
 
+	size_type send(const T* p_)
+	{
+		return send(p_,std::char_traits<T>::length(p_));
+	}
+
 	size_type send(const T* p_,size_type n)
 	{
-		size_type wr_max=wr_pos+n;
-		if(wr_max>sz_buf && !_grow(wr_max))
-		{
-			return 0;
-		}
-
+		size_t nf=wr_free();
+		if(n>nf) n=nf;
 		memcpy(pBuffer+wr_pos,p_,n);
 		wr_pos+=n;
 		return n;
@@ -159,7 +152,47 @@ public:
 		rd_pos=wr_pos=0;
 	}
 
-	// allocate buffer
+	template<typename E,typename A>
+	bool parse(arr_1t<E,A>& a1t,int64_t* pn=NULL);
+
+	template<typename E,typename A>
+	bool parse(arr_xt<E,A>& axt);
+
+protected:
+
+	T* pBuffer;
+	size_type sz_buf; // buffer size
+	size_type rd_pos; // get position begin
+	size_type wr_pos; // get position end or put position begin
+	
+};
+
+
+template<typename T>
+class DLLIMPEXP_EWA_BASE LinearBufferEx : public LinearBuffer<T>
+{
+public:
+	typedef size_t size_type;
+	typedef LinearBuffer<T> basetype;
+
+	void rewind(){wr_pos=rd_pos=0;}
+	void rewind(size_type size_){aBuff.resize(size_);_xbuf();}
+
+	using basetype::send;
+
+	size_type send(const T* p_,size_type n)
+	{
+		size_type wr_max=wr_pos+n;
+		if(wr_max>sz_buf && !_grow(wr_max))
+		{
+			return 0;
+		}
+
+		memcpy(pBuffer+wr_pos,p_,n);
+		wr_pos+=n;
+		return n;
+	}
+
 	void alloc(size_type size_)
 	{
 		aBuff.resize(size_);
@@ -176,18 +209,9 @@ public:
 	}
 
 
-	template<typename E,typename A>
-	bool parse(arr_1t<E,A>& a1t,int64_t* pn=NULL);
-
-	template<typename E,typename A>
-	bool parse(arr_xt<E,A>& axt);
-
 protected:
 
-	T* pBuffer;
-	size_type sz_buf; // buffer size
-	size_type rd_pos; // get position begin
-	size_type wr_pos; // get position end or put position begin
+
 	StringBuffer<T> aBuff;
 
 	bool _grow(size_type _newsize);
@@ -200,7 +224,6 @@ protected:
 	}
 
 };
-
 
 
 template<typename T>

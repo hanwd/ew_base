@@ -57,7 +57,7 @@ public:
 
 protected:
 	
-	LinearBuffer<char> lbuf;
+	LinearBufferEx<char> lbuf;
 
 };
 

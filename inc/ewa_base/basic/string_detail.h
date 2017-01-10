@@ -9,39 +9,262 @@
 
 EW_ENTER
 
+DLLIMPEXP_EWA_BASE void* mp_alloc(size_t n);
+DLLIMPEXP_EWA_BASE void mp_free(void* p);
+
 class DLLIMPEXP_EWA_BASE String;
 
 
 template<typename T>
 class DLLIMPEXP_EWA_BASE StringBuffer;
 
-class StringParamCast
+
+class FormatPolicy
 {
 public:
+
 	template<typename G>
-	static inline G g(const G& v)
+	static inline size_t width(const G& o)
 	{
-		return v;
+		return 128;
 	}
 
-	static inline const char* g(const char* v)
+	template<typename T>
+	static inline size_t width(const std::basic_string<T>& o)
 	{
-		return v;
+		return width(o.c_str());
 	}
 
-	static inline const char* g(const std::string& v)
+	template<typename T>
+	static inline size_t width(const StringBuffer<T>& o)
 	{
-		return v.c_str();
+		return width(o.c_str());
 	}
 
-	static const char* g(const String& v);
+	static inline size_t width(const void* o)
+	{
+		return 32;
+	}
+
+	static inline size_t width(const char* o)
+	{
+		return std::char_traits<char>::length(o)+8;
+	}
+
+	static inline size_t width(const wchar_t* o)
+	{
+		return std::char_traits<wchar_t>::length(o)*2+8;
+	}
 
 
-	static const char* g(const StringBuffer<char>& v);
+	template<typename G>
+	static inline G cast(const G& v){return v;}
+
+	static inline const char* cast(const char* v){return v;}
+	static inline const wchar_t* cast(const wchar_t* v){return v;}
+
+	static const char* cast(const String& v);
+
+	template<typename T>
+	static inline const T* cast(const std::basic_string<T>& v){return v.c_str();}
+
+	template<typename T>
+	static const T* cast(const StringBuffer<T>& v);
+
 };
 
-DLLIMPEXP_EWA_BASE void* mp_alloc(size_t n);
-DLLIMPEXP_EWA_BASE void mp_free(void* p);
+
+
+template<typename B>
+class BAppendPolicy1
+{
+public:
+	static B& append(B& b,const char* p,size_t n)
+	{
+		b.append(p,n);
+		return b;
+	}
+
+	template<typename G>
+	static B& format(B& b,size_t n,const char* s,G v)
+	{
+		char p[1024];
+		if(n<sizeof(p))
+		{
+			int nd=::sprintf(p,s,v);
+			if(nd>0)
+			{
+				append(b,p,nd);
+			}
+			else
+			{
+				EW_NOOP();
+			}		
+		}
+		else
+		{
+			char* p=(char*)mp_alloc(n);
+			if(!p) Exception::XBadAlloc();
+			int nd=sprintf(p,s,v);
+			if(nd>0)
+			{
+				append(b,p,nd);
+			}
+			else
+			{
+				EW_NOOP();
+			}
+			mp_free(p);
+		}
+
+		return b;	
+	}
+};
+
+template<typename B>
+class BAppendPolicy2 : public BAppendPolicy1<B>
+{
+public:
+	
+	template<typename B>
+	static void enlarge_size(B& b,size_t n)
+	{
+		b.enlarge_size_by(n);
+	}
+
+	template<typename B>
+	static char* get_buffer(B& b,size_t n)
+	{
+		b.reserve(b.size()+n+1);
+		return b.data()+b.size();
+	}
+
+	template<typename B,typename G>
+	static B& format(B& b,size_t n,const char* s,G v)
+	{
+		char* p=get_buffer(b,n);
+		int nd=sprintf(p,s,v);
+		if(nd>0)
+		{
+			enlarge_size(b,nd);
+		}
+		else
+		{
+			EW_NOOP();
+		}
+		return b;	
+	}
+
+};
+
+
+template<template<typename> class BAppendPolicy>
+class BFormatPolicy : public FormatPolicy
+{
+public:
+
+	template<typename B,typename G>
+	static B& format(B& b,size_t n,const char* s,G v)
+	{
+		return BAppendPolicy<B>::format(b,n,s,v);
+	}
+
+	template<typename T,typename G>
+	static T* do_format_integer(T* p,G v)
+	{
+		typedef typename unsigned_integer_type<sizeof(G)>::type U;
+
+		p[0]=T(0);
+
+		if(v==0)
+		{
+			*--p='0';
+			return p;
+		}
+
+		bool sign=v<0;
+		
+		U u=v;
+		if(sign)
+		{
+			u=(~u)+1;
+		}
+
+		while(u>0)
+		{
+			*--p='0'+(u%10);
+			u=u/10;
+		}
+
+		if(sign)
+		{
+			*--p='-';
+		}
+		
+
+		return p;
+	}
+
+	template<typename B,typename G>
+	static B& format_integer(B& b,G& o)
+	{
+		char buf[64];
+		char* p2=buf+63;
+		char* p1=do_format_integer(p2,o);
+
+		return BAppendPolicy<B>::append(b,p1,p2-p1);
+	}
+
+	template<typename B>
+	static B& append(B& b,const char* p)
+	{
+		return BAppendPolicy<B>::append(b,p,::strlen(p));
+	}
+
+	template<typename B>
+	static B& append(B& b,const char* p,size_t n)
+	{
+		return BAppendPolicy<B>::append(b,p,n);
+	}
+
+};
+
+class FormatPolicy1 : public BFormatPolicy<BAppendPolicy1>
+{
+public:
+
+};
+
+class FormatPolicy2 : public BFormatPolicy<BAppendPolicy2>
+{
+public:
+
+};
+
+
+template<typename B,typename P=FormatPolicy1>
+class FormatHelper
+{
+public:
+
+	typedef P Policy;
+	B& operator<<(bool v){return P::append(_fmt_container(),v?"true":"false");}
+	B& operator<<(char v){	return P::append(_fmt_container(),&v,1);}
+	B& operator<<(int32_t v){return P::format_integer(_fmt_container(),v);}
+	B& operator<<(int64_t v){return P::format_integer(_fmt_container(),v);}
+	B& operator<<(uint32_t v){return P::format_integer(_fmt_container(),v);}
+	B& operator<<(uint64_t v){return P::format_integer(_fmt_container(),v);}
+	B& operator<<(float v){return P::format(_fmt_container(),64,"%g",double(v));}
+	B& operator<<(double v){return P::format(_fmt_container(),64,"%g",v);}
+	B& operator<<(const char* v){return P::append(_fmt_container(),v);}
+	B& operator<<(const void* v){return P::format(_fmt_container(),16,"%p",v);}
+	B& operator<<(const String& v){return P::append(_fmt_container(),P::cast(v));}
+	B& operator<<(const StringBuffer<char>& v){return P::append(_fmt_container(),P::cast(v));}
+	B& operator<<(const std::basic_string<char>& v){return P::append(_fmt_container(),P::cast(v));}
+
+private:
+	B& _fmt_container(){return static_cast<B&>(*this);}
+};
 
 
 class StringDetail
@@ -103,107 +326,11 @@ public:
 		return dst;
 	}
 
-	template<typename T,typename G>
-	static T* str_format(T* p1,G v_)
-	{
-		typedef typename unsigned_integer_type<sizeof(G)>::type U;
-
-		*p1=T(0);
-		if(v_>0)
-		{
-			U v=v_;
-			while(v>0)
-			{
-				*--p1='0'+(v%10);
-				v=v/10;
-			}
-		}
-		else if(v_==0)
-		{
-			*--p1='0';
-		}
-		else
-		{
-			U v=(~(U)v_)+1;
-			while(v>0)
-			{
-				*--p1='0'+(v%10);
-				v=v/10;
-			}
-			*--p1='-';
-		}
-
-		return p1;
-	}
 };
 
 
 
-#define STRING_FORMAT_PTvar(x) typename T##x
-#define STRING_FORMAT_PMvar(x) const T##x & p##x
-#define STRING_FORMAT_PKvar(x) StringParamCast::g(p##x)
-
-#define STRING_FORMAT_PMList0 STRING_FORMAT_PMvar(0)
-#define STRING_FORMAT_PMList1 STRING_FORMAT_PMList0,STRING_FORMAT_PMvar(1)
-#define STRING_FORMAT_PMList2 STRING_FORMAT_PMList1,STRING_FORMAT_PMvar(2)
-#define STRING_FORMAT_PMList3 STRING_FORMAT_PMList2,STRING_FORMAT_PMvar(3)
-#define STRING_FORMAT_PMList4 STRING_FORMAT_PMList3,STRING_FORMAT_PMvar(4)
-#define STRING_FORMAT_PMList5 STRING_FORMAT_PMList4,STRING_FORMAT_PMvar(5)
-#define STRING_FORMAT_PMList6 STRING_FORMAT_PMList5,STRING_FORMAT_PMvar(6)
-#define STRING_FORMAT_PMList7 STRING_FORMAT_PMList6,STRING_FORMAT_PMvar(7)
-#define STRING_FORMAT_PMList8 STRING_FORMAT_PMList7,STRING_FORMAT_PMvar(8)
-#define STRING_FORMAT_PMList9 STRING_FORMAT_PMList8,STRING_FORMAT_PMvar(9)
-
-#define STRING_FORMAT_PKList0 STRING_FORMAT_PKvar(0)
-#define STRING_FORMAT_PKList1 STRING_FORMAT_PKList0,STRING_FORMAT_PKvar(1)
-#define STRING_FORMAT_PKList2 STRING_FORMAT_PKList1,STRING_FORMAT_PKvar(2)
-#define STRING_FORMAT_PKList3 STRING_FORMAT_PKList2,STRING_FORMAT_PKvar(3)
-#define STRING_FORMAT_PKList4 STRING_FORMAT_PKList3,STRING_FORMAT_PKvar(4)
-#define STRING_FORMAT_PKList5 STRING_FORMAT_PKList4,STRING_FORMAT_PKvar(5)
-#define STRING_FORMAT_PKList6 STRING_FORMAT_PKList5,STRING_FORMAT_PKvar(6)
-#define STRING_FORMAT_PKList7 STRING_FORMAT_PKList6,STRING_FORMAT_PKvar(7)
-#define STRING_FORMAT_PKList8 STRING_FORMAT_PKList7,STRING_FORMAT_PKvar(8)
-#define STRING_FORMAT_PKList9 STRING_FORMAT_PKList8,STRING_FORMAT_PKvar(9)
-
-#define STRING_FORMAT_PTList0 STRING_FORMAT_PTvar(0)
-#define STRING_FORMAT_PTList1 STRING_FORMAT_PTList0,STRING_FORMAT_PTvar(1)
-#define STRING_FORMAT_PTList2 STRING_FORMAT_PTList1,STRING_FORMAT_PTvar(2)
-#define STRING_FORMAT_PTList3 STRING_FORMAT_PTList2,STRING_FORMAT_PTvar(3)
-#define STRING_FORMAT_PTList4 STRING_FORMAT_PTList3,STRING_FORMAT_PTvar(4)
-#define STRING_FORMAT_PTList5 STRING_FORMAT_PTList4,STRING_FORMAT_PTvar(5)
-#define STRING_FORMAT_PTList6 STRING_FORMAT_PTList5,STRING_FORMAT_PTvar(6)
-#define STRING_FORMAT_PTList7 STRING_FORMAT_PTList6,STRING_FORMAT_PTvar(7)
-#define STRING_FORMAT_PTList8 STRING_FORMAT_PTList7,STRING_FORMAT_PTvar(8)
-#define STRING_FORMAT_PTList9 STRING_FORMAT_PTList8,STRING_FORMAT_PTvar(9)
-
-#define STRING_FORMAT_PFList0(X,Y,Z) template<STRING_FORMAT_PTList0> X(STRING_FORMAT_PMList0){Y(STRING_FORMAT_PKList0,Z);}
-#define STRING_FORMAT_PFList1(X,Y,Z) template<STRING_FORMAT_PTList1> X(STRING_FORMAT_PMList1){Y(STRING_FORMAT_PKList1,Z);}
-#define STRING_FORMAT_PFList2(X,Y,Z) template<STRING_FORMAT_PTList2> X(STRING_FORMAT_PMList2){Y(STRING_FORMAT_PKList2,Z);}
-#define STRING_FORMAT_PFList3(X,Y,Z) template<STRING_FORMAT_PTList3> X(STRING_FORMAT_PMList3){Y(STRING_FORMAT_PKList3,Z);}
-#define STRING_FORMAT_PFList4(X,Y,Z) template<STRING_FORMAT_PTList4> X(STRING_FORMAT_PMList4){Y(STRING_FORMAT_PKList4,Z);}
-#define STRING_FORMAT_PFList5(X,Y,Z) template<STRING_FORMAT_PTList5> X(STRING_FORMAT_PMList5){Y(STRING_FORMAT_PKList5,Z);}
-#define STRING_FORMAT_PFList6(X,Y,Z) template<STRING_FORMAT_PTList6> X(STRING_FORMAT_PMList6){Y(STRING_FORMAT_PKList6,Z);}
-#define STRING_FORMAT_PFList7(X,Y,Z) template<STRING_FORMAT_PTList7> X(STRING_FORMAT_PMList7){Y(STRING_FORMAT_PKList7,Z);}
-#define STRING_FORMAT_PFList8(X,Y,Z) template<STRING_FORMAT_PTList8> X(STRING_FORMAT_PMList8){Y(STRING_FORMAT_PKList8,Z);}
-#define STRING_FORMAT_PFList9(X,Y,Z) template<STRING_FORMAT_PTList9> X(STRING_FORMAT_PMList9){Y(STRING_FORMAT_PKList9,Z);}
-
-#define STRING_FORMAT_FUNCTIONS_2(X,Y1,Y2,Z)  \
-	STRING_FORMAT_PFList0(X,Y1,Z);\
-	STRING_FORMAT_PFList1(X,Y2,Z);\
-	STRING_FORMAT_PFList2(X,Y2,Z);\
-	STRING_FORMAT_PFList3(X,Y2,Z);\
-	STRING_FORMAT_PFList4(X,Y2,Z);\
-	STRING_FORMAT_PFList5(X,Y2,Z);\
-	STRING_FORMAT_PFList6(X,Y2,Z);\
-	STRING_FORMAT_PFList7(X,Y2,Z);\
-	STRING_FORMAT_PFList8(X,Y2,Z);\
-	STRING_FORMAT_PFList9(X,Y2,Z);
-
-#define STRING_FORMAT_FUNCTIONS(X,Y,Z)  STRING_FORMAT_FUNCTIONS_2(X,Y,Y,Z)
-
-
-
-#define STRING_FORMATER_FORMAT_FUNCS_3(X,Y,Z)\
+#define STRING_FORMATER_FORMAT_FUNCS_4(X,Y,Z,D)\
 template<typename T0,\
 	typename T1=tl::nulltype,\
 	typename T2=tl::nulltype,\
@@ -216,6 +343,7 @@ template<typename T0,\
 	typename T9=tl::nulltype\
 >\
 X(\
+	D\
 	const T0& v0,\
 	const T1& v1=T1(),\
 	const T2& v2=T2(),\
@@ -228,12 +356,14 @@ X(\
 	const T9& v9=T9()\
 )\
 {\
-	Y sb(StringParamCast::g(v0));\
-	StringFormater::Format(sb,v1,v2,v3,v4,v5,v6,v7,v8,v9);\
+	Y fb(FormatPolicy::cast(v0));\
+	StringFormater::Format(fb,v1,v2,v3,v4,v5,v6,v7,v8,v9);\
 	Z;\
 }
 
-#define STRING_FORMATER_FORMAT_FUNCS_2(X,Z) STRING_FORMATER_FORMAT_FUNCS_3(X,FormatStateSb,Z)
+#define STRING_FORMATER_FORMAT_FUNCS_SB(X,Z) STRING_FORMATER_FORMAT_FUNCS_4(X,FormatStateSb,Z,)
+#define STRING_FORMATER_FORMAT_FUNCS_FB(X,Z) STRING_FORMATER_FORMAT_FUNCS_4(X,FormatStateFb,Z,)
+
 
 EW_LEAVE
 #endif

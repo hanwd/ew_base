@@ -61,28 +61,11 @@ void LogConsole::Handle(const LogRecord& o)
 
 	String omsg=Format(o);
 
-	if (o.m_nLevel == LOGLEVEL_PRINT)
-	{
-		if(flags.get(FLAG_COLORED))
-		{
-			Console::Write(omsg,aColors[o.m_nLevel]);
-		}
-		else
-		{
-			Console::Write(omsg);
-		}
-	}
-	else
-	{
-		if(flags.get(FLAG_COLORED))
-		{
-			Console::WriteLine(omsg,aColors[o.m_nLevel]);
-		}
-		else
-		{
-			Console::WriteLine(omsg);
-		}
-	}
+	typedef void (*fun)(const String&,int);
+	
+	fun write=o.m_nLevel == LOGLEVEL_PRINT?&Console::ColoredWrite:&Console::ColoredWriteLine;
+	int color=flags.get(FLAG_COLORED)?aColors[o.m_nLevel]:-1;
+	write(omsg,color);
 
 }
 

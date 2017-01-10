@@ -13,7 +13,7 @@ template<typename T>
 class DLLIMPEXP_EWA_BASE StringBuffer;
 
 
-class DLLIMPEXP_EWA_BASE String
+class DLLIMPEXP_EWA_BASE String : public FormatHelper<String>
 {
 public:
 
@@ -25,25 +25,27 @@ public:
 	String(const StringBuffer<wchar_t>& o);
 
 	String(const char* p);
-	String(const char* p,uint32_t n);
+	String(const char* p,size_t n);
 	String(const char* p1,const char* p2);
 
 	String(const unsigned char* p);
-	String(const unsigned char* p,uint32_t n);
+	String(const unsigned char* p,size_t n);
 	String(const unsigned char* p1,unsigned const char* p2);
 
 	String(const wchar_t* p);
-	String(const wchar_t* p,uint32_t n);
+	String(const wchar_t* p,size_t n);
 	String(const wchar_t* p1,const wchar_t* p2);
 
-	void assign(const char* p,uint32_t n);
+	void assign(const char* p,size_t n);
 	void assign(const char* p1,const char* p2);
 
-	void assign(const unsigned char* p,uint32_t n);
+	void assign(const unsigned char* p,size_t n);
 	void assign(const unsigned char* p1,const unsigned char* p2);
 
-	void append(const char* p,uint32_t n);
+	void append(const char* p,size_t n);
 	void append(const char* p1,const char* p2);
+	void append(const wchar_t* p,size_t n);
+	void append(const wchar_t* p1,const wchar_t* p2);
 
 	template<typename T>
 	String(const std::basic_string<T>& o);
@@ -83,16 +85,6 @@ public:
 		return (*this)+=o.c_str();
 	}
 
-//#define STRING_FORMAT_IMPL1(X,Y) return X;
-//#define STRING_FORMAT_IMPL2(X,Y) return FormatImpl(X)
-//	STRING_FORMAT_FUNCTIONS_2(static String Format, STRING_FORMAT_IMPL1, STRING_FORMAT_IMPL2, )
-//
-//#define STRING_PRINTF_IMPL1(X,Y) return (*this)=X;
-//#define STRING_PRINTF_IMPL2(X,Y) return (*this)=FormatImpl(X);
-//	STRING_FORMAT_FUNCTIONS_2(String& Printf, STRING_PRINTF_IMPL1, STRING_PRINTF_IMPL2, )
-
-	static String FormatV(const char* s,va_list vl);
-	String& PrintfV(const char* s,va_list vl);
 
 	friend DLLIMPEXP_EWA_BASE std::ostream& operator<<(std::ostream&o,const String& s);
 	friend DLLIMPEXP_EWA_BASE std::istream& operator>>(std::istream&o,String& s);
@@ -101,27 +93,6 @@ public:
 	bool ToNumber(int32_t* val) const;
 	bool ToNumber(float32_t* val) const;
 	bool ToNumber(float64_t* val) const;
-
-	String& operator<<(bool v);
-	String& operator<<(char v);
-	String& operator<<(int32_t v);
-	String& operator<<(int64_t v);
-	String& operator<<(uint32_t v);
-	String& operator<<(uint64_t v);
-	String& operator<<(float v);
-	String& operator<<(double v);
-	String& operator<<(const char* v);
-	String& operator<<(const wchar_t* v);
-	String& operator<<(const String& v);
-
-	String& operator<<(const StringBuffer<char>& o);
-	String& operator<<(const StringBuffer<unsigned char>& o);
-
-	template<typename T>
-	String& operator<<(const std::basic_string<T>& v)
-	{
-		return (*this)<<v.c_str();
-	}
 
 	static const size_t npos=(size_t)(-1);
 
@@ -134,8 +105,8 @@ public:
 	int find(const String& s, int pos = 0) const;
 
 
-	STRING_FORMATER_FORMAT_FUNCS_2(static String Format,return sb.sb;)
-	STRING_FORMATER_FORMAT_FUNCS_2(String Printf,*this=sb.sb;return *this;)
+	STRING_FORMATER_FORMAT_FUNCS_SB(static String Format,return fb.sb;)
+	STRING_FORMATER_FORMAT_FUNCS_SB(String Printf,*this=fb.sb;return *this;)
 
 private:
 
@@ -143,14 +114,10 @@ private:
 
 	const char* m_ptr;
 
-	void _do_append(const char* p1,uintptr_t n);
-	void _do_append(const wchar_t* p1,uintptr_t n);
-	void _do_assign(const char* p1,uintptr_t n);
-	void _do_assign(const wchar_t* p1,uintptr_t n);
-	int _do_prinfv(const char* s,va_list vl);
-
-	template<typename T>
-	void _do_format_integer(T v);
+	void _do_append(const char* p1,size_t n);
+	void _do_append(const wchar_t* p1,size_t n);
+	void _do_assign(const char* p1,size_t n);
+	void _do_assign(const wchar_t* p1,size_t n);
 
 };
 
@@ -185,7 +152,7 @@ inline String::String(const char* p)
 	m_ptr=StringDetail::str_dup(p);
 }
 
-inline String::String(const char* p1,uint32_t n)
+inline String::String(const char* p1,size_t n)
 {
 	m_ptr=StringDetail::str_dup(p1,n);
 }
@@ -230,9 +197,9 @@ String operator+(const String& lhs,const std::basic_string<T>& rhs)
 }
 
 #define STRING_REL_OP2(X)	\
-	inline bool operator X (const String& lhs,const String& rhs){return ::strcmp(StringParamCast::g(lhs),StringParamCast::g(rhs)) X 0;}\
-	inline bool operator X (const char* lhs,const String& rhs){return ::strcmp(StringParamCast::g(lhs),StringParamCast::g(rhs)) X 0;}\
-	inline bool operator X (const String& lhs,const char* rhs){return ::strcmp(StringParamCast::g(lhs),StringParamCast::g(rhs)) X 0;}\
+	inline bool operator X (const String& lhs,const String& rhs){return ::strcmp(FormatPolicy::cast(lhs),FormatPolicy::cast(rhs)) X 0;}\
+	inline bool operator X (const char* lhs,const String& rhs){return ::strcmp(FormatPolicy::cast(lhs),FormatPolicy::cast(rhs)) X 0;}\
+	inline bool operator X (const String& lhs,const char* rhs){return ::strcmp(FormatPolicy::cast(lhs),FormatPolicy::cast(rhs)) X 0;}\
 
 STRING_REL_OP2(==)
 STRING_REL_OP2(!=)
@@ -261,7 +228,7 @@ public:
 };
 
 
-inline const char* StringParamCast::g(const String& v)
+inline const char* FormatPolicy::cast(const String& v)
 {
 	return v.c_str();
 }

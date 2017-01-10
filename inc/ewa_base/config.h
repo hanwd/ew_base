@@ -203,9 +203,9 @@ void operator delete[](void*,int,const char*,int);
 #ifndef NDEBUG
 #define EW_ASSERT(x) if(!(x)) ew::OnAssertFailure(#x,__FILE__,__LINE__);
 #define EW_STATIC_ASSERT(x) {char buffer[(x)?1:0];(void)&buffer;}
-#define EW_NOOP() 
-#else
 #define EW_NOOP() ew::OnNoop()
+#else
+#define EW_NOOP() 
 #define EW_ASSERT(x)
 #define EW_STATIC_ASSERT(x)
 #endif

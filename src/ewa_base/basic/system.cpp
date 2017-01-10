@@ -470,10 +470,14 @@ class SystemLoggerData
 {
 public:
 
+	char buffer[1024*4];
+	LinearBuffer<char> lbuf;
+
 	SystemLoggerData()
 	{
 		bEnabled=true;
-		fp_logfile = NULL;
+		hLogfile = NULL;
+		lbuf.assign(buffer,sizeof(buffer)-1);
 	}
 
 	~SystemLoggerData()
@@ -481,7 +485,7 @@ public:
 
 	}
 
-	static const char* GetMsgLevel(int lv)
+	static const char* str_level(int lv)
 	{
 		switch(lv)
 		{
@@ -498,33 +502,36 @@ public:
 		}
 	}
 
-	void LogImplV(int lv,const char* msg,va_list arg)
+	
+
+	void DoLog(int lv,const char* p)
 	{
+		if(!bEnabled) return;
+
+		LockGuard<AtomicSpin> lock1(spin);
+
+		lbuf.rewind();
+
+		lbuf.send(str_level(lv));
+		lbuf.send(" ",1);
 
 		time_t tt=time(NULL);
-		char buf2[1024];
-		char buf1[256];
-		::strftime (buf1,256,"%Y-%m-%d %H:%M:%S ",localtime(&tt));
+		size_t nd=::strftime (lbuf.gend(),lbuf.wr_free(),"%Y-%m-%d %H:%M:%S ",localtime(&tt));
+		
+		lbuf.wr_flip(nd);
+		lbuf.send(": ",2);
+		lbuf.send(p);
+		lbuf.send("\r\n",2);
+	
 
-		::vsnprintf(buf2,1024,msg,arg);
-
-		if(fp_logfile!=NULL)
+		if(hLogfile)
 		{
-			LockGuard<AtomicSpin> lock1(spin);
-			::fprintf(fp_logfile,"%s %s:%s\n",buf1,GetMsgLevel(lv),buf2);
-			::fflush(fp_logfile);
+			::fwrite(lbuf.gbeg(),lbuf.rd_free(),1,hLogfile);
+			::fflush(hLogfile);
 		}
 		else
 		{
-			LockGuard<AtomicSpin> lock1(g_tSpinConsole);
-			try
-			{
-				::printf("%s %s:%s\n",buf1,GetMsgLevel(lv),IConv::to_ansi(buf2).c_str());
-			}
-			catch(...)
-			{
-				::printf("%s %s:%s\n",buf1,GetMsgLevel(lv),buf2);
-			}
+			Console::Write(buffer);
 		}
 
 		if(lv==LOGLEVEL_FATAL)
@@ -535,10 +542,10 @@ public:
 
 	bool SetLogFile(const char* fn,bool app)
 	{
-		if(fp_logfile)
+		if(hLogfile)
 		{
-			::fclose(fp_logfile);
-			fp_logfile=NULL;
+			::fclose(hLogfile);
+			hLogfile=NULL;
 		}
 
 		if(fn[0]==0)
@@ -546,13 +553,14 @@ public:
 			return true;
 		}
 
-		fp_logfile=::fopen(IConv::to_ansi(fn).c_str(),app?"a":"w");
-		return fp_logfile!=NULL;
+		hLogfile=::fopen(IConv::to_ansi(fn).c_str(),app?"a":"w");
+		return hLogfile!=NULL;
 	}
 
-	FILE* fp_logfile;
+
 	AtomicSpin spin;
 
+	FILE* hLogfile;
 	bool bEnabled;
 
 	static SystemLoggerData& current()
@@ -574,17 +582,9 @@ void System::SetLogEnable(bool f)
 }
 
 
-void System::DoLog(int lv,const char* msg,...)
+void System::DoLog2(int lv,const char* msg)
 {
-	if(!SystemLoggerData::current().bEnabled)
-	{
-		return;
-	}
-
-	va_list arglist;
-	va_start(arglist,msg);
-	SystemLoggerData::current().LogImplV(lv,msg,arglist);
-	va_end(arglist);
+	SystemLoggerData::current().DoLog(lv,msg);
 }
 
 

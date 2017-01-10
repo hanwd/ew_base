@@ -5,9 +5,13 @@
 #include "ewa_base/basic/stringbuffer.h"
 #include "ewa_base/basic/scanner_helper.h"
 
+
 EW_ENTER
 
-class FormatBuffer
+class FormatBuffer;
+
+
+class FormatBuffer : public FormatHelper<FormatBuffer,FormatPolicy2>
 {
 public:
 
@@ -25,27 +29,18 @@ public:
 	{
 		if(n+m_size>=m_capacity)
 		{			
-			reserve(n+m_size);
+			reserve(n+m_size+512);
 		}
 
 		memcpy(p_base+m_size,p,n);
 		m_size+=n;
 	}
 
-	#define FORMAT_INT_TYPE(X) FormatBuffer& operator<<(X n){char buf[64];char* p2=buf+63;char* p1=StringDetail::str_format(p2,n);	append(p1,p2-p1);return *this;}
-
-	FORMAT_INT_TYPE(int)
-	FORMAT_INT_TYPE(unsigned)
-	FORMAT_INT_TYPE(int64_t)
-	FORMAT_INT_TYPE(uint64_t)
-
-	FormatBuffer& operator<<(const String& n);
-
-	FormatBuffer& operator<<(const StringBuffer<char>& s)
+	void enlarge_size_by(size_t n)
 	{
-		append(s.data(),s.size());
-		return *this;
+		m_size+=n;
 	}
+
 
 	FormatBuffer()
 	{
@@ -86,10 +81,13 @@ private:
 	char internal_data[1024*4];
 };
 
+
 class FormatState0
 {
 public:
 	typedef const char* char_pointer;
+
+	FormatState0(){}
 
 	char_pointer p1,p2;
 	char_pointer f1,f2;
@@ -103,7 +101,14 @@ public:
 	bool b_fmt_ok;
 
 	void init(char_pointer p){p1=p2=p;n_vpos=0;}
+
+	void init(const wchar_t* p);
+
+
+	std::auto_ptr<StringBuffer<char> > phold;
+
 };
+
 
 class FormatState1 : public FormatState0
 {
@@ -171,19 +176,18 @@ class FormatStateT : public FormatState1
 {
 public:
 
-	FormatStateT(char_pointer p){init(p);}
+	FormatStateT(const char* p){init(p);}
+	FormatStateT(const wchar_t* p){init(p);}
 
-	operator const char*()
-	{
-		return sb.c_str();
-	}
+	const char* c_str(){return sb.c_str();}
 
 	S sb;
 
-	void str_append_s(const char* x)
-	{
-		str_append(x);
-	}
+	void str_append_s(const char* x){str_append(x);}
+	void str_append_s(const wchar_t* x);
+
+	template<typename T>
+	void str_append_s(const StringBuffer<T>& x){str_append(x.c_str());}
 
 	void str_append_s(const String& x);
 
@@ -229,21 +233,8 @@ public:
 		}
 		else
 		{
-
-			unsigned kwd=std::max(unsigned(n_fmt_width[0]),unsigned(n_fmt_width[1]));
-
-			sb.reserve(kwd+sb.size());
-			
-			int nd=sprintf(sb.data()+sb.size(),f1,o);
-			if(nd>=0)
-			{
-				sb.enlarge_size_by(nd);
-			}
-			else
-			{
-				b_fmt_ok=false;
-			}		
-
+			size_t n=std::max(size_t(n_fmt_width[0]),size_t(n_fmt_width[1]));
+			S::Policy::format(sb,std::max((size_t)FormatPolicy::width(o),n),f1,FormatPolicy::cast(o));
 		}	
 	}
 

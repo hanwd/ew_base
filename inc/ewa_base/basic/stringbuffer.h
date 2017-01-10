@@ -19,7 +19,9 @@ EW_ENTER
 
 
 template<typename T>
-class DLLIMPEXP_EWA_BASE StringBuffer : public arr_1t<T,AllocatorN<def_allocator,1> >
+class DLLIMPEXP_EWA_BASE StringBuffer : 
+	public arr_1t<T,AllocatorN<def_allocator,1> >, 
+	public FormatHelper<StringBuffer<T>,FormatPolicy2>
 {
 public:
 	typedef arr_1t<T,AllocatorN<def_allocator,1> > basetype;
@@ -33,14 +35,9 @@ public:
 	StringBuffer() {}
 
 	StringBuffer(const T* p1);
-	StringBuffer(const T* p1,size_t ln)
-	{
-		assign(p1,ln);
-	}
-	StringBuffer(const T* p1,const T* p2)
-	{
-		assign(p1,p2);
-	}
+	StringBuffer(const T* p1,size_t ln){assign(p1,ln);}
+	StringBuffer(const T* p1,const T* p2){assign(p1,p2);}
+
 	StringBuffer(const StringBuffer& o):basetype(o) {}
 
 #if defined(EW_C11)
@@ -55,17 +52,14 @@ public:
 	}
 #endif
 
-	StringBuffer(const String& o)
-	{
-		(*this)=o;
-	}
+	StringBuffer(const String& o){(*this)=o;}
 
 	StringBuffer& operator=(const String& o);
 	StringBuffer& operator=(const T* p1);
 
 	StringBuffer& operator+=(const StringBuffer& o)
 	{
-		this->append(o.begin(),o.end());
+		basetype::append(o.begin(),o.end());
 		return *this;
 	}
 	StringBuffer& operator+=(const String& o);
@@ -76,31 +70,17 @@ public:
 	T* c_str();
 	const T* c_str() const;
 
-	StringBuffer& operator<<(bool v);
-	StringBuffer& operator<<(char v);
-	StringBuffer& operator<<(int32_t v);
-	StringBuffer& operator<<(int64_t v);
-	StringBuffer& operator<<(uint32_t v);
-	StringBuffer& operator<<(uint64_t v);
-	StringBuffer& operator<<(float v);
-	StringBuffer& operator<<(double v);
-	StringBuffer& operator<<(const T* v);
-	StringBuffer& operator<<(const void* v);
-	StringBuffer& operator<<(const String& v);
-	StringBuffer& operator<<(const StringBuffer& v);
-
-
-	StringBuffer& operator<<(const std::basic_string<T>& v)
-	{
-		return (*this)<<v.c_str();
-	}
-
 	bool enlarge_size_by(size_t sz);
 
-protected:
+	using basetype::append;
 
-	template<typename G>
-	void _do_format_integer(G v);
+	template<typename X>
+	void append(const X* p,size_t n)
+	{
+		if(sizeof(X)==sizeof(T)) basetype::append((T*)p,n);
+		else (*this)+=String(p,n);
+	}
+
 };
 
 template<typename T> class hash_t<StringBuffer<T> >
@@ -112,7 +92,8 @@ public:
 	}
 };
 
-inline const char* StringParamCast::g(const StringBuffer<char>& v)
+template<typename T>
+inline const T* FormatPolicy::cast(const StringBuffer<T>& v)
 {
 	return v.c_str();
 }

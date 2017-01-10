@@ -74,10 +74,9 @@ void Console::SetColor(int color)
 }
 
 
-void Console::Write(const String& s,int color)
+void Console::ColoredWrite(const String& s,int color)
 {
 	g_tSpinConsole.lock();
-
 
 	int oldcr=g_cConsoleColor;
 	ConsoleDoSetColor(color);
@@ -92,7 +91,7 @@ void Console::Write(const String& s,int color)
 	g_tSpinConsole.unlock();
 }
 
-void Console::WriteLine(const String& s,int color)
+void Console::ColoredWriteLine(const String& s,int color)
 {
 	g_tSpinConsole.lock();
 
@@ -101,10 +100,8 @@ void Console::WriteLine(const String& s,int color)
 
 #ifdef EW_WINDOWS
 	::puts(IConv::to_ansi(s).c_str());
-	//::puts("\n");
 #else
 	::puts(s.c_str());
-	//::puts("\n");
 #endif
 
 	ConsoleDoSetColor(oldcr);

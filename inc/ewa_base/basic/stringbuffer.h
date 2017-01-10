@@ -21,7 +21,7 @@ EW_ENTER
 template<typename T>
 class DLLIMPEXP_EWA_BASE StringBuffer : 
 	public arr_1t<T,AllocatorN<def_allocator,1> >, 
-	public FormatHelper<StringBuffer<T>,FormatPolicy2>
+	public FormatHelper<StringBuffer<T>,typename tl::meta_if<sizeof(T)==1,FormatPolicy2,FormatPolicy1>::type>
 {
 public:
 	typedef arr_1t<T,AllocatorN<def_allocator,1> > basetype;

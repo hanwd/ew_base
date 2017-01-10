@@ -136,7 +136,7 @@ public:
 	static char* get_buffer(B& b,size_t n)
 	{
 		b.reserve(b.size()+n+1);
-		return b.data()+b.size();
+		return (char*)b.data()+b.size();
 	}
 
 	template<typename B,typename G>

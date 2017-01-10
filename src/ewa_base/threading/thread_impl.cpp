@@ -344,7 +344,7 @@ public:
 	{
 		if (ipm.type == InvokeParam::TYPE_FINI)
 		{
-			ThreadManager::current().close(true);
+			close(true);
 		}
 	}
 

@@ -8,10 +8,8 @@
 
 EW_ENTER
 
-class FormatBuffer;
 
-
-class FormatBuffer : public FormatHelper<FormatBuffer,FormatPolicy2>
+class DLLIMPEXP_EWA_BASE FormatBuffer : public FormatHelper<FormatBuffer,FormatPolicy2>
 {
 public:
 
@@ -82,7 +80,7 @@ private:
 };
 
 
-class FormatState0
+class DLLIMPEXP_EWA_BASE FormatState0
 {
 public:
 	typedef const char* char_pointer;
@@ -110,7 +108,7 @@ public:
 };
 
 
-class FormatState1 : public FormatState0
+class DLLIMPEXP_EWA_BASE FormatState1 : public FormatState0
 {
 public:
 
@@ -172,7 +170,7 @@ public:
 };
 
 template<typename S>
-class FormatStateT : public FormatState1
+class DLLIMPEXP_EWA_BASE FormatStateT : public FormatState1
 {
 public:
 
@@ -249,7 +247,18 @@ public:
 typedef FormatStateT<StringBuffer<char> > FormatStateSb;
 typedef FormatStateT<FormatBuffer > FormatStateFb;
 
-class StringFormater
+template<unsigned N>
+class lkt_format_characters
+{
+public:
+	static const int value0=(N=='d'||N=='i'||N=='u'||N=='o'||N=='x'||N=='X')?1:0;
+	static const int value1=(N=='f'||N=='F'||N=='e'||N=='E'||N=='g'||N=='G'||N=='a'||N=='A')?2:0;
+	static const int value2=(N=='c'||N=='s'||N=='p'||N=='n')?3:0;
+	static const int value=value0|value1|value2;
+
+};
+
+class DLLIMPEXP_EWA_BASE StringFormater
 {
 public:
 	
@@ -277,9 +286,57 @@ public:
 		TYPE_UNSIGNED=1<<6
 	};
 
-	template<typename T0>
-	static bool handle(T0& st);
 
+	template<typename T0>
+	static bool handle(T0& st)
+	{
+		while(*st.p2)
+		{
+			if(*st.p2!='%')
+			{
+				st.p2++;
+				continue;
+			}
+	
+			if(st.p2[1]=='%')
+			{
+				st.str_append(st.p1,++st.p2);
+				st.p1=++st.p2;
+				continue;
+			}
+
+			st.str_append(st.p1,st.p2);
+			st.p1=st.p2++;
+
+			st.n_vpos_old=st.n_vpos;
+
+			if(*st.p2=='{')
+			{
+				ScannerHelper<const char*>::read_uint(++st.p2,st.n_vpos);
+				if(*st.p2!=',')
+				{
+					st.n_fmt_flag=0;
+				}
+				else
+				{
+					st.n_fmt_flag=-1;	
+					++st.p2;		
+				}
+			}
+			else
+			{
+				st.n_fmt_flag=1;
+				st.n_vpos++;
+			}
+
+			return true;
+			
+		}
+
+		st.str_append(st.p1,st.p2);
+
+		return false;
+	}
 	template<typename T0,
 		typename T1=nil_type,
 		typename T2=nil_type,
@@ -352,7 +409,6 @@ public:
 					}
 				}
 		
-
 				if(st.p2[0]=='h'||st.p2[0]=='l')
 				{
 					if(st.p2[1]==st.p2[0])
@@ -362,7 +418,7 @@ public:
 					else
 					{
 						st.p2+=2;			
-					}
+					}	
 				}
 				else if(st.p2[0]=='j'||st.p2[0]=='z'||st.p2[0]=='t'||st.p2[0]=='L')
 				{
@@ -371,6 +427,11 @@ public:
 				else
 				{
 					st.p2+=1;		
+				}
+
+				if(lookup_table<lkt_format_characters>::test(st.p2[-1])==0)
+				{
+					continue;
 				}
 
 				st.fmt_append(st.f1,st.p2);		

@@ -22,8 +22,8 @@ public:
 	static void SetColor(int color);
 
 
-	STRING_FORMATER_FORMAT_FUNCS_SB(static void Write,ColoredWrite(fb.sb);)
-	STRING_FORMATER_FORMAT_FUNCS_SB(static void WriteLine,ColoredWriteLine(fb.sb);)
+	STRING_FORMATER_FORMAT_FUNCS_SB(static void Write,ColoredWrite(fb);)
+	STRING_FORMATER_FORMAT_FUNCS_SB(static void WriteLine,ColoredWriteLine(fb);)
 
 	static void ColoredWrite(const String& s,int color=-1);
 	static void ColoredWriteLine(const String& s,int color=-1);

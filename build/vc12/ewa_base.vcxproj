@@ -46,6 +46,7 @@
     <ClInclude Include="..\..\inc\ewa_base\basic\language.h" />
     <ClInclude Include="..\..\inc\ewa_base\basic\lockguard.h" />
     <ClInclude Include="..\..\inc\ewa_base\basic\lookuptable.h" />
+    <ClInclude Include="..\..\inc\ewa_base\basic\misc.h" />
     <ClInclude Include="..\..\inc\ewa_base\basic\object.h" />
     <ClInclude Include="..\..\inc\ewa_base\basic\object_ex.h" />
     <ClInclude Include="..\..\inc\ewa_base\basic\object_info.h" />
@@ -197,6 +198,7 @@
     <ClCompile Include="..\..\src\ewa_base\basic\fso.cpp" />
     <ClCompile Include="..\..\src\ewa_base\basic\hashing.cpp" />
     <ClCompile Include="..\..\src\ewa_base\basic\language.cpp" />
+    <ClCompile Include="..\..\src\ewa_base\basic\msic.cpp" />
     <ClCompile Include="..\..\src\ewa_base\basic\object.cpp" />
     <ClCompile Include="..\..\src\ewa_base\basic\object_data.cpp" />
     <ClCompile Include="..\..\src\ewa_base\basic\object_ex.cpp" />

@@ -4,107 +4,49 @@
 #include "ewa_base/config.h"
 #include "ewa_base/basic/stringbuffer.h"
 #include "ewa_base/basic/scanner_helper.h"
-
+#include "ewa_base/basic/misc.h"
 
 EW_ENTER
 
-
-class DLLIMPEXP_EWA_BASE FormatBuffer : public FormatHelper<FormatBuffer,FormatPolicy2>
+class StringBuilder : 
+	public MemoryBuffer<char,BufferPolicyChained<char,2048> >,  
+	public FormatHelper<StringBuilder,FormatPolicy2>
 {
 public:
 
-	void clear(){m_size=0;}
+	operator const String&();
 
-	char* c_str(){p_base[m_size]=0;return p_base;}
+	const char* c_str();
 
-	char* data(){return p_base;}
+	size_t size();
 
-	size_t size(){return m_size;}
-
-	size_t capacity(){return m_capacity;}
-
-	void append(const char* p,size_t n)
-	{
-		if(n+m_size>=m_capacity)
-		{			
-			reserve(n+m_size+512);
-		}
-
-		memcpy(p_base+m_size,p,n);
-		m_size+=n;
-	}
-
-	void enlarge_size_by(size_t n)
-	{
-		m_size+=n;
-	}
-
-
-	FormatBuffer()
-	{
-		p_base=internal_data;
-		m_capacity=sizeof(internal_data);
-		m_size=0;
-	}
-
-	~FormatBuffer()
-	{
-		if(p_base!=internal_data)
-		{
-			mp_free(p_base);
-		}
-	}
-
-	void reserve(size_t n)
-	{
-		if(n<m_capacity) return;
-
-		size_t sz2=(n+1024*8)&~(1024*4-1);
-		char* ptmp=(char*)mp_alloc(sz2);
-		if(!ptmp) Exception::XBadAlloc();
-		memcpy(ptmp,p_base,m_size);
-		if(p_base!=internal_data)
-		{
-			mp_free(p_base);
-		}
-		p_base=ptmp;
-		m_capacity=sz2;
-	}
-
-private:
-
-	char* p_base;
-	size_t m_size;
-	size_t m_capacity;
-	char internal_data[1024*4];
+	void append(const char* p,size_t n){send(p,n);}
 };
-
 
 class DLLIMPEXP_EWA_BASE FormatState0
 {
 public:
 	typedef const char* char_pointer;
 
-	FormatState0(){}
-
 	char_pointer p1,p2;
 	char_pointer f1,f2;
 
-	int64_t n_vpos;
-	int64_t n_vpos_old;
-	int64_t n_fmt_width[2];
+	size_t n_vpos;
+	size_t n_vpos_old;
+	size_t n_fmt_width[2];
 	int n_fmt_flag;
 	int n_fmt_type;
 
 	bool b_fmt_ok;
+	const char* p0;
 
-	void init(char_pointer p){p1=p2=p;n_vpos=0;}
+	const char* c_str(){return p0;}
+	operator String&(){return *(String*)&p0;}
 
+	void init(char_pointer p){p0=p1=p2=p;n_vpos=0;}
 	void init(const wchar_t* p);
 
-
 	std::auto_ptr<StringBuffer<char> > phold;
-
 };
 
 
@@ -112,38 +54,15 @@ class DLLIMPEXP_EWA_BASE FormatState1 : public FormatState0
 {
 public:
 
-	FormatBuffer a_fmt_buffer;
+	StringBuilder a_fmt_buffer;
 
-	void fmt_enter()
-	{
-		b_fmt_ok=true;
-		a_fmt_buffer.clear();
-		n_fmt_width[0]=n_fmt_width[1]=0;
-		fmt_append("%",1);
-	}
+	void fmt_enter();
 
-	bool fmt_test()
-	{
-		if(b_fmt_ok)
-		{
-			f1=a_fmt_buffer.c_str();
-			f2=f1+a_fmt_buffer.size();
-			if(a_fmt_buffer.size()==1)
-			{
-				f1=f2=NULL;
-			}
-		}
-		return b_fmt_ok;
-	}
+	bool fmt_test();
 
-	bool fmt_leave()
-	{
-		if(!b_fmt_ok)
-		{
-			n_vpos=n_vpos_old;
-		}
-		return b_fmt_ok;
-	}
+	void fmt_leave();
+
+	void fmt_error();
 
 	void fmt_append(const char* x1,const char* x2)
 	{
@@ -177,17 +96,15 @@ public:
 	FormatStateT(const char* p){init(p);}
 	FormatStateT(const wchar_t* p){init(p);}
 
-	const char* c_str(){return sb.c_str();}
-
-	S sb;
-
 	void str_append_s(const char* x){str_append(x);}
 	void str_append_s(const wchar_t* x);
+	void str_append_s(const String& x);
 
 	template<typename T>
 	void str_append_s(const StringBuffer<T>& x){str_append(x.c_str());}
 
-	void str_append_s(const String& x);
+	template<typename T>
+	void str_append_s(const std::basic_string<T>& x){str_append_s(x.c_str());}
 
 	template<typename G>
 	void str_append_s(const G&)
@@ -216,7 +133,6 @@ public:
 	template<typename G>
 	void str_format_t(const G& o)
 	{
-
 		if(f1==f2)
 		{
 			str_append_t(o);
@@ -231,21 +147,26 @@ public:
 		}
 		else
 		{
-			size_t n=std::max(size_t(n_fmt_width[0]),size_t(n_fmt_width[1]));
-			S::Policy::format(sb,std::max((size_t)FormatPolicy::width(o),n),f1,FormatPolicy::cast(o));
+			size_t n=size_t(n_fmt_width[0])+size_t(n_fmt_width[1]);
+			S::Policy::format(sb,std::max(FormatPolicy::width(o),n),f1,FormatPolicy::cast(o));
 		}	
 	}
 
 	void str_format_t(const tl::nulltype&)
 	{
-		b_fmt_ok=false;
+		fmt_error();
 	}
 
+	void finish()
+	{
+		p0=sb.c_str();
+	}
+
+	S sb;
 };
 	
 
-typedef FormatStateT<StringBuffer<char> > FormatStateSb;
-typedef FormatStateT<FormatBuffer > FormatStateFb;
+typedef FormatStateT<StringBuilder> FormatStateSb;
 
 template<unsigned N>
 class lkt_format_characters
@@ -262,8 +183,6 @@ class DLLIMPEXP_EWA_BASE StringFormater
 {
 public:
 	
-	typedef tl::nulltype nil_type;
-
 	class str_type_info
 	{
 	public:
@@ -329,43 +248,44 @@ public:
 				st.n_vpos++;
 			}
 
+			st.fmt_enter();
 			return true;
 			
 		}
 
 		st.str_append(st.p1,st.p2);
-
+		st.finish();
 		return false;
 	}
-	template<typename T0,
-		typename T1=nil_type,
-		typename T2=nil_type,
-		typename T3=nil_type,
-		typename T4=nil_type,
-		typename T5=nil_type,
-		typename T6=nil_type,
-		typename T7=nil_type,
-		typename T8=nil_type,
-		typename T9=nil_type
+
+	template<
+		typename T0,
+		typename T1=tl::nulltype,
+		typename T2=tl::nulltype,
+		typename T3=tl::nulltype,
+		typename T4=tl::nulltype,
+		typename T5=tl::nulltype,
+		typename T6=tl::nulltype,
+		typename T7=tl::nulltype,
+		typename T8=tl::nulltype,
+		typename T9=tl::nulltype
 	>
-	static void Format(T0& st,
-	const T1& v1=T1(),
-	const T2& v2=T2(),
-	const T3& v3=T3(),
-	const T4& v4=T4(),
-	const T5& v5=T5(),
-	const T6& v6=T6(),
-	const T7& v7=T7(),
-	const T8& v8=T8(),
-	const T9& v9=T9()
-	
+	static void Format(
+		T0& st,
+		const T1& v1=T1(),
+		const T2& v2=T2(),
+		const T3& v3=T3(),
+		const T4& v4=T4(),
+		const T5& v5=T5(),
+		const T6& v6=T6(),
+		const T7& v7=T7(),
+		const T8& v8=T8(),
+		const T9& v9=T9()	
 	)
 	{
 
-		while(handle(st))
+		for(;handle(st);st.fmt_leave())
 		{
-			st.fmt_enter();
-
 			if(st.n_fmt_flag!=0)
 			{
 
@@ -431,21 +351,22 @@ public:
 
 				if(lookup_table<lkt_format_characters>::test(st.p2[-1])==0)
 				{
+					st.fmt_error();
 					continue;
 				}
-
-				st.fmt_append(st.f1,st.p2);		
+				else
+				{
+					st.fmt_append(st.f1,st.p2);					
+				}
 			}
 
 					
-			if(st.n_fmt_flag<=0)
+			if(st.n_fmt_flag<=0 && *st.p2++!='}')
 			{
-				if(*st.p2++!='}')
-				{
-					st.b_fmt_ok=false;					
-					continue;
-				}
+				st.fmt_error();		
+				continue;
 			}
+		
 
 			if(st.fmt_test()) switch(st.n_vpos)
 			{
@@ -458,16 +379,8 @@ public:
 			case 7: st.str_format_t(v7);break;
 			case 8: st.str_format_t(v8);break;
 			case 9: st.str_format_t(v9);break;
-			}
-
-			if(!st.fmt_leave())
-			{
-				continue;
-			}
-
-
-			st.p1=st.p2;
-					
+			default: st.fmt_error();break;
+			}					
 		}
 
 	}

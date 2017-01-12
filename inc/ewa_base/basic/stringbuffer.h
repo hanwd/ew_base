@@ -70,8 +70,6 @@ public:
 	T* c_str();
 	const T* c_str() const;
 
-	bool enlarge_size_by(size_t sz);
-
 	using basetype::append;
 
 	template<typename X>

@@ -5,7 +5,10 @@ int main(int argc, char** argv)
 {
 	using namespace ew;
 
+
 	mp_check_leak(1);
+
+	Logger::def()->flags.add(LogTarget::FLAG_SHOWRANK|LogTarget::FLAG_SHOWALL);
 
 	System::SetLogFile("ewx_test.log",true);
 

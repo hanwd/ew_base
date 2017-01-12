@@ -3,44 +3,44 @@
 EW_ENTER
 
 
-
-
-template<typename B>
-bool ScannerHelper<B>::read_uint(B &p, int64_t& v)
-{
-	v = 0;
-
-	char ch = p[0];
-	if (ch == '0')
-	{
-
-		ch = rebind<lkt2uppercase,0>::type::test(*++p);
-		if (ch == 'X')
-		{
-			return read_uint_t<16>(++p, v);
-		}
-		else if (ch == 'B')
-		{
-			return read_uint_t<2>(++p, v);
-		}
-		else if (ch >= '1'&&ch <= '9')
-		{
-			return read_uint_t<8>(++p, v);
-		}
-		else if (ch == '0')
-		{
-			return false;
-		}
-		else
-		{
-			return true;
-		}
-	}
-	else
-	{
-		return read_uint_t<10>(p, v);
-	}
-}
+//
+//
+//template<typename B>
+//bool ScannerHelper<B>::read_uint(B &p, int64_t& v)
+//{
+//	v = 0;
+//
+//	char ch = p[0];
+//	if (ch == '0')
+//	{
+//
+//		ch = rebind<lkt2uppercase,0>::type::test(*++p);
+//		if (ch == 'X')
+//		{
+//			return read_uint_t<16>(++p, v);
+//		}
+//		else if (ch == 'B')
+//		{
+//			return read_uint_t<2>(++p, v);
+//		}
+//		else if (ch >= '1'&&ch <= '9')
+//		{
+//			return read_uint_t<8>(++p, v);
+//		}
+//		else if (ch == '0')
+//		{
+//			return false;
+//		}
+//		else
+//		{
+//			return true;
+//		}
+//	}
+//	else
+//	{
+//		return read_uint_t<10>(p, v);
+//	}
+//}
 
 template<typename B>
 bool ScannerHelper<B>::read_sign(B &p)
@@ -67,9 +67,10 @@ bool ScannerHelper<B>::read_number(B &p, int64_t& v)
 	{
 		return false;
 	}
+
 	if (sign)
 	{
-		v = -v;
+		v=-v;
 	}
 	return true;
 }
@@ -111,7 +112,7 @@ bool ScannerHelper<B>::read_number(B &p, double& v)
 		{
 			int64_t v2(0);
 			pointer p0 = p;
-			read_uint_t<10>(p, v2);
+			read_uint_t<int64_t,10>(p, v2);
 			dpart += double(v2)*::pow(0.1, p - p0);
 		}
 	}
@@ -124,7 +125,7 @@ bool ScannerHelper<B>::read_number(B &p, double& v)
 	{
 		bool sign2 = read_sign(++p);
 		int64_t v3(0);
-		read_uint_t<10>(p, v3);
+		read_uint_t<int64_t,10>(p, v3);
 		dpart *= ::pow(10.0, sign2 ? -v3 : v3);
 	}
 

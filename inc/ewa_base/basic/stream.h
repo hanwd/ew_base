@@ -66,8 +66,8 @@ public:
 	int64_t tellp(){return hWriter->tellp();}
 	int64_t sizep(){return hWriter->sizep();}
 
-	int send(const char* buf,int len){return hWriter->send(buf,len);}
-	int recv(char* buf,int len){return hReader->recv(buf,len);}
+	int send(const char* buf,size_t len){return hWriter->send(buf,len);}
+	int recv(char* buf,size_t len){return hReader->recv(buf,len);}
 
 	bool send_all(const char* buf,size_t len){return hWriter->send_all(buf,len);}
 	bool recv_all(char* buf,size_t len){return hReader->recv_all(buf,len);}

@@ -12,8 +12,6 @@ class ThreadTestMemPool : public ThreadMulti
 {
 public:
 
-	Logger logger;
-
 	void test(const String& msg)
 	{
 		int n=System::GetCpuCount();
@@ -25,12 +23,14 @@ public:
 		wait();
 		TimePoint tp2=Clock::now();
 
-		logger.LogMessage("%s:%g sec used",msg,(tp2-tp1)/TimeSpan::Seconds(1));
+		this_logger().LogMessage("%s:%g sec used",msg,(tp2-tp1)/TimeSpan::Seconds(1));
 
 	}
 
 	void svc()
 	{
+		Logger& logger(this_logger());
+
 		arr_1t<void*> h;
 
 		MP& mp(MP::current());

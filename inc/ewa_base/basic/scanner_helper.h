@@ -109,23 +109,72 @@ public:
 		while (lookup_table<P>::test(*p) && p != d) ++p;
 	}
 
-	template<int N>
-	static bool read_uint_t(B &p, int64_t& v)
+	template<typename T,int N>
+	static bool read_uint_t(B &p, T& v)
 	{
 		typedef typename rebind<lkt_number16b,16>::type lktable;
 		unsigned char w;
+
 		for (v = 0; (w = lktable::test(p[0])) <N; ++p)
 		{
-			v = v*N + w;
+			T tmp=v*N + w;
+
+			//overflow
+			if(v>tmp)
+			{
+				System::LogTrace("overflow in "__FUNCTION__);
+			}
+
+			v=tmp;
+	
 		}
 		return true;
 	}
 
-	static bool read_uint(B &p, int64_t& v);
+	template<typename T>
+	static bool read_uint(B &p, T& v)
+	{
+		v = 0;
+
+		char ch = p[0];
+		if (ch == '0')
+		{
+
+			ch = rebind<lkt2uppercase,0>::type::test(*++p);
+			if (ch == 'X')
+			{
+				return read_uint_t<T,16>(++p, v);
+			}
+			else if (ch == 'B')
+			{
+				return read_uint_t<T,2>(++p, v);
+			}
+			else if (ch >= '1'&&ch <= '9')
+			{
+				return read_uint_t<T,8>(++p, v);
+			}
+			else if (ch == '0')
+			{
+				return false;
+			}
+			else
+			{
+				return true;
+			}
+		}
+		else
+		{
+			return read_uint_t<T,10>(p, v);
+		}	
+	}
+
+
 	static bool read_sign(B &p);
 
 	static bool read_number(B &p, double& v);
 	static bool read_number(B &p, int64_t& v);
+
+
 
 };
 

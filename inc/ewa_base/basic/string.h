@@ -105,8 +105,8 @@ public:
 	int find(const String& s, int pos = 0) const;
 
 
-	STRING_FORMATER_FORMAT_FUNCS_SB(static String Format,return fb.sb;)
-	STRING_FORMATER_FORMAT_FUNCS_SB(String Printf,*this=fb.sb;return *this;)
+	STRING_FORMATER_FORMAT_FUNCS_SB(static String Format,return fb;)
+	STRING_FORMATER_FORMAT_FUNCS_SB(String Printf,*this=fb;return *this;)
 
 private:
 

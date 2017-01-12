@@ -6,6 +6,7 @@
 #include "ewa_base/basic/scanner_helper.h"
 #include "ewa_base/scripting/variant_op.h"
 #include "ewa_base/basic/formater.h"
+#include "ewa_base/basic/misc.h"
 
 #include <time.h>
 
@@ -15,7 +16,7 @@ using namespace ew;
 
 TEST_DEFINE(TEST_String)
 {
-
+	
 	String s1;
 	String s2("hello");
 
@@ -305,7 +306,6 @@ TEST_DEFINE(TEST_Functor)
 TEST_DEFINE(TEST_Basic_other)
 {
 
-
 	Console::SetColor(Console::COLOR_R|Console::COLOR_S);
 	Console::WriteLine("red text");
 	Console::SetColor(Console::COLOR_B|Console::COLOR_S);
@@ -545,6 +545,4 @@ TEST_DEFINE(TEST_Atomic)
 	test_atomic<AtomicInt64>();
 	test_atomic<AtomicUint64>();
 }
-
-
 

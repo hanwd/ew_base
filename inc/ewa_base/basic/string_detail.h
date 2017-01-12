@@ -71,104 +71,6 @@ public:
 	template<typename T>
 	static const T* cast(const StringBuffer<T>& v);
 
-};
-
-
-
-template<typename B>
-class BAppendPolicy1
-{
-public:
-	static B& append(B& b,const char* p,size_t n)
-	{
-		b.append(p,n);
-		return b;
-	}
-
-	template<typename G>
-	static B& format(B& b,size_t n,const char* s,G v)
-	{
-		char p[1024];
-		if(n<sizeof(p))
-		{
-			int nd=::sprintf(p,s,v);
-			if(nd>0)
-			{
-				append(b,p,nd);
-			}
-			else
-			{
-				EW_NOOP();
-			}		
-		}
-		else
-		{
-			char* p=(char*)mp_alloc(n);
-			if(!p) Exception::XBadAlloc();
-			int nd=sprintf(p,s,v);
-			if(nd>0)
-			{
-				append(b,p,nd);
-			}
-			else
-			{
-				EW_NOOP();
-			}
-			mp_free(p);
-		}
-
-		return b;	
-	}
-};
-
-template<typename B>
-class BAppendPolicy2 : public BAppendPolicy1<B>
-{
-public:
-	
-	template<typename B>
-	static void enlarge_size(B& b,size_t n)
-	{
-		b.enlarge_size_by(n);
-	}
-
-	template<typename B>
-	static char* get_buffer(B& b,size_t n)
-	{
-		b.reserve(b.size()+n+1);
-		return (char*)b.data()+b.size();
-	}
-
-	template<typename B,typename G>
-	static B& format(B& b,size_t n,const char* s,G v)
-	{
-		char* p=get_buffer(b,n);
-		int nd=sprintf(p,s,v);
-		if(nd>0)
-		{
-			enlarge_size(b,nd);
-		}
-		else
-		{
-			EW_NOOP();
-		}
-		return b;	
-	}
-
-};
-
-
-template<template<typename> class BAppendPolicy>
-class BFormatPolicy : public FormatPolicy
-{
-public:
-
-	template<typename B,typename G>
-	static B& format(B& b,size_t n,const char* s,G v)
-	{
-		return BAppendPolicy<B>::format(b,n,s,v);
-	}
-
 	template<typename T,typename G>
 	static T* do_format_integer(T* p,G v)
 	{
@@ -204,38 +106,136 @@ public:
 
 		return p;
 	}
+};
+
+template<typename B>
+class BContainerPolicy1
+{
+public:
+
+	typedef B container_type;
+
+	static container_type& return_initialized_buffer(container_type& b,size_t n,char* p)
+	{
+		b.append(p,n);
+		mp_free(p);
+		return b;
+	}
+	static char* get_uninitialized_buffer(container_type& b,size_t n)
+	{
+		char* p=(char*)mp_alloc(n);
+		if(!p) Exception::XBadAlloc();
+		return p;
+	}
+
+	static container_type& append(container_type& b,const char* p,size_t n)
+	{
+		b.append(p,n);
+		return b;
+	}
+};
+
+template<typename B>
+class BContainerPolicy2
+{
+public:
+
+	typedef B container_type;
+
+	static container_type& return_initialized_buffer(container_type& b,size_t n,char* p)
+	{
+		b.return_initialized_buffer(n);
+		return b;
+	}
+
+	static char* get_uninitialized_buffer(container_type& b,size_t n)
+	{
+		return b.get_uninitialized_buffer(n);
+	}
+
+	static container_type& append(container_type& b,const char* p,size_t n)
+	{
+		b.append(p,n);
+		return b;
+	}
+};
+
+
+template<template<typename> class C,int N=0>
+class BFormatPolicy : public FormatPolicy
+{
+public:
+
+	template<typename B,typename G>
+	static B& on_sprint_error(B& b,size_t n,const char* s,G v)
+	{
+		ew::OnNoop();
+		return b;
+	}
+
+	template<typename B,typename G>
+	static B& format(B& b,size_t n,const char* s,G v)
+	{
+		if(N>0 && n<N)
+		{
+			char p[N+1];
+			int nd=::sprintf(p,s,v);
+			if(nd>0)
+			{
+				return C<B>::append(b,p,nd);
+			}
+			else
+			{
+				return on_sprint_error(b,n,s,v);
+			}
+		}
+		else
+		{
+			char* p=C<B>::get_uninitialized_buffer(b,n);
+			int nd=::sprintf(p,s,v);
+			if(nd>=0)
+			{
+				C<B>::return_initialized_buffer(b,nd,p);
+			}
+			else
+			{
+				C<B>::return_initialized_buffer(b,0,p);
+				on_sprint_error(b,n,s,v);
+			}
+			return b;
+		}
+	}
 
 	template<typename B,typename G>
 	static B& format_integer(B& b,G& o)
 	{
 		char buf[64];
 		char* p2=buf+63;
-		char* p1=do_format_integer(p2,o);
-
-		return BAppendPolicy<B>::append(b,p1,p2-p1);
+		char* p1=FormatPolicy::do_format_integer(p2,o);
+		return C<B>::append(b,p1,p2-p1);
 	}
 
 	template<typename B>
 	static B& append(B& b,const char* p)
 	{
-		return BAppendPolicy<B>::append(b,p,::strlen(p));
+		return C<B>::append(b,p,::strlen(p));
 	}
 
 	template<typename B>
 	static B& append(B& b,const char* p,size_t n)
 	{
-		return BAppendPolicy<B>::append(b,p,n);
+		return C<B>::append(b,p,n);
 	}
 
 };
 
-class FormatPolicy1 : public BFormatPolicy<BAppendPolicy1>
+class FormatPolicy1 : public BFormatPolicy<BContainerPolicy1,1024>
 {
 public:
 
 };
 
-class FormatPolicy2 : public BFormatPolicy<BAppendPolicy2>
+class FormatPolicy2 : public BFormatPolicy<BContainerPolicy2>
 {
 public:
 
@@ -329,10 +329,10 @@ public:
 };
 
 
-
 #define STRING_FORMATER_FORMAT_FUNCS_4(X,Y,Z,D)\
-template<typename T0,\
-	typename T1=tl::nulltype,\
+template<\
+	typename T0,\
+	typename T1,\
 	typename T2=tl::nulltype,\
 	typename T3=tl::nulltype,\
 	typename T4=tl::nulltype,\
@@ -345,7 +345,7 @@ template<typename T0,\
 X(\
 	D\
 	const T0& v0,\
-	const T1& v1=T1(),\
+	const T1& v1,\
 	const T2& v2=T2(),\
 	const T3& v3=T3(),\
 	const T4& v4=T4(),\
@@ -359,10 +359,14 @@ X(\
 	Y fb(FormatPolicy::cast(v0));\
 	StringFormater::Format(fb,v1,v2,v3,v4,v5,v6,v7,v8,v9);\
 	Z;\
+}\
+template<typename T0> X(D const T0& v0)\
+{\
+	Y fb(FormatPolicy::cast(v0));\
+	Z;\
 }
 
 #define STRING_FORMATER_FORMAT_FUNCS_SB(X,Z) STRING_FORMATER_FORMAT_FUNCS_4(X,FormatStateSb,Z,)
-#define STRING_FORMATER_FORMAT_FUNCS_FB(X,Z) STRING_FORMATER_FORMAT_FUNCS_4(X,FormatStateFb,Z,)
 
 
 EW_LEAVE

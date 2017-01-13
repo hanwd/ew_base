@@ -151,6 +151,17 @@ public:
 	inline T& operator[](size_type n){return impl[n];}
 	inline const T& operator[](size_type n) const {return impl[n];}
 
+
+	void return_initialized_buffer(size_t n)
+	{
+		impl.return_initialized_buffer(n);
+	}
+
+	T* get_uninitialized_buffer(size_t n)
+	{
+		return impl.get_uninitialized_buffer(n);
+	}
+
 };
 
 template<typename T,typename A1,typename A2>

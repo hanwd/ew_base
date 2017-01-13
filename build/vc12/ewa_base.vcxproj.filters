@@ -552,6 +552,9 @@
     <ClInclude Include="..\..\inc\ewa_base\serialization\cachedobjects.h">
       <Filter>include\serialization</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\inc\ewa_base\basic\misc.h">
+      <Filter>include\basic</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\ewa_base\basic\atomic.cpp">
@@ -907,6 +910,9 @@
     </ClCompile>
     <ClCompile Include="..\..\src\ewa_base\serialization\serialize_writer.cpp">
       <Filter>source\serialization</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewa_base\basic\msic.cpp">
+      <Filter>source\basic</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

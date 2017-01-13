@@ -55,7 +55,7 @@ void TestMgr::Run(int argc_,char** argv_)
 
 	System::LogTrace("TestMgr::Run");
 
-	logger.reset(new LogConsole);
+	//logger.reset(new LogConsole);
 
 	m_nUnitPassed=0;
 	m_nUnitFailed=0;

@@ -146,11 +146,16 @@ public:
 		return m_base[n];
 	}
 
-	bool enlarge_size_by(size_t sz)
+	void return_initialized_buffer(size_t n)
 	{
-		if(m_end1+sz>m_end2) return false;
-		m_end1+=sz;
-		return true;
+		EW_ASSERT(m_end1+n<=m_end2);
+		m_end1+=n;
+	}
+
+	T* get_uninitialized_buffer(size_t n)
+	{
+		reserve(m_end1-m_base+n);
+		return m_end1;
 	}
 
 protected:

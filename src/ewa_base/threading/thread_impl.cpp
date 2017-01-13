@@ -229,9 +229,11 @@ void ThreadImpl::svc()
 		{
 			try
 			{
+				thrd_log.Id(thrd_rank);
+				thrd_log.reset(Logger::def());
+
 				if(!invoker)
 				{
-					thrd_log.Id(thrd_rank);
 					thrd_ptr->svc();
 				}
 				else

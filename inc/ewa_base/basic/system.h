@@ -67,41 +67,21 @@ public:
 
 	static size_t Backtrace(void** stack,size_t frames);
 
-//
-//#define STRING_FORMAT_LEVEL(X,Y) DoLog(Y,X)
-//
-//#ifndef NDEBUG
-//	STRING_FORMAT_FUNCTIONS(static void LogDebug,STRING_FORMAT_LEVEL,LOGLEVEL_DEBUG)
-//#else
-//	static inline void LogDebug(...) {}
-//#endif
-//
-//	STRING_FORMAT_FUNCTIONS(static void LogInfo,STRING_FORMAT_LEVEL,LOGLEVEL_INFO)
-//	STRING_FORMAT_FUNCTIONS(static void LogTrace,STRING_FORMAT_LEVEL,LOGLEVEL_TRACE)
-//	STRING_FORMAT_FUNCTIONS(static void Printf,STRING_FORMAT_LEVEL,LOGLEVEL_PRINT)
-//	STRING_FORMAT_FUNCTIONS(static void LogMessage,STRING_FORMAT_LEVEL,LOGLEVEL_MESSAGE)
-//	STRING_FORMAT_FUNCTIONS(static void LogWarning,STRING_FORMAT_LEVEL,LOGLEVEL_WARNING)
-//	STRING_FORMAT_FUNCTIONS(static void LogError,STRING_FORMAT_LEVEL,LOGLEVEL_ERROR)
-//	STRING_FORMAT_FUNCTIONS(static void LogFatal,STRING_FORMAT_LEVEL,LOGLEVEL_FATAL)
-//#undef STRING_FORMAT_LEVEL
-
 #ifndef NDEBUG
-	STRING_FORMATER_FORMAT_FUNCS_FB(static void LogDebug,DoLog2(LOGLEVEL_DEBUG,fb.sb.c_str());)
+	STRING_FORMATER_FORMAT_FUNCS_SB(static void LogDebug,DoLog2(LOGLEVEL_DEBUG,fb.c_str());)
 #else
 	inline static void LogDebug(...) {}
 #endif
 
-	STRING_FORMATER_FORMAT_FUNCS_FB(static void LogInfo,DoLog2(LOGLEVEL_INFO,fb.sb.c_str());)
-	STRING_FORMATER_FORMAT_FUNCS_FB(static void LogTrace,DoLog2(LOGLEVEL_TRACE,fb.sb.c_str());)
-	STRING_FORMATER_FORMAT_FUNCS_FB(static void Print,DoLog2(LOGLEVEL_PRINT,fb.sb.c_str());)
-	STRING_FORMATER_FORMAT_FUNCS_FB(static void PrintLn,DoLog2(LOGLEVEL_PRINTLN,fb.sb.c_str());)
-	STRING_FORMATER_FORMAT_FUNCS_FB(static void LogMessage,DoLog2(LOGLEVEL_MESSAGE,fb.sb.c_str());)
-	STRING_FORMATER_FORMAT_FUNCS_FB(static void LogCommand,DoLog2(LOGLEVEL_COMMAND,fb.sb.c_str());)
-	STRING_FORMATER_FORMAT_FUNCS_FB(static void LogWarning,DoLog2(LOGLEVEL_WARNING,fb.sb.c_str());)
-	STRING_FORMATER_FORMAT_FUNCS_FB(static void LogError,DoLog2(LOGLEVEL_ERROR,fb.sb.c_str());)
-	STRING_FORMATER_FORMAT_FUNCS_FB(static void LogFatal,DoLog2(LOGLEVEL_FATAL,fb.sb.c_str());)
-
-
+	STRING_FORMATER_FORMAT_FUNCS_SB(static void LogInfo,DoLog2(LOGLEVEL_INFO,fb.c_str());)
+	STRING_FORMATER_FORMAT_FUNCS_SB(static void LogTrace,DoLog2(LOGLEVEL_TRACE,fb.c_str());)
+	STRING_FORMATER_FORMAT_FUNCS_SB(static void Print,DoLog2(LOGLEVEL_PRINT,fb.c_str());)
+	STRING_FORMATER_FORMAT_FUNCS_SB(static void PrintLn,DoLog2(LOGLEVEL_PRINTLN,fb.c_str());)
+	STRING_FORMATER_FORMAT_FUNCS_SB(static void LogMessage,DoLog2(LOGLEVEL_MESSAGE,fb.c_str());)
+	STRING_FORMATER_FORMAT_FUNCS_SB(static void LogCommand,DoLog2(LOGLEVEL_COMMAND,fb.c_str());)
+	STRING_FORMATER_FORMAT_FUNCS_SB(static void LogWarning,DoLog2(LOGLEVEL_WARNING,fb.c_str());)
+	STRING_FORMATER_FORMAT_FUNCS_SB(static void LogError,DoLog2(LOGLEVEL_ERROR,fb.c_str());)
+	STRING_FORMATER_FORMAT_FUNCS_SB(static void LogFatal,DoLog2(LOGLEVEL_FATAL,fb.c_str());)
 
 	static bool SetLogFile(const String& fn,bool app=true);
 
@@ -109,7 +89,7 @@ public:
 	static void SetLogEnable(bool f);
 
 	#define P4_LOGLEVEL int v,
-	STRING_FORMATER_FORMAT_FUNCS_4(static void DoLog,FormatStateFb,DoLog2(v,fb.sb.c_str()),P4_LOGLEVEL)
+	STRING_FORMATER_FORMAT_FUNCS_4(static void DoLog,FormatStateSb,DoLog2(v,fb.c_str()),P4_LOGLEVEL)
 	#undef P4_LOGLEVEL
 
 protected:

@@ -454,7 +454,6 @@ T* StringBuffer<T>::c_str()
 }
 
 
-
 template<typename T>
 const T* StringBuffer<T>::c_str() const
 {
@@ -466,102 +465,6 @@ const T* StringBuffer<T>::c_str() const
 	*(T*)&(*this->end())=T();
 	return data();
 }
-
-/*
-template<typename T>
-StringBuffer<T>& StringBuffer<T>::operator<<(bool v)
-{
-	if(v)
-	{
-		basetype::append("true",4);
-	}
-	else
-	{
-		basetype::append("false",5);
-	}
-
-	return (*this);
-}
-
-template<typename T>
-StringBuffer<T>& StringBuffer<T>::operator<<(char v)
-{
-	basetype::append(&v,1);
-	return (*this);
-}
-template<typename T>
-StringBuffer<T>& StringBuffer<T>::operator<<(int32_t v)
-{
-	_do_format_integer(v);
-	return (*this);
-}
-template<typename T>
-StringBuffer<T>& StringBuffer<T>::operator<<(int64_t v)
-{
-	_do_format_integer(v);
-	return (*this);
-}
-template<typename T>
-StringBuffer<T>& StringBuffer<T>::operator<<(uint32_t v)
-{
-	_do_format_integer(v);
-	return (*this);
-}
-template<typename T>
-StringBuffer<T>& StringBuffer<T>::operator<<(uint64_t v)
-{
-	_do_format_integer(v);
-	return (*this);
-}
-template<typename T>
-StringBuffer<T>& StringBuffer<T>::operator<<(float v)
-{
-	(*this)+=String::Format("%f",v);
-	return (*this);
-}
-
-template<typename T>
-StringBuffer<T>& StringBuffer<T>::operator<<(const void* v)
-{
-	(*this)+=String::Format("%p",v);
-	return (*this);
-}
-
-template<typename T>
-StringBuffer<T>& StringBuffer<T>::operator<<(double v)
-{
-	(*this)+=String::Format("%g",v);
-	return (*this);
-}
-
-template<typename T>
-StringBuffer<T>& StringBuffer<T>::operator<<(const String& v)
-{
-	(*this)+=v;
-	return *this;
-}
-
-template<typename T>
-StringBuffer<T>& StringBuffer<T>::operator<<(const T* p)
-{
-	basetype::append(p,std::char_traits<T>::length(p));
-	return (*this);
-}
-
-template<typename T>
-StringBuffer<T>& StringBuffer<T>::operator<<(const StringBuffer& v)
-{
-	basetype::append(v.data(),v.size());
-	return (*this);
-}
-*/
-
-template<typename T>
-bool StringBuffer<T>::enlarge_size_by(size_t sz)
-{
-	return impl.enlarge_size_by(sz);
-}
-
 
 template class StringBuffer<char>;
 template class StringBuffer<unsigned char>;

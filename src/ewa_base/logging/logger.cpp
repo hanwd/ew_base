@@ -157,7 +157,6 @@ void Logger::DoLog(int lv, const String& msg)
 #ifdef EW_C11
 void Logger::DoLog(int lv, String&& msg)
 {
-	if(!impl) return;
 	LogRecord rcd(msg,impl->m_nSrc,impl->m_nId,lv);
 	Handle(rcd);
 }
@@ -165,8 +164,6 @@ void Logger::DoLog(int lv, String&& msg)
 
 void Logger::Handle(LogRecord& o)
 {
-	if(!impl) return;
-
 	try
 	{
 		impl->Handle(o);
@@ -317,7 +314,7 @@ LoggerSwap::LoggerSwap()
 
 LoggerSwap::LoggerSwap(LogTarget* p)
 {
-	reset(p?p:new LogNull);
+	reset(p);
 	swap(this_logger());
 }
 

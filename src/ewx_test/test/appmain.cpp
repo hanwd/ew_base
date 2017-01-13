@@ -13,7 +13,7 @@ int main(int argc, char** argv)
 	TestMgr::current().Run(argc,argv);
 	System::LogTrace("----  test leave   -------");
 
-	ThreadManager::current().close(true);
+	ObjectInfo::Invoke(InvokeParam::TYPE_FINI);
 
 	Console::Pause();
 	return 0;

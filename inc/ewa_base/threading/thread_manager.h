@@ -26,6 +26,9 @@ public:
 
 	typedef DLinkT<ThreadImpl> ThreadLink;
 
+	void stop_the_world();
+	void resume_the_world();
+
 
 protected:
 

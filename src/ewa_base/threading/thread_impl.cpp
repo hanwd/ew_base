@@ -38,6 +38,8 @@ void thread_impl_entry_real(ThreadImpl* impl)
 	}
 }
 
+
+
 template<typename G>
 static bool ThreadImpl::activate_t(Thread& thrd, G& g)
 {

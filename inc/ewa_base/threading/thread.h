@@ -118,6 +118,7 @@ public:
 
 	static uintptr_t id();
 
+
 protected:
 
 	volatile int m_nState;

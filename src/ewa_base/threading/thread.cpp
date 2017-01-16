@@ -65,6 +65,7 @@ void Thread::resume()
 }
 
 
+
 bool Thread::is_canceled()
 {
 	return (m_nState&STATE_CANCEL)!=0||ThreadImpl::sm_bReqexit;

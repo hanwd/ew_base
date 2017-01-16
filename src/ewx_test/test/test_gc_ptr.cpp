@@ -6,22 +6,19 @@
 
 using namespace ew;
 
-class A : public gc_obj
+class gc_obj_A : public gc_obj
 {
 public:
 
-	A(){val=-1;}
-	~A(){}
+	gc_obj_A(){val=-1;}
+	~gc_obj_A(){}
 
-	gc_ptr<A> next;
+	gc_ptr<gc_obj_A> next;
 	int val;
 
 protected:
 
-	void _gc_mark(gc_mark_queue& q)
-	{
-		q.append(next);
-	}
+	void _gc_mark(gc_mark_queue& q){q.append(next);}
 
 };
 
@@ -35,15 +32,15 @@ public:
 		this_logger().LogMessage("thread rank %d enter",rank());
 
 		// linked list header
-		gc_ptr<A> p0;
+		gc_ptr<gc_obj_A> p0;
 		size_t m=1024*128;
 
 		for(size_t i=0;i<m;i++)
 		{
 
-			gc_ptr<A> p1=gc_new<A>();
-			gc_ptr<A> p2=gc_new<A>();
-			gc_ptr<A> p3=gc_new<A>();
+			gc_ptr<gc_obj_A> p1=gc_new<gc_obj_A>();
+			gc_ptr<gc_obj_A> p2=gc_new<gc_obj_A>();
+			gc_ptr<gc_obj_A> p3=gc_new<gc_obj_A>();
 
 			// making recursive reference
 			p1->next=p2;
@@ -51,7 +48,7 @@ public:
 			p3->next=p1;
 
 			// append new element to linked list
-			gc_ptr<A> p4=gc_new<A>();
+			gc_ptr<gc_obj_A> p4=gc_new<gc_obj_A>();
 			p4->val=i;
 
 			p4->next=p0;
@@ -61,7 +58,7 @@ public:
 
 		}
 
-		A* p=p0.get();
+		gc_obj_A* p=p0.get();
 		size_t n=0;
 		while(p)
 		{
@@ -90,11 +87,11 @@ TEST_DEFINE(TEST_GarbageCollect)
 	{
 
 		// gc_ptr in container
-		arr_1t<gc_ptr<A> > arr;
+		arr_1t<gc_ptr<gc_obj_A> > arr;
 
 		for(size_t i=0;i<1024;i++)
 		{
-			arr.push_back(gc_new<A>());
+			arr.push_back(gc_new<gc_obj_A>());
 			if(i>1)
 			{
 				arr[i]->next=arr[i-1];

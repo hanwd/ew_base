@@ -57,7 +57,7 @@ void LogRecord::Serialize(Serializer& ar)
 	ar & m_tStamp & m_sMessage & m_nSrc & m_nId & m_nLevel;
 }
 
-class LoggerImpl : public ObjectData
+class LoggerImpl : public ObjectT<LogTarget,ObjectData>
 {
 public:
 	enum
@@ -67,29 +67,20 @@ public:
 
 
 	static LogPtr* def()
-	{
+	{		
 		class DefaultLogPtr : public DataPtrT<LogPtr>
 		{
 		public:
-
 			DefaultLogPtr()
 			{
-				LogPtr* h=new LogPtr();
-				h->SetData(new LogConsole);
-				reset(h);
-			}
-
-			~DefaultLogPtr()
-			{
-				reset(NULL);
+				reset(new LogPtr);
+				m_ptr->SetData(new LogConsole);
 			}
 		};
-
 		static DefaultLogPtr gInstance;
 		return gInstance.get();
 	}
 
-	LogTarget* m_refData;
 	arr_1t<LogRecord> m_aMsg;
 	int m_nId;
 	int m_nSrc;
@@ -100,8 +91,7 @@ public:
 	BitFlags flags;
 
 	LoggerImpl(int src=0,int id=0)
-		:m_refData(NULL)
-		,m_nId(id)
+		:m_nId(id)
 		,m_nSrc(src)
 		,m_nErrCount(0)
 		,m_nWrnCount(0)
@@ -111,7 +101,7 @@ public:
 
 	~LoggerImpl()
 	{
-		SetData(NULL);
+
 	}
 
 	inline void Handle(LogRecord& o)
@@ -133,16 +123,6 @@ public:
 		{
 			m_refData->Handle(o);
 		}
-	}
-
-	void SetData(LogTarget* t)
-	{
-		ObjectData::locked_reset(m_refData,t);
-	}
-
-	LogTarget* GetData()
-	{
-		return m_refData;
 	}
 
 };
@@ -268,13 +248,12 @@ bool Logger::Test(int t)
 		needsend=false;
 	};
 
-	needsend=needsend && impl->m_refData!=NULL;
 
-	if(needsend)
+	if(needsend && impl->GetData())
 	{
 		for(size_t i=0; i<impl->m_aMsg.size(); i++)
 		{
-			impl->m_refData->Handle(impl->m_aMsg[i]);
+			impl->GetData()->Handle(impl->m_aMsg[i]);
 		}
 	}
 

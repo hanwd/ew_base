@@ -36,7 +36,7 @@ public:
 
 	void Remove(ObjectInfo* info)
 	{
-		dlink.UnLink(info);
+		dlink.erase(info);
 
 		String name = info->GetName();
 		if (name.empty())
@@ -54,7 +54,7 @@ public:
 			return;
 		}
 
-		dlink.LinkNext(info);
+		dlink.push_front(info);
 
 		String name=info->GetName();
 		if(name.empty())

@@ -13,28 +13,26 @@ void DLink::clear()
 	m_sz=0;
 }
 
-void DLink::_do_link_next(DLinkNode* p)
-{
-	EW_ASSERT(p->_p_link_prev==NULL && p->_p_link_next==NULL);
-	p->_p_link_next=_p_link_next;
-	p->_p_link_prev=this;
-	_p_link_next->_p_link_prev=p;
-	_p_link_next=p;
-	m_sz++;
-}
 
-void DLink::_do_link_prev(DLinkNode* p)
+void DLink::_do_insert(DLinkNode* w,DLinkNode* p)
 {
 	EW_ASSERT(p->_p_link_prev==NULL && p->_p_link_next==NULL);
-	p->_p_link_next=this;
-	p->_p_link_prev=_p_link_prev;
-	_p_link_prev->_p_link_next=p;
-	_p_link_prev=p;
+	
+	p->_p_link_next=w;
+	p->_p_link_prev=w->_p_link_prev;
+	w->_p_link_prev->_p_link_next=p;
+	w->_p_link_prev=p;
 	m_sz++;
+
 }
 
 void DLink::_do_unlink(DLinkNode* p)
 {
+	if(p==this)
+	{
+		Exception::XInvalidIndex();
+		return;
+	}
 	if(p->_p_link_prev) p->_p_link_prev->_p_link_next=p->_p_link_next;
 	if(p->_p_link_next) p->_p_link_next->_p_link_prev=p->_p_link_prev;
 	p->_p_link_prev=p->_p_link_next=NULL;

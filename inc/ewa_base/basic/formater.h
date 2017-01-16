@@ -46,7 +46,7 @@ public:
 	void init(char_pointer p){p0=p1=p2=p;n_vpos=0;}
 	void init(const wchar_t* p);
 
-	std::auto_ptr<StringBuffer<char> > phold;
+	WStringProxy wproxy;
 };
 
 
@@ -130,6 +130,18 @@ public:
 		sb<<o;
 	}
 
+	template<typename T>
+	void str_append_n(const T&)
+	{
+
+	}
+
+	template<typename T>
+	typename tl::enable_tl<tl::integer_type,T,void>::type str_append_n(T* n)
+	{
+		*n=sb.size();
+	}
+
 	template<typename G>
 	void str_format_t(const G& o)
 	{
@@ -143,7 +155,7 @@ public:
 		}
 		else if(f2[-1]=='n')
 		{
-
+			str_append_n(o);
 		}
 		else
 		{

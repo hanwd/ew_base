@@ -90,7 +90,8 @@ public:
 		if(m_counter)
 		{
 			volatile uintptr_t* pcounter_addr=m_counter&0x1?&m_counter:(volatile uintptr_t*)m_counter;
-			*pcounter_addr+=2;
+			AtomicOps::fetch_add(pcounter_addr,(uintptr_t)2);
+			//*pcounter_addr+=2;
 		}
 		else
 		{
@@ -110,7 +111,8 @@ public:
 		}
 		else
 		{
-			*pcounter_addr-=2;
+			AtomicOps::fetch_sub(pcounter_addr,(uintptr_t)2);
+			//*pcounter_addr-=2;
 		}
 	}
 

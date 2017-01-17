@@ -12,11 +12,10 @@ EW_ENTER
 class DLLIMPEXP_EWA_BASE ObjectGroup
 {
 	typedef arr_1t<ObjectData*> impl_type;
+public:
 
 	typedef DataPtrT<ObjectData> value_proxy;
 	typedef arr_1t<value_proxy> impl_proxy;
-
-public:
 
 	ObjectGroup();
 	ObjectGroup(const ObjectGroup&);
@@ -53,10 +52,9 @@ private:
 template<typename T,typename B=Object>
 class ObjectGroupT : public B
 {
+public:
 	typedef arr_1t<DataPtrT<T> > impl_proxy;
 	typedef DataPtrT<T> value_proxy;
-
-public:
 
 	ObjectGroupT():B(){}
 	ObjectGroupT(const ObjectGroupT& o):B(o),impl(o.impl){}

@@ -128,11 +128,6 @@ public:
 			v=tmp;	
 		}
 
-		if(w>=N)
-		{
-			return false;
-		}
-
 		return true;
 	}
 

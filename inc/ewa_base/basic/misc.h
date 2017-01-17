@@ -282,6 +282,13 @@ public:
 	void shrink()
 	{
 		if(!wr_part) return;
+		if(wr_part==rd_part && rd_part->rd_free()==0)
+		{
+			bdestroy(rd_part->next,rd_part);
+			bfree(rd_part);
+			return;
+		}
+
 		for(buffer_part* p=wr_part->next;p!=rd_part && p->rd_free()==0;)
 		{
 			wr_part->next=p->next;

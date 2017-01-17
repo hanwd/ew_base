@@ -2,9 +2,8 @@
 #include "ewa_base/basic/system.h"
 #include "ewa_base/basic/stringbuffer.h"
 #include "ewa_base/basic/object_ex.h"
+#include "ewa_base/basic/misc.h"
 #include "ewa_base/net/socket.h"
-//#include "ewa_base/serialization/serializer_stream.h"
-//#include "ewa_base/serialization/serializer_socket.h"
 
 EW_ENTER
 
@@ -34,7 +33,7 @@ int64_t IStreamData::seekg(int64_t p,int t)
 
 int64_t IStreamData::tellg()
 {
-	return -1;
+	return seekg(0,SEEKTYPE_CUR);
 }
 
 int64_t IStreamData::sizeg()
@@ -58,6 +57,11 @@ int64_t IStreamData::seekp(int64_t p,int t)
 
 int64_t IStreamData::tellp()
 {
+	return seekp(0,SEEKTYPE_CUR);
+}
+
+int64_t IStreamData::sizep()
+{
 	int64_t sz=tellp();
 	if(sz<0) return -1;
 	int64_t z1=seekp(0,SEEKTYPE_END);
@@ -70,9 +74,29 @@ int64_t IStreamData::tellp()
 	return z1;
 }
 
-int64_t IStreamData::sizep()
+
+int64_t IStreamData2::seek(int64_t p,int t)
 {
 	return -1;
+}
+
+int64_t IStreamData2::tell()
+{
+	return seek(0,SEEKTYPE_CUR);
+}
+
+int64_t IStreamData2::size()
+{
+	int64_t sz=tell();
+	if(sz<0) return -1;
+	int64_t z1=seek(0,SEEKTYPE_END);
+	if(z1<0) return -1;
+	int64_t z2=seek(sz,SEEKTYPE_BEG);
+	if(z1!=z2)
+	{
+		System::LogError("seekp failed");
+	}
+	return z1;
 }
 
 bool IStreamData::send_all(const char* data,size_t size)
@@ -140,6 +164,33 @@ public:
 	
 };
 
+
+
+class DLLIMPEXP_EWA_BASE IStreamMemory : public IStreamData
+{
+public:
+
+	IStreamMemory(){}
+
+	MemoryBuffer<char> mb;
+
+	int send(const char* data,size_t size)
+	{
+		return mb.send(data,size);
+	}
+	int recv(char* data,size_t size)
+	{
+		return mb.recv(data,size);
+	}
+
+	void close()
+	{
+		mb.clear();
+		mb.shrink();
+	}
+	
+};
+
 class DLLIMPEXP_EWA_BASE IStreamSocket : public IStreamData
 {
 public:
@@ -176,56 +227,6 @@ inline void set_invalid_stream_error()
 
 	errno=5;
 }
-
-
-//int SerializerReader::recv(char* data,int size)
-//{
-//	flags.add(FLAG_READER_FAILBIT);
-//	set_invalid_stream_error();
-//	return -1;
-//}
-//
-//int SerializerWriter::send(const char* data,int size)
-//{
-//	flags.add(FLAG_WRITER_FAILBIT);
-//	set_invalid_stream_error();
-//	return -1;
-//}
-
-
-//
-//bool SerializerReader::recv_all(char* data,int size)
-//{
-//	while(size>0)
-//	{
-//		int n=recv(data,size);
-//		if(n==size) return true;
-//		if(n<=0)
-//		{
-//			return false;
-//		}
-//		size-=n;
-//		data+=n;
-//	}
-//	return true;
-//}
-
-
-//bool SerializerWriter::send_all(const char* data,int size)
-//{
-//	while(size>0)
-//	{
-//		int n=send(data,size);
-//		if(n==size) return true;
-//		if(n<=0)
-//		{
-//			return false;
-//		}
-//		size-=n;
-//		data+=n;
-//	}
-//	return true;
-//}
 
 
 bool Stream::write_to_file(const String& fp,int flag)

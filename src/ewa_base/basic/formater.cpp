@@ -110,9 +110,14 @@ template class FormatStateT<StringBuilder>;
 
 void FormatState0::init(const wchar_t* p)
 {
-	phold.reset(new StringBuffer<char>);
-	IConv::unicode_to_utf8(*phold,p,std::char_traits<wchar_t>::length(p));
-	init(phold->data());
+	wproxy.reset(p);
+	init(wproxy.c_str());
+}
+
+void FormatState0::init(const Variant& v)
+{
+	wproxy.reset(v);
+	init(wproxy.c_str());
 }
 
 

@@ -33,7 +33,7 @@ inline void String::_do_append(const char* p1,size_t n)
 inline void String::_do_append(const wchar_t* p1,size_t n)
 {
 	StringBuffer<char> sb;
-	IConv::unicode_to_ansi(sb,p1,n);
+	IConv::unicode_to_utf8(sb,p1,n);
 	_do_append(sb.data(),sb.size());
 }
 
@@ -48,38 +48,8 @@ inline void String::_do_assign(const wchar_t* p1,size_t n)
 {
 	StringBuffer<char> sb;
 	IConv::unicode_to_utf8(sb,p1,n);
-
 	_do_assign(sb.data(),sb.size());
 }
-
-//
-//inline int String::_do_prinfv(const char* format,va_list argptr)
-//{
-//	va_list argptr_copy;
-//	va_copy(argptr_copy,argptr);
-//	int n1=vsnprintf(0,0,format,argptr_copy);
-//	va_end(argptr_copy);
-//
-//	if(n1<0)
-//	{
-//		System::LogTrace("n1!<0 in String::_do_printfv.");
-//		return -1;
-//	}
-//
-//	char* pbuf=StringDetail::str_alloc(n1);
-//	int n2=vsnprintf(pbuf,n1+1,format,argptr);
-//	StringDetail::str_free(m_ptr);
-//	m_ptr=pbuf;
-//
-//	if(n1!=n2)
-//	{
-//		System::LogTrace("n1!=n2 in String::_do_printfv. n1=%d,n2=%d",n1,n2);
-//	}
-//
-//	return n1;
-//
-//}
-
 
 String::String(const StringBuffer<char>& o)
 {
@@ -221,6 +191,8 @@ bool String::ToNumber(int64_t* val) const
 	if(!val) return false;
 
 	const char* p(m_ptr);
+	while (p[0] == ' ' || p[0] == '\t') ++p;
+
 	bool sign = ScannerHelper<const char*>::read_sign(p);
 
 	int64_t v(0);

@@ -177,14 +177,14 @@ TEST_DEFINE(TEST_Scripting_Executor2)
 "println('upper:',s.upper());"
 "println('reverse:',s.reverse());"
 "println('substr(2,-1):',s.substr(2,-1));"
-"println(string.format('{1},{2}','hello','world'));"
+"println(string.format('%{1},%{2}','hello','world'));"
 );
 
 
 	ewsl.execute(
-"logger.log_message('{1} from script!','logger.log_message');"
-"logger.log_warning('{1} from script!','logger.log_warning');"
-"logger.log_error('{1} from script!','logger.log_error');"
+"logger.log_message('%{1} from script!','logger.log_message');"
+"logger.log_warning('%{1} from script!','logger.log_warning');"
+"logger.log_error('%{1} from script!','logger.log_error');"
 	);
 
 	ewsl.execute("local a=[1,2,3,4];printex(a);");

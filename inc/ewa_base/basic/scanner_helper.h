@@ -125,9 +125,14 @@ public:
 				System::LogTrace("overflow in "__FUNCTION__);
 			}
 
-			v=tmp;
-	
+			v=tmp;	
 		}
+
+		if(w>=N)
+		{
+			return false;
+		}
+
 		return true;
 	}
 
@@ -149,13 +154,13 @@ public:
 			{
 				return read_uint_t<T,2>(++p, v);
 			}
-			else if (ch >= '1'&&ch <= '9')
+			else if (ch >= '1'&&ch <= '7')
 			{
-				return read_uint_t<T,8>(++p, v);
+				return read_uint_t<T,8>(p, v);
 			}
-			else if (ch == '0')
+			else if (ch == '0'||ch=='9')
 			{
-				return false;
+				return read_uint_t<T,10>(p, v);
 			}
 			else
 			{

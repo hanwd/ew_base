@@ -203,6 +203,15 @@ void ThreadImpl::svc_leave()
 	}
 }
 
+void ThreadImpl::link_to(ThreadManager::ThreadLink *p)
+{
+	if(ptr_link==p) return;
+
+	if(ptr_link) ptr_link->erase(this);
+	ptr_link=p;
+	if(ptr_link) ptr_link->push_front(this);
+}
+
 void ThreadImpl::svc()
 {
 	ThreadManager& tmgr(ThreadManager::current());

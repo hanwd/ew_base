@@ -56,41 +56,6 @@ int ThreadManager::count()
 	return m_nThreadNum.get();
 }
 
-void ThreadManager::stop_the_world()
-{
-	LockGuard<Mutex> lock1(m_thrd_mutex);
-	HANDLE id=::GetCurrentThread();
-	for(ThreadLink::iterator it=list_work.begin();it!=list_work.end();++it)
-	{
-		ThreadImpl* p=(*it);		
-		if(p->thrd_id!=id)
-		{
-			::SuspendThread(p->thrd_id);
-		}
-		else
-		{
-			continue;
-		}
-	}
-}
-
-void ThreadManager::resume_the_world()
-{
-	LockGuard<Mutex> lock1(m_thrd_mutex);
-	HANDLE id=::GetCurrentThread();
-	for(ThreadLink::iterator it=list_work.begin();it!=list_work.end();++it)
-	{
-		ThreadImpl* p=(*it);		
-		if(p->thrd_id!=id)
-		{
-			::ResumeThread(p->thrd_id);
-		}
-		else
-		{
-			continue;
-		}
-	}
-}
 
 void ThreadManager::close(bool and_wait)
 {

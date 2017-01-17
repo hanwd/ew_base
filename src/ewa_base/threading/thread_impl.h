@@ -58,14 +58,7 @@ public:
 	ThreadImpl_detail::thread_t thrd_id;
 	ThreadEx::factor_type invoker;
 
-	void link_to(ThreadManager::ThreadLink *p)
-	{
-		if(ptr_link==p) return;
-
-		if(ptr_link) ptr_link->UnLink(this);
-		ptr_link=p;
-		if(ptr_link) ptr_link->LinkNext(this);
-	}
+	void link_to(ThreadManager::ThreadLink *p);
 
 	LitePtrT<ThreadManager::ThreadLink> ptr_link;
 

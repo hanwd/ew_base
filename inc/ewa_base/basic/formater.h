@@ -45,8 +45,9 @@ public:
 
 	void init(char_pointer p){p0=p1=p2=p;n_vpos=0;}
 	void init(const wchar_t* p);
+	void init(const Variant& v);
 
-	std::auto_ptr<StringBuffer<char> > phold;
+	StringProxy wproxy;
 };
 
 
@@ -95,6 +96,7 @@ public:
 
 	FormatStateT(const char* p){init(p);}
 	FormatStateT(const wchar_t* p){init(p);}
+	FormatStateT(const Variant& v){init(v);}
 
 	void str_append_s(const char* x){str_append(x);}
 	void str_append_s(const wchar_t* x);
@@ -130,6 +132,18 @@ public:
 		sb<<o;
 	}
 
+	template<typename T>
+	void str_append_n(const T&)
+	{
+
+	}
+
+	template<typename T>
+	typename tl::enable_tl<tl::integer_type,T,void>::type str_append_n(T* n)
+	{
+		*n=sb.size();
+	}
+
 	template<typename G>
 	void str_format_t(const G& o)
 	{
@@ -143,12 +157,12 @@ public:
 		}
 		else if(f2[-1]=='n')
 		{
-
+			str_append_n(o);
 		}
 		else
 		{
 			size_t n=size_t(n_fmt_width[0])+size_t(n_fmt_width[1]);
-			S::Policy::format(sb,std::max(FormatPolicy::width(o),n),f1,FormatPolicy::cast(o));
+			S::Policy::format(sb,n,f1,FormatPolicy::cast(o));
 		}	
 	}
 

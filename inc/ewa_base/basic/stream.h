@@ -38,6 +38,23 @@ public:
 
 };
 
+class DLLIMPEXP_EWA_BASE IStreamData2 : public IStreamData
+{
+public:
+
+	virtual int64_t seek(int64_t p,int t);
+	virtual int64_t tell();
+	virtual int64_t size();
+
+	virtual int64_t seekg(int64_t p,int t){return seek(p,t);}
+	virtual int64_t tellg(){return tell();}
+	virtual int64_t sizeg(){return size();}
+
+	virtual int64_t seekp(int64_t p,int t){return seek(p,t);}
+	virtual int64_t tellp(){return tell();}
+	virtual int64_t sizep(){return size();}
+};
+
 
 class DLLIMPEXP_EWA_BASE File;
 class DLLIMPEXP_EWA_BASE Socket;

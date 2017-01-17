@@ -34,9 +34,7 @@ public:
 
 protected:
 
-	
-	void _do_link_next(DLinkNode* p);
-	void _do_link_prev(DLinkNode* p);
+	void _do_insert(DLinkNode* w,DLinkNode* p);
 
 	void _do_unlink(DLinkNode* p);
 	void _do_unlink(DLinkNode* p1,DLinkNode* p2);
@@ -47,61 +45,43 @@ protected:
 	size_t m_sz;
 };
 
-class DLinkPolicyDirectCast
+
+
+template<typename T,int N>
+class DLinkPolicyShift
 {
 public:
-	template<typename T>
-	static DLinkNode* cast_n(T* t){return static_cast<DLinkNode*>(t);}
-
-	template<typename T>
-	static T* cast_t(DLinkNode* p){return static_cast<T*>(p);}
-};
-
-template<int N>
-class DLinkPolicyShiftCast
-{
-public:
-	template<typename T>
 	static DLinkNode* cast_n(T* t){return (DLinkNode*)(((char*)t)+N);}
-
-	template<typename T>
 	static T* cast_t(DLinkNode* p){return (T*)(((char*)p)-N);}
 };
 
-template<typename Y>
-class DLinkPolicyBaseCast
+template<typename T>
+class DLinkPolicyDerive
 {
 public:
-	template<typename T>
-	static DLinkNode* cast_n(T* t){return static_cast<Y*>(t);}
+	static DLinkNode* cast_n(T* t){return static_cast<DLinkNode*>(t);}
+	static T* cast_t(DLinkNode* p){return static_cast<T*>(p);}
+};
 
-	template<typename T>
+
+template<typename T,typename Y>
+class DLinkPolicySelect
+{
+public:
+	static DLinkNode* cast_n(T* t){return static_cast<Y*>(t);}
 	static T* cast_t(DLinkNode* p){return static_cast<T*>(static_cast<Y*>(p));}
 };
 
 
 
-template<typename T,typename P=DLinkPolicyDirectCast>
+template<typename T,typename P=DLinkPolicyDerive<T> >
 class DLinkT : public DLink
 {
 public:
 
-	void LinkNext(T* p)
-	{
-		DLink::_do_link_next(P::cast_n(p));
-	}
-
-	void LinkPrev(T* p)
-	{
-		DLink::_do_link_prev(P::cast_n(p));
-	}
-
-	void UnLink(T* p)
-	{
-		DLink::_do_unlink(P::cast_n(p));
-	}
-
-
+	void push_front(T* p){DLink::_do_insert(_p_link_next,P::cast_n(p));}
+	void push_back(T* p){DLink::_do_insert(this,P::cast_n(p));}
+	void erase(T* p){DLink::_do_unlink(P::cast_n(p));}
 
 	template<bool D,bool C>
 	class iterator_t
@@ -129,7 +109,7 @@ public:
 		typename tl::meta_if<C,const T*,T*>::type operator*()
 		{
 			EW_ASSERT(link!=node);
-			return P::cast_t<T>(node);
+			return P::cast_t(node);
 		}
 
 		bool operator==(const iterator_t& it){return node==it.node;}
@@ -138,11 +118,26 @@ public:
 
 
 	template<bool D>
-	void UnLink(iterator_t<D,0> p1,iterator_t<D,0> p2)
+	void erase(iterator_t<D,0> p1,iterator_t<D,0> p2)
 	{
 		EW_ASSERT(p1.link==this);
 		EW_ASSERT(p2.link==this);
 		D? DLink::_do_unlink(p1.node,p2.node) : DLink::_do_unlink(DLink::_get_next(p2.node),DLink::_get_prev(p1.node)); 
+	}
+
+	template<bool D>
+	void erase(iterator_t<D,0> p1)
+	{
+		EW_ASSERT(p1.link==this);
+		DLink::_do_unlink(p1.node);
+	}
+
+	template<bool D,bool C>
+	void insert(iterator_t<D,C> p1,T* p2)
+	{
+		EW_ASSERT(p1.link==this);
+		if(D) _do_insert(p1.node,P::cast_n(p2));
+		else _do_insert(p1.node->_p_link_next,P::cast_n(p2));
 	}
 
 

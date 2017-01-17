@@ -13,17 +13,23 @@
 using namespace ew;
 
 
-
 TEST_DEFINE(TEST_String)
 {
-	
+
 	String s1;
 	String s2("hello");
 
 	TEST_ASSERT(s1=="");
+	TEST_ASSERT(s1.empty());
 	TEST_ASSERT(s1.size()==0);
-	TEST_ASSERT(s1!=s2);
+	TEST_ASSERT(s1.c_str()[0]==0);
+
+	TEST_ASSERT(s2=="hello");
+	TEST_ASSERT(!s2.empty());
 	TEST_ASSERT(s2.size()==5);
+	TEST_ASSERT(s1.c_str()[5]==0);
+
+	TEST_ASSERT(s1!=s2);
 
 	s1=s2;
 	TEST_ASSERT(s1==s2);
@@ -112,6 +118,24 @@ TEST_DEFINE(TEST_String)
 
 }
 
+
+TEST_DEFINE(TEST_StringFormatEx)
+{
+	TEST_ASSERT(String::Format("%{2}%{1}","hello","world")=="worldhello");
+	TEST_ASSERT(String::Format("%{1, *d}",3,9)=="  9");
+	TEST_ASSERT(String::Format("%{1}%{3}%{1}%{2}",1,2,3,4)=="1312");
+	TEST_ASSERT(String::Format("%d %ccs32342")=="%d %ccs32342");
+	TEST_ASSERT(String::Format("%d %ccs32342",1)=="1 %ccs32342");
+	TEST_ASSERT(String::Format(L"%{1}%{2}",1,2)=="12");
+	TEST_ASSERT(String::Format(L"%{1}%{2}","1",L"2")=="12");
+	TEST_ASSERT(String::Format("%{1}%{2}",L"1",L"2")=="12");
+
+	int32_t v1,v2;
+	String s1=String::Format("hello%{2,n}%{1,d}%{3,n}world",123,&v1,&v2);
+	TEST_ASSERT(v1==5);
+	TEST_ASSERT(v2==8);
+
+}
 
 TEST_DEFINE(TEST_StringBuffer)
 {

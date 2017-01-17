@@ -6,12 +6,41 @@ EW_ENTER
 
 String string_format_variants(Variant* p,int n)
 {
-	if(n==0) return "";
-	String res=variant_cast<String>(p[0]);
-	for(int i=1;i<n;i++)
+	if(n--<=0) return "";
+	String res;
+
+	switch(n)
 	{
-		String id=String::Format("{%d}",i);
-		res.replace(id,variant_cast<String>(p[i]));
+	case 0: 
+		res=variant_cast<String>(p[0]);
+		break;
+	case 1:
+		res=String::Format(p[0],p[1]);
+		break;
+	case 2:
+		res=String::Format(p[0],p[1],p[2]);
+		break;
+	case 3:
+		res=String::Format(p[0],p[1],p[2],p[3]);
+		break;
+	case 4:
+		res=String::Format(p[0],p[1],p[2],p[3],p[4]);
+		break;
+	case 5:
+		res=String::Format(p[0],p[1],p[2],p[3],p[4],p[5]);
+		break;
+	case 6:
+		res=String::Format(p[0],p[1],p[2],p[3],p[4],p[5],p[6]);
+		break;
+	case 7:
+		res=String::Format(p[0],p[1],p[2],p[3],p[4],p[5],p[6],p[7]);
+		break;
+	case 8:
+		res=String::Format(p[0],p[1],p[2],p[3],p[4],p[5],p[6],p[7],p[8]);
+		break;
+	default:
+		res=String::Format(p[0],p[1],p[2],p[3],p[4],p[5],p[6],p[7],p[8],p[9]);
+		break;
 	}
 	return res;
 }

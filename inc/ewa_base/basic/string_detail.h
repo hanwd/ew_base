@@ -13,16 +13,39 @@ DLLIMPEXP_EWA_BASE void* mp_alloc(size_t n);
 DLLIMPEXP_EWA_BASE void mp_free(void* p);
 
 class DLLIMPEXP_EWA_BASE String;
-
+class DLLIMPEXP_EWA_BASE Variant;
 
 template<typename T>
 class DLLIMPEXP_EWA_BASE StringBuffer;
 
+class DLLIMPEXP_EWA_BASE StringProxy
+{
+public:
+	StringProxy();
+	StringProxy(const StringProxy&);
+	StringProxy& operator=(const StringProxy&);
+
+	StringProxy(const Variant& v);
+	StringProxy(const wchar_t* p);
+	StringProxy(const wchar_t* p,size_t n);
+	~StringProxy();
+
+	void reset(const wchar_t* p);
+	void reset(const wchar_t* p,size_t n);
+	void reset(const Variant& v,const char* f=NULL);
+
+	operator const char*() const {return m_ptr;}
+	const char* c_str() const {return m_ptr;}
+	size_t size() const {return m_size;}
+
+private:
+	const char* m_ptr;
+	size_t m_size;
+};
 
 class FormatPolicy
 {
 public:
-
 	template<typename G>
 	static inline size_t width(const G& o)
 	{
@@ -38,8 +61,11 @@ public:
 	template<typename T>
 	static inline size_t width(const StringBuffer<T>& o)
 	{
-		return width(o.c_str());
+		return sizeof(T)*o.size()+8;
 	}
+
+	static size_t width(const Variant& o);
+
 
 	static inline size_t width(const void* o)
 	{
@@ -77,32 +103,21 @@ public:
 		typedef typename unsigned_integer_type<sizeof(G)>::type U;
 
 		p[0]=T(0);
-
 		if(v==0)
 		{
 			*--p='0';
 			return p;
 		}
 
-		bool sign=v<0;
-		
-		U u=v;
-		if(sign)
-		{
-			u=(~u)+1;
-		}
-
+		bool sign=v<0;		
+		U u=sign?~v+1:v;
 		while(u>0)
 		{
 			*--p='0'+(u%10);
 			u=u/10;
 		}
 
-		if(sign)
-		{
-			*--p='-';
-		}
-		
+		if(sign) *--p='-';
 
 		return p;
 	}
@@ -115,14 +130,21 @@ public:
 
 	typedef B container_type;
 
-	static container_type& return_initialized_buffer(container_type& b,size_t n,char* p)
+	char buffer[1024];
+
+	container_type& return_initialized_buffer(container_type& b,size_t n,char* p)
 	{
 		b.append(p,n);
-		mp_free(p);
+		if(p!=buffer)
+		{
+			mp_free(p);
+		}
 		return b;
 	}
-	static char* get_uninitialized_buffer(container_type& b,size_t n)
+
+	char* get_uninitialized_buffer(container_type& b,size_t n)
 	{
+		if(n<sizeof(buffer)) return buffer;
 		char* p=(char*)mp_alloc(n);
 		if(!p) Exception::XBadAlloc();
 		return p;
@@ -160,8 +182,9 @@ public:
 	}
 };
 
+DLLIMPEXP_EWA_BASE int variant_snprintf(char* p,size_t n,const char* s,const Variant& v);
 
-template<template<typename> class C,int N=0>
+template<template<typename> class C>
 class BFormatPolicy : public FormatPolicy
 {
 public:
@@ -169,41 +192,53 @@ public:
 	template<typename B,typename G>
 	static B& on_sprint_error(B& b,size_t n,const char* s,G v)
 	{
-		ew::OnNoop();
+		EW_UNUSED(v);
+		EW_UNUSED(n);
+		b.append(s,std::char_traits<char>::length(s));
 		return b;
 	}
 
-	template<typename B,typename G>
-	static B& format(B& b,size_t n,const char* s,G v)
+	template<typename B>
+	static B& format(B& b,size_t n,const char* s,const Variant& v)
 	{
-		if(N>0 && n<N)
+		C<B> cb;
+		EW_UNUSED(cb);
+
+		n=std::max(FormatPolicy::width(v),n);
+	
+		char* p=cb.get_uninitialized_buffer(b,n);
+		int nd=variant_snprintf(p,n,s,v);
+		if(nd>=0)
 		{
-			char p[N+1];
-			int nd=::sprintf(p,s,v);
-			if(nd>0)
-			{
-				return C<B>::append(b,p,nd);
-			}
-			else
-			{
-				return on_sprint_error(b,n,s,v);
-			}
+			cb.return_initialized_buffer(b,nd,p);
 		}
 		else
 		{
-			char* p=C<B>::get_uninitialized_buffer(b,n);
-			int nd=::sprintf(p,s,v);
-			if(nd>=0)
-			{
-				C<B>::return_initialized_buffer(b,nd,p);
-			}
-			else
-			{
-				C<B>::return_initialized_buffer(b,0,p);
-				on_sprint_error(b,n,s,v);
-			}
-			return b;
+			cb.return_initialized_buffer(b,0,p);
+			on_sprint_error(b,n,s,v);
 		}
+		return b;	
+	
+	}
+	template<typename B,typename G>
+	static B& format(B& b,size_t n,const char* s,G v)
+	{
+		C<B> cb;
+		EW_UNUSED(cb);
+		n=std::max(FormatPolicy::width(v),n);
+	
+		char* p=cb.get_uninitialized_buffer(b,n);
+		int nd=::sprintf(p,s,v);
+		if(nd>=0)
+		{
+			cb.return_initialized_buffer(b,nd,p);
+		}
+		else
+		{
+			cb.return_initialized_buffer(b,0,p);
+			on_sprint_error(b,n,s,v);
+		}
+		return b;	
 	}
 
 	template<typename B,typename G>
@@ -218,7 +253,7 @@ public:
 	template<typename B>
 	static B& append(B& b,const char* p)
 	{
-		return C<B>::append(b,p,::strlen(p));
+		return C<B>::append(b,p,std::char_traits<char>::length(p));
 	}
 
 	template<typename B>
@@ -227,9 +262,14 @@ public:
 		return C<B>::append(b,p,n);
 	}
 
+	template<typename B>
+	static B& append(B& b,const StringProxy& o)
+	{
+		return C<B>::append(b,o.c_str(),o.size());
+	}
 };
 
-class FormatPolicy1 : public BFormatPolicy<BContainerPolicy1,1024>
+class FormatPolicy1 : public BFormatPolicy<BContainerPolicy1>
 {
 public:
 
@@ -250,17 +290,22 @@ public:
 	typedef P Policy;
 	B& operator<<(bool v){return P::append(_fmt_container(),v?"true":"false");}
 	B& operator<<(char v){	return P::append(_fmt_container(),&v,1);}
+	B& operator<<(wchar_t v){return P::append(_fmt_container(),StringProxy(&v,1));}
 	B& operator<<(int32_t v){return P::format_integer(_fmt_container(),v);}
 	B& operator<<(int64_t v){return P::format_integer(_fmt_container(),v);}
 	B& operator<<(uint32_t v){return P::format_integer(_fmt_container(),v);}
 	B& operator<<(uint64_t v){return P::format_integer(_fmt_container(),v);}
 	B& operator<<(float v){return P::format(_fmt_container(),64,"%g",double(v));}
 	B& operator<<(double v){return P::format(_fmt_container(),64,"%g",v);}
+	B& operator<<(long double v){return P::format(_fmt_container(),64,"%Lg",v);}
 	B& operator<<(const char* v){return P::append(_fmt_container(),v);}
+	B& operator<<(const unsigned char* v){return P::append(_fmt_container(),(const char*)v);}
+	B& operator<<(const wchar_t* v){return P::append(_fmt_container(),StringProxy(v));}
+	B& operator<<(const Variant& v){return P::append(_fmt_container(),StringProxy(v));}
 	B& operator<<(const void* v){return P::format(_fmt_container(),16,"%p",v);}
 	B& operator<<(const String& v){return P::append(_fmt_container(),P::cast(v));}
-	B& operator<<(const StringBuffer<char>& v){return P::append(_fmt_container(),P::cast(v));}
-	B& operator<<(const std::basic_string<char>& v){return P::append(_fmt_container(),P::cast(v));}
+	B& operator<<(const StringBuffer<char>& v){return P::append(_fmt_container(),v.data(),v.size());}
+	B& operator<<(const std::basic_string<char>& v){return P::append(_fmt_container(),v.c_str(),v.size());}
 
 private:
 	B& _fmt_container(){return static_cast<B&>(*this);}

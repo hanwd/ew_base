@@ -49,13 +49,15 @@ public:
 	};
 
 
-	explicit InvokeParam(int t = TYPE_NONE) :type(t){}
+	explicit InvokeParam(int t = TYPE_NONE) :type(t){pobj=NULL;}
 	virtual ~InvokeParam(){}
 
 	int type;
 	BitFlags flags;
+	Object* pobj;
 	arr_1t<String> argvs;
 	indexer_set<ObjectInfo*> infos;
+
 
 	virtual void OnInvoke(ObjectInfo*);
 

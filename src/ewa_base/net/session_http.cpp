@@ -332,7 +332,7 @@ void SessionHttp::HandleRequest()
 	}
 
 	sb1.swap(sb);
-	AsyncSend(sb.c_str(),sb.size());
+	AsyncSend(sb.c_str(),sb.size(),1);
 
 }
 
@@ -450,7 +450,7 @@ void SessionHttp::_ParseRequestHeaders()
 
 void SessionHttp::OnSendCompleted(TempOlapPtr& q)
 {
-	if(q->flags!=0) return;
+	if(q->flags==0) return;
 
 	if(!flags.get(FLAG_RESPONSE_CHUNKED))
 	{
@@ -798,11 +798,8 @@ void MultiPartFormData::HandleData(TempOlapPtr& q)
 }
 
 
-
-void SessionHttp::OnRecvCompleted(TempOlapPtr& q)
+void SessionHttp::_HandleData(TempOlapPtr& q,size_t s1)
 {
-	size_t s1=sb.size();
-	sb.append(q->buffer,q->size);
 
 	if(phase==0)
 	{
@@ -874,7 +871,13 @@ void SessionHttp::OnRecvCompleted(TempOlapPtr& q)
 
 	HandleQuery(sb);
 	HandleRequest();
+}
 
+void SessionHttp::OnRecvCompleted(TempOlapPtr& q)
+{
+	size_t s1=sb.size();
+	sb.append(q->buffer,q->size);
+	_HandleData(q,s1);
 }
 
 void SessionHttp::OnConnected()
@@ -893,10 +896,11 @@ void SessionHttp::Redirect(const String& url)
 void SessionHttpServer::NewSession(PerIO_socket& sk)
 {
 	sk.sock.block(false);
-	DataPtrT<SessionHttp> kjobd_worker(new SessionHttp(Target));
+	DataPtrT<SessionHttp> kjobd_worker(new SessionHttp(*Target));
 	kjobd_worker->sk_local.swap(sk);
 	StartSession(kjobd_worker.get(),hiocp);
 }
+
 
 class CallableFunctionAbondonSession : public CallableFunction
 {
@@ -914,13 +918,17 @@ public:
 
 SessionHttpServer::SessionHttpServer()
 {
-	Target.server_objects.reset(new CallableTableEx);
-	Target.server_objects->value["abondon_session"].reset(new CallableFunctionAbondonSession);
+	Target.reset(new SessionManager);
+	Target->server_objects.reset(new CallableTableEx);
+	Target->server_objects->value["abondon_session"].reset(new CallableFunctionAbondonSession);
 }
+
+
+
 
 void SessionHttpServer::Register(const String& name,Variant& object)
 {
-	Target.server_objects->value[name]=object;
+	Target->server_objects->value[name]=object;
 }
 
 EW_LEAVE

@@ -133,7 +133,7 @@ bool IStreamData::recv_all(char* data,size_t size)
 }
 
 
-class DLLIMPEXP_EWA_BASE IStreamFile : public IStreamData
+class DLLIMPEXP_EWA_BASE IStreamFile : public IStreamData2
 {
 public:
 
@@ -143,13 +143,14 @@ public:
 
 	File file;
 
-	int64_t seekg(int64_t p,int t){return file.seek(p,t);}
-	int64_t seekp(int64_t p,int t){return file.seek(p,t);}
+	int64_t seek(int64_t p,int t){return file.seek(p,t);}
+	int64_t tell(){return file.tell();}
+	int64_t size(){return file.size();}
 
 	void flush(){file.flush();}
 
-	int64_t tellg(){return file.tell();}
-	int64_t tellp(){return file.tell();}
+
+
 
 	int send(const char* data,size_t size)
 	{

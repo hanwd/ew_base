@@ -914,5 +914,8 @@
     <ClCompile Include="..\..\src\ewa_base\basic\msic.cpp">
       <Filter>source\basic</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\ewa_base\net\session_http_ssl.cpp">
+      <Filter>source\net</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

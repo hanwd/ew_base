@@ -291,8 +291,6 @@ DataPtrT<HttpResponse> HttpRequest::Execute()
 
 	socket.shutdown();
 
-	//sb.save("http_res.txt");
-
 	if(!res->parse(sb))
 	{
 		return NULL;

@@ -36,7 +36,7 @@ public:
 };
 
 
-class DLLIMPEXP_EWA_BASE MyOverLapped
+class DLLIMPEXP_EWA_BASE MyOverLapped : public mp_obj
 {
 public:
 

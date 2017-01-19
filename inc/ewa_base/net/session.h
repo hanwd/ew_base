@@ -87,13 +87,11 @@ public:
 	bool WaitForSend();
 	bool WaitForRecv();
 
-	bool AsyncSend(const char* data,size_t size);
+	virtual bool AsyncSend(const char* data,size_t size,int flag=1);
+
 	bool AsyncSend(TempOlapPtr& q);
 
-	bool AsyncSend(IPacketEx& packet)
-	{
-		return AsyncSend((char*)&packet,packet.size);
-	}
+	bool AsyncSend(IPacketEx& packet){return AsyncSend((char*)&packet,packet.size);}
 
 	bool AsyncRecv(TempOlapPtr& q);
 	bool AsyncRecv();

@@ -37,7 +37,7 @@ public:
 };
 
 
-class DLLIMPEXP_EWA_BASE SessionManager : public Object
+class DLLIMPEXP_EWA_BASE SessionManager : public ObjectData
 {
 public:
 	typedef DataPtrT<SessionData> session_ptr;
@@ -162,6 +162,7 @@ public:
 
 protected:
 
+	void _HandleData(TempOlapPtr& q,size_t s1);
 	void _ParseRequestHeaders();
 
 	arr_1t<int> lines;
@@ -171,14 +172,31 @@ protected:
 class  DLLIMPEXP_EWA_BASE SessionHttpServer : public SessionServer
 {
 public:
-	SessionManager Target;
+
+	DataPtrT<SessionManager> Target;
+	SessionHttpServer();
+
+	void NewSession(PerIO_socket& sk);
+	void Register(const String& name,Variant& object);
+
+
+};
+
+
+class  DLLIMPEXP_EWA_BASE SessionHttpSSLServer : public SessionHttpServer
+{
+public:
+
+	bool InitSSL(const String& cert,const String& key);
 
 	void NewSession(PerIO_socket& sk);
 
-	SessionHttpServer();
+	void* GetSSLContext();
 
-	void Register(const String& name,Variant& object);
+protected:
+	AutoPtrT<Object> m_pSSLContext;
 };
+
 
 EW_LEAVE
 #endif

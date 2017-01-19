@@ -16,7 +16,7 @@ SessionTCP::SessionTCP()
 
 }
 
-bool SessionTCP::AsyncSend(const char* data,size_t size)
+bool SessionTCP::AsyncSend(const char* data,size_t size,int flag)
 {
 	while (size > 0)
 	{
@@ -26,9 +26,9 @@ bool SessionTCP::AsyncSend(const char* data,size_t size)
 			q.reset(new MyOverLappedEx);
 		}
 
-		size_t sz=std::min<size_t>(size,IPacket::MAX_PACKET_SIZE);
+		size_t sz=std::min(size,(size_t)IPacket::MAX_PACKET_SIZE);
 
-		q->flags = size > IPacket::MAX_PACKET_SIZE ? 1:0;
+		q->flags = size > IPacket::MAX_PACKET_SIZE ? 0:flag;
 		q->size = sz;
 
 		memcpy(q->buffer, data, sz);

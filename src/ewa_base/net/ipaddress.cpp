@@ -168,8 +168,8 @@ String IPAddress::host()
 {
 	if(!pimpl) return "";
 
-	char* ipv4_addr=(char*)&pimpl->sin_addr;
-	return String::Format("%d.%d.%d.%d",ipv4_addr[0],ipv4_addr[1],ipv4_addr[2],ipv4_addr[3]);
+	uint8_t* ipv4_addr=(uint8_t*)&pimpl->sin_addr;
+	return String::Format("%u.%u.%u.%u",(uint32_t)ipv4_addr[0],(uint32_t)ipv4_addr[1],(uint32_t)ipv4_addr[2],(uint32_t)ipv4_addr[3]);
 }
 
 int IPAddress::port()

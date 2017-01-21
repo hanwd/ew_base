@@ -8,12 +8,13 @@ EW_ENTER
 
 void _g_signal_terminate(int param)
 {
+	Logger logger;
 
 	System::LogTrace("signal_terminate_received(%d)",param);
 
 	if (param == SIGTERM)
 	{
-		this_logger().LogMessage("SIGTERM Received!");
+		logger.LogMessage("SIGTERM Received!");
 		::exit(EXIT_FAILURE);
 	}
 
@@ -24,11 +25,11 @@ void _g_signal_terminate(int param)
 
 	if (param == SIGINT)
 	{
-		this_logger().LogMessage("SIGINT Received!");
+		logger.LogMessage("SIGINT Received!");
 	}
 	else
 	{
-		this_logger().LogMessage(String::Format("SIG(%d) Received", param));
+		logger.LogMessage(String::Format("SIG(%d) Received", param));
 	}
 
 	ThreadImpl::sm_bReqexit = true;

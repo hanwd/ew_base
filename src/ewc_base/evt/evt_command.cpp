@@ -34,15 +34,17 @@ String EvtCommand::MakeLabel(int hint) const
 		txt=m_sId;
 	}
 
+	if((hint==LABEL_MENU||hint==LABEL_MENUBAR) && m_sHotkey!="")
+	{
+		txt=txt+"(&"+m_sHotkey+")";
+	}
+
 	if(hint==LABEL_MENUBAR)
 	{
 		return txt;
 	}
 
-	if(hint==LABEL_MENU && m_sHotkey!="")
-	{
-		txt=txt+"(&"+m_sHotkey+")";
-	}
+
 
 	if(m_sExtra!="")
 	{
@@ -325,7 +327,7 @@ IWindowPtr EvtCommandCtrl::CreateWndsItem(IWindowPtr pw)
 	wxWindow* pwin=WndInfoManger::current().Create(m_sCtrlType,pw,wp);
 	if(!pwin) return NULL;
 
-	pwin->SetName(str2wx(m_sId));
+	pwin->SetName(str2wx(m_sText));
 	CreateValidator(pwin);
 	m_pWindow=pwin;
 	return pwin;

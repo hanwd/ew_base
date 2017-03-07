@@ -95,11 +95,13 @@ class DLLIMPEXP_EWA_BASE TestMgr : private NonCopyable
 {
 	TestMgr();
 	~TestMgr();
+
 public:
+
 	static TestMgr& current()
 	{
-		static TestMgr g;
-		return g;
+		static TestMgr gInstance;
+		return gInstance;
 	}
 
 	void AddTest(Test* t);

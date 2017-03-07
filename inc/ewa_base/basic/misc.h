@@ -2,8 +2,10 @@
 #define __H_EW_BASIC_MISC__
 
 #include "ewa_base/config.h"
+#include "ewa_base/basic/lockguard.h"
 
 EW_ENTER
+
 
 namespace detail
 {
@@ -259,12 +261,12 @@ protected:
 
 	typedef typename basetype::buffer_part buffer_part;
 
-	void bdestroy(buffer_part* p1,buffer_part* p2)
+	void bdestroy(buffer_part* p1, buffer_part* p2)
 	{
-		while(p1!=p2)
+		while (p1 != p2)
 		{
-			buffer_part* tmp=p1;
-			p1=p1->next;
+			buffer_part* tmp = p1;
+			p1 = p1->next;
 			bfree(tmp);
 		};
 	}
@@ -274,132 +276,203 @@ public:
 	MemoryBuffer(){}
 	~MemoryBuffer()
 	{
-		if(!rd_part) return;
-		bdestroy(rd_part->next,rd_part);
+		if (!rd_part) return;
+		bdestroy(rd_part->next, rd_part);
 		bfree(rd_part);
 	}
 
 	void shrink()
 	{
-		if(!wr_part) return;
-		if(wr_part==rd_part && rd_part->rd_free()==0)
+		if (!wr_part) return;
+		if (wr_part == rd_part && rd_part->rd_free() == 0)
 		{
-			bdestroy(rd_part->next,rd_part);
+			bdestroy(rd_part->next, rd_part);
 			bfree(rd_part);
 			return;
 		}
 
-		for(buffer_part* p=wr_part->next;p!=rd_part && p->rd_free()==0;)
+		for (buffer_part* p = wr_part->next; p != rd_part && p->rd_free() == 0;)
 		{
-			wr_part->next=p->next;
+			wr_part->next = p->next;
 			bfree(p);
-		}		
+		}
 	}
 
 	void clear()
 	{
-		if(!rd_part) return;
-		wr_part=rd_part;
-		buffer_part* p=rd_part;
+		if (!rd_part) return;
+		wr_part = rd_part;
+		buffer_part* p = rd_part;
 		do
 		{
-			p->gptr=p->wptr=p->base;
-			p=p->next;
-		}while(p!=rd_part);
+			p->gptr = p->wptr = p->base;
+			p = p->next;
+		} while (p != rd_part);
 	}
 
 	void rewind()
 	{
-		if(!rd_part) return;
+		if (!rd_part) return;
 
-		buffer_part* p0=rd_part;
-		rd_part=wr_part->next;
-		while(rd_part->gptr==rd_part->base && rd_part!=p0) rd_part=rd_part->next;
+		buffer_part* p0 = rd_part;
+		rd_part = wr_part->next;
+		while (rd_part->gptr == rd_part->base && rd_part != p0) rd_part = rd_part->next;
 
-		buffer_part* p1=rd_part;
-		while(1)
+		buffer_part* p1 = rd_part;
+		while (1)
 		{
-			p1->gptr=p1->base;
-			if(p1==p0) break;
-			p1=p1->next;			
+			p1->gptr = p1->base;
+			if (p1 == p0) break;
+			p1 = p1->next;
 		};
-		
+
 	}
 
-	int send(const T* pbuf,size_t nlen)
+	int send(const T* pbuf, size_t nlen)
 	{
-		size_t left=nlen;
+		size_t left = nlen;
 		size_t nd;
 
-		if(!wr_part)
+		if (!wr_part)
 		{
 			balloc(left);
-			if(!wr_part)
+			if (!wr_part)
 			{
 				return -1;
 			}
 		}
 
-		while(left)
-		{			
-			nd=btest(wr_part,left);
-			if(nd==0)
+		while (left)
+		{
+			nd = btest(wr_part, left);
+			if (nd == 0)
 			{
-				if(wr_part->next==rd_part)
+				if (wr_part->next == rd_part)
 				{
 					balloc(left);
 					continue;
 				}
 				else
 				{
-					wr_part=wr_part->next;
-					wr_part->wptr=wr_part->gptr=wr_part->base;
+					wr_part = wr_part->next;
+					wr_part->wptr = wr_part->gptr = wr_part->base;
 				}
 				continue;
 			}
 
-			EW_ASSERT(nd<=left);
+			EW_ASSERT(nd <= left);
 
-			std::copy_n(pbuf,nd,wr_part->wptr);
-			wr_part->wptr+=nd;
-			pbuf+=nd;
-			left-=nd;
+			std::copy_n(pbuf, nd, wr_part->wptr);
+			wr_part->wptr += nd;
+			pbuf += nd;
+			left -= nd;
 
 		}
 
-		return nlen-left;
+		return nlen - left;
 	}
 
-	int recv(T* pbuf,size_t nlen)
+	int recv(T* pbuf, size_t nlen)
 	{
-		if(!rd_part) return 0;
+		if (!rd_part) return 0;
 
-		size_t left=nlen;
-		while(left)
-		{			
-			size_t nd=rd_part->rd_free();
-			if(nd==0)
+		size_t left = nlen;
+		while (left)
+		{
+			size_t nd = rd_part->rd_free();
+			if (nd == 0)
 			{
-				if(rd_part==wr_part)
+				if (rd_part == wr_part)
 				{
 					break;
 				}
-				rd_part=rd_part->next;
+				rd_part = rd_part->next;
 				continue;
 			}
 
-			size_t n1=std::min(nd,left);
-			std::copy_n(rd_part->gptr,n1,pbuf);
-			rd_part->gptr+=n1;
-			pbuf+=n1;
-			left-=n1;
+			size_t n1 = std::min(nd, left);
+			std::copy_n(rd_part->gptr, n1, pbuf);
+			rd_part->gptr += n1;
+			pbuf += n1;
+			left -= n1;
 		}
-		return nlen-left;
+		return nlen - left;
 	}
-	
+
 };
 
 
+
+class DLLIMPEXP_EWA_BASE ObjectData;
+
+namespace detail
+{
+	template<typename T>
+	class DLLIMPEXP_EWA_BASE StaticInstance
+	{
+	public:
+
+		static inline T& current()
+		{
+			if (!ms_pInstance)
+			{
+				LockGuard<StaticMutex> locker(ms_mutex);
+				init_instance();
+			}
+			EW_ASSERT(ms_pInstance != NULL);
+			return *ms_pInstance;
+		}
+
+	private:
+
+		class D1
+		{
+		public:
+			void init()
+			{
+				StaticInstance<T>::ms_pInstance = new T;
+				StaticInstance<T>::ms_pInstance->IncRef();
+			}
+			~D1()
+			{
+				StaticInstance<T>::ms_pInstance->DecRef();
+				StaticInstance<T>::ms_pInstance = NULL;
+			}
+		};
+
+		class D2 : public T
+		{
+		public:
+			void init()
+			{
+				StaticInstance<T>::ms_pInstance = this;
+			}
+			~D2()
+			{
+				StaticInstance<T>::ms_pInstance = NULL;
+			}
+		};
+
+		typedef typename tl::meta_if<tl::is_convertible<T, ObjectData>::value, D1, D2 >::type holder_type;
+
+		static void init_instance()
+		{
+			if (ms_pInstance) return;
+			static holder_type gi;
+			gi.init();
+		}
+
+		static T* ms_pInstance;
+		static StaticMutex ms_mutex;
+	};
+
+	template<typename T>
+	T* StaticInstance<T>::ms_pInstance(NULL);
+
+	template<typename T>
+	StaticMutex StaticInstance<T>::ms_mutex;
+
+}
 
 
 EW_LEAVE

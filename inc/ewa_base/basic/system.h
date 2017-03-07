@@ -62,6 +62,15 @@ public:
 	static String MakePath(const String& file,const String& path);
 	static bool IsRelative(const String& file);
 
+	static String GetResdataPath();
+	static bool SetResdataPath(const String& s);
+
+	static String GetAppdataPath();
+	static bool SetAppdataPath(const String& s);
+
+	static String MakeResdataPath(const String& file);
+	static String MakeAppdataPath(const String& file);
+
 	static String GetCwd();
 	static bool SetCwd(const String& s);
 
@@ -118,6 +127,7 @@ public:
 	static void destroy(type& o);
 	static type open(const String& file);
 };
+
 
 class DLLIMPEXP_EWA_BASE DllModule : public Object
 {

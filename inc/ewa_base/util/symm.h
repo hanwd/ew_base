@@ -271,12 +271,12 @@ public:
 	bool is_reader(){return type==READER;}
 	bool is_writer(){return type==WRITER;}
 
-	SymbolManager& smap;
+	//SymbolManager& smap;
 	VariantTable& value;
 
 	const int type;
 
-	TableSerializer(int t,SymbolManager& m,VariantTable& v);
+	TableSerializer(int t,VariantTable& v);
 
 	void link(const String& s,double& v);
 	void link(const String& s,int& v);
@@ -312,13 +312,13 @@ public:
 class DLLIMPEXP_EWA_BASE TableSerializerReader : public TableSerializer
 {
 public:
-	TableSerializerReader(SymbolManager& m,VariantTable& v):TableSerializer(READER,m,v){}
+	TableSerializerReader(VariantTable& v):TableSerializer(READER,v){}
 };
 
 class DLLIMPEXP_EWA_BASE TableSerializerWriter : public TableSerializer
 {
 public:
-	TableSerializerWriter(SymbolManager& m,VariantTable& v):TableSerializer(WRITER,m,v){}
+	TableSerializerWriter(VariantTable& v):TableSerializer(WRITER,v){}
 };
 
 class DLLIMPEXP_EWA_BASE DMatrixBox

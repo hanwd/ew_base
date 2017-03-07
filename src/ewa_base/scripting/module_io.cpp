@@ -851,7 +851,7 @@ public:
 		SerializerStream ar;
 
 		arr_1t<Variant> var;
-		if(ar.open(*p,FLAG_FILE_RD))
+		if(ar.openuri(*p,FLAG_FILE_RD))
 		{
 			ar.reader() & var;
 		}
@@ -891,7 +891,7 @@ public:
 		arr_1t<Variant> var;
 		var.assign(ewsl.ci0.nbx + 2, pm - 1);
 
-		if(ar.open(*p,FLAG_FILE_WC))
+		if(ar.openuri(*p,FLAG_FILE_WC))
 		{
 			ar.writer() & var;
 		}

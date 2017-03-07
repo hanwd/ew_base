@@ -157,7 +157,7 @@ public:
 		km.propotion(1).flags(km.IWND_EXPAND).size(540,280).sv(1);
 		km.width( 96).sv(2);
 
-		km.win("dialog"			,km.label("Webview.Script").flags(km.IWND_NO_CLOSE|km.IWND_AUTO_FIT).sprops("icon","Find"));
+		km.win("dialog"			,km.label(_hT("Webview.Script")).flags(km.IWND_NO_CLOSE|km.IWND_AUTO_FIT).sprops("icon","Find"));
 			km.win("row");
 				km.add("stc"	,km.ld(1).name("Webview.script"));
 				km.win("col"	,km.flags(km.IWND_EXPAND));
@@ -190,7 +190,7 @@ bool PluginWebView::OnAttach()
 	ec.append(pmdl);
 
 	ec.gp_beg("OtherWindow");
-		ec.gp_add(new EvtCommandShowModel("Webview.Script",pmdl));
+		ec.gp_add(new EvtCommandShowModel(_kT("Webview.Script"),pmdl));
 	ec.gp_end();
 
 	ec.gp_beg(_kT("Webview.Page"));

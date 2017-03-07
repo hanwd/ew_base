@@ -209,7 +209,12 @@ wxToolBar* EvtGroup::CreateTbar(wxWindow* pw,int wd)
 		pCommand->CreateToolItem(tb);
 	}
 
-	tb->Realize();
+	bool flag=tb->Realize();
+
+	if (!flag)
+	{
+		System::LogMessage("tb realize failed!");
+	}
 
 	if(flags.get(FLAG_HIDE_UI)) tb->Show(false);
 	if(flags.get(FLAG_DISABLE)) tb->Enable(false);

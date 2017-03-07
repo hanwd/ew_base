@@ -68,6 +68,7 @@ public:
 					break;
 				case '\'':
 				case '\"':
+				case '\\':
 					sb.push_back(ch);
 					break;
 				default:
@@ -94,10 +95,14 @@ public:
 		m_aCont.clear();
 
 		StringBuffer<char> vt;
-		if(!vt.load(file,FILE_TYPE_TEXT))
+		if (!FSObject::current().DownloadToBuffer(file, vt, FILE_TYPE_TEXT))
 		{
 			return false;
 		}
+		//if(!vt.load(file,FILE_TYPE_TEXT))
+		//{
+		//	return false;
+		//}
 
 		const char* p1=vt.data();
 		const char* p2=p1+vt.size();
@@ -105,46 +110,85 @@ public:
 
 		String tmp1,tmp2;
 
+		indexer_map<String, String> smap;
+
 		while(p1<p2)
 		{
-			pt=strstr(p1,"msgid");
-			if(!pt) return true;
-			p1=pt+5;
+			pt=strstr(p1,"\nmsgid");
+			if (!pt)
+			{
+				break;
+			}
+
+			p1=pt+6;
 
 			if(!ReadString(tmp1,p1))
 			{
 				return false;
 			}
 
-			pt=strstr(p1,"msgstr");
-			if(!pt) return true;
-			p1=pt+6;
+			pt=strstr(p1,"\nmsgstr");
+			if (!pt)
+			{
+				break;
+			}
+
+			p1=pt+7;
 
 			if(!ReadString(tmp2,p1))
 			{
 				return false;
 			}
-
-			if(tmp1==tmp2 || tmp1.empty() || tmp2.empty())
+			
+			if(tmp1.empty())
 			{
 				continue;
 			}
 
-			m_aCont.append(tmp1.c_str(),tmp1.size()+1);
-			m_aCont.append(tmp2.c_str(),tmp2.size()+1);
+			smap[tmp1] = tmp2;
 		}
 
+		for (size_t i = 0; i < smap.size(); i++)
+		{
+			const String& f1(smap.get(i).first);
+			String& f2(smap.get(i).second);
+			if (!f2.empty()) continue;
+
+			for (int n1 = -1;(n1=f1.find('#',n1+1))>0;)
+			{
+				String f3(f1.substr(0, n1));
+				int n2 = smap.find1(f3);
+				if (n2 >= 0 && !smap.get(n2).second.empty())
+				{
+					f2 = smap.get(n2).second;
+					break;
+				}
+			}
+		}
+
+		SetCatalog(smap);
+
 		return true;
+	}
+
+	void SetCatalog(const indexer_map<String, String>& smap)
+	{
+		for (size_t i = 0; i<smap.size(); i++)
+		{
+			AddPair(smap.get(i));
+		}
 	}
 
 	bool LoadMo(const String& file)
 	{
 		m_sName=file;
-		return m_aCont.load(file);
+		return FSObject::current().DownloadToBuffer(file,m_aCont,FILE_TYPE_BINARY);
+		//return m_aCont.load(file);
 	}
 
 	void AddPair(const std::pair<String,String>& kv)
 	{
+		if (kv.second.empty()) return;
 		m_aCont.append(kv.first.c_str(),kv.first.size()+1);
 		m_aCont.append(kv.second.c_str(),kv.second.size()+1);
 	}
@@ -185,10 +229,7 @@ public:
 	bool AddCatalog(const indexer_map<String,String>& mp)
 	{
 		DataPtrT<LangData> pData(new LangData);
-		for(size_t i=0;i<mp.size();i++)
-		{
-			pData->AddPair(mp.get(i));
-		}
+		pData->SetCatalog(mp);
 		return AddCatalog(pData);
 	}
 
@@ -319,7 +360,7 @@ bool Language::SetLanguage(const String& s)
 	LanguageImpl& impl(*(LanguageImpl*)m_pimpl.get());
 	impl.sLanguage=s;
 	impl.Clear();
-	bool flag=impl.AddCatalog("languages\\"+s+"\\default.po");
+	bool flag=impl.AddCatalog("res:/languages/"+s+"/default.po");
 	_language_updated();
 	return flag;
 
@@ -337,10 +378,10 @@ Language& Language::operator=(const Language& o)
 	return *this;
 }
 
+
 Language& Language::current()
 {
-	static Language gInstance;
-	return gInstance;
+	return detail::StaticInstance<Language>::current();
 }
 
 
@@ -357,8 +398,12 @@ void Language::_language_updated()
 
 arr_1t<String> Language::GetLanguages()
 {
-	String langdir=System::GetModulePath()+"/languages";
-	arr_1t<FileItem> items=FSLocal::current().FindFilesEx(langdir);
+
+	String langdir = "res:/languages";// System::MakeResdataPath("languages");
+
+	arr_1t<FileItem> items;
+	items= FSObject::current().FindFilesEx(langdir);
+
 
 	arr_1t<String> langs;
 	langs.push_back("English");

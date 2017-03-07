@@ -6,6 +6,12 @@
 
 EW_ENTER
 
+SystemData::SystemData()
+{
+	nLangId = 0;
+	init_system_info();
+	update_system_info();
+}
 
 #ifdef EW_MSVC
 

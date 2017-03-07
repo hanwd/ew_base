@@ -274,7 +274,7 @@ public:
 	EvtCommandWindowMessage& Target;
 	EvtMsgSearch(EvtCommandWindowMessage& t):Target(t),EvtCommand("Msg.Search")
 	{
-		m_bmpParam=ResManager::current().icons.get("Search");
+		m_bmpParam=ResManager::current().icons.get("Find");
 	}
 
 	bool CmdExecute(ICmdParam& cmd);
@@ -305,6 +305,7 @@ public:
 			ec.gp_add("Msg.Warning");
 			ec.gp_add("Msg.Message");
 		ec.gp_end();
+
 		ec.gp_beg("tb.MsgSearch");
 			ec.gp_add(new EvtCommandText("Msg.Search.Text"));
 			ec.gp_add("Msg.Search");
@@ -345,23 +346,6 @@ public:
 	EvtCommandWindowMessage& Target;
 	EvtCommandMessageAdded(EvtCommandWindowMessage& t):Target(t),EvtCommand("MessageAdded"){}
 	bool CmdExecute(ICmdParam& cmd);
-};
-
-
-class MyWindow : public wxWindow
-{
-public:
-	void OnFocus(wxChildFocusEvent& evt)
-	{
-		CmdProc* p1=WndManager::current().cmdptr.GetData();
-		CmdProc* p2=NULL;
-		if(p1!=p2)
-		{
-			WndManager::current().cmdptr.SetData(p2);
-			WndUpdator::current().gp_add("CmdProc");
-		}
-		evt.Skip(true);
-	}
 };
 
 // 消息窗口相关的EvtCommandWindow类。

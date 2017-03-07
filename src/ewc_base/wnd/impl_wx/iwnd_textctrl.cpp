@@ -264,7 +264,7 @@ bool ICmdProcTextEntryCtrl::DoReplaceAll(ICmdParam& cmd)
 	Target.SetInsertionPoint(0);
 	if(!TestSelection() && !DoFind(cmd))
 	{
-		Wrapper::MsgsDialog("no results",0);
+		Wrapper::MsgsDialog(_hT("no result!"),0);
 		return false;
 	}
 
@@ -278,7 +278,7 @@ bool ICmdProcTextEntryCtrl::DoReplaceAll(ICmdParam& cmd)
 			
 	}
 
-	Wrapper::MsgsDialog(String::Format("%d results",n),0);
+	Wrapper::MsgsDialog(String::Format(_hT("%d results!"),n),0);
 	return true;
 }
 

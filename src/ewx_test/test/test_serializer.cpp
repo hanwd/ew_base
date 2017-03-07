@@ -75,7 +75,7 @@ TEST_DEFINE(TEST_Serializer)
 
 	dat[0].ivals[3]=32;
 
-	stream.open("test_serializer.dat",FLAG_FILE_WC|FLAG_FILE_TRUNCATE);
+	stream.openfile("test_serializer.dat",FLAG_FILE_WC|FLAG_FILE_TRUNCATE);
 	try
 	{
 		stream.writer() & Serializer::head & dat[0] & Serializer::tail;
@@ -86,7 +86,7 @@ TEST_DEFINE(TEST_Serializer)
 	}
 	stream.close();
 
-	stream.open("test_serializer.dat");
+	stream.openfile("test_serializer.dat");
 	try
 	{
 		stream.reader() & Serializer::head & dat[1] & Serializer::tail;
@@ -150,7 +150,7 @@ TEST_DEFINE(TEST_SerializerSeek)
 
 	SerializerStream sf;
 
-	if(sf.open("seekable.dat",FLAG_FILE_WC))
+	if(sf.openfile("seekable.dat",FLAG_FILE_WC))
 	{
 
 		SerializerWriter &writer(sf.writer());
@@ -171,7 +171,7 @@ TEST_DEFINE(TEST_SerializerSeek)
 	}
 	sf.close();
 
-	if(sf.open("seekable.dat",FLAG_FILE_RD))
+	if(sf.openfile("seekable.dat",FLAG_FILE_RD))
 	{
 		DataPtrT<float_string> p1;
 		DataPtrT<float_string> p2;

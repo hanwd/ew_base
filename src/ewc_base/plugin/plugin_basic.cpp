@@ -13,8 +13,8 @@
 #include <wx/frame.h>
 
 EW_ENTER
-//
-//
+
+
 //void FileAllFiles(const String& dir,arr_1t<String>& fns,const String& xxx="*")
 //{
 //	WIN32_FIND_DATAW FindFileData;
@@ -293,7 +293,7 @@ public:
 class EvtCommandFullScreen : public EvtCommand
 {
 public:
-	EvtCommandFullScreen():EvtCommand("FullScreen")
+	EvtCommandFullScreen():EvtCommand(_kT("FullScreen"))
 	{
 		flags.add(FLAG_CHECK);
 	}
@@ -775,7 +775,7 @@ public:
 };
 
 
-
+/*
 class EvtOptionCommon : public EvtOptionPage
 {
 public:
@@ -794,19 +794,21 @@ public:
 		km.propotion(1).sv(2);
 		km.flags(IDefs::IWND_EXPAND).sv(3);
 
-		km.row();
-			km.col(km.ld(3));
-				km.add("label"		,km.ld(1).label(_hT("language")));
-				km.add("combo"		,km.ld(2).name("/basic/language").flags(km.IWND_READONLY));
-			km.end();
-			km.col(km.ld(3));
-				km.add("label"		,km.ld(1).label(_hT("history_size")));
-				km.add("textctrl"	,km.ld(2).name("/basic/history_size"));
+		km.win("container");
+			km.row();
+				km.col(km.ld(3));
+					km.add("label"		,km.ld(1).label(_hT("language")));
+					km.add("combo"		,km.ld(2).name("/basic/language").flags(km.IWND_READONLY));
+				km.end();
+				km.col(km.ld(3));
+					km.add("label"		,km.ld(1).label(_hT("history_size")));
+					km.add("textctrl"	,km.ld(2).name("/basic/history_size"));
+				km.end();
 			km.end();
 		km.end();
 	}
-
 };
+*/
 
 
 class EvtCommandConfig : public EvtCommand
@@ -1042,7 +1044,8 @@ bool PluginBasic::OnAttach()
 	wm.evtmgr.link_c<String>("/basic/language").opt_data.reset(wm.evtmgr["Languages"].GetComboArray());
 
 	wm.evtmgr.gp_beg(_kT("Option.pages"));
-		wm.evtmgr.gp_add(new EvtOptionCommon(_kT("Option.common")));
+		//wm.evtmgr.gp_add(new EvtOptionCommon(_kT("Option.common")));
+		wm.evtmgr.gp_add(new EvtOptionPageScript(_kT("Option.Common"), "scripting/ui/option_common.ewsl"));
 	wm.evtmgr.gp_end();
 
 	return true;

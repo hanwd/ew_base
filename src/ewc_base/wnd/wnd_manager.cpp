@@ -197,10 +197,12 @@ public:
 
 	virtual int __fun_call(Executor& ewsl,int pm)
 	{
-		if(pm==2)
+		if(pm>=2)
 		{
 			String val1;
 			String val2;
+			String val3;
+
 			if(!ewsl.ci0.nbx[1].get(val1))
 			{
 				ewsl.kerror("invalid param");
@@ -214,6 +216,13 @@ public:
 			{
 				p->m_sAccel=val2;
 			}
+
+			if (p && pm >= 3 && ewsl.ci0.nbx[3].get(val3))
+			{
+				p->m_sHotkey=val3;
+			}
+
+
 		}
 		else
 		{
@@ -230,10 +239,12 @@ public:
 
 	virtual int __fun_call(Executor& ewsl,int pm)
 	{
-		if(pm==2)
+		if(pm>=2)
 		{
 			String val1;
 			String val2;
+			String val3;
+
 			if(!ewsl.ci0.nbx[1].get(val1))
 			{
 				ewsl.kerror("invalid param");
@@ -247,6 +258,12 @@ public:
 			{
 				p->m_sHotkey=val2;
 			}
+
+			if (p && pm >= 3 && ewsl.ci0.nbx[3].get(val3))
+			{
+				p->m_sAccel = val3;
+			}
+
 		}
 		else
 		{
@@ -379,7 +396,7 @@ public:
 };
 
 
-bool WndManager::LoadScript(const String& s)
+bool WndManager::LoadScript(const String& fp)
 {
 	
 	static bool _bFirst=true;
@@ -396,15 +413,10 @@ bool WndManager::LoadScript(const String& s)
 		gi.add(new EvtManagerGroupSetHotkey);
 	}
 
-	StringBuffer<char> sb;
-	if(!sb.load(s))
-	{
-		return false;
-	}
 	try
 	{
 		Executor ewsl;
-		if(!ewsl.execute(sb))
+		if(!ewsl.execute_file(fp))
 		{
 			Exception::XError("invalid script");
 		}

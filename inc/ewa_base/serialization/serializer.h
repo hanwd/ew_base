@@ -213,6 +213,13 @@ public:
 		return rd;
 	}
 
+	SerializerStream& operator=(const Stream& rhs)
+	{
+		*(Stream*)this = rhs;
+		return *this;
+	}
+
+
 protected:
 	SerializerReader rd;
 	SerializerWriter wr;

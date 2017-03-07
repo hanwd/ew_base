@@ -95,7 +95,7 @@ void SymbolManager::gp_end()
 		p->m_sId=state.name;
 		append(p);
 
-		TableSerializerReader ar(*this,state.value);
+		TableSerializerReader ar(state.value);
 		p->DoTransferData(ar);
 	}
 

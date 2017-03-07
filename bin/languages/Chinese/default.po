@@ -1,0 +1,457 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: ew6_base\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2017-02-27 11:37+0800\n"
+"PO-Revision-Date: 2017-02-27 11:38+0800\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 1.5.5\n"
+"X-Poedit-KeywordsList: _kT;_hT;_zT\n"
+"X-Poedit-Basepath: ..\\..\\..\\\n"
+"X-Poedit-SearchPath-0: inc\n"
+"X-Poedit-SearchPath-1: src\n"
+"X-Poedit-SearchPath-2: bin\\scripting\n"
+
+#: src/ewc_base/app/wrapper.cpp:43
+#: src/ewc_base/app/wrapper.cpp:47
+msgid "AllFiles"
+msgstr "所有文件"
+
+#: src/ewc_base/editor/plugin_ewsl_editor.cpp:207
+msgid "Ewsl.Script"
+msgstr "EWSL窗口"
+
+#: src/ewc_base/editor/plugin_ewsl_editor.cpp:244
+msgid "Wnd.Variable"
+msgstr "变量窗口"
+
+#: src/ewc_base/editor/plugin_ewsl_editor.cpp:245
+msgid "Ewsl.ScriptEditor"
+msgstr "EWSL窗口"
+
+#: src/ewc_base/editor/plugin_ewsl_editor.cpp:251
+msgid "New.Ewsl"
+msgstr "新建Ewsl交互编辑器"
+
+#: src/ewc_base/editor/plugin_flashviewer.cpp:50
+msgid "flashplayer activated"
+msgstr "flash播放器"
+
+#: src/ewc_base/editor/plugin_text_editor.cpp:303
+msgid "fontsize"
+msgstr "字体大小"
+
+#: src/ewc_base/editor/plugin_text_editor.cpp:307
+msgid "tab_size"
+msgstr "tab大小"
+
+#: src/ewc_base/editor/plugin_text_editor.cpp:311
+msgid "flags"
+msgstr "标识"
+
+#: src/ewc_base/editor/plugin_text_editor.cpp:335
+msgid "New.TextFile"
+msgstr "新建文本文件"
+
+#: src/ewc_base/editor/plugin_text_editor.cpp:339
+msgid "TE.Lang"
+msgstr "高亮语言"
+
+#: src/ewc_base/editor/plugin_text_editor.cpp:347
+msgid "Text"
+msgstr "文本"
+
+#: src/ewc_base/editor/plugin_text_editor.cpp:351
+msgid "TE.Syntax"
+msgstr "语法高亮"
+
+#: src/ewc_base/editor/plugin_text_editor.cpp:352
+msgid "TE.Fold"
+msgstr "允许折叠"
+
+#: src/ewc_base/editor/plugin_text_editor.cpp:353
+msgid "TE.Wrap"
+msgstr "自动换行"
+
+#: src/ewc_base/editor/plugin_text_editor.cpp:355
+msgid "TE.LineNum"
+msgstr "显示行号"
+
+#: src/ewc_base/editor/plugin_text_editor.cpp:356
+msgid "TE.IndentGuide"
+msgstr "显示缩进提示"
+
+#: src/ewc_base/editor/plugin_text_editor.cpp:357
+msgid "TE.LongLine"
+msgstr "显示长句标识"
+
+#: src/ewc_base/editor/plugin_text_editor.cpp:358
+msgid "TE.WhiteSpace"
+msgstr "显示空白字符"
+
+#: src/ewc_base/editor/plugin_text_editor.cpp:359
+msgid "TE.ShowEOL"
+msgstr "显示换行符"
+
+#: src/ewc_base/editor/plugin_text_editor.cpp:361
+msgid "TE.ReadOnly"
+msgstr "只读模式"
+
+#: src/ewc_base/editor/plugin_text_editor.cpp:362
+msgid "TE.OverWrite"
+msgstr "改写模式"
+
+#: src/ewc_base/editor/plugin_text_editor.cpp:378
+msgid "Option.pages"
+msgstr "所有选项"
+
+#: src/ewc_base/editor/plugin_text_editor.cpp:380
+msgid "Option.TextEditor"
+msgstr "文本编辑器"
+
+#: src/ewc_base/editor/plugin_webview.cpp:160
+#: src/ewc_base/editor/plugin_webview.cpp:193
+msgid "Webview.Script"
+msgstr "JS窗口"
+
+#: src/ewc_base/editor/plugin_webview.cpp:196
+msgid "Webview.Page"
+msgstr "Webview页面"
+
+#: src/ewc_base/editor/plugin_webview.cpp:206
+msgid "tb.WebView"
+msgstr "地址栏"
+
+#: src/ewc_base/editor/plugin_webview.cpp:208
+msgid "WebView.Go"
+msgstr "转到"
+
+#: src/ewc_base/evt/evt_cmdproc.cpp:35
+#, c-format
+msgid "Save %s As"
+msgstr "另存%s为"
+
+#: src/ewc_base/plugin/plugin_basic.cpp:44
+msgid "Languages"
+msgstr "语言"
+
+#: src/ewc_base/plugin/plugin_basic.cpp:207
+msgid "Open"
+msgstr "打开"
+
+#: src/ewc_base/plugin/plugin_basic.cpp:209
+msgid "open a file"
+msgstr "打开一个文件"
+
+#: src/ewc_base/plugin/plugin_basic.cpp:259
+#, c-format
+msgid "OpenFile %s FAILED!"
+msgstr "打开文件 %s 失败"
+
+#: src/ewc_base/plugin/plugin_basic.cpp:264
+#, c-format
+msgid "OpenFile %s OK."
+msgstr "打开文件 %s 成功。"
+
+#: src/ewc_base/plugin/plugin_basic.cpp:296
+msgid "FullScreen"
+msgstr "全屏显示"
+
+#: src/ewc_base/plugin/plugin_basic.cpp:333
+msgid "Exit"
+msgstr "退出"
+
+#: src/ewc_base/plugin/plugin_basic.cpp:344
+msgid "Close"
+msgstr "关闭"
+
+#: src/ewc_base/plugin/plugin_basic.cpp:362
+msgid "CloseAll"
+msgstr "关闭全部"
+
+#: src/ewc_base/plugin/plugin_basic.cpp:381
+msgid "SaveAll"
+msgstr "全部保存"
+
+#: src/ewc_base/plugin/plugin_basic.cpp:584
+msgid "Layout.Save"
+msgstr "保存"
+
+#: src/ewc_base/plugin/plugin_basic.cpp:596
+msgid "StartUp.Default"
+msgstr "默认"
+
+#: src/ewc_base/plugin/plugin_basic.cpp:597
+msgid "LastRun"
+msgstr "上一次运行"
+
+#: src/ewc_base/plugin/plugin_basic.cpp:616
+msgid "StartUp.Fallsafe"
+msgstr "FallSafe"
+
+#: src/ewc_base/plugin/plugin_basic.cpp:640
+msgid "Layout.Delete"
+msgstr "删除"
+
+#: src/ewc_base/plugin/plugin_basic.cpp:705
+msgid "Layout"
+msgstr "布局"
+
+#: src/ewc_base/plugin/plugin_basic.cpp:727
+msgid "MenuBar"
+msgstr "菜单栏"
+
+#: src/ewc_base/plugin/plugin_basic.cpp:879
+msgid "Empty"
+msgstr "[ 空 ]"
+
+#: src/ewc_base/plugin/plugin_basic.cpp:881
+msgid "Btn.Ok"
+msgstr "确定"
+
+#: src/ewc_base/plugin/plugin_basic.cpp:882
+msgid "Btn.Apply"
+msgstr "应用"
+
+#: src/ewc_base/plugin/plugin_basic.cpp:883
+msgid "Btn.Cancel"
+msgstr "取消"
+
+#: src/ewc_base/plugin/plugin_basic.cpp:884
+msgid "Btn.Reset"
+msgstr "重置"
+
+#: src/ewc_base/plugin/plugin_basic.cpp:915
+msgid "OtherWindow"
+msgstr "其他窗口"
+
+#: src/ewc_base/plugin/plugin_basic.cpp:919
+msgid "ToolBars"
+msgstr "工具条"
+
+#: src/ewc_base/plugin/plugin_basic.cpp:925
+msgid "Cut"
+msgstr "剪切"
+
+#: src/ewc_base/plugin/plugin_basic.cpp:926
+msgid "Copy"
+msgstr "复制"
+
+#: src/ewc_base/plugin/plugin_basic.cpp:927
+msgid "Paste"
+msgstr "粘贴"
+
+#: src/ewc_base/plugin/plugin_basic.cpp:928
+msgid "Delete"
+msgstr "删除"
+
+#: src/ewc_base/plugin/plugin_basic.cpp:929
+msgid "Clear"
+msgstr "清除"
+
+#: src/ewc_base/plugin/plugin_basic.cpp:930
+msgid "Undo"
+msgstr "撤消"
+
+#: src/ewc_base/plugin/plugin_basic.cpp:931
+msgid "Redo"
+msgstr "重做"
+
+#: src/ewc_base/plugin/plugin_basic.cpp:932
+msgid "Forward"
+msgstr "前进"
+
+#: src/ewc_base/plugin/plugin_basic.cpp:933
+msgid "Backward"
+msgstr "后退"
+
+#: src/ewc_base/plugin/plugin_basic.cpp:934
+msgid "SelectAll"
+msgstr "全选"
+
+#: src/ewc_base/plugin/plugin_basic.cpp:935
+msgid "Save"
+msgstr "保存"
+
+#: src/ewc_base/plugin/plugin_basic.cpp:936
+msgid "SaveAs"
+msgstr "另存为"
+
+#: src/ewc_base/plugin/plugin_basic.cpp:942
+msgid "New"
+msgstr "新建"
+
+#: src/ewc_base/plugin/plugin_basic.cpp:946
+msgid "File"
+msgstr "文件"
+
+#: src/ewc_base/plugin/plugin_basic.cpp:963
+msgid "Edit"
+msgstr "编辑"
+
+#: src/ewc_base/plugin/plugin_basic.cpp:978
+msgid "View"
+msgstr "视图"
+
+#: src/ewc_base/plugin/plugin_basic.cpp:993
+msgid "Help"
+msgstr "帮助"
+
+#: src/ewc_base/plugin/plugin_basic.cpp:1009
+msgid "tb.Standard"
+msgstr "标准"
+
+#: src/ewc_base/plugin/plugin_basic.cpp:1029
+msgid "Edit.Mini"
+msgstr "编辑"
+
+#: src/ewc_base/plugin/plugin_basic.cpp:1048
+msgid "Option.Common"
+msgstr "通用"
+
+#: src/ewc_base/plugin/plugin_historyfiles.cpp:18
+msgid "ClearHistory"
+msgstr "清除历史"
+
+#: src/ewc_base/plugin/plugin_historyfiles.cpp:90
+msgid "HistoryFiles"
+msgstr "打开文件历史"
+
+#: src/ewc_base/plugin/plugin_message.cpp:387
+msgid "Message"
+msgstr "消息"
+
+#: src/ewc_base/plugin/plugin_option.cpp:200
+msgid "Option"
+msgstr "选项"
+
+#: src/ewc_base/plugin/plugin_search.cpp:145
+msgid "Find"
+msgstr "查找"
+
+#: src/ewc_base/plugin/plugin_search.cpp:146
+msgid "Replace"
+msgstr "替换"
+
+#: src/ewc_base/plugin/plugin_search.cpp:148
+msgid "Btn.Find"
+msgstr "查找"
+
+#: src/ewc_base/plugin/plugin_search.cpp:149
+msgid "Btn.Replace"
+msgstr "替换"
+
+#: src/ewc_base/plugin/plugin_search.cpp:150
+msgid "Btn.ReplaceAll"
+msgstr "全部替换"
+
+#: src/ewc_base/plugin/plugin_statusbar.cpp:123
+msgid "StatusBar"
+msgstr "状态栏"
+
+#: src/ewc_base/plugin/plugin_workspace.cpp:115
+msgid "Wksp.AddFile"
+msgstr "添加文件"
+
+#: src/ewc_base/plugin/plugin_workspace.cpp:142
+msgid "Wksp.Remove"
+msgstr "移除"
+
+#: src/ewc_base/plugin/plugin_workspace.cpp:161
+msgid "Wksp.RemoveChildren"
+msgstr "移除子节点"
+
+#: src/ewc_base/plugin/plugin_workspace.cpp:178
+msgid "Wksp.AddFolder"
+msgstr "添加目录"
+
+#: src/ewc_base/plugin/plugin_workspace.cpp:196
+msgid "Wksp.Open"
+msgstr "打开"
+
+#: src/ewc_base/plugin/plugin_workspace.cpp:204
+msgid "Activate"
+msgstr "激活"
+
+#: src/ewc_base/plugin/plugin_workspace.cpp:224
+msgid "Workspace"
+msgstr "工作空间"
+
+#: src/ewc_base/wnd/impl_wx/impl_wx.cpp:122
+msgid "Text Files"
+msgstr "Text文件"
+
+#: src/ewc_base/wnd/impl_wx/iwnd_stc.cpp:869
+msgid "no more results, restart?"
+msgstr "没有更多的结果，重新开始搜索？"
+
+#: src/ewc_base/wnd/impl_wx/iwnd_stc.cpp:877
+msgid "no more results!"
+msgstr "没有更多的结果"
+
+#: src/ewc_base/wnd/impl_wx/iwnd_stc.cpp:914
+msgid "no results"
+msgstr "没有结果"
+
+#: src/ewc_base/wnd/impl_wx/iwnd_stc.cpp:929
+#, c-format
+msgid "%d results replaced"
+msgstr "%d 个结果被替换"
+
+#: src/ewc_base/wnd/impl_wx/iwnd_webview.cpp:129
+msgid "Html Files"
+msgstr "HTML文件"
+
+#: src/ewx_test/iwnd/appmain.cpp:39
+msgid "ew_ui_framework"
+msgstr "EW6界面框架"
+
+#: bin\scripting/ui/dlg_search.ewsl:10
+msgid "find and replace"
+msgstr "查找和替换"
+
+#: bin\scripting/ui/dlg_search.ewsl:13
+msgid "find what?"
+msgstr "查找什么？"
+
+#: bin\scripting/ui/dlg_search.ewsl:14
+msgid "replace with?"
+msgstr "替换为？"
+
+#: bin\scripting/ui/dlg_search.ewsl:15
+msgid "search_flags"
+msgstr "搜索标识"
+
+#: bin\scripting/ui/dlg_search.ewsl:16
+msgid "match case"
+msgstr "区分大小写"
+
+#: bin\scripting/ui/dlg_search.ewsl:17
+msgid "match word"
+msgstr "全字匹配"
+
+#: bin\scripting/ui/dlg_search.ewsl:18
+msgid "regexp"
+msgstr "正则表达式"
+
+#: bin\scripting/ui/option_common.ewsl:11
+msgid "language"
+msgstr "语言"
+
+#: bin\scripting/ui/option_common.ewsl:15
+msgid "history_size"
+msgstr "文件历史大小"
+
+#~ msgid "Option.Languages"
+#~ msgstr "语言设置"
+#~ msgid "DoFind"
+#~ msgstr "查找"
+#~ msgid "DoReplace"
+#~ msgstr "替换"
+#~ msgid "Save %s"
+#~ msgstr "保存%s"
+

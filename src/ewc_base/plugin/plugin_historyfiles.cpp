@@ -46,6 +46,10 @@ public:
 	{
 		flags.add(FLAG_HIDE_UI);
 		m_sId=String::Format("HistoryFile.%d",(int)i);
+		if (i < 9)
+		{
+			m_sHotkey << i+1;
+		}
 	}
 
 	void DoUpdateCtrl(IUpdParam& upd)

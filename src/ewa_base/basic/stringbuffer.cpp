@@ -227,7 +227,6 @@ bool StringBuffer<T>::save(const String& file,int type)
 	return true;
 }
 
-
 template<typename T>
 bool StringBuffer<T>::load(const String& file,int type)
 {
@@ -274,7 +273,7 @@ bool StringBuffer<T>::load(const String& file,int type)
 
 		if(sizeof(T)==1)
 		{
-			sb.swap(*(StringBuffer<char>*)this);
+			kb.swap(*(StringBuffer<char>*)this);
 			return true;
 		}
 		else if(sizeof(T)==2)
@@ -380,47 +379,9 @@ bool StringBuffer<T>::load(const String& file,int type)
 		sb.resize(nz);
 		ifs.read((char*)sb.data(),nz);
 
-		unsigned char* p=(unsigned char*)sb.data();
-		int t=0;
-		int n=0;
-
-		for(size_type i=0; i<nz; i++)
+		if (!IConv::ensure_utf8(sb))
 		{
-			unsigned c=p[i];
-			if(c<0x80) continue;
-			for(n=0; ((c<<=1)&0x80)>0; n++);
-			if(n>3)
-			{
-				t=-1;
-				break;
-			}
-
-			if(i+n>=nz)
-			{
-				t=-1;
-				break;
-			}
-
-			t=1;
-			for(int j=1; j<=n; j++)
-			{
-				if(((p[i+j])&0xC0)!=0x80)
-				{
-					t=-1;
-					break;
-				}
-			}
-			i+=n;
-		}
-
-		if(t==-1)
-		{
-			StringBuffer<char> kb;
-			if(!IConv::gbk_to_utf8(kb,sb.data(),sb.size()))
-			{
-				return false;
-			}
-			kb.swap(sb);
+			return false;
 		}
 	}
 

@@ -297,20 +297,22 @@ public:
 		km.propotion(1).sv(2);
 		km.flags(IDefs::IWND_EXPAND).sv(3);
 
-		km.row();
-			km.col(km.ld(3));
-				km.add("label"		,km.ld(1).label(_hT("fontsize")));
-				km.add("textctrl"	,km.ld(2).name("/texteditor/fontsize"));
-			km.end();
-			km.col(km.ld(3));
-				km.add("label"		,km.ld(1).label(_hT("tab_size")));
-				km.add("textctrl"	,km.ld(2).name("/texteditor/tab_size"));
-			km.end();
-			km.col(km.ld(3));
-				km.add("label"		,km.ld(1).label(_hT("flags")));
-				km.col();
-					km.add("checkbox"	,km.name("/texteditor/fold").label("fold"));
-					km.add("checkbox"	,km.name("/texteditor/wrap").label("wrap"));
+		km.win("container");
+			km.row();
+				km.col(km.ld(3));
+					km.add("label"		,km.ld(1).label(_hT("fontsize")));
+					km.add("textctrl"	,km.ld(2).name("/texteditor/fontsize"));
+				km.end();
+				km.col(km.ld(3));
+					km.add("label"		,km.ld(1).label(_hT("tab_size")));
+					km.add("textctrl"	,km.ld(2).name("/texteditor/tab_size"));
+				km.end();
+				km.col(km.ld(3));
+					km.add("label"		,km.ld(1).label(_hT("flags")));
+					km.col();
+						km.add("checkbox"	,km.name("/texteditor/fold").label("fold"));
+						km.add("checkbox"	,km.name("/texteditor/wrap").label("wrap"));
+					km.end();
 				km.end();
 			km.end();
 		km.end();
@@ -330,7 +332,7 @@ bool PluginTextEditor::OnAttach()
 	ec.gp_end();
 
 	ec.gp_beg("Menu.New");
-		ec.gp_add(new EvtCommandNewEditorFile(*this,"New.TextFile"));
+		ec.gp_add(new EvtCommandNewEditorFile(*this,_kT("New.TextFile")));
 	ec.gp_end();
 
 
@@ -374,7 +376,8 @@ bool PluginTextEditor::OnAttach()
 	wm.evtmgr.link_c<int64_t>("/texteditor/fold");
 
 	wm.evtmgr.gp_beg(_kT("Option.pages"));
-		wm.evtmgr.gp_add(new EvtOptionTextEditor(_kT("Option.TextEditor")));
+		//wm.evtmgr.gp_add(new EvtOptionTextEditor(_kT("Option.TextEditor")));
+		wm.evtmgr.gp_add(new EvtOptionPageScript(_kT("Option.TextEditor"), "scripting/ui/option_text.ewsl"));
 	wm.evtmgr.gp_end();
 
 	AttachEvent("Config");
@@ -402,6 +405,7 @@ PluginTextEditor::PluginTextEditor(WndManager& w):basetype(w,"Plugin.TextEditor"
 	m_aExtension.insert(".hpp");
 	m_aExtension.insert(".sql");
 	m_aExtension.insert(".ewsl");
+	m_aExtension.insert(".script");
 
 }
 

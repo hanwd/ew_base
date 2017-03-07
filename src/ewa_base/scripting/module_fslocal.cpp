@@ -84,9 +84,9 @@ bool FSLocal::UploadFromFile(const String& localfile,const String& fp,int flag)
 #endif
 }
 
-bool FSLocal::DownloadToBuffer(const String& fp,StringBuffer<char>& sb)
+bool FSLocal::DownloadToBuffer(const String& fp,StringBuffer<char>& sb,int type)
 {
-	return sb.load(fp,FILE_TYPE_BINARY);
+	return sb.load(fp,type);
 }
 
 bool FSLocal::UploadFromBuffer(StringBuffer<char>& sb,const String& fp,int flag)
@@ -169,15 +169,38 @@ bool FSLocal::Remove(const String& fp)
 Stream FSLocal::Download(const String& fp)
 {
 	Stream stream;
-	stream.open(fp,FLAG_FILE_RD);
+
+	File file;
+	if (!file.open(fp, FLAG_FILE_RD))
+	{
+		return stream;
+	}
+
+	stream.assign(file);
 	return stream;
 }
 
 Stream FSLocal::Upload(const String& fp,int flag)
 {
 	Stream stream;
-	stream.open(fp,FLAG_FILE_WC|flag);
+	File file;
+	if (!file.open(fp, FLAG_FILE_WC | flag))
+	{
+		return stream;
+	}
 	return stream;
+}
+
+
+Stream FSLocal::Open(const String& fp, int flag)
+{
+	Stream stream;
+	File file;
+	if (!file.open(fp,flag))
+	{
+		return stream;
+	}
+	return stream;	
 }
 
 

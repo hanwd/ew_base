@@ -1,4 +1,5 @@
 #include "ewc_base/evt/evt_option.h"
+#include "ewc_base/wnd/wnd_maker.h"
 
 EW_ENTER
 
@@ -12,9 +13,7 @@ wxWindow* EvtOptionPage::CreatePage(wxWindow* w)
 {
 	WndMaker km(w);
 
-	km.win("container");
-		DoCreatePage(km);
-	km.end();
+	DoCreatePage(km);
 
 	wxWindow* pw=km.get();		
 	m_pVald=km.vald;
@@ -26,9 +25,24 @@ wxWindow* EvtOptionPage::CreatePage(wxWindow* w)
 	return pw;
 }
 
-void EvtOptionPage::DoCreatePage(WndMaker&)
+void  EvtOptionPage::DoCreatePage(WndMaker&)
 {
 
+}
+
+EvtOptionPageScript::EvtOptionPageScript(const String& s, const String& f) :basetype(s), m_sScriptFile(f)
+{
+
+}
+
+void EvtOptionPageScript::DoCreatePage(WndMaker& km)
+{
+	Executor ewsl;
+	ewsl.push(new CallableMaker(km));
+	if (!ewsl.execute_file(m_sScriptFile,1))
+	{
+		return;
+	}
 }
 
 

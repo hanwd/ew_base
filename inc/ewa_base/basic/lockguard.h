@@ -120,5 +120,26 @@ public:
 };
 
 
+class DLLIMPEXP_EWA_BASE AtomicMutex;
+class DLLIMPEXP_EWA_BASE StaticMutex : public NonCopyableAndNonNewable
+{
+public:
+	operator AtomicMutex&(){ return *(AtomicMutex*)this;}
+private:
+	int64_t val[4];
+};
+
+
+template<>
+class DLLIMPEXP_EWA_BASE LockPolicyDefault<StaticMutex>
+{
+public:
+	static void lock(StaticMutex* mtx);
+	static void unlock(StaticMutex* mtx);
+};
+
+
+
+
 EW_LEAVE
 #endif

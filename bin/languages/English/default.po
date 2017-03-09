@@ -165,8 +165,8 @@ msgid "LastRun"
 msgstr ""
 
 #: src/ewc_base/plugin/plugin_basic.cpp:616
-msgid "StartUp.Fallsafe"
-msgstr "Fallsafe"
+msgid "StartUp.Failsafe"
+msgstr "Failsafe"
 
 #: src/ewc_base/plugin/plugin_basic.cpp:640
 msgid "Layout.Delete"

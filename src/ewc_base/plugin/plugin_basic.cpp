@@ -613,7 +613,7 @@ public:
 		}
 
 		Target.UpdateToolbarPosition(auimgr);
-		Target.SavePerspective(1,_kT("StartUp.Fallsafe"));
+		Target.SavePerspective(1,_kT("StartUp.Failsafe"));
 		Target.LoadPerspective(2);
 
 		EvtManager::current()["Layout"].UpdateCtrl();

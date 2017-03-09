@@ -188,6 +188,8 @@ Stream FSLocal::Upload(const String& fp,int flag)
 	{
 		return stream;
 	}
+
+	stream.assign(file);
 	return stream;
 }
 
@@ -200,6 +202,8 @@ Stream FSLocal::Open(const String& fp, int flag)
 	{
 		return stream;
 	}
+
+	stream.assign(file);
 	return stream;	
 }
 

@@ -161,6 +161,8 @@ bool PluginHistoryFiles::OnCfgEvent(int lv)
 			wm.wup.gp_add("HistoryFiles");
 	}
 
+	wm.app.conf.CfgUpdate(lv, "/basic/history_files", aHistoryFiles);
+
 	return true;
 }
 

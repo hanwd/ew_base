@@ -190,8 +190,8 @@ msgid "LastRun"
 msgstr "上一次运行"
 
 #: src/ewc_base/plugin/plugin_basic.cpp:616
-msgid "StartUp.Fallsafe"
-msgstr "FallSafe"
+msgid "StartUp.Failsafe"
+msgstr "保守"
 
 #: src/ewc_base/plugin/plugin_basic.cpp:640
 msgid "Layout.Delete"

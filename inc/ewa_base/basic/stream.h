@@ -64,6 +64,9 @@ class DLLIMPEXP_EWA_BASE Stream : public Object
 public:
 
 	Stream();
+	Stream(File& file);
+	Stream(Socket& socket);
+	Stream(DataPtrT<IStreamData> p);
 
 	bool openfile(const String& fp,int fg=FLAG_FILE_RD);
 	bool openuri(const String& fp,int fg=FLAG_FILE_RD);

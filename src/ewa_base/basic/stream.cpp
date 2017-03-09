@@ -604,6 +604,21 @@ Stream::Stream()
 	assign(NULL);
 }
 
+Stream::Stream(File& file)
+{
+	assign(file);
+}
+
+Stream::Stream(Socket& socket)
+{
+	assign(socket);
+}
+
+Stream::Stream(DataPtrT<IStreamData> p)
+{
+	assign(p);
+}
+
 void Stream::assign(DataPtrT<IStreamData> p)
 {
 	assign_reader(p);

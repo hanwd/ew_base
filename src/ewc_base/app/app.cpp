@@ -39,6 +39,7 @@ App& App::current()
 	return gInstance;
 }
 
+extern int (*LogsDialog_function)(arr_1t<LogRecord>&,int,const String&);
 
 bool App::Init(int argc,char** argv)
 {
@@ -87,6 +88,8 @@ bool App::Init(int argc,char** argv)
 
 		CG_GGVar &gi(CG_GGVar::current());
 		gi.add(new CallableMaker,"ui.maker");
+
+		LogsDialog_function=&Wrapper::LogsDialog;
 	}
 
 	return app_data.bInitOk;	
@@ -107,6 +110,7 @@ void App::Fini()
 	if(--app_data.nInitCount==0)
 	{
 		app_data.bInitOk=false;
+		LogsDialog_function=NULL;
 		::wxEntryCleanup();
 	}
 }

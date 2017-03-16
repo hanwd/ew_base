@@ -147,7 +147,7 @@ public:
 		km.flags(IDefs::IWND_EXPAND).sv(1);
 		km.propotion(1).flags(IDefs::IWND_EXPAND).sv(2);
 
-		km.win("dialog",WndProperty().label("options").size(800,480));
+		km.win("dialog",WndProperty().label(_hT("options")).size(800,480));
 
 			option_tree=new IWnd_treectrl(km.icur.hwnd,km.ld(1).size(200,500));		
 			option_book=new IWnd_bookbase(km.icur.hwnd,km.ld(2).size(280,500));

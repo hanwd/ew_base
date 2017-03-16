@@ -50,7 +50,11 @@ public:
 		wxString text = Target.GetValue();
 
 		StringBuffer<char> buff;
-		buff = wx2str(text);
+		if(!wx2buf(text,buff))
+		{
+			this_logger().LogError(_hT("cannot convert wxstring to string"));
+			return false;
+		}
 
 		return buff.save(fp);
 

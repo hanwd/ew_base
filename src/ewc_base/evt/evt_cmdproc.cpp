@@ -49,12 +49,19 @@ void EvtCommandCmdProc::DoUpdateCtrl(IUpdParam& upd)
 
 bool EvtCommandCmdProc::DoCmdExecute(ICmdParam&)
 {
+	LoggerAuto logger;
 	if(!wm.cmdptr.ExecId(id))
 	{
+		logger.Test(Logger::MSG_IF_ERROR);
 		return false;
 	}
-	wm.evtmgr["CmdProc"].UpdateCtrl();
-	return true;
+	else
+	{
+		logger.Test(Logger::MSG_NEVER);
+		wm.evtmgr["CmdProc"].UpdateCtrl();
+		return true;
+	}
+
 }
 
 EW_LEAVE

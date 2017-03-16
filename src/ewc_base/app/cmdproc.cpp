@@ -19,7 +19,12 @@ bool CmdProc::DoExecId(ICmdParam& cmd)
 {
 	if (cmd.param1 == CP_LOAD_FILE)
 	{
-		return DoLoad(cmd.extra1);
+		if(!DoLoad(cmd.extra1))
+		{
+			this_logger().LogError(_hT("failed_to_load_file %s!"),cmd.extra1);
+			return false;
+		}
+		return true;
 	}
 	else if (cmd.param1 == CP_SAVE_FILE)
 	{
@@ -41,7 +46,6 @@ bool CmdProc::DoExecId(ICmdParam& cmd)
 			return true;
 		}
 
-		LockState<intptr_t> lock_1(cmd.param1);
 		cmd.param1 = CP_LOAD_FILE;
 		if (!DoExecId(cmd)) return false;
 		return true;
@@ -68,8 +72,6 @@ bool CmdProc::DoExecId(ICmdParam& cmd)
 				return false;
 			}
 		}
-
-		LockState<intptr_t> lock_1(cmd.param1);
 		cmd.param1 = CP_LOAD_FILE;
 		if (!DoExecId(cmd)) return false;
 		return true;
@@ -105,11 +107,13 @@ bool CmdProc::DoExecId(ICmdParam& cmd)
 		{
 			if (!FSLocal::current().Remove(cmd.extra2))
 			{
+				this_logger().LogError(_hT("failed_to_save_file %s!"),cmd.extra2);
 				return false;
 			}
 
 			if (!FSLocal::current().Rename(cmd.extra1, cmd.extra2, 0))
 			{
+				this_logger().LogError(_hT("failed_to_save_file %s!"),cmd.extra2);
 				return false;
 			}
 		}
@@ -137,7 +141,6 @@ bool CmdProc::DoExecId(ICmdParam& cmd)
 			}
 		}
 
-		LockState<intptr_t> lock_1(cmd.param1);
 
 		if (!FSObject::current().FileExists(cmd.extra1))
 		{
@@ -149,7 +152,11 @@ bool CmdProc::DoExecId(ICmdParam& cmd)
 		}
 
 		cmd.param1=CP_SAVE_TEMP;
-		if(!DoExecId(cmd)) return false;
+		if(!DoExecId(cmd))
+		{
+			this_logger().LogError(_hT("failed_to_save_file %s!"),cmd.extra2);
+			return false;
+		}
 
 		cmd.param1=CP_SAVE_POST;
 		if(!DoExecId(cmd)) return false;

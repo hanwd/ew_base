@@ -233,14 +233,6 @@ bool EvtManager::OnCmdExecute(int evtid,int p1,WndModel* pwm)
 	return evtptr->CmdExecute(cmd);
 }
 
-//EvtCommand& EvtManager::link(const String& s,functor_type f)
-//{
-//	DataPtrT<EvtCommandFunctor> vp=new EvtCommandFunctor(s,f);
-//	gp_add(vp.get());
-//	return *vp;
-//}
-
-
 class EvtCommandUpdateCtrl : public EvtCommand
 {
 public:

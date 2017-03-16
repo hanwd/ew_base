@@ -128,6 +128,11 @@ public:
 
 };
 
+void Logger::swap(Logger& logger)
+{
+	std::swap(impl,logger.impl);
+}
+
 void Logger::DoLog(int lv, const String& msg)
 {
 	if(!impl) return;
@@ -229,33 +234,39 @@ void Logger::reset(LogTarget* p)
 	return impl->SetData(p);
 }
 
-bool Logger::Test(int t)
+int (*LogsDialog_function)(arr_1t<LogRecord>&,int,const String&) =NULL;
+
+bool Logger::Test(int t,const String& title)
 {
+	bool b_need_dlg=true;
 
-	bool needsend=true;
-
-	switch(t)
+	switch(t & ~MSG_MUTED)
 	{
 	case MSG_IF_ANY:
-		needsend=true;
+		b_need_dlg=true;
 		break;
 	case MSG_IF_WARNING:
-		needsend=(impl->m_nErrCount|impl->m_nErrCount)!=0;
+		b_need_dlg=(impl->m_nErrCount|impl->m_nWrnCount)!=0;
 		break;
 	case MSG_IF_ERROR:
-		needsend=impl->m_nErrCount!=0;
+		b_need_dlg=impl->m_nErrCount!=0;
 		break;
 	default:
-		needsend=false;
+		b_need_dlg=false;
 	};
 
-
-	if(needsend && impl->GetData())
+	if(impl->GetData() && (t&MSG_MUTED)==0)
 	{
 		for(size_t i=0; i<impl->m_aMsg.size(); i++)
 		{
 			impl->GetData()->Handle(impl->m_aMsg[i]);
 		}
+	}
+
+	if(b_need_dlg && LogsDialog_function)
+	{
+		int level=impl->m_nErrCount?LOGLEVEL_ERROR: impl->m_nWrnCount?LOGLEVEL_WARNING:0;
+		LogsDialog_function(impl->m_aMsg,level,title);
 	}
 
 	bool flag=Ok();
@@ -285,12 +296,25 @@ LogTarget* Logger::def()
 	return LoggerImpl::def()->GetData();
 }
 
+LoggerAuto::LoggerAuto()
+{
+	Cache(true);
+	logger_old=*this;
+	logger_old.swap(this_logger());
+}
+
+LoggerAuto::~LoggerAuto()
+{
+	logger_old.swap(this_logger());
+}
 
 LoggerSwap::LoggerSwap()
 {
 	reset(new LogNull);
 	swap(this_logger());
 }
+
+
 
 LoggerSwap::LoggerSwap(LogTarget* p)
 {

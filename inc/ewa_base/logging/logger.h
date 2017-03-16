@@ -21,6 +21,7 @@ public:
 		MSG_IF_WARNING,
 		MSG_IF_ERROR,
 		MSG_NEVER,
+		MSG_MUTED=1<<4,
 	};
 
 	Logger(int src=0,int id=0);
@@ -30,10 +31,7 @@ public:
 
 	~Logger();
 
-	void swap(Logger& logger)
-	{
-		std::swap(impl,logger.impl);
-	}
+	void swap(Logger& logger);
 
 	// set/get the default logtarget.
 	static void def(LogTarget* p);
@@ -60,7 +58,7 @@ public:
 	void Handle(LogRecord& o);
 
 	// flush cached logrecords to logtarget, return Ok() and Clear();
-	bool Test(int t=MSG_IF_ANY);
+	bool Test(int t=MSG_IF_ANY,const String& title="");
 
 	//return true if no error logrecords.
 	bool Ok();
@@ -112,6 +110,14 @@ public:
 	~LoggerSwap();
 };
 
+// LoggerSwap, swap logger with this_logger().
+class DLLIMPEXP_EWA_BASE LoggerAuto : public Logger, private NonCopyable
+{
+public:
+	LoggerAuto();
+	~LoggerAuto();
+	Logger logger_old;
+};
 
 
 class DLLIMPEXP_EWA_BASE LogSource

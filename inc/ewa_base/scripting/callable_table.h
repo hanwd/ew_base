@@ -14,7 +14,7 @@ public:
 	bool operator==(const VariantTable& v2) const;
 	bool operator!=(const VariantTable& v2) const;
 
-	void Serialize(Serializer& ar);
+	void Serialize(SerializerHelper sh);
 
 };
 DEFINE_OBJECT_NAME(VariantTable, "table");

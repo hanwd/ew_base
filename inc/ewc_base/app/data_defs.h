@@ -79,13 +79,14 @@ public:
 
 	ICmdParam(int p1=-1,int p2=-1):param1(p1),param2(p2){}
 	ICmdParam(EvtBase* evt,int p1=-1,int p2=-1,WndModel* pwm=NULL):param1(p1),param2(p2),evtptr(evt),iwmptr(pwm){}
-	ICmdParam(EvtBase* evt,const String& s1,int p1=-1,int p2=-1,WndModel* pwm=NULL):param1(p1),param2(p2),extra(s1),evtptr(evt),iwmptr(pwm){}
+	ICmdParam(EvtBase* evt,const String& s1,int p1=-1,int p2=-1,WndModel* pwm=NULL):param1(p1),param2(p2),extra1(s1),evtptr(evt),iwmptr(pwm){}
 
 
 	BitFlags flags;
 	intptr_t param1;
 	intptr_t param2;
-	String extra;
+	String extra1;
+	String extra2;
 
 	LitePtrT<EvtBase> evtptr;
 	LitePtrT<WndModel> iwmptr;
@@ -140,18 +141,23 @@ class IFileNameData : public ObjectData
 {
 public:
 
-	virtual const String& GetFilename();
 	virtual void SetFilename(const String& s);
-	virtual const String& GetTempfile();
+	virtual String GetFilename();
 
-	IFileNameData* DoClone(ObjectCloneState&)
-	{
-		return new IFileNameData(*this);
-	}
+	virtual void SetExts(const String& exts);
+	virtual String GetExts();
+
+	virtual String GetTempfile();
+
+	virtual bool IsSavable();	
+
+	IFileNameData* DoClone(ObjectCloneState&);
 
 protected:
 	String m_sFilename;
 	String m_sTempfile;
+	String m_sExts;
+	BitFlags flags;
 };
 
 class IFileNameHolder : public ObjectT<IFileNameData>
@@ -159,9 +165,14 @@ class IFileNameHolder : public ObjectT<IFileNameData>
 public:
 	IFileNameHolder(){SetData(new IFileNameData);}
 
-	const String& GetFilename(){return m_refData->GetFilename();}
+	String GetFilename(){return m_refData->GetFilename();}
 	void SetFilename(const String& s){m_refData->SetFilename(s);}
-	const String& GetTempfile(){return m_refData->GetTempfile();}
+	String GetTempfile(){return m_refData->GetTempfile();}
+	void SetExts(const String& exts){ m_refData->SetExts(exts); }
+	String GetExts(){ return m_refData->GetExts(); }
+
+	bool IsSavable(){ return m_refData->IsSavable(); }
+
 };
 
 EW_LEAVE

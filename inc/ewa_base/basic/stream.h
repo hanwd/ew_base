@@ -111,7 +111,7 @@ public:
 	bool reader_ok();
 	bool writer_ok();
 
-	void Serialize(Serializer& ar);
+	void Serialize(SerializerHelper sh);
 
 protected:
 	

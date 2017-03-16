@@ -13,7 +13,8 @@ public:
 
 	enum
 	{
-		FLAG_ACTIVE=1<<0,
+		FLAG_INITED=1<<0,
+		FLAG_ACTIVE=1<<1,
 	};
 
 
@@ -39,8 +40,8 @@ public:
 	virtual bool OnActivate(WndManager&,int);
 
 	virtual void UpdateView();
-	virtual String GetName();
 
+	virtual String GetName();
 	virtual String GetTitle();
 
 	void Refresh();

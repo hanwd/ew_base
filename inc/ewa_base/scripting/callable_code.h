@@ -16,7 +16,7 @@ public:
 	CallableSource();
 	CallableSource(const String& s);
 
-	void Serialize(Serializer& ar);
+	void Serialize(SerializerHelper sh);
 
 	CallableData* DoClone(ObjectCloneState& cs)
 	{
@@ -61,7 +61,7 @@ public:
 
 	void SetName(const String& s) { m_sName=s;}
 
-	void Serialize(Serializer& ar);
+	void Serialize(SerializerHelper sh);
 
 	void __set_helpdata(const String& s);
 
@@ -90,7 +90,7 @@ public:
 
 	virtual CallableClosure* ToClosure(){return this;}
 
-	void Serialize(Serializer& ar);
+	void Serialize(SerializerHelper sh);
 
 	DECLARE_OBJECT_INFO(CallableClosure,ObjectInfo);
 };

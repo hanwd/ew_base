@@ -263,13 +263,13 @@ bool PluginWorkspace::OnCmdEvent(ICmdParam& cmd,int phase)
 	{
 		if(cmd.evtptr->m_sId=="Open")
 		{
-			if(cmd.extra=="") return true;
+			if(cmd.extra1=="") return true;
 
 			IWnd_treectrl* pTree=dynamic_cast<IWnd_treectrl*>(EvtManager::current()["Workspace"].GetWindow());
-			if(pTree&&!pTree->ExGetRoot()->FindNodeEx(cmd.extra))
+			if(pTree&&!pTree->ExGetRoot()->FindNodeEx(cmd.extra1))
 			{
 				ObjectNodeGroup* gp=pTree->ExGetCurrentFolder();
-				pTree->ExAppendNode(new ObjectNodeFile(cmd.extra),gp);
+				pTree->ExAppendNode(new ObjectNodeFile(cmd.extra1),gp);
 			}
 		}
 	}

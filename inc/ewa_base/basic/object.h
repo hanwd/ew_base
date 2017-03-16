@@ -28,7 +28,7 @@
 	static  infotype sm_info;\
 	virtual infobase& GetObjectInfo() const{return sm_info;}\
 	virtual const String& GetObjectName() const {return sm_info.GetName();}\
-	virtual void Serialize(Serializer&){}\
+	virtual void Serialize(SerializerHelper){}\
 	virtual TYPE* DoClone(ObjectCloneState&){ return this; }
 
 
@@ -60,6 +60,7 @@
 EW_ENTER
 
 class DLLIMPEXP_EWA_BASE Serializer;
+class DLLIMPEXP_EWA_BASE SerializerHelper;
 class DLLIMPEXP_EWA_BASE ObjectCloneState;
 
 class DLLIMPEXP_EWA_BASE Object	: public mp_obj
@@ -67,7 +68,7 @@ class DLLIMPEXP_EWA_BASE Object	: public mp_obj
 public:
 
 	virtual ~Object() {}
-	virtual void Serialize(Serializer& ar);
+	virtual void Serialize(SerializerHelper sh);
 
 	DECLARE_OBJECT_INFO(Object,ObjectInfo)
 };

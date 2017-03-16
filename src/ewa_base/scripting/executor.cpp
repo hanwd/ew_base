@@ -360,7 +360,7 @@ void Executor::_vm_handle_exception(std::exception &e)
 			}
 
 			String name = ci0.frm->GetName();
-			if (name == "") name = "[unamed]";
+			if (name == "") name = "[unnamed]";
 
 			msg << "\n --> called by " << name << line;
 

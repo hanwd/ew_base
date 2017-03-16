@@ -938,10 +938,6 @@ bool ICmdProcTextEntryStc::DoExecId(ICmdParam& cmd)
 	case CP_DIRTY:
 		Target.MarkDirty();
 		break;
-	case CP_SAVE_TEMP:
-		return true;
-	case CP_SAVE_FILE:
-		return false;
 	case CP_FIND:
 		if(data.text_old=="") return false;
 		Target.SetSearchFlags(data.flags.val());
@@ -966,13 +962,6 @@ bool ICmdProcTextEntryStc::DoTestId(ICmdParam& cmd)
 	{
 	case CP_DIRTY:
 		return Target.IsModified();
-	case CP_SAVEAS:
-		return true;
-	//case CP_FIND:
-	//	return true;
-	//case CP_REPLACE:
-	//case CP_REPLACEALL:
-	//	return !Target.GetReadOnly();
 	default:
 		return basetype::DoTestId(cmd);
 	}

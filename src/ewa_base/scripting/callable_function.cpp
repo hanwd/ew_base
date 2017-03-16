@@ -49,7 +49,7 @@ CallableFunction::CallableFunction(const String& s, int f)
 
 }
 
-void CallableFunction::Serialize(Serializer& ar)
+void CallableFunction::Serialize(SerializerHelper sh)
 {
 
 }

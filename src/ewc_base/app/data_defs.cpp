@@ -21,7 +21,13 @@ IDat_search& IDat_search::current()
 }
 
 
-const String& IFileNameData::GetFilename()
+IFileNameData* IFileNameData::DoClone(ObjectCloneState&)
+{
+	return new IFileNameData(*this);
+}
+
+
+String IFileNameData::GetFilename()
 {
 	return m_sFilename;
 }
@@ -31,13 +37,29 @@ void IFileNameData::SetFilename(const String& s)
 	m_sFilename=s;
 }
 
-const String& IFileNameData::GetTempfile()
+String IFileNameData::GetTempfile()
 {
 	if(m_sTempfile=="")
 	{
 		m_sTempfile=m_sFilename+".temp";
 	}
 	return m_sTempfile;
+}
+
+String IFileNameData::GetExts()
+{
+	return m_sExts;
+}
+
+void IFileNameData::SetExts(const String& exts)
+{
+	m_sExts = exts;
+	flags.add(1);
+}
+
+bool IFileNameData::IsSavable()
+{
+	return flags.get(1);
 }
 
 EW_LEAVE

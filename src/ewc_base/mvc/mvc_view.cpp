@@ -93,14 +93,14 @@ bool MvcView::OnClose(WndManager& wm)
 {
 	if(Target.TestId(CmdProc::CP_DIRTY,NULL))
 	{
+		String fp;
+		Target.TestId(CmdProc::CP_SAVEAS, fp);
+		String msg = fp.empty() ? "File modified, save?" : String::Format("File \"%s\" modified, save?",fp);
 
-		int ret=Wrapper::MsgsDialog("File modified, save?",IDefs::BTN_YES|IDefs::BTN_NO|IDefs::BTN_CANCEL);
+		int ret=Wrapper::MsgsDialog(msg,IDefs::BTN_YES|IDefs::BTN_NO|IDefs::BTN_CANCEL);
 		while(ret==IDefs::BTN_YES)
 		{
-			if(wm.cmdptr.ExecId(CmdProc::CP_SAVE_TEMP))
-			{
-				if(Target.ExecId(CmdProc::CP_SAVE)) break;		
-			}
+			if(Target.ExecId(CmdProc::CP_SAVE)) break;		
 			ret=Wrapper::MsgsDialog("File save failed, try another?",IDefs::BTN_YES|IDefs::BTN_NO|IDefs::BTN_CANCEL);
 		}
 
@@ -133,15 +133,21 @@ bool MvcView::OnActivate(WndManager& wm,int v)
 	if(v>0 && flags.get(FLAG_ACTIVE)) return true;
 	if(v<0 &&!flags.get(FLAG_ACTIVE)) return true;
 
+	if(v>0)
+	{
+		wm.cmdptr.SetData(&Target);
+		flags.set(FLAG_ACTIVE,true);
+	}
+
 	if(!DoActivate(wm,v))
 	{
 		return false;
 	}
 
-	if(v>0)
+	if ( v>0 && !flags.get(FLAG_INITED))
 	{
-		wm.cmdptr.SetData(&Target);
-		flags.set(FLAG_ACTIVE,true);
+		flags.add(FLAG_INITED);
+		Target.ExecId(CmdProc::CP_INIT);
 	}
 
 	if(v<0)
@@ -170,15 +176,19 @@ void MvcView::UpdateView()
 
 String MvcView::GetName()
 {
-	return "view";
+	return _hT("view");
 }
 
 
 String MvcView::GetTitle()
 {
 	String fs=fn.GetFilename();
-	if(fs!="") return fs;
-	return "unnamed";
+	if (fs != "")
+	{
+		fs.replace('\\', '/');
+		return string_split(fs, "/").back();
+	}
+	return _hT("unnamed");
 }
 
 void MvcView::Refresh()

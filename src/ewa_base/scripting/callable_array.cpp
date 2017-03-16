@@ -514,8 +514,10 @@ bool CallableWrapT<arr_xt<T> >::__test_dims(arr_xt_dims& dm,int op)
 }
 
 
-void ResultTreeNode::Serialize(Serializer& ar)
+void ResultTreeNode::Serialize(SerializerHelper sh)
 {
+	Serializer& ar(sh.ref(0));
+
 	ar & value & index & depth;
 	ar & children;
 }
@@ -578,8 +580,10 @@ void ResultTreeNode::addn(int idx,String* p,int d)
 
 }
 
-void CallableResultGroup::Serialize(Serializer& ar)
+void CallableResultGroup::Serialize(SerializerHelper sh)
 {
+	Serializer& ar(sh.ref(0));
+
 	basetype::Serialize(ar);
 	ar & strmap;
 }

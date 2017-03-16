@@ -121,7 +121,7 @@ bool PluginHistoryFiles::OnCmdEvent(ICmdParam& cmd,int phase)
 	{
 		if(cmd.evtptr->m_sId=="Open")
 		{
-			insert(cmd.extra);
+			insert(cmd.extra1);
 			wm.wup.gp_add("HistoryFiles");	
 		}
 	}

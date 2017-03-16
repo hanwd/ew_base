@@ -115,7 +115,19 @@ protected:
 
 };
 
+class DLLIMPEXP_EWA_BASE SerializerHelper
+{
+public:
+	int ver;
 
+	SerializerHelper(SerializerHelper&);
+	SerializerHelper(Serializer& ar);
+	Serializer& ref(int v);
+
+private:
+	Serializer& m_ar;
+
+};
 
 class DLLIMPEXP_EWA_BASE SerializerEx : public Serializer
 {
@@ -229,11 +241,9 @@ protected:
 class DLLIMPEXP_EWA_BASE serial_header
 {
 public:
-	serial_header()
-	{
-		offset=0;
-		size=0;
-	}
+	serial_header();
+	void update();
+	bool check();
 
 	char tags[4];
 	int32_t flags;
@@ -242,9 +252,6 @@ public:
 	int64_t offset;
 	int32_t chksum;
 	int32_t padding;
-
-	void update(){chksum=(int32_t)crc32(this,(char*)&chksum-(char*)this);}
-	bool check(){ return chksum==(int32_t)crc32(this,(char*)&chksum-(char*)this);}
 };
 
 

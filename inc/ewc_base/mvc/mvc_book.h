@@ -47,8 +47,25 @@ protected:
 
 	WndManager& wm;
 
+	class ViewInfo
+	{
+	public:
+		String title;
+		String title_n;
+		int index;
+		bool dirty;
+		TimePoint timestamp;
+
+		ViewInfo()
+		{
+			index = -1;
+			timestamp = Clock::now();
+		}
+	};
+
+	typedef bst_map<MvcView*, ViewInfo> view_map;
+	view_map m_aOpenedViews;
 	DataPtrT<EvtListener> m_pViewListener;
-	bst_set<MvcView*> m_aOpenedViews;
 	LitePtrT<MvcBookImpl> m_pBook;
 
 };

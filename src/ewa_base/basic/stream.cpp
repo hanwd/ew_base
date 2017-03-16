@@ -656,7 +656,7 @@ bool Stream::writer_ok()
 
 
 
-void Stream::Serialize(Serializer& ar)
+void Stream::Serialize(SerializerHelper)
 {
 	Exception::XError("stream cannot be serialized!");
 	//ar.errstr("stream cannot be serialized!");

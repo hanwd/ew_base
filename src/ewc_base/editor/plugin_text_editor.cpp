@@ -21,61 +21,63 @@ public:
 	IWnd_stc& Target;
 	MvcView& IView;
 
-	ICmdProcTextCtrl(IWnd_stc& t,MvcView& v):basetype(t),Target(t),IView(v){}
+	ICmdProcTextCtrl(IWnd_stc& t,MvcView& v):basetype(t),Target(t),IView(v)
+	{
+		fn = v.fn;
+	}
+
+	bool DoLoad(const String& fp)
+	{
+		if (fp == "")
+		{
+			return false;
+		}
+
+		if (!Target.LoadFile(str2wx(fp)))
+		{
+			return false;
+		}
+
+		return true;
+	}
+
+	bool DoSave(const String& fp)
+	{
+		if (fp == "")
+		{
+			return false;
+		}
+		wxString text = Target.GetValue();
+
+		StringBuffer<char> buff;
+		buff = wx2str(text);
+
+		return buff.save(fp);
+
+		//if (!Target.SaveFile(str2wx(fp)))
+		//{
+		//	return false;
+		//}
+		//return true;
+	}
 
 
 	bool DoExecId(ICmdParam& cmd)
 	{
-		switch(cmd.param1)
+		if(cmd.param1==CP_SAVE_POST)
 		{
-		case CP_SAVE_TEMP:
+			if (!basetype::DoExecId(cmd))
 			{
-				String fn_temp=IView.fn.GetTempfile();
-				if(fn_temp=="") return false;
-				//StringBuffer<char> sb(wx2str(Target.GetText()));
-				//sb.save(fn_temp,FILE_TEXT_UTF8);
-				if(!Target.SaveFile(str2wx(fn_temp)))
-				{
-					return false;
-				}
+				return false;
 			}
-			break;
-		case CP_SAVE_FILE:
-			{
-				if(cmd.extra=="") cmd.extra=IView.fn.GetFilename();
-				if(cmd.extra=="")
-				{					
-					return false;
-				}
-
-				String fn_temp=IView.fn.GetTempfile();
-				if(fn_temp=="") return false;
-
-				FSLocal::current().Remove(cmd.extra);
-				FSLocal::current().Rename(fn_temp,cmd.extra,0);
-
-				IView.fn.SetFilename(cmd.extra);
-				Target.SetSavePoint();
-			}
-			break;
-		default:
+			Target.SetSavePoint();
+			return true;
+		}
+		else
+		{
 			return basetype::DoExecId(cmd);
 		}
-		return true;
 	}
-
-	bool DoTestId(ICmdParam& cmd)
-	{
-		switch(cmd.param1)
-		{
-		case CP_SAVEAS:
-			cmd.extra=IView.fn.GetFilename();
-			return true;
-		default:
-			return basetype::DoTestId(cmd);
-		}
-	}
-
 };
 
 class MvcViewText : public MvcViewEx
@@ -117,7 +119,6 @@ public:
 
 		wm.wup.sb_set(v>0?"StatusBar.texteditor":"StatusBar.default");
 
-
 		return true;
 	}
 
@@ -136,17 +137,20 @@ public:
 		m_pCanvas=new IWnd_stc(w,wp);
 		//m_pCanvas->style.add(IWnd_stc::STYLE_CAN_FIND|IWnd_stc::STYLE_CAN_REPLACE);
 		
-		String fn=Target.fn.GetFilename();
-		if(fn!="")
-		{
-			m_pCanvas->LoadFile(str2wx(fn));
-		}
+		//String fn=Target.fn.GetFilename();
+		//if(fn!="")
+		//{
+		//	m_pCanvas->LoadFile(str2wx(fn));
+		//}
+
+		fn.SetExts(_hT("Text Files")+"(*.txt) | *.txt");
 
 		m_pCanvas->tempp=IWnd_stc::ms_param;
 		m_pCanvas->UpdateStyle(Target.fn.GetFilename());
 
 		m_pCanvas->func.bind(&MvcViewText::OnStcChanged,this);
 		m_pCmdProc.reset(new ICmdProcTextCtrl(*m_pCanvas,*this));
+		m_pCmdProc->fn = fn;
 
 		return m_pCanvas;
 	}

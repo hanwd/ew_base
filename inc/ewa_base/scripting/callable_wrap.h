@@ -48,8 +48,9 @@ public:
 		return p&&p->value==value;
 	}
 
-	void Serialize(Serializer& ar)
+	void Serialize(SerializerHelper sh)
 	{
+		Serializer& ar(sh.ref(0));
 		ar & value;
 	}
 

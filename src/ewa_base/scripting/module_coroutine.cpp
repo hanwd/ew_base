@@ -327,10 +327,11 @@ int CallableDataRoutineSpawn::__fun_call(Executor& ewsl,int pm)
 }
 
 
-void CallableCoroutine::Serialize(Serializer& ar)
+void CallableCoroutine::Serialize(SerializerHelper sh)
 {
-	int v = ar.local_version(0);
-	if (v == 0)
+	Serializer& ar(sh.ref(0));
+
+	if (sh.ver == 0)
 	{
 		ar & aLLVar[1];
 		if(ar.is_reader())

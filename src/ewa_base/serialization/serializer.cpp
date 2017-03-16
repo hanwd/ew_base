@@ -4,6 +4,38 @@
 
 EW_ENTER
 
+SerializerHelper::SerializerHelper(Serializer& ar) :m_ar(ar), ver(-1)
+{
+
+}
+
+SerializerHelper::SerializerHelper(SerializerHelper& sh) : m_ar(sh.m_ar), ver(-1)
+{
+
+}
+
+
+Serializer& SerializerHelper::ref(int v)
+{
+	EW_ASSERT(ver == -1);
+	ver = m_ar.local_version(v);
+	return m_ar;
+}
+
+serial_header::serial_header()
+{
+	offset = 0;
+	size = 0;
+}
+void serial_header::update()
+{ 
+	chksum = (int32_t)crc32(this, (char*)&chksum - (char*)this); 
+}
+
+bool serial_header::check()
+{ 
+	return chksum == (int32_t)crc32(this, (char*)&chksum - (char*)this); 
+}
 
 Serializer::internal_head Serializer::head;
 Serializer::internal_tail Serializer::tail;

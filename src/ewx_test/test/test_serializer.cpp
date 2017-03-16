@@ -15,8 +15,9 @@ public:
 	T1 val;
 	T2 tmp;
 
-	void Serialize(Serializer& ar)
+	void Serialize(SerializerHelper sh)
 	{
+		Serializer& ar(sh.ref(0));
 		ar & val & tmp;
 	}
 

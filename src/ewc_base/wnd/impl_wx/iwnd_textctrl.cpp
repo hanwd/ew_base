@@ -290,10 +290,6 @@ bool ICmdProcTextEntryCtrl::DoExecId(ICmdParam& cmd)
 	case CP_DIRTY:
 		Target.MarkDirty();
 		break;
-	case CP_SAVE_TEMP:
-		return true;
-	case CP_SAVE_FILE:
-		return false;
 	case CP_FIND:
 		if(data.text_old=="") return false;
 		return DoFind(cmd);

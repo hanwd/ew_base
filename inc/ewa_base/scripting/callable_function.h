@@ -16,7 +16,7 @@ public:
 	CallableFunction();
 	CallableFunction(const String& s, int f = 0);
 
-	virtual void Serialize(Serializer& ar);
+	virtual void Serialize(SerializerHelper sh);
 
 	const String& GetName() const{return m_sName;}
 	virtual CallableFunction* ToFunction(){return this;}

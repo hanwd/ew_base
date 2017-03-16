@@ -106,7 +106,12 @@ public:
 	T oldvalue;
 	T& value;
 
-	inline LockState(T& v,const T n=T()):value(v)
+	inline LockState(T& v) :value(v), oldvalue(v)
+	{
+
+	}
+
+	inline LockState(T& v,const T n):value(v)
 	{
 		oldvalue=value;
 		value=n;

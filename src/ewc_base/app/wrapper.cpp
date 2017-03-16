@@ -28,7 +28,7 @@ int Wrapper::FileDialog(arr_1t<String>& files,int type,const String& title,const
 	wxString wxtitle(str2wx(title));
 	if(wxtitle=="")
 	{
-		wxtitle="Please select a file";
+		wxtitle=str2wx(_hT("Please select a file"));
 	}
 
 	int flag=(type&IDefs::FD_SAVE)==0?wxFD_OPEN:wxFD_SAVE;

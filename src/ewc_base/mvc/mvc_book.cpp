@@ -217,10 +217,11 @@ wxAuiNotebook* MvcBook::CreateBook(wxWindow* p)
 
 bool MvcBook::IsActivated(const String& fn)
 {
-	for(bst_set<MvcView*>::iterator it=m_aOpenedViews.begin();it!=m_aOpenedViews.end();++it)
+	for(view_map::iterator it=m_aOpenedViews.begin();it!=m_aOpenedViews.end();++it)
 	{
-		if((*it)->fn.GetFilename()!=fn) continue;
-		wxWindow* w=(*it)->GetCanvas();
+		MvcView* pView = (*it).first;
+		if(pView->fn.GetFilename()!=fn) continue;
+		wxWindow* w=pView->GetCanvas();
 		if(w)
 		{
 			int sel=m_pBook->GetPageIndex(w);
@@ -235,10 +236,11 @@ bool MvcBook::IsActivated(const String& fn)
 
 bool MvcBook::Activate(const String& fn)
 {
-	for(bst_set<MvcView*>::iterator it=m_aOpenedViews.begin();it!=m_aOpenedViews.end();++it)
+	for (view_map::iterator it = m_aOpenedViews.begin(); it != m_aOpenedViews.end(); ++it)
 	{
-		if((*it)->fn.GetFilename()!=fn) continue;
-		wxWindow* w=(*it)->GetCanvas();
+		MvcView* pView = (*it).first;
+		if(pView->fn.GetFilename()!=fn) continue;
+		wxWindow* w=pView->GetCanvas();
 		if(w)
 		{
 			int sel=m_pBook->GetPageIndex(w);
@@ -264,17 +266,19 @@ bool MvcBook::AttachView(MvcView* pView)
 		return false;
 	}
 
-	m_aOpenedViews.insert(pView);
+
+	String title = pView->GetTitle();
 
 	wxWindow* pCanvas=pView->CreateCanvas(m_pBook.get());
 	pView->SetCanvas(pCanvas);
 
-	bool flag=m_pBook->AddPage(pCanvas,str2wx(pView->GetTitle()),true,-1);
+	bool flag=m_pBook->AddPage(pCanvas,str2wx(title),true,-1);
 
 	if(!flag)
 	{
 		System::LogMessage("MvcBook::AttachView: m_pBook->AddPage failed");
 	}
+
 	return flag;
 }
 
@@ -294,14 +298,78 @@ void MvcBook::UpdateTitle()
 {
 	MvcView* pView=m_pBook->m_pActiveView;
 	if(!pView) return;
-	bool f1=pView->Target.TestId(CmdProc::CP_DIRTY);
 
-	int sel=m_pBook->GetSelection();
 
-	String text=pView->GetTitle();
-	text+=f1?"*":"";
+	ViewInfo& vinfo(m_aOpenedViews[pView]);
 
-	m_pBook->SetPageText(sel,str2wx(text));
+	String title = pView->GetTitle();
+	if (vinfo.title != title)
+	{
+		vinfo.title = title;
+		vinfo.index = -1;
+	}
+
+	vinfo.dirty=pView->Target.TestId(CmdProc::CP_DIRTY);
+
+	
+	class MyViewInfoLess
+	{
+	public:
+		bool operator()(ViewInfo* lhs, ViewInfo* rhs)
+		{
+			if (lhs->index < rhs->index) return true;
+			if (lhs->index > rhs->index) return false;
+			return lhs->timestamp < rhs->timestamp;
+		}
+	};
+
+	bst_map<String, bst_set<ViewInfo*, MyViewInfoLess> > ainfo;
+	for (auto it = m_aOpenedViews.begin(); it != m_aOpenedViews.end(); ++it)
+	{
+		ainfo[(*it).second.title].insert(&(*it).second);
+	}
+	for (auto it = ainfo.begin(); it != ainfo.end(); it++)
+	{
+		bst_set<ViewInfo*, MyViewInfoLess>& ainfo((*it).second);
+		if (ainfo.size() == 1)
+		{
+			(*ainfo.begin())->index = -1;
+			continue;
+		}
+
+		int n = (*ainfo.rbegin())->index;
+		for (auto it = ainfo.begin(); it != ainfo.end() && (*it)->index < 0; ++it)
+		{
+			(*it)->index = ++n;
+		}
+
+	}
+
+
+	for (view_map::iterator it = m_aOpenedViews.begin(); it != m_aOpenedViews.end(); ++it)
+	{
+		ViewInfo& vinfo((*it).second);
+		String title;
+		if (vinfo.dirty) title << "* ";
+		title << vinfo.title;
+		if (vinfo.index >= 0)
+		{
+			title << ":" << vinfo.index;
+		}
+		if (title == vinfo.title_n) continue;
+		vinfo.title_n = title;
+
+		wxWindow* pCanvas = (*it).first->GetCanvas();
+		int id = m_pBook->GetPageIndex(pCanvas);
+		if (id >= 0)
+		{
+			m_pBook->SetPageText(id, str2wx(title));
+		}
+		else
+		{
+			System::LogTrace("canvas not found");
+		}
+	}
 
 }
 

@@ -37,7 +37,7 @@ public:
 
 	void swap(ObjectGroup& o);
 
-	void Serialize(Serializer& ar);
+	void Serialize(SerializerHelper sh);
 
 	bool empty() const;
 
@@ -135,8 +135,9 @@ public:
 	template<typename IT>
 	void append(IT t1,IT t2){while(t1!=t2) append(*t1++);}
 
-	void Serialize(Serializer& ar)
+	void Serialize(SerializerHelper sh)
 	{
+		Serializer& ar(sh.ref(0));
 		ar & __proxy();
 	}
 

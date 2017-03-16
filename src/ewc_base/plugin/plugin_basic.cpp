@@ -213,7 +213,7 @@ public:
 	{
 		WndManager& wm(WndManager::current());
 
-		if(cmd.extra=="")
+		if(cmd.extra1=="")
 		{
 			cmd.param1=-1;
 			arr_1t<String> files;
@@ -221,11 +221,11 @@ public:
 			{
 				return false;
 			}
-			cmd.extra=files[0];	
+			cmd.extra1=files[0];	
 		}
 
 		// 判断这个文件是否已经打开了。
-		if(wm.book.Activate(cmd.extra))
+		if(wm.book.Activate(cmd.extra1))
 		{
 			return true;
 		}
@@ -245,7 +245,7 @@ public:
 			int _nIndex=0;
 			for(size_t i=0;i<ipm.plugin_editor.size();i++)
 			{
-				int n=ipm.plugin_editor[i]->MatchIndex(cmd.extra);
+				int n=ipm.plugin_editor[i]->MatchIndex(cmd.extra1);
 				if(n>_nIndex)
 				{
 					_nIndex=n;
@@ -254,14 +254,14 @@ public:
 			}
 		}
 
-		if(!_pEditor||!_pEditor->Open(cmd.extra))
+		if(!_pEditor||!_pEditor->Open(cmd.extra1))
 		{
-			this_logger().LogError(_hT("OpenFile %s FAILED!"),cmd.extra);
+			this_logger().LogError(_hT("OpenFile %s FAILED!"),cmd.extra1);
 			return false;
 		}
 		else
 		{
-			this_logger().LogMessage(_hT("OpenFile %s OK."),cmd.extra);
+			this_logger().LogMessage(_hT("OpenFile %s OK."),cmd.extra1);
 			return true;
 		}
 	}
@@ -625,7 +625,7 @@ public:
 	{
 		LockGuard<WndUpdator> lock(WndUpdator::current());
 
-		Target.SavePerspective(cmd.param1,cmd.extra);
+		Target.SavePerspective(cmd.param1,cmd.extra1);
 		WndUpdator::current().gp_add("Layout");
 
 		return true;

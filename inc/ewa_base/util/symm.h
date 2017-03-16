@@ -23,7 +23,7 @@ public:
 
 	bool FromVariant(const Variant& v);
 
-	void Serialize(Serializer& ar);
+	void Serialize(SerializerHelper sh);
 };
 
 inline bool operator==(const DExprItem& lhs,const DExprItem& rhs)
@@ -81,7 +81,7 @@ public:
 	String name;
 	arr_1t<Variant> prop;
 
-	void Serialize(Serializer& ar);
+	void Serialize(SerializerHelper sh);
 };
 
 

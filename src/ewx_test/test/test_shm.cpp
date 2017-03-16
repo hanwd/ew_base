@@ -22,7 +22,7 @@ TEST_DEFINE(TEST_Shm)
 
 	// open the file and read the text
 	TEST_ASSERT(sm2.OpenFile("shm_sample.txt",0,FLAG_FILE_RD));
-	if(sm1.data() && sm2.data())
+	if(sm2.data())
 	{
 		TEST_ASSERT(strcmp(sm2.data(),filetext.c_str())==0);
 	}

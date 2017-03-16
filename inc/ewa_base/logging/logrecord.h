@@ -7,6 +7,7 @@
 
 EW_ENTER
 
+class DLLIMPEXP_EWA_BASE SerializerHelper;
 
 class DLLIMPEXP_EWA_BASE LogRecord
 {
@@ -35,7 +36,7 @@ public:
 	// level of the logrecord
 	int32_t m_nLevel;
 
-	void Serialize(Serializer& ar);
+	void Serialize(SerializerHelper sh);
 };
 
 EW_LEAVE

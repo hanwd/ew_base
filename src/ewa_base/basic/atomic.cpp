@@ -266,5 +266,16 @@ template class AtomicIntT<uint32_t>;
 template class AtomicIntT<int64_t>;
 template class AtomicIntT<uint64_t>;
 
+void LockPolicyDefault<StaticMutex>::lock(StaticMutex* mtx)
+{
+	(*(AtomicMutex*)mtx).lock();
+}
+
+void LockPolicyDefault<StaticMutex>::unlock(StaticMutex* mtx)
+{
+	(*(AtomicMutex*)mtx).unlock();
+}
+
+
 
 EW_LEAVE

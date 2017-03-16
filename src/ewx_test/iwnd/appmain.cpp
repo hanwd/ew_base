@@ -1,14 +1,9 @@
 
 #include "ewc_base/app/app.h"
-#include "ewc_base/wnd/wnd_model.h"
 #include "ewc_base/wnd/wnd_manager.h"
-
 #include "ewc_base/plugin/plugin.h"
 #include "ewc_base/plugin/plugin_manager.h"
-#include "ewa_base/scripting/executor_proxy.h"
 
-#include "ewc_base/wnd/wnd_info.h"
-#include "ewc_base/wnd/wnd_maker.h"
 
 #pragma comment(lib,"ewa_base.lib")
 #pragma comment(lib,"ewc_base.lib")
@@ -43,21 +38,29 @@ int ew_main()
 
 	wm.SetName(_kT("ew_ui_framework"));
 
+
 	// 尝试从文件载入配置文件
-	if(!wm.app.conf.Load("config/default.conf"))
+	if (!wm.app.conf.Load("res:/config/default.conf"))
 	{
 		// 配置文件不存在，初始化配置信息
 		wm.app.conf.SetValue<String>("/basic/language","Chinese");
 	}
 
+	String sLanguage;
+	if (wm.app.conf.GetValue<String>("/basic/language", sLanguage))
+	{
+		wm.lang.SetLanguage(sLanguage);
+	}
+
+
 	// 执行资源配置脚本，主要是图标。
-	wm.LoadScript("scripting/ui/res_manager.script");
+	wm.LoadScript("res:/scripting/ui/res_manager.ewsl");
 
 	// 载入所有的插件
 	if(wm.LoadPlugins())
 	{
 		// 执行脚本，定制菜单，工具条，设置快捷键等。
-		wm.LoadScript("scripting/ui/evt_manager.script");
+		wm.LoadScript("res:/scripting/ui/evt_manager.ewsl");
 		
 		// 载入配置信息
 		wm.LoadConfig();
@@ -72,7 +75,7 @@ int ew_main()
 		wm.SaveConfig();
 	
 		// 保存配置信息到文件
-		wm.app.conf.Save("config/default.conf");
+		wm.app.conf.Save("res:/config/default.conf");
 	}
 
 	ObjectInfo::Invoke(InvokeParam::TYPE_FINI);

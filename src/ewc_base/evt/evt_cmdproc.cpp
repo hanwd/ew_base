@@ -13,13 +13,18 @@ EvtCommandCmdProc::EvtCommandCmdProc(WndManager& w,const String& s,int d)
 
 void EvtCommandCmdProc::DoUpdateCtrl(IUpdParam& upd)
 {
-	if(m_sId=="SaveAs")
-	{
-		m_sId=m_sId;
-	}
+
 	sExtra="";
 	bool f1=wm.cmdptr.TestId(id,sExtra);
 	flags.set(FLAG_DISABLE,!f1);
+
+	if ((sExtra != "") && (id == CmdProc::CP_SAVEAS || id == CmdProc::CP_SAVE))
+	{
+		sExtra.replace('\\', '/');
+		sExtra = string_split(sExtra, "/").back();
+		sExtra = string_split(sExtra, "?").front();
+		sExtra = string_split(sExtra, "#").front();
+	}
 		
 	if(sExtra=="")
 	{
@@ -27,12 +32,15 @@ void EvtCommandCmdProc::DoUpdateCtrl(IUpdParam& upd)
 	}
 	else
 	{
-		m_sLabel=m_sId+" "+sExtra;
+		m_sLabel = m_sText + " " + sExtra;
 	}
 
 	if(id==CmdProc::CP_SAVEAS)
 	{
-		if(sExtra!="") m_sLabel=String::Format(_hT("Save %s As"),sExtra);
+		if (sExtra != "")
+		{
+			m_sLabel = String::Format(_hT("Save %s As"), sExtra);
+		}
 		wm.book.UpdateTitle();
 	}
 

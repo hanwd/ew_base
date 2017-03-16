@@ -9,8 +9,9 @@ XmlAttribute::XmlAttribute(const String& n,const String& v)
 
 }
 
-void XmlAttribute::Serialize(Serializer& ar)
+void XmlAttribute::Serialize(SerializerHelper sh)
 {
+	Serializer& ar(sh.ref(0));
 	ar & m_sName & m_sValue;
 }
 

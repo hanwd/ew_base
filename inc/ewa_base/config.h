@@ -294,6 +294,8 @@ void DLLIMPEXP_EWA_BASE OnNoop();
 DLLIMPEXP_EWA_BASE const String& Translate(const String& msg);
 DLLIMPEXP_EWA_BASE const String& Translate(const String& msg,const String& def);
 
+
+
 enum
 {
 	LOGLEVEL_DEBUG,
@@ -318,6 +320,7 @@ class DLLIMPEXP_EWA_BASE Serializer;
 
 template<typename T>
 Serializer& operator &(Serializer& ar,T& val);
+
 
 EW_LEAVE
 

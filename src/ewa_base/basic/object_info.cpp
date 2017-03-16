@@ -7,6 +7,7 @@
 EW_ENTER
 
 
+
 class DLLIMPEXP_EWA_BASE CreatorUseInfo : public Creator
 {
 public:
@@ -96,8 +97,7 @@ ObjectCreator::ObjectCreator()
 
 ObjectCreator& ObjectCreator::current()
 {
-	static ObjectCreator gInstance;
-	return gInstance;
+	return detail::StaticInstance<ObjectCreator>::current();
 }
 
 Object* ObjectCreator::Create(const String& name)

@@ -87,18 +87,29 @@ ec.gp_new("MenuBar.default");
 ec.gp_end();
 
 // ÉèÖÃ¿ì½Ý¼ü
-ec.set_accel("Exit","Alt+F4");
-ec.set_accel("Open","Ctrl+O");
-ec.set_accel("Cut","Ctrl+X");
-ec.set_accel("Copy","Ctrl+C");
-ec.set_accel("Paste","Ctrl+V");
-ec.set_accel("SelectAll","Ctrl+A");
-ec.set_accel("Save","Ctrl+S");
-ec.set_accel("Undo","Ctrl+Z");
-ec.set_accel("Redo","Ctrl+Y");
+ec.set_accel("Exit","Alt+F4","X");
+ec.set_accel("Open","Ctrl+O","O");
+ec.set_accel("Cut","Ctrl+X","T");
+ec.set_accel("Copy","Ctrl+C","C");
+ec.set_accel("Delete","Ctrl+D","D");
+ec.set_accel("Paste","Ctrl+V","P");
+ec.set_accel("SelectAll","Ctrl+A","L");
+ec.set_accel("Save","Ctrl+S","S");
+ec.set_accel("SaveAs","Ctrl+Shift+S","A");
 
-ec.set_accel("Find","Ctrl+F");
+ec.set_accel("Undo","Ctrl+Z","U");
+ec.set_accel("Redo","Ctrl+Y","R");
+
+ec.set_accel("Find","Ctrl+F","F");
 ec.set_accel("Replace","Ctrl+H");
 
 ec.set_accel("FullScreen","Ctrl+F11");
+
+
+ec.set_hotkey("File","F");
+ec.set_hotkey("Edit","E");
+ec.set_hotkey("Help","H");
+ec.set_hotkey("View","V");
+ec.set_hotkey("Text","T");
+
 

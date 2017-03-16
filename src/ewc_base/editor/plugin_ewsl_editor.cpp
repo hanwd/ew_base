@@ -94,7 +94,6 @@ public:
 	
 		wm.wup.sb_set(v>0?"StatusBar.texteditor":"StatusBar.default");
 
-
 		return true;
 	}
 
@@ -204,7 +203,7 @@ public:
 		km.propotion(1).flags(km.IWND_EXPAND).size(540,280).sv(1);
 		km.width( 96).sv(2);
 
-		km.win("dialog"			,km.label("Ewsl.Script").flags(km.IWND_NO_CLOSE|km.IWND_AUTO_FIT).sprops("icon","Find"));
+		km.win("dialog"			,km.label(_hT("Ewsl.Script")).flags(km.IWND_NO_CLOSE|km.IWND_AUTO_FIT).sprops("icon","Find"));
 			km.win("row");
 				km.add("stc"	,km.ld(1).name("Ewsl.Script"));
 				km.win("col"	,km.flags(km.IWND_EXPAND));
@@ -241,14 +240,14 @@ bool PluginEwslEditor::OnAttach()
 	AttachEvent("Ewsl.Done");
 
 	ec.gp_beg("OtherWindow");
-		ec.gp_add(new EvtCommandExtraWindow("Wnd.Variable","bookbase"));
-		ec.gp_add(new EvtCommandShowModel("Ewsl.ScriptEditor",pmdl));
+		ec.gp_add(new EvtCommandExtraWindow(_kT("Wnd.Variable"),"bookbase"));
+		ec.gp_add(new EvtCommandShowModel(_kT("Ewsl.ScriptEditor"),pmdl));
 	ec.gp_end();
 
 	ec["Wnd.Variable"].flags.add(EvtBase::FLAG_CHECKED);
 
 	ec.gp_beg("Menu.New");
-		ec.gp_add(new EvtCommandNewEditorFile(*this,"New.Ewsl"));
+		ec.gp_add(new EvtCommandNewEditorFile(*this, _kT("New.Ewsl")));
 	ec.gp_end();
 
 	return true;

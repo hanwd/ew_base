@@ -52,14 +52,18 @@ bool Variant::operator!=(const Variant& v2) const
 }
 
 
-void VariantTable::Serialize(Serializer& ar)
+void VariantTable::Serialize(SerializerHelper sh)
 {
+	Serializer& ar(sh.ref(0));
+
 	indexer_map<String,Variant>& tmp_value(*this);
 	ar & tmp_value;
 }
 
-void Variant::Serialize(Serializer& ar)
+void Variant::Serialize(SerializerHelper sh)
 {
+	Serializer& ar(sh.ref(0));
+
 	if(ar.is_reader())
 	{
 		clear();

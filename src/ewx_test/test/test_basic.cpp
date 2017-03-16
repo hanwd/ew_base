@@ -203,11 +203,12 @@ TEST_DEFINE(TEST_StringBuffer)
 	float32_t f32=1.25;
 	s8="";
 	s8<<f32;
+	TEST_ASSERT(s8=="1.25");
 
 	float64_t f64=2.125;
 	s8="";
 	s8<<f64;
-
+	TEST_ASSERT(s8=="2.125");
 
 }
 

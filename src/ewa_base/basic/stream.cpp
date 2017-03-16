@@ -300,40 +300,177 @@ bool Stream::write_to_writer(DataPtrT<IStreamData> wr)
 	return false;
 }
 
-bool Stream::write_to_buffer(StringBuffer<char>& sb)
+bool Stream::write_to_buffer(StringBuffer<char>& sb,int type)
 {
-	if(!hReader)
+	if(!reader_ok())
 	{
 		 set_invalid_stream_error();;
 		return false;
 	}
 
-	try
+	if (type == FILE_TYPE_BINARY)
 	{
-		char buffer[1024*32];
-		while(1)
+		try
 		{
-			int rc=hReader.get()->recv(buffer,sizeof(buffer));
-			if(rc>0)
+			char buffer[1024*32];
+			while(1)
 			{
-				sb.append(buffer,rc);
-			}
-			else if(rc==0)
-			{
-				return true;
-			}
-			else
-			{
-				return false;
+				int rc=hReader.get()->recv(buffer,sizeof(buffer));
+				if(rc>0)
+				{
+					sb.append(buffer,rc);
+				}
+				else if(rc==0)
+				{
+					return true;
+				}
+				else
+				{
+					return false;
+				}
 			}
 		}
-	}
-	catch(std::exception& e)
-	{
-		EW_UNUSED(e);
+		catch(std::exception& e)
+		{
+			EW_UNUSED(e);
+			return false;
+		}
 	}
 
-	return false;
+
+	unsigned char bom[4] = { 1, 1, 1, 1 };
+	
+	int n = recv((char*)bom, 4);
+
+	if (n<2)
+	{
+		if (n < 0) return false;
+		sb.append(bom, n);
+		return true;
+	}
+
+
+	if ((bom[0] == 0xFE && bom[1] == 0xFF) || (bom[0] == 0xFF && bom[1] == 0xFE))
+	{
+
+		StringBuffer<char> kb;
+		kb.append(bom, n - 2);
+		if (!write_to_buffer(kb, FILE_TYPE_BINARY))
+		{
+			return false;
+		}
+
+		if (kb.size() % 2 != 0)
+		{
+			return false;
+		}
+
+		size_t nz = kb.size() >> 1;
+
+		uint16_t tag = *reinterpret_cast<uint16_t*>(bom);
+		if (tag == 0xFFFE) //BE
+		{
+			char *pc = (char*)kb.data();
+			for (size_t i = 0; i<nz; i += 2)
+			{
+				std::swap(pc[i], pc[i + 1]);
+			}
+		}
+
+		StringBuffer<char> zb;
+		if (!IConv::unicode_to_utf8(zb, (uint16_t*)kb.data(), nz))
+		{
+			return false;
+		}
+
+		if (sb.empty())
+		{
+			sb.swap(zb);
+		}
+		else
+		{
+			sb << zb;
+		}
+		return true;
+	}
+
+
+	if (n>=3 && bom[0] == 0xEF && bom[1] == 0xBB && bom[2] == 0xBF) // UTF8
+	{
+		sb.append(bom, n - 3);
+		return write_to_buffer(sb, FILE_TYPE_BINARY);
+	}
+
+
+	if (n==4 && ((bom[0] == 0xFF && bom[1] == 0xFE && bom[2] == 0 && bom[3] == 0) || (bom[0] == 0 && bom[1] == 0 && bom[2] == 0xFE && bom[3] == 0xFF)))
+	{
+
+		StringBuffer<char> kb;
+		if (!write_to_buffer(kb, FILE_TYPE_BINARY))
+		{
+			return false;
+		}
+
+		if (kb.size() % 4 != 0)
+		{
+			return false;
+		}
+
+		size_t nz = kb.size() >> 2;
+
+		uint32_t tag = *reinterpret_cast<uint32_t*>(bom);
+		if (tag == 0xFFFE0000) //BE
+		{
+			char* pc = (char*)kb.data();
+			for (size_t i = 0; i<nz; i += 4)
+			{
+				std::swap(pc[i + 0], pc[i + 3]);
+				std::swap(pc[i + 1], pc[i + 2]);
+			}
+		}
+
+		StringBuffer<char> zb;
+		if (!IConv::unicode_to_utf8(zb, (uint32_t*)kb.data(), nz))
+		{
+			return false;
+		}
+
+		if (sb.empty())
+		{
+			sb.swap(zb);
+		}
+		else
+		{
+			sb << zb;
+		}
+		return true;
+	
+	}
+	else
+	{
+		StringBuffer<char> kb;
+		kb.append(bom, n);
+		if (!write_to_buffer(kb, FILE_TYPE_BINARY))
+		{
+			return false;
+		}
+
+		if (!IConv::ensure_utf8(kb))
+		{
+			return false;
+		}	
+
+		if (sb.empty())
+		{
+			sb.swap(kb);
+		}
+		else
+		{
+			sb << kb;
+		}
+
+		return true;
+	}
 }
 
 bool Stream::read_from_file(const String& fp)
@@ -420,7 +557,13 @@ bool Stream::read_from_buffer(StringBuffer<char>& sb)
 }
 
 
-bool Stream::open(const String& fp,int fg)
+bool Stream::openuri(const String& fp, int fg)
+{
+	(*this) = FSObject::current().Open(fp, fg);
+	return reader_ok() || writer_ok();
+}
+
+bool Stream::openfile(const String& fp,int fg)
 {
 	File file;
 	if(!file.open(fp,fg))
@@ -461,6 +604,21 @@ Stream::Stream()
 	assign(NULL);
 }
 
+Stream::Stream(File& file)
+{
+	assign(file);
+}
+
+Stream::Stream(Socket& socket)
+{
+	assign(socket);
+}
+
+Stream::Stream(DataPtrT<IStreamData> p)
+{
+	assign(p);
+}
+
 void Stream::assign(DataPtrT<IStreamData> p)
 {
 	assign_reader(p);
@@ -486,7 +644,19 @@ void Stream::close()
 	hWriter->close();
 }
 
-void Stream::Serialize(Serializer& ar)
+bool Stream::reader_ok()
+{
+	return !hReader->flags.get(FLAG_READER_FAILBIT);
+}
+
+bool Stream::writer_ok()
+{
+	return !hWriter->flags.get(FLAG_WRITER_FAILBIT);
+}
+
+
+
+void Stream::Serialize(SerializerHelper)
 {
 	Exception::XError("stream cannot be serialized!");
 	//ar.errstr("stream cannot be serialized!");

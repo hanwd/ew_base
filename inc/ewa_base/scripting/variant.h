@@ -177,7 +177,7 @@ public:
 	bool operator==(const Variant& v2) const;
 	bool operator!=(const Variant& v2) const;
 
-	void Serialize(Serializer& ar);
+	void Serialize(SerializerHelper sh);
 
 
 protected:

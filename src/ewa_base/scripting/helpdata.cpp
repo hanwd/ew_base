@@ -59,7 +59,7 @@ bool HelpData::ToValue(String& s, int n) const
 
 	if (s == "")
 	{
-		s = "[unamed]";
+		s = "[unnamed]";
 	}
 	else
 	{
@@ -131,8 +131,9 @@ void HelpData::parse(const String& name_, const String& desc)
 
 }
 
-void HelpData::Serialize(Serializer& ar)
+void HelpData::Serialize(SerializerHelper sh)
 {
+	Serializer& ar(sh.ref(0));
 	ar & helpmap;
 }
 

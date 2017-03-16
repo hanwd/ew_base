@@ -80,6 +80,13 @@ public:
 
 	static String from_unknown(const char* s);
 
+	// return  0 : ascii
+	// return  1 : utf8
+	// return -1 : gbk
+	static int str_type(const char* s,size_t n=0);
+
+	static bool ensure_utf8(StringBuffer<char>& sb);
+
 	static bool unicode_to_gbk(StringBuffer<uint8_t>& aa_,const uint16_t* pw_,size_t ln_);
 	static bool unicode_to_gbk(StringBuffer<uint8_t>& aa_,const uint32_t* pw_,size_t ln_);
 

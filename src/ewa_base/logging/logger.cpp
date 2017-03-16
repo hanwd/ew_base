@@ -52,8 +52,9 @@ LogRecord::LogRecord(int src,int id,int lv)
 	m_tStamp=Clock::now();
 }
 
-void LogRecord::Serialize(Serializer& ar)
+void LogRecord::Serialize(SerializerHelper sh)
 {
+	Serializer& ar(sh.ref(0));
 	ar & m_tStamp & m_sMessage & m_nSrc & m_nId & m_nLevel;
 }
 

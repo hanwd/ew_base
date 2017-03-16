@@ -176,8 +176,10 @@ int CallableClass::__getarray_index_range(Executor& ewsl,int pm)
 
 CallableMetatable::CallableMetatable(const String& name):table_meta(value),m_sClassName(name){}
 
-void CallableMetatable::Serialize(Serializer& ar)
+void CallableMetatable::Serialize(SerializerHelper sh)
 {
+	Serializer& ar(sh.ref(0));
+
 	ar & m_sClassName;
 	ar & table_self;
 	ar & table_meta;
@@ -300,8 +302,9 @@ int CallableClass::__setindex(Executor& ewsl,const String& si)
 	return INVALID_CALL;
 }
 
-void CallableClass::Serialize(Serializer& ar)
+void CallableClass::Serialize(SerializerHelper sh)
 {
+	Serializer& ar(sh.ref(0));
 	ar & metax;
 	ar & value;
 }

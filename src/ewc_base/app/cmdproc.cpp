@@ -4,35 +4,156 @@
 
 EW_ENTER
 
+
+bool CmdProc::DoLoad(const String&)
+{
+	return true;
+}
+
+bool CmdProc::DoSave(const String&)
+{
+	return true;
+}
+
 bool CmdProc::DoExecId(ICmdParam& cmd)
 {
-	if(cmd.param1==CP_SAVE_TEMP)
+	if (cmd.param1 == CP_LOAD_FILE)
 	{
-		return true;
+		return DoLoad(cmd.extra1);
 	}
-	else if(cmd.param1==CP_SAVE||cmd.param1==CP_SAVEAS)
+	else if (cmd.param1 == CP_SAVE_FILE)
 	{
+		return DoSave(cmd.extra1);
+	}
+	else if (cmd.param1 == CP_INIT)
+	{
+		if (cmd.extra1 != "")
+		{
 
-		if(!TestId(CmdProc::CP_SAVEAS,cmd.extra))
+		}
+		else if (!TestId(CmdProc::CP_SAVEAS, cmd.extra1))
 		{
 			return false;
 		}
 
-		if(cmd.extra==""||cmd.param1==CP_SAVEAS)
+		if (cmd.extra1 == "")
+		{
+			return true;
+		}
+
+		LockState<intptr_t> lock_1(cmd.param1);
+		cmd.param1 = CP_LOAD_FILE;
+		if (!DoExecId(cmd)) return false;
+		return true;
+	}
+	else if (cmd.param1 == CP_LOAD)
+	{
+
+		if (cmd.extra1 != "")
+		{
+
+		}
+		else if (!TestId(CmdProc::CP_SAVEAS, cmd.extra1))
+		{
+			return false;
+		}
+
+		if (cmd.extra1 == "")
 		{
 			String exts;
-			TestId(CP_FILEEXT,exts);
+			TestId(CP_FILEEXT, exts);
 
-			if(Wrapper::FileDialog(cmd.extra,IDefs::FD_SAVE,"",exts)==IDefs::BTN_CANCEL)
+			if (Wrapper::FileDialog(cmd.extra1, IDefs::FD_OPEN, "", exts) == IDefs::BTN_CANCEL)
 			{
 				return false;
 			}
 		}
 
+		LockState<intptr_t> lock_1(cmd.param1);
+		cmd.param1 = CP_LOAD_FILE;
+		if (!DoExecId(cmd)) return false;
+		return true;
+	}
+
+	else if(cmd.param1==CP_SAVE_TEMP)
+	{
+		if (cmd.extra1 != "")
+		{
+
+		}
+		else if (cmd.extra2 == "")
+		{
+			return false;
+		}
+		else
+		{
+			cmd.extra1 = cmd.extra2 + ".temp";
+		}
+
+		cmd.param1 = CP_SAVE_FILE;
+		return DoExecId(cmd);
+	}
+
+	else if(cmd.param1==CP_SAVE_POST)
+	{
+		if (cmd.extra1 == ""||cmd.extra2=="")
+		{
+			return false;
+		}
+
+		if (cmd.extra1 != cmd.extra2)
+		{
+			if (!FSLocal::current().Remove(cmd.extra2))
+			{
+				return false;
+			}
+
+			if (!FSLocal::current().Rename(cmd.extra1, cmd.extra2, 0))
+			{
+				return false;
+			}
+		}
+
+		fn.SetFilename(cmd.extra2);
+
+		return true;
+	}
+	else if(cmd.param1==CP_SAVE||cmd.param1==CP_SAVEAS)
+	{
+
+		if(!TestId(CmdProc::CP_SAVEAS,cmd.extra1))
+		{
+			return false;
+		}
+
+		if(cmd.extra1==""||cmd.param1==CP_SAVEAS)
+		{
+			String exts;
+			TestId(CP_FILEEXT,exts);
+
+			if(Wrapper::FileDialog(cmd.extra1,IDefs::FD_SAVE,"",exts)==IDefs::BTN_CANCEL)
+			{
+				return false;
+			}
+		}
+
+		LockState<intptr_t> lock_1(cmd.param1);
+
+		if (!FSObject::current().FileExists(cmd.extra1))
+		{
+			cmd.extra2 = cmd.extra1;
+		}
+		else
+		{
+			std::swap(cmd.extra1,cmd.extra2);
+		}
+
 		cmd.param1=CP_SAVE_TEMP;
 		if(!DoExecId(cmd)) return false;
-		cmd.param1=CP_SAVE_FILE;
+
+		cmd.param1=CP_SAVE_POST;
 		if(!DoExecId(cmd)) return false;
+
 		return true;
 	}
 	else
@@ -53,6 +174,22 @@ bool CmdProc::DoTestId(ICmdParam& cmd)
 
 		return true;
 	}
+	else if (cmd.param1 == CP_SAVEAS)
+	{
+		if (!fn.IsSavable())
+		{
+			return false;
+		}
+
+		cmd.extra1 = fn.GetFilename();
+		return true;
+	}
+	else if (cmd.param1 == CP_FILEEXT)
+	{
+		cmd.extra1 = fn.GetExts();
+		return true;
+	}
+
 	return false;
 }
 
@@ -72,7 +209,7 @@ bool CmdProc::ExecId(int id,String& p2)
 {
 	ICmdParam cmd(id);
 	bool f1=DoExecId(cmd);
-	p2=cmd.extra;
+	p2=cmd.extra1;
 	return f1;
 }
 
@@ -80,7 +217,7 @@ bool CmdProc::TestId(int id,String& p2)
 {
 	ICmdParam cmd(id);
 	bool f1=DoTestId(cmd);
-	p2=cmd.extra;
+	p2=cmd.extra1;
 	return f1;
 }
 

@@ -82,7 +82,7 @@ class DLLIMPEXP_EWA_BASE LogCache : public LogTarget
 public:
 	arr_1t<LogRecord> aRecords;
 
-	void Serialize(Serializer& ar);
+	void Serialize(SerializerHelper sh);
 	virtual void Handle(const LogRecord& o);
 
 	DECLARE_OBJECT_INFO(LogCache,ObjectInfo);

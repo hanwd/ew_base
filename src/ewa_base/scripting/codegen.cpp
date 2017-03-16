@@ -917,7 +917,11 @@ bool CodeGen::prepare(const String& ss, int t)
 		{
 
 			StringBuffer<char> sb;
-			if (!sb.load(ss))
+			//if (!sb.load(ss))
+			//{
+			//	return false;
+			//}
+			if (!FSObject::current().DownloadToBuffer(ss,sb,FILE_TYPE_TEXT))
 			{
 				return false;
 			}

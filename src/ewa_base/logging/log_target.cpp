@@ -119,7 +119,7 @@ void LogPtr::Handle(const LogRecord& o)
 	if(m_refData) m_refData->Handle(o);
 }
 
-void LogCache::Serialize(Serializer& ar)
+void LogCache::Serialize(SerializerHelper sh)
 {
 	//ar & aRecords;
 }

@@ -172,7 +172,7 @@ public:
 
 	static char* get_uninitialized_buffer(container_type& b,size_t n)
 	{
-		return b.get_uninitialized_buffer(n);
+		return (char*)b.get_uninitialized_buffer(n);
 	}
 
 	static container_type& append(container_type& b,const char* p,size_t n)

@@ -46,6 +46,10 @@ public:
 	{
 		flags.add(FLAG_HIDE_UI);
 		m_sId=String::Format("HistoryFile.%d",(int)i);
+		if (i < 9)
+		{
+			m_sHotkey << i+1;
+		}
 	}
 
 	void DoUpdateCtrl(IUpdParam& upd)
@@ -117,7 +121,7 @@ bool PluginHistoryFiles::OnCmdEvent(ICmdParam& cmd,int phase)
 	{
 		if(cmd.evtptr->m_sId=="Open")
 		{
-			insert(cmd.extra);
+			insert(cmd.extra1);
 			wm.wup.gp_add("HistoryFiles");	
 		}
 	}
@@ -156,6 +160,8 @@ bool PluginHistoryFiles::OnCfgEvent(int lv)
 			aHistoryFiles.resize(nHistorySize);
 			wm.wup.gp_add("HistoryFiles");
 	}
+
+	wm.app.conf.CfgUpdate(lv, "/basic/history_files", aHistoryFiles);
 
 	return true;
 }

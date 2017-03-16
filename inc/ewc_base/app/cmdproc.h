@@ -23,10 +23,13 @@ public:
 		CP_PREV,
 		CP_PLAY,
 		CP_STOP,
+		CP_INIT,
 		CP_LOAD,
+		CP_LOAD_FILE,
 		CP_SAVE,
 		CP_SAVEAS,
 		CP_SAVE_TEMP,
+		CP_SAVE_POST,
 		CP_SAVE_FILE,
 		CP_FILEEXT,
 		CP_SELECTALL,
@@ -47,6 +50,11 @@ public:
 
 	bool ExecId(int id,int p2=-1);
 	bool TestId(int id,int p2=-1);
+
+	virtual bool DoLoad(const String& fp);
+	virtual bool DoSave(const String& fp);
+
+	IFileNameHolder fn;
 
 };
 

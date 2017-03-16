@@ -71,16 +71,20 @@ bool WndModel::DoWndExecute(IWndParam& cmd)
 	}
 	else
 	{
+		bool flag = true;
 		if(this==&WndModel::current())
 		{
-			WndManager::current().evtmgr["CloseFrame"].CmdExecuteEx(-1);
+			flag=WndManager::current().evtmgr["CloseFrame"].CmdExecuteEx(-1);
 		}
 
-		DataPtrT<WndModel> lock(this);
-		vald_top.reset(NULL);
-		vald_grp.reset(NULL);
+		if (flag)
+		{
+			DataPtrT<WndModel> lock(this);
+			vald_top.reset(NULL);
+			vald_grp.reset(NULL);
+		}
 
-		return true;
+		return flag;
 	}
 
 

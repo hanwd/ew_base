@@ -92,48 +92,71 @@ bool IConv::unicode_to_gbk(StringBuffer<uint8_t>& aa_,const uint32_t* pw_,size_t
 	return IConv_unicode_to_gbk<uint32_t>(aa_,pw_,ln_);
 }
 
-
-String IConv::from_unknown(const char* s)
+int IConv::str_type(const char* s,size_t nz)
 {
-	uint8_t* p=(uint8_t*)s;
-	size_t nz=::strlen(s);
-
-	int t=0;
-	int n=0;
-
-	for(size_t i=0; i<nz; i++)
+	uint8_t* p = (uint8_t*)s;
+	if (nz == 0)
 	{
-		unsigned c=p[i];
-		if(c<0x80) continue;
-		for(n=0; ((c<<=1)&0x80)>0; n++);
-		if(n>3||n==0)
+		nz = ::strlen(s);
+	}
+
+
+	int t = 0;
+	int n = 0;
+
+	for (size_t i = 0; i<nz; i++)
+	{
+		unsigned c = p[i];
+		if (c<0x80) continue;
+		for (n = 0; ((c <<= 1) & 0x80)>0; n++);
+		if (n>3 || n == 0)
 		{
-			t=-1;
+			t = -1;
 			break;
 		}
 
-		if(i+n>=nz)
+		if (i + n >= nz)
 		{
-			t=-1;
+			t = -1;
 			break;
 		}
 
-		t=1;
-		for(int j=1; j<=n; j++)
+		t = 1;
+		for (int j = 1; j <= n; j++)
 		{
-			if(((p[i+j])&0xC0)!=0x80)
+			if (((p[i + j]) & 0xC0) != 0x80)
 			{
-				t=-1;
+				t = -1;
 				break;
 			}
 		}
-		if(t==-1) break;
+		if (t == -1) break;
 
-		i+=n;
+		i += n;
 
-		if(t==-1) break;
+		if (t == -1) break;
 	}
 
+	return t;
+}
+
+bool IConv::ensure_utf8(StringBuffer<char>& sb)
+{
+	int t = IConv::str_type(sb.data(), sb.size());
+	if (t != -1) return true;
+
+	StringBuffer<char> kb;
+	if (!IConv::gbk_to_utf8(kb, sb.data(), sb.size()))
+	{
+		return false;
+	}
+	kb.swap(sb);
+	return true;
+}
+
+String IConv::from_unknown(const char* s)
+{
+	int t = str_type(s);
 	if(t==-1)
 	{
 		return from_gbk(s);

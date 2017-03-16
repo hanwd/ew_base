@@ -2,9 +2,9 @@
 
 EW_ENTER
 
-void Object::Serialize(Serializer&)
+void Object::Serialize(SerializerHelper sh)
 {
-
+	sh.ref(0);
 }
 
 

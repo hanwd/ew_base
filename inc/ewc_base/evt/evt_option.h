@@ -25,6 +25,17 @@ protected:
 
 };
 
+class EvtOptionPageScript : public EvtOptionPage
+{
+public:
+	typedef EvtOptionPage basetype;
+	EvtOptionPageScript(const String& s,const String& f);
+
+protected:
+	virtual void DoCreatePage(WndMaker&);
+	String m_sScriptFile;
+};
+
 
 EW_LEAVE
 #endif

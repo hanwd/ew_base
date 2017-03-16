@@ -3,16 +3,13 @@
 
 EW_ENTER
 
-class SystemData
+
+
+class SystemData : public NonCopyableAndNonNewable
 {
 public:
 
-	SystemData()
-	{
-		nLangId=0;
-		init_system_info();
-		update_system_info();
-	}
+	SystemData();
 
 	void init_system_info();
 	void update_system_info();
@@ -28,6 +25,9 @@ public:
 	int m_nCpuCount;
 	int m_nCacheLine;
 	int m_nPageSize;
+
+	String m_sAppdataPath;
+	String m_sResdataPath;
 
 
 	int nLangId;

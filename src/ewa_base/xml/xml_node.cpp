@@ -47,8 +47,10 @@ void XmlNode::swap(XmlNode& o)
 	o.xml_ensure_children_parent();
 }
 
-void XmlNode::Serialize(Serializer& ar)
+void XmlNode::Serialize(SerializerHelper sh)
 {
+	Serializer& ar(sh.ref(0));
+
 	ar & m_sName & m_sValue & m_nNodeType;
 
 	int32_t nChilds=listNodes.size();

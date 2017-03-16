@@ -57,7 +57,7 @@ public:
 		ewsl.check_pmc(this, pm,1,2);
 		String fp=ewsl.ci0.nbx[1].get<String>();
 		int fg= pm>1 ? variant_cast<int>(ewsl.ci0.nbx[2]):0;
-		ewsl.ci1.nbp[StackState1::SBASE_THIS].ref<Stream>().open(fp,fg);
+		ewsl.ci1.nbp[StackState1::SBASE_THIS].ref<Stream>().openuri(fp,fg);
 		ewsl.ci0.nbx[1]=ewsl.ci1.nbp[StackState1::SBASE_THIS];
 		return 1;
 	}

@@ -79,7 +79,7 @@ void SessionHttp_Response_404(SessionHttp& http)
 void SessionHttp_Response_FILE(SessionHttp& http)
 {
 
-	if(!http.chunked_stream.open(http.filepath,FLAG_FILE_RD))
+	if(!http.chunked_stream.openfile(http.filepath,FLAG_FILE_RD))
 	{
 		http.httpstatus=404;
 		return;

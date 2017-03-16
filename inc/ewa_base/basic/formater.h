@@ -8,7 +8,7 @@
 
 EW_ENTER
 
-class StringBuilder : 
+class DLLIMPEXP_EWA_BASE StringBuilder : 
 	public MemoryBuffer<char,BufferPolicyChained<char,2048> >,  
 	public FormatHelper<StringBuilder,FormatPolicy2>
 {

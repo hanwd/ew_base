@@ -71,8 +71,8 @@ bool CmdProcStk::DoExecId(ICmdParam& cmd)
 	case CP_DIRTY:
 		nLast=-1;
 		return true;
-	case CP_LOAD:
-		if(DoLoad())
+	case CP_LOAD_FILE:
+		if (basetype::DoExecId(cmd))
 		{
 			aCommands.clear();
 			nIndex=nLast=0;
@@ -83,7 +83,8 @@ bool CmdProcStk::DoExecId(ICmdParam& cmd)
 			return false;
 		}
 	case CP_SAVE:
-		if(DoSave(cmd.extra==""?m_sFilename:cmd.extra))
+	case CP_SAVEAS:
+		if (basetype::DoExecId(cmd))
 		{
 			nLast=nIndex;
 			return true;
@@ -93,7 +94,7 @@ bool CmdProcStk::DoExecId(ICmdParam& cmd)
 			return false;
 		}
 	default:
-		return false;
+		return basetype::DoExecId(cmd);
 	};
 }
 
@@ -105,29 +106,29 @@ bool CmdProcStk::DoTestId(ICmdParam& cmd)
 	case CP_UNDO:
 		if(nIndex>0)
 		{
-			cmd.extra=aCommands[nIndex-1]->GetName();
+			cmd.extra1=aCommands[nIndex-1]->GetName();
 			return true;
 		}
 		else
 		{
-			cmd.extra="";
+			cmd.extra1="";
 			return false;
 		}
 	case CP_REDO:
 		if(nIndex<aCommands.size())
 		{
-			cmd.extra=aCommands[nIndex]->GetName();
+			cmd.extra1=aCommands[nIndex]->GetName();
 			return true;
 		}
 		else
 		{
-			cmd.extra="";
+			cmd.extra1="";
 			return false;
 		}
 	case CP_DIRTY:
 		return nIndex!=nLast;
 	case CP_SAVE:
-		cmd.extra=m_sFilename;
+		cmd.extra1=m_sFilename;
 		return true;
 	case CP_LOAD:
 		return true;

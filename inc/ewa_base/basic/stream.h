@@ -64,8 +64,12 @@ class DLLIMPEXP_EWA_BASE Stream : public Object
 public:
 
 	Stream();
+	Stream(File& file);
+	Stream(Socket& socket);
+	Stream(DataPtrT<IStreamData> p);
 
-	bool open(const String& fp,int fg=FLAG_FILE_RD);
+	bool openfile(const String& fp,int fg=FLAG_FILE_RD);
+	bool openuri(const String& fp,int fg=FLAG_FILE_RD);
 	bool connect(const String& ip,int port);
 
 	void assign(File& file);
@@ -95,7 +99,7 @@ public:
 	void close();
 
 	bool write_to_file(const String& fp,int flag=0);
-	bool write_to_buffer(StringBuffer<char>& sb);
+	bool write_to_buffer(StringBuffer<char>& sb,int type=FILE_TYPE_BINARY);
 	bool write_to_stream(Stream& stream){return write_to_writer(stream.hWriter);}
 	bool write_to_writer(DataPtrT<IStreamData> wr);
 
@@ -104,7 +108,10 @@ public:
 	bool read_from_stream(Stream& stream){return read_from_reader(stream.hReader);}
 	bool read_from_reader(DataPtrT<IStreamData> rd);
 
-	void Serialize(Serializer& ar);
+	bool reader_ok();
+	bool writer_ok();
+
+	void Serialize(SerializerHelper sh);
 
 protected:
 	

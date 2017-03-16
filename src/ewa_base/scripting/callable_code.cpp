@@ -38,10 +38,11 @@ int CallableCode::__getindex(Executor& ewsl,const String& index)
 }
 
 
-void CallableCode::Serialize(Serializer& ar)
+void CallableCode::Serialize(SerializerHelper sh)
 {
-	int v = ar.local_version(0);
-	if (v == 0)
+	Serializer& ar(sh.ref(0));
+
+	if (sh.ver == 0)
 	{
 		ar & m_sName & m_pHelp & flags;
 		ar & nLocal & nParam & nShift;
@@ -167,8 +168,10 @@ int CallableClosure::__fun_call(Executor& ewsl,int pm)
 	return k;
 }
 
-void CallableClosure::Serialize(Serializer& ar)
+void CallableClosure::Serialize(SerializerHelper sh)
 {
+	Serializer& ar(sh.ref(0));
+
 	ar & pInst;
 	ar & aCapture;
 }
@@ -180,10 +183,11 @@ CallableSource::CallableSource(const String& s)
 	aLines = string_lines(s);
 }
 
-void CallableSource::Serialize(Serializer& ar)
+void CallableSource::Serialize(SerializerHelper sh)
 {
-	int v = ar.local_version(0);
-	if (v == 0)
+	Serializer& ar(sh.ref(0));
+
+	if (sh.ver == 0)
 	{
 		ar & aLines;
 	}

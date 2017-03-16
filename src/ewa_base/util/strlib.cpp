@@ -360,4 +360,52 @@ String string_urldecode(const String& s)
 	return sb;
 }
 
+String string_strencode(const String& str_src)
+{
+	StringBuffer<char> sb;
+
+	const char* p1 = str_src.c_str();
+	const char* p2 = p1;
+	while (1)
+	{
+		char ch = *p2;
+		if (ch == 0)
+		{
+			sb.append(p1, p2 - p1);
+			break;			
+		}
+		else if (ch == '\"'||ch=='\\')
+		{
+			sb.append(p1, p2 - p1);
+			sb.append("\\", 1);
+			sb.append(ch);
+			p1 = ++p2;
+		}
+		else if (ch == '\t')
+		{
+			sb.append(p1, p2 - p1);
+			sb.append("\\\t", 2);
+			p1 = ++p2;
+		}
+		else if (ch == '\r')
+		{
+			sb.append(p1, p2 - p1);
+			sb.append("\\\r", 2);
+			p1 = ++p2;
+		}
+		else if (ch == '\n')
+		{
+			sb.append(p1, p2 - p1);
+			sb.append("\\\n", 2);
+			p1 = ++p2;
+		}
+		else
+		{
+			++p2;
+		}
+	}
+
+	return sb;
+}
+
 EW_LEAVE

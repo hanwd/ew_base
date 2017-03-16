@@ -19,7 +19,7 @@ public:
 
 	virtual bool ToValue(String& s, int n = 0) const;
 
-	virtual void Serialize(Serializer& ar);
+	virtual void Serialize(SerializerHelper sh);
 
 private:
 	void _init();

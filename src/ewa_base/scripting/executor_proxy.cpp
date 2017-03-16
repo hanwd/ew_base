@@ -107,8 +107,9 @@ public:
 		SetData(new LogCache);
 	}
 
-	void Serialize(Serializer& ar)
+	void Serialize(SerializerHelper sh)
 	{
+		Serializer& ar(sh.ref(0));
 		ar & m_refData;
 	}
 
@@ -159,7 +160,7 @@ Variant RpcHandlerEwsl::DoHandle(const String& cmd,Variant& req)
 	return bresult(var);
 }
 
-//void ExecutorState::Serialize(Serializer& ar)
+//void ExecutorState::Serialize(SerializerHelper sh)
 //{
 //	ar & aRecords;
 //}
@@ -169,7 +170,7 @@ Variant RpcHandlerEwsl::DoHandle(const String& cmd,Variant& req)
 //	aRecords.push_back(o);
 //}
 
-//void ObjectRequestCommand::Serialize(Serializer& ar)
+//void ObjectRequestCommand::Serialize(SerializerHelper sh)
 //{
 //	ar & nRequest & aRequest;
 //}

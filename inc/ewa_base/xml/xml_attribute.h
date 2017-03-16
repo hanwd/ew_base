@@ -24,7 +24,7 @@ public:
 		return m_pNextSibling.get();
 	}
 
-	void Serialize(Serializer& ar);
+	void Serialize(SerializerHelper sh);
 
 protected:
 	LitePtrT<XmlAttribute> m_pNextSibling;

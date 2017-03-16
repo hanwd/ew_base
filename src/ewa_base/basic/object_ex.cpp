@@ -67,8 +67,10 @@ void ObjectGroup::append(ObjectData* d)
 	d->IncRef();
 }
 
-void ObjectGroup::Serialize(Serializer& ar)
+void ObjectGroup::Serialize(SerializerHelper sh)
 {
+	Serializer& ar(sh.ref(0));
+
 	if (ar.is_reader())
 	{
 		arr_1t<DataPtrT<ObjectData> > tmp;

@@ -1,0 +1,19 @@
+#function(km);
+
+km.border(2).sv(0);
+km.width(120).flags(km.IWND_WITHCOLON).align(km.ALIGN_RIGHT).sv(1);
+km.propotion(1).sv(2);
+km.flags(km.IWND_EXPAND).sv(3);
+
+km.win("container");
+	km.row();
+		km.col(km.ld(3));
+			km.add("label"		,km.ld(1).label(_hT("language")));
+			km.add("combo"		,km.ld(2).name("/basic/language").flags(km.IWND_READONLY));
+		km.end();
+		km.col(km.ld(3));
+			km.add("label"		,km.ld(1).label(_hT("history_size")));
+			km.add("textctrl"	,km.ld(2).name("/basic/history_size"));
+		km.end();
+	km.end();
+km.end();

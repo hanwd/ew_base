@@ -38,6 +38,20 @@ public:
 		return pos>=0;
 	}
 
+	bool Save(const String& file)
+	{
+		File fp;
+		if (!fp.open(file, FLAG_FILE_CR | FLAG_FILE_WR))
+		{
+			return false;
+		}
+		String pagesrc = wx2str(Target.GetPageSource());
+		int ret = fp.write(pagesrc.c_str(), pagesrc.size());
+		if (ret<0) return false;
+
+		return true;
+	}
+
 	bool DoExecId(ICmdParam& cmd)
 	{
 		switch(cmd.param1)
@@ -59,27 +73,6 @@ public:
 			break;
 		case CP_DIRTY:
 			return false;
-			break;
-		case CP_SAVE_TEMP:
-			return true;
-		case CP_SAVE_FILE:
-			if(cmd.extra=="")
-			{					
-				return false;
-			}
-			else
-			{
-				File fp;
-				if(!fp.open(cmd.extra,FLAG_FILE_CR|FLAG_FILE_WR))
-				{
-					return false;
-				}
-				String pagesrc=wx2str(Target.GetPageSource());
-				int ret=fp.write(pagesrc.c_str(),pagesrc.size());
-				if(ret<0) return false;
-
-				return true;
-			}
 			break;
 		case CP_DELETE:			
 			break;
@@ -126,7 +119,7 @@ public:
 		case CP_SAVEAS:
 			return false;
 		case CP_FILEEXT:
-			cmd.extra=_hT("Html Files")+"(*.html)|*.html";
+			cmd.extra1=_hT("Html Files")+"(*.html)|*.html";
 			return true;
 		case CP_FIND:
 			return true;

@@ -466,6 +466,7 @@ void System::CheckError(const String& msg)
 
 extern AtomicSpin g_tSpinConsole;
 
+
 class SystemLoggerData
 {
 public:
@@ -500,9 +501,7 @@ public:
 		default:
 			return "other";
 		}
-	}
-
-	
+	}	
 
 	void DoLog(int lv,const char* p)
 	{
@@ -568,6 +567,8 @@ public:
 		static SystemLoggerData gInstance;
 		return gInstance;
 	}
+
+
 };
 
 
@@ -753,6 +754,10 @@ String NormalPath(const String& file_)
 		{
 			if(i==0) tmp.push_back("");
 		}
+		else if (arr[i] == ".")
+		{
+			continue;
+		}
 		else if(arr[i]!="..")
 		{
 			tmp.push_back(arr[i]);
@@ -772,6 +777,7 @@ String NormalPath(const String& file_)
 
 String System::MakePath(const String& file,const String& path)
 {
+	
 	if(IsRelative(file))
 	{
 		return NormalPath(AdjustPath(path,true)+file);
@@ -794,6 +800,38 @@ String System::MakePath(const String& file,const String& path)
 	}
 }
 
+String System::GetResdataPath()
+{
+	return SystemData::current().m_sResdataPath;
+}
+
+bool System::SetResdataPath(const String& s)
+{
+	SystemData::current().m_sResdataPath = MakePath(s, GetCwd());
+	return true;
+}
+
+String System::GetAppdataPath()
+{
+	return SystemData::current().m_sAppdataPath;
+}
+
+bool System::SetAppdataPath(const String& s)
+{
+	SystemData::current().m_sAppdataPath = MakePath(s, GetCwd());
+	return true;
+}
+
+String System::MakeResdataPath(const String& file)
+{
+	return MakePath(file, GetResdataPath());
+}
+
+String System::MakeAppdataPath(const String& file)
+{
+	return MakePath(file, GetAppdataPath());
+}
+
 String System::GetCwd()
 {
 #ifdef EW_WINDOWS
@@ -810,6 +848,7 @@ String System::GetCwd()
 
 bool System::SetCwd(const String& s)
 {
+
 #ifdef EW_WINDOWS
 	return ::SetCurrentDirectoryW(IConv::to_wide(s).c_str())!=FALSE;
 #else

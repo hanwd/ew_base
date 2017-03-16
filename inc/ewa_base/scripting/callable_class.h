@@ -18,7 +18,7 @@ public:
 
 	CallableMetatable(const String& name="");
 
-	void Serialize(Serializer& ar);
+	void Serialize(SerializerHelper sh);
 
 	bool ToValue(String& v,int) const;
 
@@ -65,8 +65,9 @@ public:
 		return CallableData::__fun_call(ewsl,pm);
 	}
 
-	void Serialize(Serializer& ar)
+	void Serialize(SerializerHelper sh)
 	{
+		Serializer& ar(sh.ref(0));
 		ar & m_sClassName;
 	}
 
@@ -122,7 +123,7 @@ public:
 
 	bool ToValue(String& v,int) const;
 
-	void Serialize(Serializer& ar);
+	void Serialize(SerializerHelper sh);
 
 	virtual void __get_iterator(Executor&,int);
 

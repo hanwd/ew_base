@@ -29,8 +29,9 @@ bool DExprItem::FromVariant(const Variant& v)
 }
 
 
-void DExprItem::Serialize(Serializer& ar)
+void DExprItem::Serialize(SerializerHelper sh)
 {
+	Serializer& ar(sh.ref(0));
 	ar & name & value & desc;
 }
 
@@ -40,8 +41,9 @@ SymbolItem::SymbolItem(const String& n)
 
 }
 
-void SymbolItem::Serialize(Serializer& ar)
+void SymbolItem::Serialize(SerializerHelper sh)
 {
+	Serializer& ar(sh.ref(0));
 	ar & name & prop;
 }
 
@@ -95,7 +97,7 @@ void SymbolManager::gp_end()
 		p->m_sId=state.name;
 		append(p);
 
-		TableSerializerReader ar(*this,state.value);
+		TableSerializerReader ar(state.value);
 		p->DoTransferData(ar);
 	}
 

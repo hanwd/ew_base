@@ -4,7 +4,7 @@
 EW_ENTER
 
 
-TableSerializer::TableSerializer(int t,SymbolManager& m,VariantTable& v):type(t),smap(m),value(v)
+TableSerializer::TableSerializer(int t,VariantTable& v):type(t),value(v)
 {
 
 }

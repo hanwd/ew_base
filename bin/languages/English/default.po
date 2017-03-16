@@ -1,0 +1,395 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: ew6_base\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2017-02-22 16:36+0800\n"
+"PO-Revision-Date: 2017-02-22 16:37+0800\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 1.5.5\n"
+"X-Poedit-KeywordsList: _kT;_hT;_zT\n"
+"X-Poedit-Basepath: ..\\..\\..\\\n"
+"X-Poedit-SearchPath-0: inc\n"
+"X-Poedit-SearchPath-1: src\n"
+"X-Poedit-SearchPath-2: bin\\scripting\n"
+
+#: src/ewc_base/app/wrapper.cpp:43
+#: src/ewc_base/app/wrapper.cpp:47
+msgid "AllFiles"
+msgstr "all files"
+
+#: src/ewc_base/editor/plugin_flashviewer.cpp:50
+msgid "flashplayer activated"
+msgstr ""
+
+#: src/ewc_base/editor/plugin_text_editor.cpp:303
+msgid "fontsize"
+msgstr ""
+
+#: src/ewc_base/editor/plugin_text_editor.cpp:307
+msgid "tab_size"
+msgstr ""
+
+#: src/ewc_base/editor/plugin_text_editor.cpp:311
+msgid "flags"
+msgstr ""
+
+#: src/ewc_base/editor/plugin_text_editor.cpp:339
+msgid "TE.Lang"
+msgstr "Hilight Language"
+
+#: src/ewc_base/editor/plugin_text_editor.cpp:347
+msgid "Text"
+msgstr "Text"
+
+#: src/ewc_base/editor/plugin_text_editor.cpp:351
+msgid "TE.Syntax"
+msgstr "Syntax"
+
+#: src/ewc_base/editor/plugin_text_editor.cpp:352
+msgid "TE.Fold"
+msgstr "Fold"
+
+#: src/ewc_base/editor/plugin_text_editor.cpp:353
+msgid "TE.Wrap"
+msgstr "Wrap"
+
+#: src/ewc_base/editor/plugin_text_editor.cpp:355
+msgid "TE.LineNum"
+msgstr "Show LineNum"
+
+#: src/ewc_base/editor/plugin_text_editor.cpp:356
+msgid "TE.IndentGuide"
+msgstr "Show IndentGuide"
+
+#: src/ewc_base/editor/plugin_text_editor.cpp:357
+msgid "TE.LongLine"
+msgstr "Show LongLineMaker"
+
+#: src/ewc_base/editor/plugin_text_editor.cpp:358
+msgid "TE.WhiteSpace"
+msgstr "Show Whitespace"
+
+#: src/ewc_base/editor/plugin_text_editor.cpp:359
+msgid "TE.ShowEOL"
+msgstr "Show EOL"
+
+#: src/ewc_base/editor/plugin_text_editor.cpp:361
+msgid "TE.ReadOnly"
+msgstr "ReadOnly Mode"
+
+#: src/ewc_base/editor/plugin_text_editor.cpp:362
+msgid "TE.OverWrite"
+msgstr "Overwite Mode"
+
+#: src/ewc_base/editor/plugin_text_editor.cpp:378
+msgid "Option.pages"
+msgstr ""
+
+#: src/ewc_base/editor/plugin_text_editor.cpp:380
+msgid "Option.TextEditor"
+msgstr ""
+
+#: src/ewc_base/editor/plugin_webview.cpp:196
+msgid "Webview.Page"
+msgstr "Webview.Page"
+
+#: src/ewc_base/editor/plugin_webview.cpp:206
+msgid "tb.WebView"
+msgstr ""
+
+#: src/ewc_base/editor/plugin_webview.cpp:208
+msgid "WebView.Go"
+msgstr "Go"
+
+#: src/ewc_base/evt/evt_cmdproc.cpp:35
+#, c-format
+msgid "Save %s As"
+msgstr ""
+
+#: src/ewc_base/plugin/plugin_basic.cpp:44
+msgid "Languages"
+msgstr ""
+
+#: src/ewc_base/plugin/plugin_basic.cpp:207
+msgid "Open"
+msgstr ""
+
+#: src/ewc_base/plugin/plugin_basic.cpp:209
+msgid "open a file"
+msgstr ""
+
+#: src/ewc_base/plugin/plugin_basic.cpp:259
+#, c-format
+msgid "OpenFile %s FAILED!"
+msgstr ""
+
+#: src/ewc_base/plugin/plugin_basic.cpp:264
+#, c-format
+msgid "OpenFile %s OK."
+msgstr ""
+
+#: src/ewc_base/plugin/plugin_basic.cpp:296
+msgid "FullScreen"
+msgstr ""
+
+#: src/ewc_base/plugin/plugin_basic.cpp:333
+msgid "Exit"
+msgstr ""
+
+#: src/ewc_base/plugin/plugin_basic.cpp:344
+msgid "Close"
+msgstr ""
+
+#: src/ewc_base/plugin/plugin_basic.cpp:362
+msgid "CloseAll"
+msgstr ""
+
+#: src/ewc_base/plugin/plugin_basic.cpp:381
+msgid "SaveAll"
+msgstr ""
+
+#: src/ewc_base/plugin/plugin_basic.cpp:584
+msgid "Layout.Save"
+msgstr "Save"
+
+#: src/ewc_base/plugin/plugin_basic.cpp:596
+msgid "StartUp.Default"
+msgstr "Default"
+
+#: src/ewc_base/plugin/plugin_basic.cpp:597
+msgid "LastRun"
+msgstr ""
+
+#: src/ewc_base/plugin/plugin_basic.cpp:616
+msgid "StartUp.Failsafe"
+msgstr "Failsafe"
+
+#: src/ewc_base/plugin/plugin_basic.cpp:640
+msgid "Layout.Delete"
+msgstr "Delete"
+
+#: src/ewc_base/plugin/plugin_basic.cpp:705
+msgid "Layout"
+msgstr ""
+
+#: src/ewc_base/plugin/plugin_basic.cpp:727
+msgid "MenuBar"
+msgstr ""
+
+#: src/ewc_base/plugin/plugin_basic.cpp:879
+msgid "Empty"
+msgstr ""
+
+#: src/ewc_base/plugin/plugin_basic.cpp:881
+msgid "Btn.Ok"
+msgstr "Ok"
+
+#: src/ewc_base/plugin/plugin_basic.cpp:882
+msgid "Btn.Apply"
+msgstr "Apply"
+
+#: src/ewc_base/plugin/plugin_basic.cpp:883
+msgid "Btn.Cancel"
+msgstr "Cancel"
+
+#: src/ewc_base/plugin/plugin_basic.cpp:884
+msgid "Btn.Reset"
+msgstr "Reset"
+
+#: src/ewc_base/plugin/plugin_basic.cpp:915
+msgid "OtherWindow"
+msgstr ""
+
+#: src/ewc_base/plugin/plugin_basic.cpp:919
+msgid "ToolBars"
+msgstr ""
+
+#: src/ewc_base/plugin/plugin_basic.cpp:925
+msgid "Cut"
+msgstr ""
+
+#: src/ewc_base/plugin/plugin_basic.cpp:926
+msgid "Copy"
+msgstr ""
+
+#: src/ewc_base/plugin/plugin_basic.cpp:927
+msgid "Paste"
+msgstr ""
+
+#: src/ewc_base/plugin/plugin_basic.cpp:928
+msgid "Delete"
+msgstr ""
+
+#: src/ewc_base/plugin/plugin_basic.cpp:929
+msgid "Clear"
+msgstr ""
+
+#: src/ewc_base/plugin/plugin_basic.cpp:930
+msgid "Undo"
+msgstr ""
+
+#: src/ewc_base/plugin/plugin_basic.cpp:931
+msgid "Redo"
+msgstr ""
+
+#: src/ewc_base/plugin/plugin_basic.cpp:932
+msgid "Forward"
+msgstr ""
+
+#: src/ewc_base/plugin/plugin_basic.cpp:933
+msgid "Backward"
+msgstr ""
+
+#: src/ewc_base/plugin/plugin_basic.cpp:934
+msgid "SelectAll"
+msgstr ""
+
+#: src/ewc_base/plugin/plugin_basic.cpp:935
+msgid "Save"
+msgstr ""
+
+#: src/ewc_base/plugin/plugin_basic.cpp:936
+msgid "SaveAs"
+msgstr ""
+
+#: src/ewc_base/plugin/plugin_basic.cpp:942
+msgid "New"
+msgstr ""
+
+#: src/ewc_base/plugin/plugin_basic.cpp:946
+msgid "File"
+msgstr ""
+
+#: src/ewc_base/plugin/plugin_basic.cpp:963
+msgid "Edit"
+msgstr ""
+
+#: src/ewc_base/plugin/plugin_basic.cpp:978
+msgid "View"
+msgstr ""
+
+#: src/ewc_base/plugin/plugin_basic.cpp:993
+msgid "Help"
+msgstr ""
+
+#: src/ewc_base/plugin/plugin_basic.cpp:1009
+msgid "tb.Standard"
+msgstr "Standard"
+
+#: src/ewc_base/plugin/plugin_basic.cpp:1029
+msgid "Edit.Mini"
+msgstr ""
+
+#: src/ewc_base/plugin/plugin_basic.cpp:1048
+msgid "Option.Common"
+msgstr ""
+
+#: src/ewc_base/plugin/plugin_historyfiles.cpp:18
+msgid "ClearHistory"
+msgstr ""
+
+#: src/ewc_base/plugin/plugin_historyfiles.cpp:90
+msgid "HistoryFiles"
+msgstr ""
+
+#: src/ewc_base/plugin/plugin_message.cpp:387
+msgid "Message"
+msgstr ""
+
+#: src/ewc_base/plugin/plugin_option.cpp:200
+msgid "Option"
+msgstr ""
+
+#: src/ewc_base/plugin/plugin_search.cpp:145
+msgid "Find"
+msgstr ""
+
+#: src/ewc_base/plugin/plugin_search.cpp:146
+msgid "Replace"
+msgstr ""
+
+#: src/ewc_base/plugin/plugin_search.cpp:148
+msgid "Btn.Find"
+msgstr "Find"
+
+#: src/ewc_base/plugin/plugin_search.cpp:149
+msgid "Btn.Replace"
+msgstr "Replace"
+
+#: src/ewc_base/plugin/plugin_search.cpp:150
+msgid "Btn.ReplaceAll"
+msgstr "ReplaceAll"
+
+#: src/ewc_base/plugin/plugin_statusbar.cpp:123
+msgid "StatusBar"
+msgstr ""
+
+#: src/ewc_base/plugin/plugin_workspace.cpp:115
+msgid "Wksp.AddFile"
+msgstr "AddFiles"
+
+#: src/ewc_base/plugin/plugin_workspace.cpp:142
+msgid "Wksp.Remove"
+msgstr "Remove"
+
+#: src/ewc_base/plugin/plugin_workspace.cpp:161
+msgid "Wksp.RemoveChildren"
+msgstr "Remove Children"
+
+#: src/ewc_base/plugin/plugin_workspace.cpp:178
+msgid "Wksp.AddFolder"
+msgstr "Add Folder"
+
+#: src/ewc_base/plugin/plugin_workspace.cpp:196
+msgid "Wksp.Open"
+msgstr "Open"
+
+#: src/ewc_base/plugin/plugin_workspace.cpp:204
+msgid "Activate"
+msgstr ""
+
+#: src/ewc_base/plugin/plugin_workspace.cpp:224
+msgid "Workspace"
+msgstr ""
+
+#: src/ewc_base/wnd/impl_wx/impl_wx.cpp:122
+msgid "Text Files"
+msgstr ""
+
+#: src/ewc_base/wnd/impl_wx/iwnd_stc.cpp:869
+msgid "no more results, restart?"
+msgstr ""
+
+#: src/ewc_base/wnd/impl_wx/iwnd_stc.cpp:877
+msgid "no more results!"
+msgstr ""
+
+#: src/ewc_base/wnd/impl_wx/iwnd_stc.cpp:914
+msgid "no results"
+msgstr ""
+
+#: src/ewc_base/wnd/impl_wx/iwnd_stc.cpp:929
+#, c-format
+msgid "%d results replaced"
+msgstr ""
+
+#: src/ewc_base/wnd/impl_wx/iwnd_webview.cpp:129
+msgid "Html Files"
+msgstr ""
+
+#: src/ewx_test/iwnd/appmain.cpp:39
+msgid "ew_ui_framework"
+msgstr ""
+
+#: bin\scripting/ui/option_common.ewsl:11
+msgid "language"
+msgstr ""
+
+#: bin\scripting/ui/option_common.ewsl:15
+msgid "history_size"
+msgstr ""
+

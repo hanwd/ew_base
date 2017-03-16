@@ -109,7 +109,7 @@ public:
 	void find(arr_1t<int32_t>& res,String* p,int d);
 	void addn(int idx,String* p,int d);
 
-	void Serialize(Serializer& ar);
+	void Serialize(SerializerHelper sh);
 
 protected:
 	void find_all(arr_1t<int32_t>& res,String* p,int d);
@@ -129,7 +129,7 @@ public:
 	int __getarray(Executor& ewsl,int pm);
 	int __setarray(Executor& ewsl,int pm);
 
-	virtual void Serialize(Serializer& ar);
+	virtual void Serialize(SerializerHelper sh);
 
 	DECLARE_OBJECT_INFO(CallableResultGroup,ObjectInfo)
 };

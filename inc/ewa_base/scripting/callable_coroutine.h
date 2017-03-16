@@ -46,7 +46,7 @@ public:
 	StackState0 ci0;
 	StackState1 ci1;
 
-	virtual void Serialize(Serializer& ar);
+	virtual void Serialize(SerializerHelper sh);
 
 	void Init(Variant& fn);
 	void UnInit();

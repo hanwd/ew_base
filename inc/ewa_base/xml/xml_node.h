@@ -131,7 +131,7 @@ public:
 		DeleteAttributes();
 	}
 
-	void Serialize(Serializer& ar);
+	void Serialize(SerializerHelper sh);
 
 	void swap(XmlNode& o);
 

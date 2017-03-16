@@ -51,12 +51,10 @@ protected:
 class DLLIMPEXP_EWC_BASE CmdProcStk : public CmdProc
 {
 public:
+	typedef CmdProc basetype;
 
 	virtual bool DoExecId(ICmdParam&);
 	virtual bool DoTestId(ICmdParam&);
-
-	virtual bool DoLoad(){return true;}
-	virtual bool DoSave(const String&){return true;}
 
 
 	CmdProcStk(){nLast=nIndex=0;}

@@ -22,6 +22,12 @@ String wx2str(const wxString& v)
 	return p;
 }
 
+bool wx2buf(const wxString& v, StringBuffer<char>& sb)
+{
+	const wchar_t* p=v.c_str();
+	return IConv::unicode_to_utf8(sb, p, std::char_traits<wchar_t>::length(p));
+}
+
 wxString str2wx(const String& v)
 {
 	return IConv::to_wide(v).c_str();
@@ -119,7 +125,7 @@ bool ICmdProcTextEntry::DoTestId(ICmdParam& cmd)
 	case CP_SELECTALL:
 		return true;
 	case CP_FILEEXT:
-		cmd.extra=_hT("Text Files")+"(*.txt)|*.txt";
+		cmd.extra1=_hT("Text Files")+"(*.txt)|*.txt";
 		return true;
 	case CP_FIND:
 		return true;

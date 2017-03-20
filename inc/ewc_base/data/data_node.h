@@ -6,7 +6,7 @@
 EW_ENTER
 
 
-class DataNode : public Object
+class DLLIMPEXP_EWC_BASE DataNode : public Object
 {
 public:
 

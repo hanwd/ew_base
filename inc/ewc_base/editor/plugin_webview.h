@@ -5,7 +5,7 @@
 
 
 EW_ENTER
-class IWnd_webview;
+class DLLIMPEXP_EWC_BASE IWnd_webview;
 
 class DLLIMPEXP_EWC_BASE PluginWebView : public PluginEditorEx
 {

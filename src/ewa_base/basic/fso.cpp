@@ -168,8 +168,13 @@ public:
 
 	virtual bool Rename(const String& fp_old, const String& fp_new, int flag)
 	{
-		FSDispatch fsoptr(fp_old);
-		return fsoptr ? fsoptr->Rename(fsoptr.fp,fp_new,flag) : false;
+		FSDispatch fsoptr1(fp_old);
+		FSDispatch fsoptr2(fp_new);
+		if(fsoptr1.fs!=fsoptr1.fs)
+		{
+			return false;
+		}
+		return fsoptr1->Rename(fsoptr1.fp,fsoptr2.fp,flag);
 	}
 
 	virtual Stream Open(const String& fp, int flag)

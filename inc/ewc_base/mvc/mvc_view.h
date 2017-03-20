@@ -68,7 +68,7 @@ protected:
 
 };
 
-class DLLIMPEXP_EWC_BASE MvcViewEx : public MvcView
+class MvcViewEx : public MvcView
 {
 public:
 

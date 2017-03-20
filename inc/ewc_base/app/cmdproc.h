@@ -38,6 +38,7 @@ public:
 		CP_REPLACE,
 		CP_REPLACEALL,
 
+		CP_IDLE_TEST,
 		CP_BUFFER,
 
 	};

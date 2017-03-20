@@ -6,7 +6,7 @@
 EW_ENTER
 
 
-class DataModel : public wxDataViewModel
+class DLLIMPEXP_EWC_BASE DataModel : public wxDataViewModel
 {
 public:
 

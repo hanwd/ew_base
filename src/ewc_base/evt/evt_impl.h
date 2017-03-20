@@ -39,13 +39,15 @@ public:
 	WndManager& wm;
 
 	HeTbarImpl(EvtGroup* mu,wxWindow* pw,int wd)
-		:wxToolBar(pw,wxID_ANY,wxDefaultPosition,wxDefaultSize,wxTB_FLAT|wxTB_NODIVIDER)
+		:wxToolBar()
 		,m_pGroup(mu)
 		,wm(WndManager::current())
 	{
 		if(wd<0) wd=WndManager::current().conf.bmp_tool_size;
 		m_pGroup->m_aSubTbars.insert(this);
-		SetName(str2wx(m_pGroup->m_sId));
+
+		this->Create(pw,mu->m_nId,wxDefaultPosition,wxDefaultSize,wxTB_FLAT|wxTB_NODIVIDER);
+		this->SetName(str2wx(m_pGroup->m_sId));
 		this->SetToolBitmapSize(wxSize(wd,wd));
 	}
 

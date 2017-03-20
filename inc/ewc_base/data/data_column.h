@@ -6,8 +6,8 @@
 
 EW_ENTER
 
-class DataNode;
-class DataColumn : public IValueColumn
+class DLLIMPEXP_EWC_BASE DataNode;
+class DLLIMPEXP_EWC_BASE DataColumn : public IValueColumn
 {
 public:
 
@@ -16,7 +16,7 @@ public:
 };
 
 
-class DataColumnName : public DataColumn
+class DLLIMPEXP_EWC_BASE DataColumnName : public DataColumn
 {
 public:
 	DataColumnName():DataColumn("name"){}

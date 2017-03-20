@@ -552,7 +552,7 @@ public:
 			return true;
 		}
 
-		hLogfile=::fopen(IConv::to_ansi(fn).c_str(),app?"a":"w");
+		hLogfile=::fopen(IConv::to_ansi(fn).c_str(),app?"ab":"wb");
 		return hLogfile!=NULL;
 	}
 

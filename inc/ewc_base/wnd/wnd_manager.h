@@ -7,10 +7,10 @@
 
 EW_ENTER
 
-class App;
-class EvtManagerTop;
-class WndModelTop;
-class WndManagerImpl;
+class DLLIMPEXP_EWC_BASE App;
+class DLLIMPEXP_EWC_BASE EvtManagerTop;
+class DLLIMPEXP_EWC_BASE WndModelTop;
+class DLLIMPEXP_EWC_BASE WndManagerImpl;
 
 class DLLIMPEXP_EWC_BASE WndModelHolder
 {
@@ -81,6 +81,7 @@ public:
 	bool SaveConfig();
 
 	void SetName(const String& s);
+	String GetTitle();
 
 	void UpdateTitle();
 

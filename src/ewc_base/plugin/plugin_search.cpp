@@ -9,48 +9,6 @@
 
 EW_ENTER
 
-//class WndModelFindSearch: public WndModel
-//{
-//public:
-//	typedef WndModel basetype;
-//	
-//	WndModelFindSearch(WndManager& wm):WndModel("Model.Search")
-//	{
-//		
-//	}
-//
-//	bool Create()
-//	{
-//
-//		WndMaker km(this);
-//
-//		km.width(280).sv(1);
-//		km.width( 96).sv(2);
-//
-//		km.win("dialog"		,km.label("find and replace").flags(km.IWND_NO_RESIZABLE|km.IWND_NO_CLOSE|km.IWND_AUTO_FIT).sprops("icon","Find"));
-//			km.win("col");
-//				km.win("row");
-//					km.add("textctrl"	,km.ld(1).name("search.text_old").hint("find what?"));
-//					km.add("textctrl"	,km.ld(1).name("search.text_new").hint("replace with?"));
-//					km.win("col"		,km.ld(0).label("search_flags").flags(km.IWND_EXPAND));
-//						km.add("checkbox"	,km.ld(0).name("search.case").label("match case"));
-//						km.add("checkbox"	,km.ld(0).name("search.word").label("match word"));
-//						km.add("checkbox"	,km.ld(0).name("search.regexp").label("regexp"));
-//						//km.add("checkbox"	,km.ld(0).name("search.posix").label("posix"));
-//					km.end();
-//				km.end();
-//				km.win("row");
-//					km.add("button"		,km.ld(2).name("Btn.Find"));
-//					km.add("button"		,km.ld(2).name("Btn.Replace"));
-//					km.add("button"		,km.ld(2).name("Btn.ReplaceAll"));
-//				km.end();
-//			km.end();
-//		km.end();		
-//
-//		return true;
-//	}
-//};
-
 class EvtCmdSearch : public EvtCommandCmdProc
 {
 public:
@@ -78,8 +36,6 @@ public:
 	{
 		wm.evtmgr["search.replace"].WndExecuteEx(IDefs::ACTION_VALUE_CHANGED,id==CmdProc::CP_REPLACE?1:0);
 		wm.evtmgr["Model.Search"].StdExecuteEx(1);
-
-		//Target.Show(true);
 		return true;
 	}
 };
@@ -136,10 +92,8 @@ bool PluginSearch::OnAttach()
 
 	EvtManagerTop& ec(wm.evtmgr);
 
-	//DataPtrT<WndModelFindSearch> pevt(new WndModelFindSearch(wm));
-	//ec.append(pevt.get());
 
-	ec.append(new WndModelScript("Model.Search","scripting/ui/dlg_search.ewsl"));//,WndModel::FLAG_AUTO_FIT|WndModel::FLAG_NO_CLOSE));
+	ec.append(new WndModelScript("Model.Search","scripting/ui/dlg_search.ewsl"));
 
 	ec.gp_beg("CmdProc");
 		ec.gp_add(new EvtCmdShowSearch(wm,_kT("Find"),CmdProc::CP_FIND));

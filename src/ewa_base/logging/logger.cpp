@@ -234,7 +234,12 @@ void Logger::reset(LogTarget* p)
 	return impl->SetData(p);
 }
 
-int (*LogsDialog_function)(arr_1t<LogRecord>&,int,const String&) =NULL;
+LogsDialog_function logger_dialog_function;
+
+void set_logs_dialog_function(LogsDialog_function f)
+{
+	logger_dialog_function=f;
+}
 
 bool Logger::Test(int t,const String& title)
 {
@@ -263,10 +268,10 @@ bool Logger::Test(int t,const String& title)
 		}
 	}
 
-	if(b_need_dlg && LogsDialog_function)
+	if(b_need_dlg && logger_dialog_function)
 	{
 		int level=impl->m_nErrCount?LOGLEVEL_ERROR: impl->m_nWrnCount?LOGLEVEL_WARNING:0;
-		LogsDialog_function(impl->m_aMsg,level,title);
+		logger_dialog_function(impl->m_aMsg,level,title);
 	}
 
 	bool flag=Ok();

@@ -1,0 +1,20 @@
+#function(model);
+#import ui;
+
+local km=ui.maker(model);
+
+km.width(280).sv(1);
+km.width( 96).sv(2);
+
+
+km.win("dialog"		,km.label(_hT("expr")).flags(km.IWND_NO_RESIZABLE|km.IWND_NO_CLOSE|km.IWND_AUTO_FIT).sprops("icon","Find"));
+	km.win("col");
+		km.win("row");
+			km.add("textctrl"	,km.ld(1).name("expr.expression").hint(_hT("expression")));
+			km.add("textctrl"	,km.ld(1).name("expr.result").hint(_hT("result")));
+		km.end();
+		km.win("row");
+			km.add("button"		,km.ld(2).name("expr.ok"));
+		km.end();
+	km.end();
+km.end();

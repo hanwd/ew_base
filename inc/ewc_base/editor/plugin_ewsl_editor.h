@@ -5,9 +5,9 @@
 
 EW_ENTER
 
-class IWnd_stc;
+class DLLIMPEXP_EWC_BASE IWnd_stc;
 
-class PluginEwslEditor : public PluginEditorEx
+class DLLIMPEXP_EWC_BASE PluginEwslEditor : public PluginEditorEx
 {
 public:
 	typedef PluginEditorEx basetype;

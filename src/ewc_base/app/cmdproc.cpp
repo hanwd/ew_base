@@ -17,11 +17,13 @@ bool CmdProc::DoSave(const String&)
 
 bool CmdProc::DoExecId(ICmdParam& cmd)
 {
+	Logger& logger(this_logger());
+
 	if (cmd.param1 == CP_LOAD_FILE)
 	{
 		if(!DoLoad(cmd.extra1))
 		{
-			this_logger().LogError(_hT("failed_to_load_file %s!"),cmd.extra1);
+			logger.LogError(_hT("failed_to_load_file %s!"),cmd.extra1);
 			return false;
 		}
 		return true;
@@ -105,15 +107,15 @@ bool CmdProc::DoExecId(ICmdParam& cmd)
 
 		if (cmd.extra1 != cmd.extra2)
 		{
-			if (!FSLocal::current().Remove(cmd.extra2))
-			{
-				this_logger().LogError(_hT("failed_to_save_file %s!"),cmd.extra2);
-				return false;
-			}
+			//if (!FSLocal::current().Remove(cmd.extra2))
+			//{
+			//	logger.LogError(_hT("failed_to_save_file %s!"),cmd.extra2);
+			//	return false;
+			//}
 
-			if (!FSLocal::current().Rename(cmd.extra1, cmd.extra2, 0))
+			if (!FSObject::current().Rename(cmd.extra1, cmd.extra2, 1))
 			{
-				this_logger().LogError(_hT("failed_to_save_file %s!"),cmd.extra2);
+				logger.LogError(_hT("failed_to_save_file %s!"),cmd.extra2);
 				return false;
 			}
 		}
@@ -154,7 +156,7 @@ bool CmdProc::DoExecId(ICmdParam& cmd)
 		cmd.param1=CP_SAVE_TEMP;
 		if(!DoExecId(cmd))
 		{
-			this_logger().LogError(_hT("failed_to_save_file %s!"),cmd.extra2);
+			logger.LogError(_hT("failed_to_save_file %s!"),cmd.extra2);
 			return false;
 		}
 

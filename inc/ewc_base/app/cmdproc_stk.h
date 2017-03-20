@@ -66,7 +66,7 @@ protected:
 	size_t nLast;
 	size_t nIndex;
 	arr_1t<DataPtrT<CmdBase> > aCommands;
-	String m_sFilename;
+	//String m_sFilename;
 };
 
 

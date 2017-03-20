@@ -168,7 +168,6 @@ public:
 			km.end();
 		km.end();
 
-		//Update(km);
 		vald_grp->append(m_pValdGroup.get());
 
 		LoadPages("Option.pages");
@@ -191,13 +190,11 @@ bool PluginOption::OnCmdEvent(ICmdParam& cmd,int phase)
 }
 
 
-
 bool PluginOption::OnAttach()
 {
-	DataPtrT<WndModelOption> pevt=new WndModelOption(wm);
 
-	wm.evtmgr.append(pevt.get());
-	wm.evtmgr.append(new EvtCommandShowModel(_kT("Option"),pevt.get()));
+	wm.evtmgr.append(new WndModelOption(wm));
+	wm.evtmgr.append(new EvtCommandShowModel(_kT("Option"),"Model.Option"));
 
 	wm.evtmgr["Option"].flags.del(FLAG_CHECK);
 

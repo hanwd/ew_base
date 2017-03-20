@@ -111,7 +111,7 @@ public:
 };
 
 
-class WndModelScript: public WndModel
+class DLLIMPEXP_EWC_BASE WndModelScript: public WndModel
 {
 public:
 	typedef WndModel basetype;

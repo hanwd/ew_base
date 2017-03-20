@@ -7,13 +7,9 @@
 #include "ewc_base/wnd/wnd_manager.h"
 #include "ewc_base/app/wrapper.h"
 
-#pragma push_macro("new")
-#undef new
-#include "wx/wx.h"
-#pragma pop_macro("new")
-
+#if (defined(EWC_BASE_BUILDING) && defined(EWC_BASE_DLL)) || (!defined(EWC_BASE_BUILDING) && !defined(EWC_BASE_DLL))
 #include <msvc/wx/setup.h>
-
+#endif
 
 EW_ENTER
 
@@ -39,8 +35,6 @@ public:
 	static bool TestDestroy();
 
 	static bool IsOk();
-
-	static wxWindow* GetDummyParent();
 
 	operator bool();
 

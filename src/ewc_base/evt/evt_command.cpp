@@ -74,7 +74,10 @@ HeToolItemImpl* EvtCommand::CreateToolItem(HeTbarImpl* tb)
 
 	HeToolItemImpl* item=DoCreateToolImpl(tb,this);
 
-	if(!m_bmpParam)	m_bmpParam=ResManager::current().icons.get(m_sId);
+	if(!m_bmpParam)
+	{
+		m_bmpParam=ResManager::current().icons.get(m_sId);
+	}
 	m_bmpParam.update(item);
 
 	tb->AddTool(item);
@@ -454,14 +457,27 @@ Validator* EvtCommand::CreateValidator(wxWindow* w)
 	return wi->CreateValidator(w,this);
 }
 
+void EvtCommandShowModel::_DoSetModel(WndModel* p)
+{
+	if(m_pModel.get()==p) return;
+
+	flags.add(FLAG_CHECK);
+	DetachEvent(m_pModel.get());
+	m_pModel.reset(p);
+	AttachEvent(m_pModel.get());
+}
 
 EvtCommandShowModel::EvtCommandShowModel(const String& s,WndModel* p)
 	:basetype(s)
-	,m_pModel(p)
 {
-	flags.add(FLAG_CHECK);
-	AttachEvent(p);
+	_DoSetModel(p);
 }
+
+EvtCommandShowModel::EvtCommandShowModel(const String& s,const String& p):basetype(s)
+{
+	_DoSetModel(dynamic_cast<WndModel*>(WndManager::current().evtmgr.get(p)));
+}
+
 
 bool EvtCommandShowModel::OnWndEvent(IWndParam& cmd,int phase)
 {
@@ -481,6 +497,61 @@ void EvtCommandShowModel::DoUpdateCtrl(IUpdParam& upd)
 bool EvtCommandShowModel::DoCmdExecute(ICmdParam& cmd)
 {
 	if(m_pModel) m_pModel->Show(cmd.param1!=0);
+	return true;
+}
+
+
+
+class ITimerData : public Object, public wxTimer
+{
+public:
+	EvtCommandTimer& Target;
+	ITimerData(EvtCommandTimer& t):Target(t)
+	{
+		this->Connect(wxID_ANY,wxEVT_TIMER,wxTimerEventHandler(ITimerData::OnTimer));
+	}
+	void OnTimer(wxTimerEvent&)
+	{
+		Target.CmdExecuteEx(1);
+	}
+};
+
+EvtCommandTimer::EvtCommandTimer(const String& s):EvtCommand(s)
+{
+	AttachEvent("CloseFrame");
+}
+
+bool EvtCommandTimer::OnCmdEvent(ICmdParam& cmd,int phase)
+{
+	if(phase ==IDefs::PHASE_PRECALL && cmd.evtptr && cmd.evtptr->m_sId=="CloseFrame")
+	{
+		m_pTimerData.reset(NULL);
+	}
+	return true;
+}
+
+bool EvtCommandTimer::DoStdExecute(IStdParam& cmd)
+{
+	if(cmd.param2==0)
+	{
+		m_pTimerData.reset(NULL);
+		return true;
+	}
+
+	if(!m_pTimerData)
+	{
+		m_pTimerData.reset(new ITimerData(*this));
+	}
+
+	ITimerData* ptimer=static_cast<ITimerData*>(m_pTimerData.get());
+	if(cmd.param2==-1)
+	{
+		ptimer->StartOnce(cmd.param1);
+	}
+	else if(cmd.param2==1)
+	{
+		ptimer->Start(cmd.param1,false);
+	}
 	return true;
 }
 

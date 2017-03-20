@@ -15,6 +15,7 @@ int32_t g_numTopFrame=0;
 template<typename T>
 bool IWnd_topwindow<T>::Show(bool f)
 {
+	//return T::Show(f);
 
 	if(f==this->IsShown())
 	{
@@ -122,7 +123,7 @@ void IWnd_topwindow<T>::OnCloseFrame(wxCloseEvent& evt)
 
 wxWindow* IWnd_get_topwindow(wxWindow* w)
 {
-	return w?w:App::GetDummyParent();
+	return w;
 }
 
 template<typename T>
@@ -133,7 +134,8 @@ IWnd_topwindow<T>::IWnd_topwindow(wxWindow* w,const WndPropertyEx& h,int f)
 	h.label(),
 	h,
 	h,
-	f),
+	f
+	),
 	flags(h.m_tFlags)
 {
 
@@ -153,6 +155,7 @@ IWnd_topwindow<T>::IWnd_topwindow(wxWindow* w,const WndPropertyEx& h,int f)
 	this->Connect(wxID_ANY,wxEVT_TOOL,wxCommandEventHandler(IWnd_topwindow::OnCommandEvent));
 	this->Connect(wxID_ANY,wxEVT_CLOSE_WINDOW,wxEVT_CLOSE_WINDOW,wxCloseEventHandler(IWnd_topwindow::OnCloseFrame));
 	this->Connect(wxID_ANY,wxEVT_ACTIVATE,wxActivateEventHandler(IWnd_topwindow::OnActivate));
+
 }
 
 
@@ -215,6 +218,7 @@ bool IWnd_topwindow<T>::UpdateModel()
 template<typename T>
 void IWnd_topwindow<T>::OnCommandEvent(wxCommandEvent& evt)
 {
+	if(!m_pModel) return;
 	m_pModel->OnCmdExecute(evt.GetId(),evt.GetInt());
 }
 
@@ -225,7 +229,7 @@ bool IWnd_topwindow<T>::TransferDataFromWindow()
 	{
 		return false;
 	}
-	if(!m_pVald) return false;
+	if(!m_pVald) return true;
 	return m_pVald->WndExecuteEx(IDefs::ACTION_TRANSFER2MODEL);
 }
 
@@ -236,7 +240,7 @@ bool IWnd_topwindow<T>::TransferDataToWindow()
 	{
 		return false;
 	}
-	if(!m_pVald) return false;
+	if(!m_pVald) return true;
 	return m_pVald->WndExecuteEx(IDefs::ACTION_TRANSFER2WINDOW);
 }
 
@@ -247,7 +251,7 @@ bool IWnd_topwindow<T>::Validate()
 	{
 		return false;
 	}
-	if(!m_pVald) return false;
+	if(!m_pVald) return true;
 	return m_pVald->WndExecuteEx(IDefs::ACTION_VALIDATE);
 }
 
@@ -263,7 +267,7 @@ void IWnd_topwindow<T>::SetValidatorTop(ValidatorTop* p)
 {
 	if(m_pVald)
 	{
-		m_pVald->pWindow=(NULL);
+		m_pVald->pWindow=NULL;
 	}
 
 	m_pVald.reset(p);
@@ -275,8 +279,8 @@ void IWnd_topwindow<T>::SetValidatorTop(ValidatorTop* p)
 }
 
 
-template class IWnd_topwindow<wxDialog>;
-template class IWnd_topwindow<wxFrame>;
+template class DLLIMPEXP_EWC_BASE IWnd_topwindow<wxDialog>;
+template class DLLIMPEXP_EWC_BASE IWnd_topwindow<wxFrame>;
 
 
 EW_LEAVE

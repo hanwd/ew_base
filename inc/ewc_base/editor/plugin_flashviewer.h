@@ -6,7 +6,7 @@
 EW_ENTER
 
 
-class PluginFlashViewer : public PluginEditorEx
+class DLLIMPEXP_EWC_BASE PluginFlashViewer : public PluginEditorEx
 {
 public:
 	typedef PluginEditorEx basetype;

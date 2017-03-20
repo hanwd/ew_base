@@ -8,8 +8,8 @@
 #include "ewc_base/evt/evt_array.h"
 EW_ENTER
 
-class WndInfoManger;
-class WndPropertyEx;
+class DLLIMPEXP_EWC_BASE WndInfoManger;
+class DLLIMPEXP_EWC_BASE WndPropertyEx;
 
 template<typename T>
 void WndInfoManger_Register(WndInfoManger& imgr,const String& name);

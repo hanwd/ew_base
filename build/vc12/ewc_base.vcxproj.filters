@@ -60,9 +60,6 @@
     <ClInclude Include="..\..\inc\ewc_base\editor\plugin_flashviewer.h">
       <Filter>include\editor</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\inc\ewc_base\plugin\plugin.h">
-      <Filter>include\plugin</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\inc\ewc_base\plugin\plugin_basic.h">
       <Filter>include\plugin</Filter>
     </ClInclude>
@@ -309,6 +306,9 @@
     <ClInclude Include="..\..\src\ewc_base\editor\plugin_ewsl_vartable.h">
       <Filter>source\editor</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\inc\ewc_base\plugin\plugin.h">
+      <Filter>include\plugin</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\ewc_base\wnd\impl_wx\impl_wx.cpp">
@@ -541,6 +541,9 @@
     </ClCompile>
     <ClCompile Include="..\..\src\ewc_base\editor\plugin_text_editor.cpp">
       <Filter>source\editor</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewc_base\plugin\plugin_expression.cpp">
+      <Filter>source\plugin</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

@@ -19,12 +19,12 @@ IWnd_textctrl::IWnd_textctrl(wxWindow* p,const WndPropertyEx& h,int w)
 
 }
 
-IPassword::IPassword(wxWindow* p,const WndPropertyEx& h):IWnd_textctrl(p,h,wxTE_PASSWORD)
+IWnd_password::IWnd_password(wxWindow* p,const WndPropertyEx& h):IWnd_textctrl(p,h,wxTE_PASSWORD)
 {
 
 }
 
-class DLLIMPEXP_EWC_BASE IWndControlT_SearchCtrl : public IWnd_controlT<ISearchCtrl>
+class IWndControlT_SearchCtrl : public IWnd_controlT<IWnd_search>
 {
 public:
 	void OnClear(wxCommandEvent&)
@@ -35,17 +35,17 @@ public:
 	}
 };
 
-ISearchCtrl::ISearchCtrl()
+IWnd_search::IWnd_search()
 {
 
 }
 
-ISearchCtrl::ISearchCtrl(wxWindow* p,const WndPropertyEx& h)
+IWnd_search::IWnd_search(wxWindow* p,const WndPropertyEx& h)
 	:wxSearchCtrl(p,h.id(),wxEmptyString,h,h,wxTE_PROCESS_ENTER)
 {
 	this->ShowCancelButton(true);
-	this->Connect(wxEVT_TEXT,wxCharEventHandler(IWnd_controlT<ISearchCtrl>::OnChar));
-	this->Connect(wxEVT_TEXT_ENTER,wxCommandEventHandler(IWnd_controlT<ISearchCtrl>::OnEnter));
+	this->Connect(wxEVT_TEXT,wxCharEventHandler(IWnd_controlT<IWnd_search>::OnChar));
+	this->Connect(wxEVT_TEXT_ENTER,wxCommandEventHandler(IWnd_controlT<IWnd_search>::OnEnter));
 
 	this->Connect(wxEVT_SEARCHCTRL_CANCEL_BTN,wxCommandEventHandler(IWndControlT_SearchCtrl::OnClear));
 }
@@ -63,11 +63,11 @@ public:
 
 
 template<>
-class ValidatorW<ISearchCtrl> : public ValidatorW<wxTextEntryBase>
+class ValidatorW<IWnd_search> : public ValidatorW<wxTextEntryBase>
 {
 public:
-	LitePtrT<ISearchCtrl> pWindow;
-	ValidatorW(ISearchCtrl* w):ValidatorW<wxTextEntryBase>(w),pWindow(w)
+	LitePtrT<IWnd_search> pWindow;
+	ValidatorW(IWnd_search* w):ValidatorW<wxTextEntryBase>(w),pWindow(w)
 	{
 		pWindow->m_pVald.reset(this);
 	}
@@ -111,10 +111,10 @@ public:
 
 
 template<>
-class WndInfoT<IPassword> : public WndInfoT<IWnd_textctrl> 
+class WndInfoT<IWnd_password> : public WndInfoT<IWnd_textctrl> 
 {
 public:
-	typedef IPassword T;
+	typedef IWnd_password T;
 
 	WndInfoT(const String& s):WndInfoT<IWnd_textctrl>(s){}
 
@@ -127,11 +127,11 @@ public:
 
 
 template<>
-class WndInfoT<ISearchCtrl> : public WndInfoBaseT<ISearchCtrl> 
+class WndInfoT<IWnd_search> : public WndInfoBaseT<IWnd_search> 
 {
 public:
 
-	WndInfoT(const String& s):WndInfoBaseT<ISearchCtrl>(s)
+	WndInfoT(const String& s):WndInfoBaseT<IWnd_search>(s)
 	{
 
 	}
@@ -158,7 +158,7 @@ public:
 
 	Validator* CreateValidator(wxWindow* w)
 	{
-		return new ValidatorW<ISearchCtrl>((ISearchCtrl*)w);
+		return new ValidatorW<IWnd_search>((IWnd_search*)w);
 	}
 };
 
@@ -170,16 +170,16 @@ void WndInfoManger_Register<IWnd_textctrl>(WndInfoManger& imgr,const String& nam
 }
 
 template<>
-void WndInfoManger_Register<IPassword>(WndInfoManger& imgr,const String& name)
+void WndInfoManger_Register<IWnd_password>(WndInfoManger& imgr,const String& name)
 {
-	static WndInfoT<IPassword> info(name);
+	static WndInfoT<IWnd_password> info(name);
 	imgr.Register(&info);
 }
 
 template<>
-void WndInfoManger_Register<ISearchCtrl>(WndInfoManger& imgr,const String& name)
+void WndInfoManger_Register<IWnd_search>(WndInfoManger& imgr,const String& name)
 {
-	static WndInfoT<ISearchCtrl> info(name);
+	static WndInfoT<IWnd_search> info(name);
 	imgr.Register(&info);
 }
 
@@ -318,6 +318,6 @@ bool ICmdProcTextEntryCtrl::DoTestId(ICmdParam& cmd)
 	}
 }
 
-template class IWnd_controlT<ISearchCtrl>;
+template class DLLIMPEXP_EWC_BASE IWnd_controlT<IWnd_search>;
 
 EW_LEAVE

@@ -76,7 +76,7 @@ int Wrapper::FileDialog(arr_1t<String>& files,int type,const String& title,const
 
 int Wrapper::LogsDialog(arr_1t<LogRecord>& records,int level,const String& title)
 {
-	String cont;
+	StringBuilder cont;
 
 	for(size_t i=0;i<records.size();i++)
 	{
@@ -86,6 +86,7 @@ int Wrapper::LogsDialog(arr_1t<LogRecord>& records,int level,const String& title
 	int type=IDefs::BTN_OK;
 	if(level>=LOGLEVEL_ERROR) type|=IDefs::ICON_ERROR;
 	else if(level==LOGLEVEL_WARNING) type|=IDefs::ICON_WARNING;
+	else type|=IDefs::ICON_INFO;
 
 	return MsgsDialog(cont,type,title);
 }
@@ -102,9 +103,15 @@ int Wrapper::MsgsDialog(const String& cont,int type,const String& title)
 	if(type&IDefs::ICON_ERROR) fg|=wxICON_ERROR;
 	else if(type&IDefs::ICON_WARNING) fg|=wxICON_WARNING;
 	else if(type&IDefs::ICON_QUESTION) fg|=wxICON_QUESTION;
-	else if(type&IDefs::ICON_INFO) fg|=wxICON_INFORMATION;
+	else fg|=wxICON_INFORMATION;
 
-	::wxMessageDialog dlg(NULL,str2wx(cont),str2wx(title),fg);
+	String dlg_title(title);
+	if(dlg_title.empty())
+	{
+		dlg_title=WndManager::current().GetTitle();
+	}
+
+	::wxMessageDialog dlg(NULL,str2wx(cont),str2wx(dlg_title),fg);
 	int ret=dlg.ShowModal();
 
 	if(ret==wxID_YES)

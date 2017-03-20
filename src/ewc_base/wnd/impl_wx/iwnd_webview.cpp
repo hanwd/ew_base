@@ -132,7 +132,7 @@ public:
 };
 
 
-class IWnd_webview_impl : public wxWebView
+class DLLIMPEXP_EWC_BASE IWnd_webview_impl : public wxWebView
 {
 public:
 

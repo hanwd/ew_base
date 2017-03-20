@@ -8,7 +8,7 @@
 
 EW_ENTER
 
-class IWnd_bookbase;
+class DLLIMPEXP_EWC_BASE IWnd_bookbase;
 class HeToolItemImpl;
 class HeMenuItemImpl;
 class HeTbarImpl;
@@ -17,9 +17,9 @@ class HeMenuImpl;
 class DLLIMPEXP_EWC_BASE EvtCommand  : public EvtBase
 {
 public:
+
 	friend class HeToolItemImpl;
 	friend class HeMenuItemImpl;
-
 
 	String m_sText;
 	String m_sExtra;
@@ -233,6 +233,7 @@ public:
 	typedef EvtCommand basetype;
 
 	EvtCommandShowModel(const String& s,WndModel* p);
+	EvtCommandShowModel(const String& s,const String& p);
 
 	virtual void DoUpdateCtrl(IUpdParam& upd);	
 
@@ -242,9 +243,27 @@ public:
 
 protected:
 
+	void _DoSetModel(WndModel* p);
+
 	DataPtrT<WndModel> m_pModel;
 };
 
+
+class DLLIMPEXP_EWC_BASE EvtCommandTimer : public EvtCommand
+{
+public:
+
+	EvtCommandTimer(const String& s);
+
+	// param2=-1 one_shot timer, param1=delay in ms
+	// param2=+1 repeated timer, param1=repeat time in ms
+	// param2= 0 stop the timer
+	virtual bool DoStdExecute(IStdParam& cmd);
+
+private:
+	virtual bool OnCmdEvent(ICmdParam& cmd,int phase);
+	AutoPtrT<Object> m_pTimerData;
+};
 
 
 EW_LEAVE

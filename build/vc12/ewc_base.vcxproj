@@ -164,6 +164,7 @@
     <ClCompile Include="..\..\src\ewc_base\plugin\plugin_basic.cpp" />
     <ClCompile Include="..\..\src\ewc_base\plugin\plugin_common.cpp" />
     <ClCompile Include="..\..\src\ewc_base\plugin\plugin_editorplugin.cpp" />
+    <ClCompile Include="..\..\src\ewc_base\plugin\plugin_expression.cpp" />
     <ClCompile Include="..\..\src\ewc_base\plugin\plugin_mainwindow.cpp" />
     <ClCompile Include="..\..\src\ewc_base\plugin\plugin_manager.cpp" />
     <ClCompile Include="..\..\src\ewc_base\plugin\plugin_message.cpp" />
@@ -439,7 +440,7 @@
     </Midl>
     <ClCompile>
       <AdditionalIncludeDirectories>..\..\inc;$(WXWIDGETS_DIR)\lib\vc_dll\mswu;$(WXWIDGETS_DIR)\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>%(PreprocessorDefinitions);EWC_BASE_BUILDING;EWC_BASE_DLL;EWA_BASE_DLL;NDEBUG;WXUSINGDLL</PreprocessorDefinitions>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);EWC_BASE_BUILDING;EWC_BASE_DLL;EWA_BASE_DLL;NDEBUG;__WXMSW__;WXUSINGDLL</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>

@@ -125,7 +125,7 @@ protected:
 };
 
 
-class CallableWndModelPtr : public CallableData
+class DLLIMPEXP_EWC_BASE CallableWndModelPtr : public CallableData
 {
 public:
 	CallableWndModelPtr(WndModel* p):pmodel(p){}

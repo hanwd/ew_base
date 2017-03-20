@@ -17,7 +17,7 @@ public:
 };
 
 
-class IDat_search
+class DLLIMPEXP_EWC_BASE IDat_search
 {
 public:
 
@@ -33,7 +33,7 @@ public:
 
 
 
-class IWndParam
+class DLLIMPEXP_EWC_BASE IWndParam
 {
 public:
 
@@ -52,7 +52,7 @@ public:
 
 };
 
-class IStdParam
+class DLLIMPEXP_EWC_BASE IStdParam
 {
 public:
 
@@ -73,7 +73,7 @@ public:
 
 };
 
-class ICmdParam
+class DLLIMPEXP_EWC_BASE ICmdParam
 {
 public:
 
@@ -94,7 +94,7 @@ public:
 };
 
 
-class IUpdParam
+class DLLIMPEXP_EWC_BASE IUpdParam
 {
 public:
 
@@ -124,7 +124,7 @@ protected:
 };
 
 
-class EvtItem
+class DLLIMPEXP_EWC_BASE EvtItem
 {
 public:
 	EvtItem(const String& s="",int f=0):sname(s),flags(f){}
@@ -137,7 +137,7 @@ public:
 };
 
 
-class IFileNameData : public ObjectData
+class DLLIMPEXP_EWC_BASE IFileNameData : public ObjectData
 {
 public:
 
@@ -160,7 +160,7 @@ protected:
 	BitFlags flags;
 };
 
-class IFileNameHolder : public ObjectT<IFileNameData>
+class DLLIMPEXP_EWC_BASE IFileNameHolder : public ObjectT<IFileNameData>
 {
 public:
 	IFileNameHolder(){SetData(new IFileNameData);}

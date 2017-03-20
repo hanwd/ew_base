@@ -4,7 +4,7 @@
 
 EW_ENTER
 
-class IWnd_stc;
+class DLLIMPEXP_EWC_BASE IWnd_stc;
 
 void WndInfo::Update(WndMaker& wk,wxWindow* pw,EvtBase* pv)
 {
@@ -31,8 +31,8 @@ WndInfoManger::WndInfoManger()
 	WndInfoManger_Register<IWnd_label>(*this,"label");
 	WndInfoManger_Register<IWnd_textctrl>(*this,"textctrl");
 	WndInfoManger_Register<IWnd_stc>(*this,"stc");
-	WndInfoManger_Register<IPassword>(*this,"password");
-	WndInfoManger_Register<ISearchCtrl>(*this,"searchctrl");
+	WndInfoManger_Register<IWnd_password>(*this,"password");
+	WndInfoManger_Register<IWnd_search>(*this,"searchctrl");
 
 	WndInfoManger_Register<IWnd_notebook>(*this,"notebook");
 	WndInfoManger_Register<IWnd_checkbox>(*this,"checkbox");

@@ -6,7 +6,7 @@
 EW_ENTER
 
 
-class DataNode;
+class DLLIMPEXP_EWC_BASE DataNode;
 
 class DataNodeArray : public wxDataViewItemArray
 {

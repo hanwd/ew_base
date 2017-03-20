@@ -10,7 +10,7 @@
 EW_ENTER
 
 
-class DLLIMPEXP_EWC_BASE IValueDataModel :public wxDataViewVirtualListModel
+class IValueDataModel :public wxDataViewVirtualListModel
 {
 public:
 
@@ -177,7 +177,7 @@ public:
 };
 
 
-class IWnd_dataview : public wxDataViewCtrl 
+class DLLIMPEXP_EWC_BASE IWnd_dataview : public wxDataViewCtrl 
 {
 
 public:

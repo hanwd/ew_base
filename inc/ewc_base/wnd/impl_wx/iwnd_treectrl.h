@@ -13,7 +13,7 @@ class ITreeEventData;
 class ObjectNode;
 class ObjectNodeGroup;
 
-class IWnd_treectrl;
+class DLLIMPEXP_EWC_BASE IWnd_treectrl;
 
 class DLLIMPEXP_EWC_BASE ObjectNodeInfo : public ObjectInfo
 {

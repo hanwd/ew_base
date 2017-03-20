@@ -6,8 +6,6 @@
 #include "ewc_base/mvc/mvc_book.h"
 #include "ewc_base/wnd/wnd_updator.h"
 
-#include "ewc_base/wnd/impl_wx/window.h"
-
 
 EW_ENTER
 
@@ -79,9 +77,9 @@ WndManager::~WndManager()
 }
 
 
-
 void WndManager::StartFrame()
 {
+
 	evtmgr["StartFrame"].CmdExecuteEx(-1);
 
 	UpdateTitle();
@@ -110,6 +108,11 @@ void WndManager::SetName(const String& s)
 {
 	model.m_sName=s;
 	UpdateTitle();
+}
+
+String WndManager::GetTitle()
+{
+	return Translate(model.m_sName);
 }
 
 void WndManager::UpdateTitle()

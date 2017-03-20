@@ -16,18 +16,18 @@ public:
 	ValidatorHolderT<Validator> m_pVald;
 };
 
-class DLLIMPEXP_EWC_BASE IPassword : public IWnd_textctrl
+class DLLIMPEXP_EWC_BASE IWnd_password : public IWnd_textctrl
 {
 public:
-	IPassword(wxWindow* p,const WndPropertyEx& h);
+	IWnd_password(wxWindow* p,const WndPropertyEx& h);
 };
 
 
-class DLLIMPEXP_EWC_BASE ISearchCtrl : public wxSearchCtrl
+class DLLIMPEXP_EWC_BASE IWnd_search : public wxSearchCtrl
 {
 public:
-	ISearchCtrl();
-	ISearchCtrl(wxWindow* p,const WndPropertyEx& h);
+	IWnd_search();
+	IWnd_search(wxWindow* p,const WndPropertyEx& h);
 	ValidatorHolderT<Validator> m_pVald;
 };
 

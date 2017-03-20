@@ -127,9 +127,9 @@ bool CmdProcStk::DoTestId(ICmdParam& cmd)
 		}
 	case CP_DIRTY:
 		return nIndex!=nLast;
-	case CP_SAVE:
-		cmd.extra1=m_sFilename;
-		return true;
+	//case CP_SAVE:
+	//	cmd.extra1=m_sFilename;
+	//	return true;
 	case CP_LOAD:
 		return true;
 	default:

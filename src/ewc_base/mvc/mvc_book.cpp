@@ -351,6 +351,8 @@ void MvcBook::UpdateTitle()
 		ViewInfo& vinfo((*it).second);
 		String title;
 		if (vinfo.dirty) title << "* ";
+		else  title << "  ";
+
 		title << vinfo.title;
 		if (vinfo.index >= 0)
 		{

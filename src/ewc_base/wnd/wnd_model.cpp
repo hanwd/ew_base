@@ -45,7 +45,10 @@ bool WndModel::OnCmdExecute(int evtid,int p1)
 
 bool WndModel::DoWndExecute(IWndParam& cmd)
 {
-	if(!vald_grp) return false;
+	if(!vald_grp)
+	{
+		return true;
+	}
 
 	if(cmd.action==IDefs::ACTION_APPLY)
 	{

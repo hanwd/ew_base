@@ -79,6 +79,14 @@ public:
 			bmp_normal=wxBitmap(bmp.ConvertToImage().Scale(w,w));
 			flags.add(FLAG_SCALED);
 		}
+
+		update_disabled();
+	}
+
+	void update_disabled()
+	{
+		wxImage image=bmp_normal.ConvertToImage();
+		bmp_disabled=wxBitmap(image.ConvertToGreyscale().ConvertToDisabled(255));
 	}
 
 	bool update(const wxBitmap& bmp,int w)
@@ -209,6 +217,7 @@ bool CallableBitmap::LoadFile(const arr_1t<String>& s)
 		{
 			AddBitmap(wxArtProvider::GetIcon(str2wx(s[i]),wxART_MENU));
 			AddBitmap(wxArtProvider::GetIcon(str2wx(s[i]),wxART_TOOLBAR));
+			AddBitmap(wxArtProvider::GetIcon(str2wx(s[i]),wxART_OTHER,wxSize(32,32)));
 		}
 		else
 		{

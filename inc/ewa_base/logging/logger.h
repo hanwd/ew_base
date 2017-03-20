@@ -98,7 +98,8 @@ protected:
 // get thread private logger;
 DLLIMPEXP_EWA_BASE Logger& this_logger();
 
-
+typedef int (*LogsDialog_function)(arr_1t<LogRecord>&,int,const String&);
+DLLIMPEXP_EWA_BASE void set_logs_dialog_function(LogsDialog_function f);
 
 // LoggerSwap, swap logger with this_logger().
 class DLLIMPEXP_EWA_BASE LoggerSwap : public Logger, private NonCopyable

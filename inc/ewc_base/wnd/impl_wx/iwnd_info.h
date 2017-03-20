@@ -27,11 +27,11 @@ void WndInfoManger_Register<X>(WndInfoManger& imgr,const String& name)\
 
 EW_ENTER
 
-class WndPropertyEx;
+class DLLIMPEXP_EWC_BASE WndPropertyEx;
 
 
 
-class WndInfo;
+class DLLIMPEXP_EWC_BASE WndInfo;
 class DLLIMPEXP_EWC_BASE WndInfoManger
 {
 public:

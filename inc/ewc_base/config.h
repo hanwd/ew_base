@@ -50,37 +50,37 @@ typedef wxToolBar* ITbarPtr;
 typedef wxSizer* ISizerPtr;
 
 
-class WndManager;
-class WndModel;
-class WndUpdator;
-class MvcBook;
+class DLLIMPEXP_EWC_BASE WndManager;
+class DLLIMPEXP_EWC_BASE WndModel;
+class DLLIMPEXP_EWC_BASE WndUpdator;
+class DLLIMPEXP_EWC_BASE MvcBook;
 
-class EvtListener;
-class EvtBase;
-class EvtCommand;
-class EvtGroup;
-class Validator;
-class ValidatorTop;
-class ValidatorGroup;
+class DLLIMPEXP_EWC_BASE EvtListener;
+class DLLIMPEXP_EWC_BASE EvtBase;
+class DLLIMPEXP_EWC_BASE EvtCommand;
+class DLLIMPEXP_EWC_BASE EvtGroup;
+class DLLIMPEXP_EWC_BASE Validator;
+class DLLIMPEXP_EWC_BASE ValidatorTop;
+class DLLIMPEXP_EWC_BASE ValidatorGroup;
 
-class EvtManager;
-class ResManager;
+class DLLIMPEXP_EWC_BASE EvtManager;
+class DLLIMPEXP_EWC_BASE ResManager;
 
-class HeMenuImpl;
-class HeTbarImpl;
+class DLLIMPEXP_EWC_BASE HeMenuImpl;
+class DLLIMPEXP_EWC_BASE HeTbarImpl;
 
-class Plugin;
-class PluginManager;
+class DLLIMPEXP_EWC_BASE Plugin;
+class DLLIMPEXP_EWC_BASE PluginManager;
 
-class ICmdParam;
-class IStdParam;
-class IWndParam;
+class DLLIMPEXP_EWC_BASE ICmdParam;
+class DLLIMPEXP_EWC_BASE IStdParam;
+class DLLIMPEXP_EWC_BASE IWndParam;
 
-class MvcView;
-class MvcModel;
-class MvcBookImpl;
+class DLLIMPEXP_EWC_BASE MvcView;
+class DLLIMPEXP_EWC_BASE MvcModel;
+class DLLIMPEXP_EWC_BASE MvcBookImpl;
 
-class WndMaker;
+class DLLIMPEXP_EWC_BASE WndMaker;
 
 
 template<typename T>
@@ -114,6 +114,10 @@ public:
 		ICON_ERROR		=ICON_MIN<<2,
 		ICON_INFO		=ICON_MIN<<3,
 		ICON_QUESTION	=ICON_MIN<<4,
+
+		DLG_YES_NO			=BTN_YES|BTN_NO|ICON_QUESTION,
+		DLG_YES_NO_CANCEL	=BTN_YES|BTN_NO|BTN_CANCEL|ICON_QUESTION,
+		DLG_OK				=BTN_OK|ICON_INFO,
 
 		FD_MIN			=1<<0,
 		FD_OPEN			=FD_MIN<<0,

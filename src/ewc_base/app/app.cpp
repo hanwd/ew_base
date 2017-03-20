@@ -1,7 +1,6 @@
+#include "ewc_base/app/app.h"
 #include "ewc_base/app/res_manager.h"
 #include "ewc_base/wnd/wnd_maker.h"
-#include "ewc_base/app/app.h"
-
 
 #ifdef EWC_BASE_DLL
 
@@ -39,8 +38,6 @@ App& App::current()
 	return gInstance;
 }
 
-extern int (*LogsDialog_function)(arr_1t<LogRecord>&,int,const String&);
-
 bool App::Init(int argc,char** argv)
 {
 	if(app_data.nInitCount++==0)
@@ -49,12 +46,14 @@ bool App::Init(int argc,char** argv)
 
 		app_data.bInitOk=wxEntryStart(argc,argv);
 
+
+
 		if(!app_data.bInitOk)
 		{
 			return false;
 		}
 
-		//wxInitAllImageHandlers();
+		wxInitAllImageHandlers();
 
 		class WxLogRedirector : public wxLog
 		{
@@ -71,7 +70,7 @@ bool App::Init(int argc,char** argv)
 								const wxString& msg,
 								const wxLogRecordInfo& info)
 			{
-	
+				if(level==LOGLEVEL_COMMAND) return;
 				ew::LogRecord rcd(wx2str(msg),lv,0,LOGLEVEL_MESSAGE);
 
 				if(level==wxLOG_Warning) rcd.m_nLevel=LOGLEVEL_WARNING;
@@ -89,7 +88,7 @@ bool App::Init(int argc,char** argv)
 		CG_GGVar &gi(CG_GGVar::current());
 		gi.add(new CallableMaker,"ui.maker");
 
-		LogsDialog_function=&Wrapper::LogsDialog;
+		set_logs_dialog_function(&Wrapper::LogsDialog);
 	}
 
 	return app_data.bInitOk;	
@@ -110,7 +109,7 @@ void App::Fini()
 	if(--app_data.nInitCount==0)
 	{
 		app_data.bInitOk=false;
-		LogsDialog_function=NULL;
+		set_logs_dialog_function(NULL);
 		::wxEntryCleanup();
 	}
 }
@@ -145,17 +144,6 @@ App::~App()
 bool App::IsOk()
 {
 	return app_data.bInitOk;
-}
-
-wxWindow* App::GetDummyParent()
-{
-	//wxApp* app=dynamic_cast<wxApp*>(wxApp::GetInstance());
-	//if(app)
-	//{
-	//	wxWindow* win=app->GetTopWindow();
-	//	return win;
-	//}
-	return NULL;
 }
 
 App::operator bool()

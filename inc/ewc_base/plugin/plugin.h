@@ -26,7 +26,7 @@ class DLLIMPEXP_EWC_BASE PluginHistoryFiles;
 class DLLIMPEXP_EWC_BASE PluginMessage;
 class DLLIMPEXP_EWC_BASE PluginOption;
 class DLLIMPEXP_EWC_BASE PluginStatusBar;
-
+class DLLIMPEXP_EWC_BASE PluginExpression;
 class DLLIMPEXP_EWC_BASE PluginTextEditor;
 class DLLIMPEXP_EWC_BASE PluginFlashViewer;
 class DLLIMPEXP_EWC_BASE PluginWebView;

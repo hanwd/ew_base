@@ -7,7 +7,7 @@
 
 EW_ENTER
 
-class IUpdParam;
+class DLLIMPEXP_EWC_BASE IUpdParam;
 
 class DLLIMPEXP_EWC_BASE IValueOptionData : public ObjectData
 {

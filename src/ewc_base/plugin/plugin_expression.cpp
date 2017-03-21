@@ -36,7 +36,6 @@ bool PluginExpression::OnAttach()
 
 	wm.evtmgr.link("expr.expression",idat.expr_expresion);
 	wm.evtmgr.link("expr.result",idat.expr_result);
-	wm.evtmgr["expr.result"].flags.add(EvtCommand::FLAG_DISABLE);
 
 	class expr_timer : public EvtCommandTimer
 	{
@@ -84,7 +83,22 @@ bool PluginExpression::OnAttach()
 			return true;
 		}
 	};
+	class expr_cancel : public EvtCommand
+	{
+	public:
+		expr_cancel() :EvtCommand("expr.cancel")
+		{
+
+		}
+		bool DoCmdExecute(ICmdParam&)
+		{
+			WndManager::current().evtmgr["Model.Expr"].StdExecuteEx(0);
+			return true;
+		}
+	};
+
 	wm.evtmgr.append(new expr_timer);
+	wm.evtmgr.append(new expr_cancel);
 	wm.evtmgr.append(new expr_ok);
 	return true;
 }

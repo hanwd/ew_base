@@ -167,7 +167,7 @@ EW_FORCEINLINE void Executor::popq(Variant& d)
 template<typename T>
 T Executor::eval(const String &s)
 {
-	if(!execute("return ("+s+");",0,1))
+	if(!execute("return "+s+";",0,1))
 	{
 		Exception::XError("eval failed");
 	}

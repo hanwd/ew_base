@@ -153,7 +153,7 @@ bool WndModel::EnsureCreated(bool t)
 
 void WndModel::EndModal()
 {
-	EndModal(wxID_OK);
+	EndModal(IDefs::BTN_OK);
 }
 
 void WndModel::EndModal(int h)
@@ -172,17 +172,13 @@ void WndModel::EndModal(int h)
 
 int WndModel::ShowModal()
 {
-	if(!EnsureCreated(true))
+	if(!EnsureCreated(true)||vald_top->IsShown())
 	{
-		return wxID_CANCEL;
-	}
-
-	if(vald_top->IsShown())
-	{
-		return wxID_CANCEL;
+		return IDefs::BTN_CANCEL;
 	}
 
 	return vald_top->ShowModal();
+
 }
 
 bool WndModel::IsModal()
@@ -213,7 +209,7 @@ bool WndModel::Show(bool f)
 
 	if(!f && IsModal())
 	{
-		EndModal(wxID_CANCEL);
+		EndModal(IDefs::BTN_CANCEL);
 		return true;
 	}
 

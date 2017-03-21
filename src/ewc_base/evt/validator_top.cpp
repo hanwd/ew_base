@@ -63,22 +63,26 @@ int ValidatorTop::ShowModal()
 	wxDialog* dlg=dynamic_cast<wxDialog*>(pw);
 	if(!dlg)
 	{
-		return wxID_CANCEL;
+		return IDefs::BTN_CANCEL;
 	}
 
-	return dlg->ShowModal();
+	int ret=dlg->ShowModal();
+	return Wrapper::wxid_to_btn(ret);
 
 }
 
 void ValidatorTop::EndModal(int h)
 {
+
 	wxTopLevelWindow* pw=win2top(pWindow);
 	wxDialog* dlg=dynamic_cast<wxDialog*>(pw);
 	if(!dlg)
 	{
 		return;
 	}
-	dlg->EndModal(h);
+
+	int ret = Wrapper::btn_to_wxid(h);
+	dlg->EndModal(ret);
 }
 
 void ValidatorTop::OnChildWindow(IWindowPtr w,int a)

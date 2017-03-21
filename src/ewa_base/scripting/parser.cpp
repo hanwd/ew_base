@@ -1285,7 +1285,12 @@ DataPtrT<TNode_statement_list> Parser::parse(const String& p)
 	{
 		return NULL;
 	}
-	return parse(scanner.aTokens.data());
+	DataPtrT<TNode_statement_list> result=parse(scanner.aTokens.data());
+	if (pcur->type != TOK_END)
+	{
+		kerror("statement begin expected");
+	}
+	return result;
 }
 
 

@@ -11,6 +11,52 @@
 
 EW_ENTER
 
+int Wrapper::wxid_to_btn(int id)
+{
+	switch (id)
+	{
+	case wxID_OK:
+		return IDefs::BTN_OK;
+	case wxID_YES:
+		return IDefs::BTN_YES;
+	case wxID_NO:
+		return IDefs::BTN_NO;
+	case wxID_CANCEL:
+		return IDefs::BTN_CANCEL;
+	case wxID_APPLY:
+		return IDefs::BTN_APPLY;
+	case wxID_CLOSE:
+		return IDefs::BTN_CLOSE;
+	case wxID_RESET:
+		return IDefs::BTN_RESET;
+	default:
+		return IDefs::BTN_CANCEL;
+	}
+}
+
+int Wrapper::btn_to_wxid(int id)
+{
+	switch (id)
+	{
+	case IDefs::BTN_OK:
+		return wxID_OK;
+	case IDefs::BTN_YES:
+		return wxID_YES;
+	case IDefs::BTN_NO:
+		return wxID_NO;
+	case IDefs::BTN_CANCEL:
+		return wxID_CANCEL;
+	case IDefs::BTN_APPLY:
+		return wxID_APPLY;
+	case IDefs::BTN_CLOSE:
+		return wxID_CLOSE;
+	case IDefs::BTN_RESET:
+		return wxID_RESET;
+	default:
+		return wxID_CANCEL;
+	}
+}
+
  int Wrapper::FileDialog(String& file,int type,const String& title,const String& exts)
 {
 	arr_1t<String> files;
@@ -95,10 +141,13 @@ int Wrapper::MsgsDialog(const String& cont,int type,const String& title)
 {
 	wxWindow* ptopwindow=WndModel::current().GetWindow();
 	int fg=wxCENTER;
+	if(type&IDefs::BTN_OK) fg|=wxOK;
 	if(type&IDefs::BTN_YES) fg|=wxYES;
 	if(type&IDefs::BTN_NO) fg|=wxNO;
 	if(type&IDefs::BTN_CANCEL) fg|=wxCANCEL;
-	if(type&IDefs::BTN_OK) fg|=wxOK;
+	if(type&IDefs::BTN_CLOSE) fg|=wxCLOSE;
+	if(type&IDefs::BTN_APPLY) fg|=wxAPPLY;
+	if(type&IDefs::BTN_RESET) fg|=wxRESET;
 
 	if(type&IDefs::ICON_ERROR) fg|=wxICON_ERROR;
 	else if(type&IDefs::ICON_WARNING) fg|=wxICON_WARNING;
@@ -114,23 +163,7 @@ int Wrapper::MsgsDialog(const String& cont,int type,const String& title)
 	::wxMessageDialog dlg(NULL,str2wx(cont),str2wx(dlg_title),fg);
 	int ret=dlg.ShowModal();
 
-	if(ret==wxID_YES)
-	{
-		return IDefs::BTN_YES;
-	}
-	else if(ret==wxID_NO)
-	{
-		return IDefs::BTN_NO;
-	}
-	else if(ret==wxID_OK)
-	{
-		return IDefs::BTN_OK;
-	}
-	else
-	{
-		return IDefs::BTN_CANCEL;
-	}
-
+	return wxid_to_btn(ret);
 }
 
 bool Wrapper::SetClipboardText(const String& s)

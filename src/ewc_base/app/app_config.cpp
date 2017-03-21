@@ -7,11 +7,12 @@
 EW_ENTER
 
 
+
 bool AppConfig::Load(const String& s)
 {
 	SerializerStream ar;
 
-	if (!ar.openuri(s))
+	if (!ar.openuri(s.empty()?s_file:s))
 	{
 		return false;
 	}
@@ -32,7 +33,7 @@ bool AppConfig::Save(const String& s)
 {
 	SerializerStream ar;
 
-	if (!ar.openuri(s, FLAG_FILE_WC))
+	if (!ar.openuri(s.empty() ? s_file : s, FLAG_FILE_WC))
 	{
 		return false;
 	}

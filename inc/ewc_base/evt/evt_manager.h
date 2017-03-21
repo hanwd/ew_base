@@ -96,10 +96,7 @@ public:
 
 	virtual wxWindow* GetWindow();
 
-	bool LoadConfig();
-	bool SaveConfig();
 
-	
 protected:
 
 	typedef arr_1t<DataPtrT<EvtGroup> > arr_events;

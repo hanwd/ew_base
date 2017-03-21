@@ -77,8 +77,10 @@ public:
 	bool LoadPlugins();
 	bool LoadScript(const String& s);
 
+	bool InitConfig(const String& s);
+
 	bool LoadConfig();
-	bool SaveConfig();
+	bool SaveConfig(bool save_file=true);
 
 	void SetName(const String& s);
 	String GetTitle();

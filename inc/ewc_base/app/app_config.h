@@ -33,19 +33,20 @@ public:
 		return true;
 	}
 
-	bool Load(const String& s);
-	bool Save(const String& s);
+	bool Load(const String& s="");
+	bool Save(const String& s="");
 
 	void CfgUpdate(int lv,const String& s,int32_t& v,int v1,int v2);
 	void CfgUpdate(int lv,const String& s,int32_t& v);
 	void CfgUpdate(int lv,const String& s,String& v);
 	void CfgUpdate(int lv,const String& s,arr_1t<String>& v);
 
-
 	void CfgUpdate(int lv,const String& s,BitFlags& v,int m);
+
 
 	typedef VariantTable map_type;
 	map_type values;
+	String s_file;
 };
 
 EW_LEAVE

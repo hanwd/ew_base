@@ -97,12 +97,12 @@ bool MvcView::OnClose(WndManager& wm)
 		Target.TestId(CmdProc::CP_SAVEAS, fp);
 		String msg = fp.empty() ? "File modified, save?" : String::Format("File \"%s\" modified, save?",fp);
 
-		int ret=Wrapper::MsgsDialog(msg,IDefs::DLG_YES_NO_CANCEL);
+		int ret=Wrapper::MsgsDialog(msg,IDefs::DLG_YES_NO_CANCEL|IDefs::ICON_QUESTION);
 
 		for (int cmdproc_save = CmdProc::CP_SAVE; ret == IDefs::BTN_YES; cmdproc_save = CmdProc::CP_SAVEAS)
 		{
 			if (Target.ExecId(cmdproc_save)) break;
-			ret=Wrapper::MsgsDialog("File save failed, try another?",IDefs::DLG_YES_NO_CANCEL);
+			ret=Wrapper::MsgsDialog("File save failed, try another?",IDefs::DLG_YES_NO_CANCEL|IDefs::ICON_QUESTION);
 		}
 
 		if(ret==IDefs::BTN_CANCEL)

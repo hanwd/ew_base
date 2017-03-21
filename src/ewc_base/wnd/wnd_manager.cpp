@@ -135,9 +135,13 @@ bool WndManager::LoadConfig()
 	return true;
 }
 
-bool WndManager::SaveConfig()
+bool WndManager::SaveConfig(bool save_file)
 {
 	evtmgr["Config"].StdExecuteEx(-1);
+	if (save_file)
+	{
+		return app.conf.Save();
+	}
 	return true;
 }
 
@@ -169,28 +173,6 @@ WndModel& WndModel::current()
 }
 
 
-WndManager* g_pCurrentApp=NULL;
-
-WndManager& WndManager::current()
-{
-	if(!g_pCurrentApp)
-	{
-		static WndManager gInstance;
-		gInstance.Activate();
-	}
-	return *g_pCurrentApp;
-}
-
-void WndManager::Activate()
-{
-	if(g_pCurrentApp==this) return;
-
-	g_pCurrentApp=this;
-	Logger::def(&logptr);
-
-	Language::current()=lang;
-
-}
 
 
 class EvtManagerGroupSetAccel : public CallableFunction
@@ -398,23 +380,30 @@ public:
 	};
 };
 
+bool WndManager::InitConfig(const String& fp)
+{
+	app.conf.s_file = fp;
+
+	// 尝试从文件载入配置文件
+	if (!app.conf.Load())
+	{
+		// 配置文件不存在，初始化配置信息
+		app.conf.SetValue<String>("/basic/language", "Chinese");
+	}
+
+	String sLanguage;
+	if (app.conf.GetValue<String>("/basic/language", sLanguage))
+	{
+		Language::current().SetLanguage(sLanguage);
+	}
+
+	return true;
+
+}
 
 bool WndManager::LoadScript(const String& fp)
 {
-	
-	static bool _bFirst=true;
-	if(_bFirst)
-	{
-		_bFirst=false;
 
-		CG_GGVar &gi(CG_GGVar::current());
-		gi.add(new EvtManagerGroupBeg);
-		gi.add(new EvtManagerGroupAdd);
-		gi.add(new EvtManagerGroupEnd);
-		gi.add(new EvtManagerGroupNew);
-		gi.add(new EvtManagerGroupSetAccel);
-		gi.add(new EvtManagerGroupSetHotkey);
-	}
 
 	try
 	{
@@ -432,5 +421,38 @@ bool WndManager::LoadScript(const String& fp)
 	return true;
 }
 
+
+
+
+WndManager* g_pCurrentApp = NULL;
+
+WndManager& WndManager::current()
+{
+	if (!g_pCurrentApp)
+	{
+		static WndManager gInstance;
+		gInstance.Activate();
+	}
+	return *g_pCurrentApp;
+}
+
+void WndManager::Activate()
+{
+	if (g_pCurrentApp == this) return;
+
+	g_pCurrentApp = this;
+
+	Logger::def(&logptr);
+	Language::current() = lang;
+
+	CG_GGVar &gi(CG_GGVar::current());
+	gi.add(new EvtManagerGroupBeg);
+	gi.add(new EvtManagerGroupAdd);
+	gi.add(new EvtManagerGroupEnd);
+	gi.add(new EvtManagerGroupNew);
+	gi.add(new EvtManagerGroupSetAccel);
+	gi.add(new EvtManagerGroupSetHotkey);
+
+}
 
 EW_LEAVE

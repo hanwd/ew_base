@@ -732,8 +732,10 @@ public:
 		WndModel& Target(*cmd.iwmptr);
 		if(m_sId=="Btn.Ok")
 		{
-			Target.WndExecuteEx(IDefs::ACTION_APPLY);
-			Target.Show(false);
+			if (Target.WndExecuteEx(IDefs::ACTION_APPLY))
+			{
+				Target.Show(false);
+			}
 		}
 		else if(m_sId=="Btn.Apply")
 		{

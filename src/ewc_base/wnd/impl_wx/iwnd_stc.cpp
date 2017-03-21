@@ -138,8 +138,12 @@ void IWnd_stc::OnKeyEvent(wxKeyEvent& evt)
 	evt.Skip();
 }
 
+void IWnd_stc::UpdateMarginLineNumWidth()
+{
+	_DoUpdateMarginLineNumWidth(false);
+}
 
-void IWnd_stc::UpdateMarginLineNumWidth(bool flag)
+void IWnd_stc::_DoUpdateMarginLineNumWidth(bool flag)
 {
 	BitFlags &flags(param.flags);
 
@@ -155,31 +159,33 @@ void IWnd_stc::UpdateMarginLineNumWidth(bool flag)
 	else
 	{
 
-		int _nWidth=3+(int)::log10(double(GetLineCount()));
-		if(_nWidth<4) _nWidth=4;
-		if(_nWidth>7) _nWidth=7;
+		int _nWidth=3;
+		for(int nLine = GetLineCount();nLine > 9;nLine=nLine/10)
+		{
+			_nWidth++;
+		}
 
-		if(_nWidth==m_nLineNumWidth && !flag)
+		if(_nWidth<5) _nWidth=5;
+		if(_nWidth>8) _nWidth=8;
+
+
+		if (!flag && _nWidth<=m_nLineNumWidth)
 		{
 			return;
 		}
+
 		m_nLineNumWidth=_nWidth;
 
 		static const char* text="999999999999999";
 		int wd=TextWidth (wxSTC_STYLE_LINENUMBER, wxString(text,m_nLineNumWidth));
 		SetMarginWidth(StcManager::LINE_NR_ID,wd);
+
 	}
 
 }
 
 void IWnd_stc::OnDocumentChanged()
 {
-	//if(style.get(STYLE_UPDATEUI))
-	//{
-	//	wxCommandEvent evt(wxEVT_COMMAND_MENU_SELECTED,wxID_HIGHEST+1);
-	//	this->ProcessWindowEvent(evt);
-	//}
-
 	UpdateMarginLineNumWidth();
 
 }
@@ -244,7 +250,7 @@ void IWnd_stc::_DoUpdateStyle()
 	SetReadOnly (flags.get(FLAG_READONLY));
 	SetWrapMode (flags.get(FLAG_WRAPMODE)?wxSTC_WRAP_WORD: wxSTC_WRAP_NONE);
 
-	UpdateMarginLineNumWidth(true);
+	_DoUpdateMarginLineNumWidth(true);
 }
 
 
@@ -339,10 +345,12 @@ void IWnd_stc::UpdateStyle(const String& lang)
 void IWnd_stc::UpdateStyle()
 {
 
-	bool flag=param.nlang==tempp.nlang 
-		&& (param.flags.get(FLAG_FOLD)==tempp.flags.get(FLAG_FOLD)) 
-		&& (param.flags.get(FLAG_SYNTAX)==tempp.flags.get(FLAG_SYNTAX)) 
-		&& param.nsize==tempp.nsize;
+	bool flag =
+		param.nlang == tempp.nlang &&
+		param.nsize == tempp.nsize &&
+		(param.flags.get(FLAG_FOLD) == tempp.flags.get(FLAG_FOLD)) &&
+		(param.flags.get(FLAG_SYNTAX) == tempp.flags.get(FLAG_SYNTAX))
+		;
 
 	param=tempp;	
 

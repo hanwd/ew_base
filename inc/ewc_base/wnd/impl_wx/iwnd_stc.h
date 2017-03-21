@@ -180,6 +180,8 @@ public:
 
 	int GetIndentWidth();
 
+	void UpdateMarginLineNumWidth();
+
 protected:
 
 	StcStyleFlag param;
@@ -197,9 +199,9 @@ protected:
 	void OnMouseWheel(wxMouseEvent& evt);
 	void OnFocus(wxFocusEvent& evt);
 
-	void UpdateMarginLineNumWidth(bool flag=false);
-
 	int m_nLineNumWidth;
+
+	void _DoUpdateMarginLineNumWidth(bool flag = false);
 
 	virtual void OnDocumentChanged();
 

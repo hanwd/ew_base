@@ -103,6 +103,8 @@ public:
 
 		wm.evtmgr["StatusBar"].StdExecuteEx(String::Format("Ln %-5d",line+1),1);		
 		wm.evtmgr["StatusBar"].StdExecuteEx(String::Format("Ch %-5d",lpos+1),2);
+
+		m_pCanvas->UpdateMarginLineNumWidth();
 	}
 
 	virtual bool OnWndEvent(IWndParam&,int)
@@ -136,18 +138,10 @@ public:
 
 	wxWindow* CreateCanvas(wxWindow* w)
 	{
+		fn.SetExts(_hT("Text Files")+"(*.txt) | *.txt");
 
 		WndProperty wp;
 		m_pCanvas=new IWnd_stc(w,wp);
-		//m_pCanvas->style.add(IWnd_stc::STYLE_CAN_FIND|IWnd_stc::STYLE_CAN_REPLACE);
-		
-		//String fn=Target.fn.GetFilename();
-		//if(fn!="")
-		//{
-		//	m_pCanvas->LoadFile(str2wx(fn));
-		//}
-
-		fn.SetExts(_hT("Text Files")+"(*.txt) | *.txt");
 
 		m_pCanvas->tempp=IWnd_stc::ms_param;
 		m_pCanvas->UpdateStyle(Target.fn.GetFilename());
@@ -286,47 +280,48 @@ IWnd_stc* PluginTextEditor::GetStc()
 
 
 
+//
+//class EvtOptionTextEditor : public EvtOptionPage
+//{
+//public:
+//	typedef EvtOptionPage basetype;
+//
+//	EvtOptionTextEditor(const String& s):basetype(s)
+//	{
+//	
+//	}
+//	
+//	void DoCreatePage(WndMaker& km)
+//	{
+//
+//		km.border(2).sv(0);
+//		km.width(120).flags(IDefs::IWND_WITHCOLON).align(IDefs::ALIGN_RIGHT).sv(1);
+//		km.propotion(1).sv(2);
+//		km.flags(IDefs::IWND_EXPAND).sv(3);
+//
+//		km.win("container");
+//			km.row();
+//				km.col(km.ld(3));
+//					km.add("label"		,km.ld(1).label(_hT("fontsize")));
+//					km.add("textctrl"	,km.ld(2).name("/texteditor/fontsize"));
+//				km.end();
+//				km.col(km.ld(3));
+//					km.add("label"		,km.ld(1).label(_hT("tab_size")));
+//					km.add("textctrl"	,km.ld(2).name("/texteditor/tab_size"));
+//				km.end();
+//				km.col(km.ld(3));
+//					km.add("label"		,km.ld(1).label(_hT("flags")));
+//					km.col();
+//						km.add("checkbox"	,km.name("/texteditor/fold").label("fold"));
+//						km.add("checkbox"	,km.name("/texteditor/wrap").label("wrap"));
+//					km.end();
+//				km.end();
+//			km.end();
+//		km.end();
+//	}
+//
+//};
 
-class EvtOptionTextEditor : public EvtOptionPage
-{
-public:
-	typedef EvtOptionPage basetype;
-
-	EvtOptionTextEditor(const String& s):basetype(s)
-	{
-	
-	}
-	
-	void DoCreatePage(WndMaker& km)
-	{
-
-		km.border(2).sv(0);
-		km.width(120).flags(IDefs::IWND_WITHCOLON).align(IDefs::ALIGN_RIGHT).sv(1);
-		km.propotion(1).sv(2);
-		km.flags(IDefs::IWND_EXPAND).sv(3);
-
-		km.win("container");
-			km.row();
-				km.col(km.ld(3));
-					km.add("label"		,km.ld(1).label(_hT("fontsize")));
-					km.add("textctrl"	,km.ld(2).name("/texteditor/fontsize"));
-				km.end();
-				km.col(km.ld(3));
-					km.add("label"		,km.ld(1).label(_hT("tab_size")));
-					km.add("textctrl"	,km.ld(2).name("/texteditor/tab_size"));
-				km.end();
-				km.col(km.ld(3));
-					km.add("label"		,km.ld(1).label(_hT("flags")));
-					km.col();
-						km.add("checkbox"	,km.name("/texteditor/fold").label("fold"));
-						km.add("checkbox"	,km.name("/texteditor/wrap").label("wrap"));
-					km.end();
-				km.end();
-			km.end();
-		km.end();
-	}
-
-};
 bool PluginTextEditor::OnAttach()
 {
 
@@ -384,7 +379,6 @@ bool PluginTextEditor::OnAttach()
 	wm.evtmgr.link_c<int64_t>("/texteditor/fold");
 
 	wm.evtmgr.gp_beg(_kT("Option.pages"));
-		//wm.evtmgr.gp_add(new EvtOptionTextEditor(_kT("Option.TextEditor")));
 		wm.evtmgr.gp_add(new EvtOptionPageScript(_kT("Option.TextEditor"), "scripting/ui/option_text.ewsl"));
 	wm.evtmgr.gp_end();
 

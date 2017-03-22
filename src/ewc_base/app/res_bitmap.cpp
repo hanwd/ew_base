@@ -395,10 +395,6 @@ void BitmapGroupHolder::end()
 
 BitmapHolder BitmapGroupHolder::get(const String& id)
 {
-	if(id=="Find")
-	{
-		AtomicSpin::noop();
-	}
 	CallableBitmapGroup& icons(*(CallableBitmapGroup*)m_refData.get());
 	return icons.get(id);
 }

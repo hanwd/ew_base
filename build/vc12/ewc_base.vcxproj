@@ -110,7 +110,7 @@
     <ClInclude Include="..\..\src\ewc_base\editor\plugin_ewsl_iface.h" />
     <ClInclude Include="..\..\src\ewc_base\editor\plugin_ewsl_caret.h" />
     <ClInclude Include="..\..\src\ewc_base\editor\plugin_ewsl_vartable.h" />
-    <ClInclude Include="..\..\src\ewc_base\evt\evt_impl.h" />
+    <ClInclude Include="..\..\src\ewc_base\evt\evt_ctrlimpl.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\ewc_base\app\app.cpp" />
@@ -132,6 +132,7 @@
     <ClCompile Include="..\..\src\ewc_base\editor\plugin_text_editor.cpp" />
     <ClCompile Include="..\..\src\ewc_base\editor\plugin_webview.cpp" />
     <ClCompile Include="..\..\src\ewc_base\evt\evt_cmdproc.cpp" />
+    <ClCompile Include="..\..\src\ewc_base\evt\evt_ctrlimpl.cpp" />
     <ClCompile Include="..\..\src\ewc_base\evt\evt_manager.cpp" />
     <ClCompile Include="..\..\src\ewc_base\evt\evt_group.cpp" />
     <ClCompile Include="..\..\src\ewc_base\evt\evt_listener.cpp" />

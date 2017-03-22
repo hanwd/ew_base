@@ -1,4 +1,5 @@
-#include "evt_impl.h"
+#include "ewc_base/evt/evt_command.h"
+#include "evt_ctrlimpl.h"
 
 #include "ewc_base/evt/validator.h"
 #include "ewc_base/app/res_manager.h"
@@ -8,6 +9,24 @@
 
 EW_ENTER
 
+
+IEW_CtrlData::IEW_CtrlData(EvtCommand* p) :pevt(p)
+{
+	pevt->m_setAttachedControls.insert(this);
+}
+
+IEW_CtrlData::~IEW_CtrlData()
+{
+	pevt->m_setAttachedControls.erase(this);
+}
+
+void EvtCommand::_ensure_bmp_param()
+{
+	if (!m_bmpParam)
+	{
+		m_bmpParam=ResManager::current().icons.get(m_sId);
+	}
+}
 
 bool EvtCommandFunctor::CmdExecute(ICmdParam& cmd)
 {
@@ -44,8 +63,6 @@ String EvtCommand::MakeLabel(int hint) const
 		return txt;
 	}
 
-
-
 	if(m_sExtra!="")
 	{
 		txt=txt+" "+m_sExtra;
@@ -64,7 +81,7 @@ String EvtCommand::MakeLabel(int hint) const
 	return txt;
 }
 
-HeToolItemImpl* EvtCommand::CreateToolItem(HeTbarImpl* tb)
+IToolItemPtr EvtCommand::CreateToolItem(IEW_TBarImpl* tb)
 {
 	if(flags.get(FLAG_SEPARATOR))
 	{
@@ -72,117 +89,46 @@ HeToolItemImpl* EvtCommand::CreateToolItem(HeTbarImpl* tb)
 		return NULL;
 	}
 
-	HeToolItemImpl* item=DoCreateToolImpl(tb,this);
+	_ensure_bmp_param();
+	return tb->AddToolItem(this);
 
-	if(!m_bmpParam)
-	{
-		m_bmpParam=ResManager::current().icons.get(m_sId);
-	}
-	m_bmpParam.update(item);
-
-	tb->AddTool(item);
-	UpdateToolItem(item);
-
-	return item;
 }
 
-HeMenuItemImpl* EvtCommand::CreateMenuItem(HeMenuImpl* mu)
+IMenuItemPtr EvtCommand::CreateMenuItem(IEW_MenuImpl* mu)
 {
 	if(flags.get(FLAG_SEPARATOR))
 	{
 		mu->AppendSeparator();
 		return NULL;
 	}
-
-	HeMenuItemImpl* item=DoCreateMenuImpl(mu,this);
-
-	if(!m_bmpParam)	m_bmpParam=ResManager::current().icons.get(m_sId);
-	m_bmpParam.update(item);
-
-	mu->Append(item);
-	UpdateMenuItem(item);
-
-	return item;
-
+	_ensure_bmp_param();
+	return mu->AddMenuItem(this);
 }
 
 void EvtCommand::DoUpdateCtrl(IUpdParam& upd)
 {
-	if(flags.get(FLAG_HIDE_UI))
+
+	if (flags.get(FLAG_HIDE_UI))
 	{
-		bst_set<HeMenuItemImpl*> tmp(m_setMenuImpls);
-		for(bst_set<HeMenuItemImpl*>::iterator it=tmp.begin();it!=tmp.end();++it)
+		bst_set<IEW_CtrlData*> ctrls(m_setAttachedControls);
+		for (auto it = ctrls.begin(); it != ctrls.end(); it++)
 		{
-			HeMenuImpl* mu=(*it)->GetMenu();
-			if(mu) mu->Delete(*it);
+			(*it)->UpdateCtrl();
 		}
 	}
 	else
 	{
-		for(bst_set<HeMenuItemImpl*>::iterator it=m_setMenuImpls.begin();it!=m_setMenuImpls.end();++it)
+		bst_set<IEW_CtrlData*>& ctrls(m_setAttachedControls);
+		for (auto it = ctrls.begin(); it != ctrls.end(); it++)
 		{
-			UpdateMenuItem(*it);
+			(*it)->UpdateCtrl();
 		}
 	}
 
-	for(bst_set<HeToolItemImpl*>::iterator it=m_setToolImpls.begin();it!=m_setToolImpls.end();++it)
-	{
-		UpdateToolItem(*it);
-	}
 	
 	EvtBase::DoUpdateCtrl(upd);
 }
 
-void EvtCommand::UpdateMenuItem(HeMenuItemImpl* item)
-{
-	HeMenuImpl* mu=item->GetMenu();
-	if(!mu||&mu->wm!=&WndManager::current()) return;
-
-	item->SetHelp(str2wx(m_sHelp));
-	item->SetItemLabel(str2wx(MakeLabel(LABEL_MENU)));
-	item->SetCheckable(flags.get(FLAG_CHECK));
-	item->Enable(!flags.get(FLAG_DISABLE));
-
-	if(flags.get(FLAG_CHECK))
-	{
-		item->Check(flags.get(FLAG_CHECKED));
-	}
-
-}
-
-void EvtCommand::UpdateToolItem(HeToolItemImpl* item)
-{
-	if(m_nId<0)
-	{
-		return;
-	}
-
-	HeTbarImpl* tb=item->GetToolBar();
-	if(!tb||&tb->wm!=&WndManager::current()) return;
-
-	item->SetShortHelp(str2wx(MakeLabel()));
-	item->SetLabel(str2wx(MakeLabel(LABEL_TOOL)));
-	item->SetLongHelp(str2wx(m_sHelp));
-
-	if(flags.get(FLAG_CHECK))
-	{
-		item->SetToggle(true);
-		tb->ToggleTool(m_nId,flags.get(FLAG_CHECKED));
-	}
-	tb->EnableTool(m_nId,!flags.get(FLAG_DISABLE|FLAG_HIDE_UI));
-}
-
-HeMenuItemImpl* EvtCommand::DoCreateMenuImpl(HeMenuImpl* mu,EvtCommand* it)
-{
-	HeMenuItemImpl* item= new HeMenuItemImpl(mu,it);
-	return item;
-}
-
-HeToolItemImpl* EvtCommand::DoCreateToolImpl(HeTbarImpl* tb,EvtCommand* it)
-{
-	HeToolItemImpl* tbitem=new HeToolItemImpl(tb,it);
-	return tbitem;
-}
 
 IWindowPtr EvtCommand::CreateWndsItem(IWindowPtr pw)
 {
@@ -287,7 +233,7 @@ EvtCommandExtraWindow::EvtCommandExtraWindow(const String& id,const String& type
 	StdExecuteEx(h);
 }
 
-HeToolItemImpl* EvtCommandCtrl::CreateToolItem(HeTbarImpl* tb)
+IToolItemPtr EvtCommandCtrl::CreateToolItem(IEW_TBarImpl* tb)
 {
 	if(m_pWindow)
 	{
@@ -304,8 +250,7 @@ HeToolItemImpl* EvtCommandCtrl::CreateToolItem(HeTbarImpl* tb)
 		return NULL;
 	}
 
-	HeToolItemImpl* item=new HeToolItemImpl(tb,this,ctrl);
-	tb->AddTool(item);
+	IToolItemPtr item = tb->AddToolItem(this, ctrl);
 
 	CreateValidator(ctrl);
 

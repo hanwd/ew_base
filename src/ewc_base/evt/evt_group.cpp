@@ -1,6 +1,7 @@
-#include "evt_impl.h"
+
 #include "ewc_base/evt/evt_group.h"
-#include "ewc_base/app/res_manager.h"
+#include "evt_ctrlimpl.h"
+//#include "ewc_base/app/res_manager.h"
 
 EW_ENTER
 
@@ -28,12 +29,12 @@ void EvtGroup::DoUpdateCtrl(IUpdParam& upd)
 	}
 	
 
-	for(bst_set<HeTbarImpl*>::iterator it=m_aSubTbars.begin();it!=m_aSubTbars.end();++it)
+	for(bst_set<IEW_TBarImpl*>::iterator it=m_aSubTbars.begin();it!=m_aSubTbars.end();++it)
 	{
 		(*it)->Enable(!flags.get(FLAG_DISABLE));
 	}
 
-	for(bst_set<HeMenuImpl*>::iterator it=m_aSubMenus.begin();it!=m_aSubMenus.end();++it)
+	for(bst_set<IEW_MenuImpl*>::iterator it=m_aSubMenus.begin();it!=m_aSubMenus.end();++it)
 	{
 		CreateMenu(*it,false);
 	}
@@ -109,30 +110,14 @@ void EvtGroup::DoPrepareItems(const arr_1t<EvtItem>& items)
 
 
 
-HeToolItemImpl* EvtGroup::CreateToolItem(HeTbarImpl* tb)
+IToolItemPtr EvtGroup::CreateToolItem(IEW_TBarImpl* tb)
 {
-	HeToolItemImpl* item=new HeToolItemImpl(tb,this);
-
-	if(!m_bmpParam)
-	{
-		m_bmpParam=ResManager::current().icons.get(m_sId);
-	}
-	m_bmpParam.update(item);
-
-	wxMenu* menu=this->CreateMenu();
-	if(menu)
-	{
-		item->SetDropdownMenu(menu);
-	}
-
-	tb->AddTool(item);
-	UpdateToolItem(item);
-
-	return item;
+	_ensure_bmp_param();
+	return tb->AddToolItem(this, this->CreateMenu());
 }
 
 
-HeMenuItemImpl* EvtGroup::CreateMenuItem(HeMenuImpl* mu)
+IMenuItemPtr EvtGroup::CreateMenuItem(IEW_MenuImpl* mu)
 {
 	if(flags.get(FLAG_CHECK))
 	{
@@ -140,14 +125,11 @@ HeMenuItemImpl* EvtGroup::CreateMenuItem(HeMenuImpl* mu)
 	}
 	else
 	{
-		HeMenuItemImpl* item=DoCreateMenuImpl(mu,this);
-		item->SetSubMenu(CreateMenu());
-		mu->Append(item);
-		return item;
+		return mu->AddMenuItem(this, this->CreateMenu());
 	}
 }
 
-wxMenu* EvtGroup::CreateMenu(HeMenuImpl* mu,bool prepare)
+wxMenu* EvtGroup::CreateMenu(IEW_MenuImpl* mu,bool prepare)
 {
 	if(prepare)
 	{
@@ -156,7 +138,7 @@ wxMenu* EvtGroup::CreateMenu(HeMenuImpl* mu,bool prepare)
 
 	if(!mu)
 	{
-		mu=new HeMenuImpl(this);
+		mu=new IEW_MenuImpl(this);
 	}
 	else
 	{
@@ -198,7 +180,7 @@ wxToolBar* EvtGroup::CreateTbar(wxWindow* pw,int wd)
 
 	PrepareItems();
 
-	HeTbarImpl* tb=new HeTbarImpl(this,pw,wd);
+	IEW_TBarImpl* tb=new IEW_TBarImpl(this,pw,wd);
 
 	for(size_t i=0;i<size();i++)
 	{

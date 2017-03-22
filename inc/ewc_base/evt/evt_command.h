@@ -6,20 +6,38 @@
 #include "ewc_base/app/res_bitmap.h"
 #include "ewc_base/wnd/wnd_property.h"
 
+
+
 EW_ENTER
 
 class DLLIMPEXP_EWC_BASE IWnd_bookbase;
-class HeToolItemImpl;
-class HeMenuItemImpl;
-class HeTbarImpl;
-class HeMenuImpl;
+
+class IEW_TBarImpl;
+class IEW_MenuImpl;
+
+class DLLIMPEXP_EWC_BASE IEW_CtrlData : public Object
+{
+public:
+
+
+	IEW_CtrlData(EvtCommand* p);
+	~IEW_CtrlData();
+
+	virtual void UpdateCtrl(){}
+
+protected:
+	DataPtrT<EvtCommand> pevt;
+
+};
+
 
 class DLLIMPEXP_EWC_BASE EvtCommand  : public EvtBase
 {
 public:
 
-	friend class HeToolItemImpl;
-	friend class HeMenuItemImpl;
+	friend class IEW_TBarImpl;
+	friend class IEW_MenuImpl;
+	friend class IEW_CtrlData;
 
 	String m_sText;
 	String m_sExtra;
@@ -72,29 +90,21 @@ public:
 
 	virtual String MakeLabel(int hint=LABEL_TOOL) const;
 
-	virtual HeToolItemImpl* CreateToolItem(HeTbarImpl* tb);
-	virtual HeMenuItemImpl* CreateMenuItem(HeMenuImpl* mu);
+	virtual IToolItemPtr CreateToolItem(IEW_TBarImpl* tb);
+	virtual IMenuItemPtr CreateMenuItem(IEW_MenuImpl* mu);
 
 	virtual IWindowPtr CreateWndsItem(IWindowPtr pw);
-
 	virtual Validator* CreateValidator(wxWindow*);
 
 	virtual void DoUpdateCtrl(IUpdParam& upd);
-
-	virtual void UpdateMenuItem(HeMenuItemImpl* item);
-	virtual void UpdateToolItem(HeToolItemImpl* item);
-
 
 	virtual EvtCommand* cast_command(){return this;}
 
 protected:
 
-	static HeMenuItemImpl* DoCreateMenuImpl(HeMenuImpl* mu,EvtCommand* it);
-	static HeToolItemImpl* DoCreateToolImpl(HeTbarImpl* tb,EvtCommand* it);
+	void _ensure_bmp_param();
 
-	bst_set<HeMenuItemImpl*> m_setMenuImpls;
-	bst_set<HeToolItemImpl*> m_setToolImpls;
-
+	bst_set<IEW_CtrlData*> m_setAttachedControls;
 	BitmapHolder m_bmpParam;
 
 };
@@ -135,7 +145,7 @@ public:
 
 	EvtCommandCtrl(const String& id,const String& type,const WndProperty& w=WndProperty());
 
-	virtual HeToolItemImpl* CreateToolItem(HeTbarImpl* tb);
+	virtual IToolItemPtr CreateToolItem(IEW_TBarImpl* tb);
 
 	virtual IWindowPtr CreateWndsItem(IWindowPtr pw);
 	Validator* CreateValidator(wxWindow*);

@@ -66,8 +66,8 @@ class DLLIMPEXP_EWC_BASE ValidatorGroup;
 class DLLIMPEXP_EWC_BASE EvtManager;
 class DLLIMPEXP_EWC_BASE ResManager;
 
-class DLLIMPEXP_EWC_BASE HeMenuImpl;
-class DLLIMPEXP_EWC_BASE HeTbarImpl;
+class DLLIMPEXP_EWC_BASE IEW_MenuImpl;
+class DLLIMPEXP_EWC_BASE IEW_TBarImpl;
 
 class DLLIMPEXP_EWC_BASE Plugin;
 class DLLIMPEXP_EWC_BASE PluginManager;

@@ -99,9 +99,10 @@ bool MvcView::OnClose(WndManager& wm)
 
 		int ret=Wrapper::MsgsDialog(msg,IDefs::DLG_YES_NO_CANCEL|IDefs::ICON_QUESTION);
 
-		for (int cmdproc_save = CmdProc::CP_SAVE; ret == IDefs::BTN_YES; cmdproc_save = CmdProc::CP_SAVEAS)
+		ICmdParam cmd;
+		for (cmd.param1 = CmdProc::CP_SAVE; ret == IDefs::BTN_YES; cmd.param1 = CmdProc::CP_SAVEAS)
 		{
-			if (Target.ExecId(cmdproc_save)) break;
+			if (Target.DoExecId(cmd)) break;
 			ret=Wrapper::MsgsDialog("File save failed, try another?",IDefs::DLG_YES_NO_CANCEL|IDefs::ICON_QUESTION);
 		}
 

@@ -129,6 +129,7 @@ bool CmdProc::DoExecId(ICmdParam& cmd)
 
 		if(!TestId(CmdProc::CP_SAVEAS,cmd.extra1))
 		{
+			cmd.param2 = -1;
 			return false;
 		}
 
@@ -139,6 +140,7 @@ bool CmdProc::DoExecId(ICmdParam& cmd)
 
 			if(Wrapper::FileDialog(cmd.extra1,IDefs::FD_SAVE,"",exts)==IDefs::BTN_CANCEL)
 			{
+				cmd.param2 = -2;
 				return false;
 			}
 		}
@@ -152,6 +154,8 @@ bool CmdProc::DoExecId(ICmdParam& cmd)
 		{
 			std::swap(cmd.extra1,cmd.extra2);
 		}
+
+		cmd.param2 = 0;
 
 		cmd.param1=CP_SAVE_TEMP;
 		if(!DoExecId(cmd))

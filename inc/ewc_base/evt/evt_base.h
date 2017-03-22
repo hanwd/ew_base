@@ -147,15 +147,15 @@ public:
 	virtual IMenuItemPtr CreateMenuItem(IMenuPtr){return NULL;}
 	virtual IWindowPtr CreateWndsItem(IWindowPtr){return NULL;}
 
-	virtual void UpdateMenuItem(IMenuItemPtr){}
-	virtual void UpdateToolItem(IToolItemPtr){}
+	//virtual void UpdateMenuItem(IMenuItemPtr){}
+	//virtual void UpdateToolItem(IToolItemPtr){}
 
 	virtual EvtGroup* CreateGroup(const String&){return NULL;}
 
 	virtual wxWindow* GetWindow(){return NULL;}
 
 
-	virtual IMenuPtr CreateMenu(HeMenuImpl* mu=NULL,bool prepare=true){return NULL;}
+	virtual IMenuPtr CreateMenu(IEW_MenuImpl* mu=NULL,bool prepare=true){return NULL;}
 	virtual ITbarPtr CreateTbar(IWindowPtr pw,int wd=-1){return NULL;}
 
 	virtual bool PopupMenu(IWindowPtr pw=NULL);

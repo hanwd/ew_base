@@ -70,6 +70,8 @@ ec.gp_new("tb.Standard");
 	ec.gp_add("");
 	ec.gp_add("Undo");
 	ec.gp_add("Redo");
+	ec.gp_add("");
+	ec.gp_add("Dlg.Expr");
 ec.gp_end();
 
 ec.gp_new("tb.Search");

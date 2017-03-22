@@ -29,8 +29,6 @@ public:
 
 	const wxBitmap& GetBitmap(int w=-1) const;
 
-	
-
 	void Serialize(Serializer& ar);
 
 private:

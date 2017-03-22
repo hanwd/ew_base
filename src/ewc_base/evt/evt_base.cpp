@@ -1,8 +1,9 @@
-#include "evt_impl.h"
-
 #include "ewc_base/evt/evt_base.h"
 #include "ewc_base/evt/validator.h"
 #include "ewc_base/app/data_defs.h"
+
+#include "evt_ctrlimpl.h"
+
 EW_ENTER
 
 EvtBase::EvtBase()
@@ -195,7 +196,7 @@ void EvtBase::DetachListener(EvtListener* pListener)
 
 bool EvtBase::PopupMenu(IWindowPtr pw)
 {
-	HeMenuImpl mu;
+	IEW_MenuImpl mu;
 	if(CreateMenu(&mu)==NULL)
 	{
 		return false;

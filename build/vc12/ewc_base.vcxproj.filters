@@ -219,9 +219,6 @@
     <ClInclude Include="..\..\inc\ewc_base\app\cmdproc_stk.h">
       <Filter>include\app</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\ewc_base\evt\evt_impl.h">
-      <Filter>source\evt</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\inc\ewc_base\mvc\mvc_book.h">
       <Filter>include\mvc</Filter>
     </ClInclude>
@@ -308,6 +305,9 @@
     </ClInclude>
     <ClInclude Include="..\..\inc\ewc_base\plugin\plugin.h">
       <Filter>include\plugin</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\ewc_base\evt\evt_ctrlimpl.h">
+      <Filter>source\evt</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -544,6 +544,9 @@
     </ClCompile>
     <ClCompile Include="..\..\src\ewc_base\plugin\plugin_expression.cpp">
       <Filter>source\plugin</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewc_base\evt\evt_ctrlimpl.cpp">
+      <Filter>source\evt</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

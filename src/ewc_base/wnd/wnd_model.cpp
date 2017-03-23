@@ -228,9 +228,10 @@ void WndModel::Close()
 
 }
 
+
 WndModel::WndModel(const String& s):basetype(s),local_evtmgr(wxID_HIGHEST)
 {
-
+	local_evtmgr.m_pNextEvtManager=&EvtManager::current();
 }
 
 WndModel::~WndModel()

@@ -76,7 +76,27 @@ int EvtManager::gp_add(EvtBase* v)
 	return append(v);
 }
 
+EvtBase* EvtManager::chained_get(int evtid)
+{
+	for(EvtManager* p=this;p;p=p->m_pNextEvtManager)
+	{
+		EvtBase* pevt=p->get(evtid);
+		if(pevt) return pevt;
+	}
 
+	return NULL;
+}
+
+EvtBase* EvtManager::chanded_get(const String& s)
+{
+	for(EvtManager* p=this;p;p=p->m_pNextEvtManager)
+	{
+		EvtBase* pevt=p->get(s);
+		if(pevt) return pevt;
+	}
+
+	return NULL;
+}
 
 EvtBase* EvtManager::get(const String& s)
 {

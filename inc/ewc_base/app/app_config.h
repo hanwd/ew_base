@@ -43,7 +43,6 @@ public:
 
 	void CfgUpdate(int lv,const String& s,BitFlags& v,int m);
 
-
 	typedef VariantTable map_type;
 	map_type values;
 	String s_file;

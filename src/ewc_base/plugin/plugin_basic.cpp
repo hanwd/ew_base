@@ -27,7 +27,7 @@ public:
 
 	 bool OnCfgEvent(int lv)
 	 {
-		wm.app.conf.CfgUpdate(lv,"/basic/language",sLanguage_temp);
+		wm.conf.CfgUpdate(lv,"/basic/language",sLanguage_temp);
 
 		if(lv>0)
 		{
@@ -40,9 +40,9 @@ public:
 	// 定义StdExecute为选择语言，参数为语言名称或id。
 	virtual bool DoStdExecute(IStdParam& pm)
 	{
-		if(pm.extra!="")
+		if(pm.extra1!="")
 		{
-			return SetLanguage(pm.extra);
+			return SetLanguage(pm.extra1);
 		}
 		else if(pm.param1>=0)
 		{
@@ -50,7 +50,7 @@ public:
 		}
 		else
 		{
-			pm.extra=sLanguage;
+			pm.extra1=sLanguage;
 			return true;
 		}
 	}

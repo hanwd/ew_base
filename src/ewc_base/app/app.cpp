@@ -18,19 +18,26 @@ BOOL APIENTRY DllMain(HANDLE hModule,DWORD ul_reason_for_call,LPVOID lpReserved)
 EW_ENTER
 
 
-class AppData
+class IDat_internal
 {
 public:
 
 	int nInitCount;
 	bool bInitOk;
 	bool bDestroying;
+
 	wxWindow* pTopWindow;
 
 	AtomicSpin spin;
+
+	static IDat_internal& current()
+	{
+		static IDat_internal gInstance;
+		return gInstance;
+	}
 };
 
-static AppData app_data;
+
 
 App& App::current()
 {
@@ -40,15 +47,13 @@ App& App::current()
 
 bool App::Init(int argc,char** argv)
 {
-	if(app_data.nInitCount++==0)
+	if(IDat_internal::current().nInitCount++==0)
 	{
 		wxApp::SetInstance(new wxApp);
 
-		app_data.bInitOk=wxEntryStart(argc,argv);
+		IDat_internal::current().bInitOk=wxEntryStart(argc,argv);
 
-
-
-		if(!app_data.bInitOk)
+		if(!IDat_internal::current().bInitOk)
 		{
 			return false;
 		}
@@ -91,14 +96,14 @@ bool App::Init(int argc,char** argv)
 		set_logs_dialog_function(&Wrapper::LogsDialog);
 	}
 
-	return app_data.bInitOk;	
+	return IDat_internal::current().bInitOk;	
 }
 
 
 
 int App::MainLoop()
 {
-	if(!app_data.bInitOk) return -1;
+	if(!IDat_internal::current().bInitOk) return -1;
 	return wxApp::GetInstance()->OnRun();
 }
 
@@ -106,9 +111,9 @@ int App::MainLoop()
 
 void App::Fini()
 {
-	if(--app_data.nInitCount==0)
+	if(--IDat_internal::current().nInitCount==0)
 	{
-		app_data.bInitOk=false;
+		IDat_internal::current().bInitOk=false;
 		set_logs_dialog_function(NULL);
 		::wxEntryCleanup();
 	}
@@ -122,12 +127,12 @@ void App::ExitLoop()
 
 void App::ReqExit()
 {
-	app_data.bDestroying=true;
+	IDat_internal::current().bDestroying=true;
 }
 
 bool App::TestDestroy()
 {
-	return app_data.bDestroying;
+	return IDat_internal::current().bDestroying;
 }
 
 App::App(int argc,char** argv)
@@ -143,12 +148,12 @@ App::~App()
 
 bool App::IsOk()
 {
-	return app_data.bInitOk;
+	return IDat_internal::current().bInitOk;
 }
 
 App::operator bool()
 {
-	return app_data.bInitOk;
+	return IDat_internal::current().bInitOk;
 }
 
 EW_LEAVE

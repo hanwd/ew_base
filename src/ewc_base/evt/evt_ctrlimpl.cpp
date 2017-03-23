@@ -7,33 +7,55 @@ EW_ENTER
 
 
 IEW_MenuImpl::IEW_MenuImpl(EvtGroup* mu)
-:m_pGroup(mu)
+:IEW_Ctrl(mu)
 {
-	if (m_pGroup) m_pGroup->m_aSubMenus.insert(this);
+
 }
 
 IEW_MenuImpl::~IEW_MenuImpl()
 {
-	if (m_pGroup) m_pGroup->m_aSubMenus.erase(this);
+
 }
 
-IMenuItemPtr IEW_MenuImpl::AddMenuItem(EvtCommand* pevt, wxMenu* menu)
+void IEW_MenuImpl::AddCtrlItem(EvtCommand* pevt, wxMenu* menu)
 {
 	IMenuItemPtr item = new wxMenuItem(this, pevt->m_nId, str2wx(pevt->MakeLabel(EvtBase::LABEL_MENU)));
 	item->SetSubMenu(menu);
-	return InitMenuItem(pevt, item);
+	InitMenuItem(pevt, item);
 }
 
-IMenuItemPtr IEW_MenuImpl::AddMenuItem(EvtCommand* pevt)
+void IEW_MenuImpl::AddCtrlItem(EvtCommand* pevt)
 {
+	if(pevt->flags.get(EvtCommand::FLAG_SEPARATOR))
+	{
+		this->AppendSeparator();
+		return;
+	}
+
 	IMenuItemPtr item = new wxMenuItem(this, pevt->m_nId, str2wx(pevt->MakeLabel(EvtBase::LABEL_MENU)));
 	if (pevt->flags.get(EvtCommand::FLAG_CHECK))
 	{
 		item->SetCheckable(true);
 	}
-	return InitMenuItem(pevt, item);
+
+	InitMenuItem(pevt, item);
+
 }
 
+
+void IEW_MenuImpl::IEW_WxCtrlData_menu::UpdateBmps()
+{
+	if(item->IsCheckable()) return;
+
+	const BitmapBundle& bundle(pevt->GetBundle(16,0));
+	if(!bundle.IsOk())
+	{
+		return;
+	}
+
+	item->SetBitmap(bundle.bmp_normal);
+	item->SetDisabledBitmap(bundle.bmp_disabled);
+}
 
 void IEW_MenuImpl::IEW_WxCtrlData_menu::UpdateCtrl()
 {
@@ -58,28 +80,23 @@ void IEW_MenuImpl::IEW_WxCtrlData_menu::UpdateCtrl()
 }
 
 
-IMenuItemPtr IEW_MenuImpl::InitMenuItem(EvtCommand* pevt, IMenuItemPtr item)
+void IEW_MenuImpl::InitMenuItem(EvtCommand* pevt, IMenuItemPtr item)
 {
-
-	pevt->m_bmpParam.update(item);
-	Append(item);
-
 	IEW_WxCtrlData_menu* ctrl = new IEW_WxCtrlData_menu(pevt, item);
-	item->SetRefData(ctrl);
-	ctrl->UpdateCtrl();
+	m_aItems.append(ctrl);
 
-	return item;
+	ctrl->UpdateBmps();	
+	Append(item);
+	ctrl->UpdateCtrl();
 }
 
 
 
 IEW_TBarImpl::IEW_TBarImpl(EvtGroup* mu, wxWindow* pw, int wd)
 :wxToolBar()
-, m_pGroup(mu)
+, IEW_Ctrl(mu)
 {
-	if (wd<0) wd = WndManager::current().conf.bmp_tool_size;
-	m_pGroup->m_aSubTbars.insert(this);
-
+	wd=wd<0?WndManager::current().data.toolbitmap_size:wd;
 	this->Create(pw, mu->m_nId, wxDefaultPosition, wxDefaultSize, wxTB_FLAT | wxTB_NODIVIDER);
 	this->SetName(str2wx(m_pGroup->m_sId));
 	this->SetToolBitmapSize(wxSize(wd, wd));
@@ -87,26 +104,45 @@ IEW_TBarImpl::IEW_TBarImpl(EvtGroup* mu, wxWindow* pw, int wd)
 
 IEW_TBarImpl::~IEW_TBarImpl()
 {
-	m_pGroup->m_aSubTbars.erase(this);
+
 }
 
-IToolItemPtr IEW_TBarImpl::AddToolItem(EvtCommand* pevt, wxControl* p)
+bool IEW_TBarImpl::StdExecute(IStdParam& cmd)
 {
-	IToolItemPtr item = wxToolBar::AddControl(p);
-	return InitToolItem(pevt, item);
+	if(cmd.extra1=="clear")
+	{
+		m_aItems.clear();
+		int nc=this->GetToolsCount();
+		while(--nc>=0)
+		{
+			this->DeleteToolByPos(0);
+		}		
+	}
+	else if(cmd.extra1=="update")
+	{
+		this->Enable(!m_pGroup->flags.get(EvtBase::FLAG_DISABLE));
+	}
+	return true;
 }
 
-IToolItemPtr IEW_TBarImpl::AddToolItem(EvtCommand* pevt)
+void IEW_TBarImpl::AddCtrlItem(EvtCommand* pevt, wxControl* p)
+{
+	pevt->CreateValidator(p);
+	IToolItemPtr item = wxToolBar::AddControl(p);
+	InitToolItem(pevt, item);
+}
+
+void IEW_TBarImpl::AddCtrlItem(EvtCommand* pevt)
 {
 	IToolItemPtr item = wxToolBar::AddTool(pevt->m_nId, str2wx(pevt->MakeLabel()), wxNullBitmap, wxString(), pevt->flags.get(EvtCommand::FLAG_CHECK) ? wxITEM_CHECK : wxITEM_NORMAL);
-	return InitToolItem(pevt, item);
+	InitToolItem(pevt, item);
 }
 
-IToolItemPtr IEW_TBarImpl::AddToolItem(EvtCommand* pevt, wxMenu* menu)
+void IEW_TBarImpl::AddCtrlItem(EvtCommand* pevt, wxMenu* menu)
 {
 	IToolItemPtr item = wxToolBar::AddTool(pevt->m_nId, str2wx(pevt->MakeLabel()), wxNullBitmap, wxString(), wxITEM_DROPDOWN);
 	item->SetDropdownMenu(menu);
-	return InitToolItem(pevt, item);
+	InitToolItem(pevt, item);
 }
 
 
@@ -133,15 +169,138 @@ void IEW_TBarImpl::IEW_WxCtrlData_tool::UpdateCtrl()
 }
 
 
-
-IToolItemPtr IEW_TBarImpl::InitToolItem(EvtCommand* pevt, IToolItemPtr item)
+void IEW_TBarImpl::IEW_WxCtrlData_tool::UpdateBmps()
 {
-	IEW_WxCtrlData_tool* pctrl = new IEW_WxCtrlData_tool(pevt, item);
-	item->SetRefData(pctrl);
-	pevt->m_bmpParam.update(item);
-	pctrl->UpdateCtrl();
-	return item;
+	wxToolBarBase* tb=item->GetToolBar();
+	wxSize sz=tb->GetToolBitmapSize();
+
+	const BitmapBundle& bundle(pevt->GetBundle(sz.y,1));
+	if(!bundle.IsOk())
+	{
+		return;
+	}
+
+	item->SetNormalBitmap(bundle.bmp_normal);
+	item->SetDisabledBitmap(bundle.bmp_disabled);
+
 }
 
+void IEW_TBarImpl::InitToolItem(EvtCommand* pevt, IToolItemPtr item)
+{
+	IEW_WxCtrlData_tool* pctrl = new IEW_WxCtrlData_tool(pevt, item);
+	m_aItems.append(pctrl);
+	pctrl->UpdateBmps();
+	pctrl->UpdateCtrl();
+}
+
+
+
+
+
+IEW_AuiTBarImpl::IEW_AuiTBarImpl(EvtGroup* mu, wxWindow* pw, int wd)
+: IEW_Ctrl(mu)
+{
+	wd=wd<0?WndManager::current().data.toolbitmap_size:wd;
+	this->Create(pw, mu->m_nId, wxDefaultPosition, wxDefaultSize);
+
+	this->SetName(str2wx(m_pGroup->m_sId));
+	this->SetToolBitmapSize(wxSize(wd, wd));
+
+
+}
+
+IEW_AuiTBarImpl::~IEW_AuiTBarImpl()
+{
+
+}
+
+void IEW_AuiTBarImpl::AddCtrlItem(EvtCommand* pevt, wxControl* p)
+{
+	pevt->CreateValidator(p);
+	IAuiToolItemPtr item = AddControl(p);
+	InitToolItem(pevt, item);
+}
+
+void IEW_AuiTBarImpl::AddCtrlItem(EvtCommand* pevt)
+{
+	IAuiToolItemPtr item = AddTool(pevt->m_nId, str2wx(pevt->MakeLabel()), wxNullBitmap, wxString(), pevt->flags.get(EvtCommand::FLAG_CHECK) ? wxITEM_CHECK : wxITEM_NORMAL);
+	InitToolItem(pevt, item);
+}
+
+void IEW_AuiTBarImpl::AddCtrlItem(EvtCommand* pevt, wxMenu* menu)
+{
+	delete menu;
+	IAuiToolItemPtr item = AddTool(pevt->m_nId, str2wx(pevt->MakeLabel()), wxNullBitmap);
+	item->SetHasDropDown(true);
+	InitToolItem(pevt, item);
+}
+
+
+void IEW_AuiTBarImpl::IEW_WxCtrlData_tool::UpdateCtrl()
+{
+	if (pevt->m_nId<0)
+	{
+		return;
+	}
+
+	//IEW_AuiTBarImpl* tb = (IEW_AuiTBarImpl*)item->GetToolBar();
+	//if (!tb) return;
+
+	item->SetShortHelp(str2wx(pevt->MakeLabel()));
+	item->SetLabel(str2wx(pevt->MakeLabel(EvtBase::LABEL_TOOL)));
+	item->SetLongHelp(str2wx(pevt->m_sHelp));
+
+	if (pevt->flags.get(EvtBase::FLAG_CHECK))
+	{
+		item->SetKind(wxITEM_CHECK);
+		//item->SetToggle(true);
+		tbar->ToggleTool(pevt->m_nId, pevt->flags.get(EvtBase::FLAG_CHECKED));
+	}
+	tbar->EnableTool(pevt->m_nId, !pevt->flags.get(EvtBase::FLAG_DISABLE | EvtBase::FLAG_HIDE_UI));
+}
+
+void IEW_AuiTBarImpl::IEW_WxCtrlData_tool::UpdateBmps()
+{
+
+	const BitmapBundle& bundle(pevt->GetBundle(24,1));
+	if(!bundle.IsOk())
+	{
+		return;
+	}
+
+	item->SetBitmap(bundle.bmp_normal);
+	item->SetDisabledBitmap(bundle.bmp_disabled);
+
+}
+
+
+bool IEW_AuiTBarImpl::StdExecute(IStdParam& cmd)
+{
+	if(cmd.extra1=="clear")
+	{
+		m_aItems.clear();
+		int nc=this->GetToolCount();
+		while(--nc>=0)
+		{
+			this->ClearTools();
+		}		
+	}
+	else if(cmd.extra1=="update")
+	{
+		this->Enable(!m_pGroup->flags.get(EvtBase::FLAG_DISABLE));
+	}
+	return true;
+}
+
+void IEW_AuiTBarImpl::InitToolItem(EvtCommand* pevt, IAuiToolItemPtr item)
+{
+	IEW_WxCtrlData_tool* pctrl = new IEW_WxCtrlData_tool(pevt, item);
+	pctrl->tbar=this;
+	m_aItems.append(pctrl);
+
+	pctrl->UpdateBmps();
+	pctrl->UpdateCtrl();
+
+}
 
 EW_LEAVE

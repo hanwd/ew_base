@@ -16,6 +16,9 @@ public:
 	friend class WndModel;
 	friend class WndBuilder;
 
+	EvtBase* chained_get(int evtid);
+	EvtBase* chanded_get(const String& s);
+
 	EvtBase* get(int evtid);
 	EvtBase* get(const String& s);
 	EvtGroup* get_group(const String& s);
@@ -76,13 +79,13 @@ public:
 	template<typename T>
 	EvtProxyVariantT<T>& link_c(const String& s,const String& k="")
 	{
-		return link_v<T>(s,App::current().conf.values,k);
+		return link_v<T>(s,WndManager::current().conf.values,k);
 	}
 
 	template<typename T>
 	EvtProxyVariantT<T>& link_c(const String& s,int64_t p,const String& k="")
 	{
-		return link_v<T>(s,App::current().conf.values,p,k);
+		return link_v<T>(s,WndManager::current().conf.values,p,k);
 	}
 
 	EvtBase& operator[](const String& s);
@@ -109,6 +112,8 @@ protected:
 
 	int m_nIdMax;
 	int m_nIdMin;
+
+	LitePtrT<EvtManager> m_pNextEvtManager;
 };
 
 class DLLIMPEXP_EWC_BASE EvtManagerTop : public EvtManager

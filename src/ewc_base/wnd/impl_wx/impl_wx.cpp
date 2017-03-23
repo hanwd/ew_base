@@ -137,4 +137,65 @@ bool ICmdProcTextEntry::DoTestId(ICmdParam& cmd)
 	}
 }
 
+
+
+void BitmapBundle::set(const wxBitmap& bmp,int w)
+{
+	if(!bmp.IsOk()) return;
+	if(w<0||bmp.GetHeight()==w)
+	{
+		bmp_normal=bmp;
+		flags.del(FLAG_SCALED);
+	}
+	else
+	{
+		bmp_normal=wxBitmap(bmp.ConvertToImage().Scale(w,w));
+		flags.add(FLAG_SCALED);
+	}
+
+	update_disabled();
+}
+
+void BitmapBundle::update_disabled()
+{
+	wxImage image=bmp_normal.ConvertToImage();
+	bmp_disabled=wxBitmap(image.ConvertToGreyscale().ConvertToDisabled(255));
+}
+
+bool BitmapBundle::update(const wxBitmap& bmp,int w)
+{
+	if(bmp_normal.IsOk()) return true;
+	if(!bmp.IsOk()) return false;
+	set(bmp,w);
+	return true;
+}
+
+bool BitmapBundle::IsOk() const
+{
+	return bmp_normal.IsOk();
+}
+
+
+
+void BitmapBundle::Serialize(Serializer& ar)
+{
+	ar & flags;
+
+	if(ar.is_reader() && flags.get(FLAG_SCALED))
+	{
+		bmp_normal=wxNullBitmap;
+		bmp_disabled=wxNullBitmap;
+		return;
+	}
+		
+	if(ar.is_writer() && flags.get(FLAG_SCALED))
+	{
+		return;
+	}
+
+	ar & bmp_normal;
+	ar & bmp_disabled;
+
+}
+
 EW_LEAVE

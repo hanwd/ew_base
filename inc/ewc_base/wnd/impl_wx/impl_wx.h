@@ -211,6 +211,85 @@ public:
 	}	
 };
 
+
+class BitmapBundle
+{
+public:
+	enum
+	{
+		FLAG_SCALED	=1<<0,
+	};
+
+	void set(const wxBitmap& bmp,int w=-1);
+
+	void update_disabled();
+
+	bool update(const wxBitmap& bmp,int w);
+
+	bool IsOk() const;
+
+	void Serialize(Serializer& ar);
+
+	wxBitmap bmp_normal;
+	wxBitmap bmp_disabled;
+	BitFlags flags;
+
+};
+
+
+template<typename A>
+class serial_helper_test<A,wxBitmap>
+{
+public:
+	typedef wxBitmap type;
+
+	static void g(SerializerReader& ar,type& val)
+	{
+		int32_t nx=-1,ny=-1,na=0;
+		ar & nx & ny;
+		if(nx<0||ny<0)
+		{
+			val=wxNullBitmap;
+			return;
+		}
+
+		ar & na;
+		wxImage img(nx,ny);
+
+		ar.recv((char*)img.GetData(),nx*ny*3);
+		if(na)
+		{
+			img.InitAlpha();
+			ar.recv((char*)img.GetAlpha(),nx*ny);
+		}	
+
+		val=wxBitmap(img);
+	}
+
+	static void g(SerializerWriter& ar,type& val)
+	{
+		int32_t nx=-1,ny=-1,na=0;
+		if(!val.IsOk())
+		{
+			ar & nx & ny;
+			return;
+		}
+		wxImage img(val.ConvertToImage());
+		nx=img.GetWidth();
+		ny=img.GetHeight();
+		na=img.HasAlpha();
+
+		ar & nx & ny & na;
+		ar.send((const char*)img.GetData(),nx*ny*3);
+		if(na)
+		{
+			ar.send((const char*)img.GetAlpha(),nx*ny);
+		}
+
+	}
+};
+
+
 EW_LEAVE
 #endif
 

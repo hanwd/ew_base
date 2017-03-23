@@ -51,8 +51,7 @@ public:
 	DataPtrT<WndModelTop> pmodel;
 
 	WndManagerImpl(WndManager& wm):plugin(wm),evtmgr(wm),wup(wm),book(wm)
-	{
-		pmodel.reset(new WndModelTop(wm));
+	{		
 		plogptr.reset(new LogPtr());
 	}
 };
@@ -68,7 +67,7 @@ WndManager::WndManager()
 	,app(App::current())
 	,lang(Language::current())
 {
-	model.SetData(m_pImpl->pmodel.get());
+
 }
 
 WndManager::~WndManager()
@@ -79,9 +78,7 @@ WndManager::~WndManager()
 
 void WndManager::StartFrame()
 {
-
 	evtmgr["StartFrame"].CmdExecuteEx(-1);
-
 	UpdateTitle();
 	model.Show(true);
 }
@@ -140,7 +137,7 @@ bool WndManager::SaveConfig(bool save_file)
 	evtmgr["Config"].StdExecuteEx(-1);
 	if (save_file)
 	{
-		return app.conf.Save();
+		return conf.Save();
 	}
 	return true;
 }
@@ -382,17 +379,17 @@ public:
 
 bool WndManager::InitConfig(const String& fp)
 {
-	app.conf.s_file = fp;
+	conf.s_file = fp;
 
 	// 尝试从文件载入配置文件
-	if (!app.conf.Load())
+	if (!conf.Load())
 	{
 		// 配置文件不存在，初始化配置信息
-		app.conf.SetValue<String>("/basic/language", "Chinese");
+		conf.SetValue<String>("/basic/language", "Chinese");
 	}
 
 	String sLanguage;
-	if (app.conf.GetValue<String>("/basic/language", sLanguage))
+	if (conf.GetValue<String>("/basic/language", sLanguage))
 	{
 		Language::current().SetLanguage(sLanguage);
 	}
@@ -441,6 +438,9 @@ void WndManager::Activate()
 	if (g_pCurrentApp == this) return;
 
 	g_pCurrentApp = this;
+
+	m_pImpl->pmodel.reset(new WndModelTop(*this));
+	model.SetData(m_pImpl->pmodel.get());
 
 	Logger::def(&logptr);
 	Language::current() = lang;

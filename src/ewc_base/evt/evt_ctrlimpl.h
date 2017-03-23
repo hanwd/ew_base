@@ -1,69 +1,124 @@
 #include "ewc_base/evt/evt_command.h"
 #include "ewc_base/app/res_manager.h"
+
 #include "ewc_base/wnd/impl_wx/iwnd_textctrl.h"
 #include "ewc_base/wnd/impl_wx/iwnd_bookbase.h"
+#include "wx/aui/auibar.h"
 
 EW_ENTER
 
-class IEW_WxCtrlData : public IEW_CtrlData, public wxObjectRefData
-{
-public:
-	IEW_WxCtrlData(EvtCommand* p) :IEW_CtrlData(p){}
-};
 
-class IEW_MenuImpl : public wxMenu
+class IEW_MenuImpl : public wxMenu, public IEW_Ctrl
 {
 public:
 
 	IEW_MenuImpl(EvtGroup* mu = NULL);
 	~IEW_MenuImpl();
-	IMenuItemPtr AddMenuItem(EvtCommand* pevt, wxMenu* menu);
-	IMenuItemPtr AddMenuItem(EvtCommand* pevt);
+
+	void AddCtrlItem(EvtCommand* pevt, wxMenu* menu);
+	void AddCtrlItem(EvtCommand* pevt);
+
+	bool StdExecute(IStdParam& cmd)
+	{
+		if(cmd.extra1=="clear")
+		{
+			m_aItems.clear();
+			int nc=this->GetMenuItemCount();
+			while(--nc>=0)
+			{
+				wxMenuItem* mi=this->FindItemByPosition(0);
+				this->Destroy(mi);
+			}		
+		}
+		else if(cmd.extra1=="update")
+		{
+			m_pGroup->CreateMenu(this,false);
+		}
+		return true;
+	}
+
 
 protected:
 
-	class IEW_WxCtrlData_menu : public IEW_WxCtrlData
+	class IEW_WxCtrlData_menu : public IEW_CtrlData
 	{
 	public:
-		IEW_WxCtrlData_menu(EvtCommand* pevt_, IMenuItemPtr item_) :IEW_WxCtrlData(pevt_), item(item_){ }
+		IEW_WxCtrlData_menu(EvtCommand* pevt_, IMenuItemPtr item_) :IEW_CtrlData(pevt_), item(item_){ }
 		IMenuItemPtr item;
 
 		void UpdateCtrl();
+		void UpdateBmps();
 	};
 
-	IMenuItemPtr InitMenuItem(EvtCommand* pevt, IMenuItemPtr item);
-
-	DataPtrT<EvtGroup> m_pGroup;
-
+protected:
+	void InitMenuItem(EvtCommand* pevt, IMenuItemPtr item);
 };
 
 
-class IEW_TBarImpl : public wxToolBar
+class IEW_TBarImpl : public wxToolBar, public IEW_Ctrl
 {
 public:
 
 	IEW_TBarImpl(EvtGroup* mu, wxWindow* pw, int wd);
 	~IEW_TBarImpl();
 
-	IToolItemPtr AddToolItem(EvtCommand* pevt, wxControl* p);
-	IToolItemPtr AddToolItem(EvtCommand* pevt);
-	IToolItemPtr AddToolItem(EvtCommand* pevt, wxMenu* menu);
+	void AddCtrlItem(EvtCommand* pevt);
+	void AddCtrlItem(EvtCommand* pevt, wxControl* p);
+	void AddCtrlItem(EvtCommand* pevt, wxMenu* menu);
+
+	virtual wxWindow* GetWindow(){return this;}
+
+	bool StdExecute(IStdParam& cmd);
+
 
 protected:
 
-	class IEW_WxCtrlData_tool : public IEW_WxCtrlData
+	class IEW_WxCtrlData_tool : public IEW_CtrlData
 	{
 	public:
-		IEW_WxCtrlData_tool(EvtCommand* pevt_, IToolItemPtr item_) :IEW_WxCtrlData(pevt_), item(item_){}
+		IEW_WxCtrlData_tool(EvtCommand* pevt_, IToolItemPtr item_) :IEW_CtrlData(pevt_), item(item_){}
 		IToolItemPtr item;
 
 		void UpdateCtrl();
-
+		void UpdateBmps();
 	};
 
-	IToolItemPtr InitToolItem(EvtCommand* pevt, IToolItemPtr item);
+protected:
+	void InitToolItem(EvtCommand* pevt, IToolItemPtr item);
 
-	DataPtrT<EvtGroup> m_pGroup;
+};
+
+
+class IEW_AuiTBarImpl : public wxAuiToolBar, public IEW_Ctrl
+{
+public:
+
+	IEW_AuiTBarImpl(EvtGroup* mu, wxWindow* pw, int wd);
+	~IEW_AuiTBarImpl();
+
+	void AddCtrlItem(EvtCommand* pevt);
+	void AddCtrlItem(EvtCommand* pevt, wxControl* p);
+	void AddCtrlItem(EvtCommand* pevt, wxMenu* menu);
+
+	virtual wxWindow* GetWindow(){return this;}
+
+	bool StdExecute(IStdParam& cmd);
+
+protected:
+
+	class IEW_WxCtrlData_tool : public IEW_CtrlData
+	{
+	public:
+		IEW_WxCtrlData_tool(EvtCommand* pevt_, IAuiToolItemPtr item_) :IEW_CtrlData(pevt_), item(item_){}
+		IAuiToolItemPtr item;
+		IEW_AuiTBarImpl* tbar;
+		void UpdateCtrl();
+		void UpdateBmps();
+	};
+
+protected:
+	void InitToolItem(EvtCommand* pevt, IAuiToolItemPtr item);
+
 };
 
 EW_LEAVE

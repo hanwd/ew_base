@@ -97,13 +97,13 @@ public:
 	{
 		if(cmd.param1==1)
 		{
-			Target.insert(cmd.extra);
+			Target.insert(cmd.extra1);
 			UpdateCtrl();
 			return true;
 		}
 		else if(cmd.param1==-1)
 		{
-			Target.remove(cmd.extra);
+			Target.remove(cmd.extra1);
 			UpdateCtrl();
 			return true;
 		}
@@ -153,7 +153,7 @@ bool PluginHistoryFiles::OnAttach()
 
 bool PluginHistoryFiles::OnCfgEvent(int lv)
 {
-	wm.app.conf.CfgUpdate(lv,"/basic/history_size",nHistorySize,1,40);
+	wm.conf.CfgUpdate(lv,"/basic/history_size",nHistorySize,1,40);
 
 	if(lv>0 && aHistoryFiles.size()>(size_t)nHistorySize)
 	{
@@ -161,7 +161,7 @@ bool PluginHistoryFiles::OnCfgEvent(int lv)
 			wm.wup.gp_add("HistoryFiles");
 	}
 
-	wm.app.conf.CfgUpdate(lv, "/basic/history_files", aHistoryFiles);
+	wm.conf.CfgUpdate(lv, "/basic/history_files", aHistoryFiles);
 
 	return true;
 }

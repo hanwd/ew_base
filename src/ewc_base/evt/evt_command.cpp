@@ -20,12 +20,14 @@ IEW_CtrlData::~IEW_CtrlData()
 	pevt->m_setAttachedControls.erase(this);
 }
 
-void EvtCommand::_ensure_bmp_param()
+
+const BitmapBundle& EvtCommand::GetBundle(int w,int t)
 {
 	if (!m_bmpParam)
 	{
 		m_bmpParam=ResManager::current().icons.get(m_sId);
 	}
+	return m_bmpParam.GetBundle(w,t);
 }
 
 bool EvtCommandFunctor::CmdExecute(ICmdParam& cmd)
@@ -81,28 +83,9 @@ String EvtCommand::MakeLabel(int hint) const
 	return txt;
 }
 
-IToolItemPtr EvtCommand::CreateToolItem(IEW_TBarImpl* tb)
+void EvtCommand::CreateCtrlItem(IEW_Ctrl* pctrl)
 {
-	if(flags.get(FLAG_SEPARATOR))
-	{
-		tb->AddSeparator();
-		return NULL;
-	}
-
-	_ensure_bmp_param();
-	return tb->AddToolItem(this);
-
-}
-
-IMenuItemPtr EvtCommand::CreateMenuItem(IEW_MenuImpl* mu)
-{
-	if(flags.get(FLAG_SEPARATOR))
-	{
-		mu->AppendSeparator();
-		return NULL;
-	}
-	_ensure_bmp_param();
-	return mu->AddMenuItem(this);
+	pctrl->AddCtrlItem(this);
 }
 
 void EvtCommand::DoUpdateCtrl(IUpdParam& upd)
@@ -204,7 +187,10 @@ void EvtCommandWindow::SetWindow(wxWindow* w)
 }
 
 
-EvtCommandCtrl::EvtCommandCtrl(const String& id,const String& type,const WndProperty& w):basetype(id),m_sCtrlType(type),wp(w)
+EvtCommandCtrl::EvtCommandCtrl(const String& id,const String& type,const WndProperty& w)
+	:basetype(id)
+	,m_sCtrlType(type)
+	,wp(w)
 {
 
 }
@@ -228,36 +214,44 @@ void EvtCommandCtrl::DoUpdateCtrl(IUpdParam& upd)
 	basetype::DoUpdateCtrl(upd);
 }
 
-EvtCommandExtraWindow::EvtCommandExtraWindow(const String& id,const String& type,int h,const WndProperty& w):EvtCommandCtrl(id,type,w)
+EvtCommandExtraWindow::EvtCommandExtraWindow(const String& id,const String& type,int h,const WndProperty& w)
+	:EvtCommandCtrl(id,type,w)
 {
 	StdExecuteEx(h);
 }
 
-IToolItemPtr EvtCommandCtrl::CreateToolItem(IEW_TBarImpl* tb)
+void EvtCommandCtrl::CreateCtrlItem(IEW_Ctrl* pctrl)
 {
 	if(m_pWindow)
 	{
-		return NULL;
+		return;
 	}
 
-	wxWindow* pwin=WndInfoManger::current().Create(m_sCtrlType,tb,wp);
-	if(!pwin) return NULL;
+	wxWindow* parent=pctrl->GetWindow();
+	if(!parent)
+	{
+		return;
+	}
+
+	//wp.height(tb->GetToolBitmapSize().y);
+	wxWindow* pwin=WndInfoManger::current().Create(m_sCtrlType,parent,wp);
+	if(!pwin) 
+	{
+		System::LogMessage("cannot create toolctrl %s",m_sCtrlType);
+		return;
+	}
 
 	wxControl* ctrl=dynamic_cast<wxControl*>(pwin);
 	if(!ctrl)
 	{
 		delete pwin;
-		return NULL;
 	}
 
-	IToolItemPtr item = tb->AddToolItem(this, ctrl);
-
-	CreateValidator(ctrl);
-
+	pctrl->AddCtrlItem(this, ctrl);
+	
 	m_pWindow=pwin;
-
-	return item;
 }
+
 
 IWindowPtr EvtCommandCtrl::CreateWndsItem(IWindowPtr pw)
 {
@@ -270,7 +264,6 @@ IWindowPtr EvtCommandCtrl::CreateWndsItem(IWindowPtr pw)
 	{
 		pw=WndModel::current().GetWindow();
 	}
-
 	
 	wxWindow* pwin=WndInfoManger::current().Create(m_sCtrlType,pw,wp);
 	if(!pwin) return NULL;
@@ -292,12 +285,12 @@ bool EvtCommandText::DoStdExecute(IStdParam& cmd)
 {
 	if(cmd.param1<=0)
 	{
-		value=cmd.extra;
+		value=cmd.extra1;
 		return WndExecuteEx(IDefs::ACTION_TRANSFER2WINDOW);
 	}
 	else if(WndExecuteEx(IDefs::ACTION_TRANSFER2MODEL))
 	{
-		cmd.extra=value;
+		cmd.extra1=value;
 		return true;
 	}
 	else
@@ -329,12 +322,14 @@ bool EvtCommandText::DoWndExecute(IWndParam& cmd)
 	return true;
 }
 
-EvtCommandWindow::EvtCommandWindow(wxWindow* pw):basetype(wx2str(pw->GetName()))
+EvtCommandWindow::EvtCommandWindow(wxWindow* pw)
+	:basetype(wx2str(pw->GetName()))
 {
 	SetWindow(pw);
 }
 
-EvtCommandWindow::EvtCommandWindow(const String& s,wxWindow* w):basetype(s)
+EvtCommandWindow::EvtCommandWindow(const String& s,wxWindow* w)
+	:basetype(s)
 {
 	SetWindow(w);
 }
@@ -349,7 +344,8 @@ void EvtCommandWindow::DoUpdateCtrl(IUpdParam& upd)
 	EvtCommand::DoUpdateCtrl(upd);
 }
 
-EvtCommandWindowSharedBook::EvtCommandWindowSharedBook(const String& n):EvtCommandWindow(n)
+EvtCommandWindowSharedBook::EvtCommandWindowSharedBook(const String& n)
+	:EvtCommandWindow(n)
 {
 	IWindowPtr p=WndModel::current().GetWindow();
 	if(p)
@@ -418,7 +414,8 @@ EvtCommandShowModel::EvtCommandShowModel(const String& s,WndModel* p)
 	_DoSetModel(p);
 }
 
-EvtCommandShowModel::EvtCommandShowModel(const String& s,const String& p):basetype(s)
+EvtCommandShowModel::EvtCommandShowModel(const String& s,const String& p)
+	:basetype(s)
 {
 	_DoSetModel(dynamic_cast<WndModel*>(WndManager::current().evtmgr.get(p)));
 }
@@ -461,7 +458,8 @@ public:
 	}
 };
 
-EvtCommandTimer::EvtCommandTimer(const String& s):EvtCommand(s)
+EvtCommandTimer::EvtCommandTimer(const String& s)
+	:EvtCommand(s)
 {
 	AttachEvent("CloseFrame");
 }
@@ -498,6 +496,17 @@ bool EvtCommandTimer::DoStdExecute(IStdParam& cmd)
 		ptimer->Start(cmd.param1,false);
 	}
 	return true;
+}
+
+
+IEW_Ctrl::IEW_Ctrl(EvtGroup* p):m_pGroup(p)
+{
+	if(m_pGroup) m_pGroup->m_aCtrls.insert(this);
+}
+
+IEW_Ctrl::~IEW_Ctrl()
+{
+	if(m_pGroup) m_pGroup->m_aCtrls.erase(this);
 }
 
 EW_LEAVE

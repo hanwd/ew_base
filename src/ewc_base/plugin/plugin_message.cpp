@@ -314,9 +314,9 @@ public:
 		WndMaker km(this);
 		km.row();
 			km.col(WndProperty().flags(IDefs::IWND_EXPAND));
-				km.add(ec["tb.MsgLevel"].cast_group()->CreateTbar(this,16),WndProperty());
+				km.add(ec["tb.MsgLevel"].cast_group()->CreateCtrl(this,16,"toolbar"),WndProperty());
 				km.add("space",WndProperty().propotion(1));
-				km.add(ec["tb.MsgSearch"].cast_group()->CreateTbar(this,16),WndProperty());
+				km.add(ec["tb.MsgSearch"].cast_group()->CreateCtrl(this,16,"toolbar"),WndProperty());
 			km.end();
 			km.add(m_pDataView=new IMessageDataView(this),WndProperty().propotion(1).flags(IDefs::IWND_EXPAND));
 		km.end();

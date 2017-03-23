@@ -3,6 +3,7 @@
 #include "ewc_base/evt/evt_manager.h"
 
 #include <wx/toolbar.h>
+#include <wx/aui/auibar.h>
 
 EW_ENTER
 
@@ -50,10 +51,9 @@ void WndUpdator::tb_add(const String& s,int f)
 	if(!pg) return;
 
 	pg->flags.add(f);
-	wxToolBar* tb=pg->CreateTbar(wm.model.GetWindow());
+	wxWindow* tb=pg->CreateCtrl(wm.model.GetWindow(),-1,wm.data.toolbar_type);
 	if(!tb) return;
 	
-
 	pg->flags.del(EvtCommand::FLAG_DOTDOT);
 	pg->flags.add(EvtCommand::FLAG_CHECK);
 	pg->flags.set(EvtCommand::FLAG_CHECKED,tb->IsShown());

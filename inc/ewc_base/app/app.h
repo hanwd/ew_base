@@ -13,14 +13,13 @@
 
 EW_ENTER
 
+
 class DLLIMPEXP_EWC_BASE App : public NonCopyable
 {
 public:
 
 	App(int argc=0,char** argv=NULL);
 	~App();
-
-	AppConfig conf;
 
 	static App& current();
 

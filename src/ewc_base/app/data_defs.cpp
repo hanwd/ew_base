@@ -2,11 +2,6 @@
 
 EW_ENTER
 
-IDat_wndconfig::IDat_wndconfig()
-{
-	bmp_menu_size=16;
-	bmp_tool_size=24;
-}
 
 
 IDat_search::IDat_search()
@@ -18,6 +13,13 @@ IDat_search& IDat_search::current()
 {
 	static IDat_search gInstance;
 	return gInstance;
+}
+
+AppData::AppData()
+{
+	toolbitmap_size=24;
+	menubitmap_size=16;
+	toolbar_type="aui_bar";
 }
 
 

@@ -1,12 +1,8 @@
 #include "ewc_base/app/app_config.h"
 #include "ewc_base/app/app.h"
 
-#include "wx/app.h"
-#include "ewc_base/wnd/impl_wx/window.h"
 
 EW_ENTER
-
-
 
 bool AppConfig::Load(const String& s)
 {

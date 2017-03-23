@@ -390,11 +390,11 @@ bool PluginTextEditor::OnAttach()
 
 bool PluginTextEditor::OnCfgEvent(int lv)
 {
-	wm.app.conf.CfgUpdate(lv,"/texteditor/fontsize",IWnd_stc::ms_param.nsize,3,40);
-	wm.app.conf.CfgUpdate(lv,"/texteditor/tab_size",IWnd_stc::ms_param.wdtab,1,12);
+	wm.conf.CfgUpdate(lv,"/texteditor/fontsize",IWnd_stc::ms_param.nsize,3,40);
+	wm.conf.CfgUpdate(lv,"/texteditor/tab_size",IWnd_stc::ms_param.wdtab,1,12);
 
-	wm.app.conf.CfgUpdate(lv,"/texteditor/fold",IWnd_stc::ms_param.flags,IWnd_stc::FLAG_FOLD);
-	wm.app.conf.CfgUpdate(lv,"/texteditor/wrap",IWnd_stc::ms_param.flags,IWnd_stc::FLAG_WRAPMODE);
+	wm.conf.CfgUpdate(lv,"/texteditor/fold",IWnd_stc::ms_param.flags,IWnd_stc::FLAG_FOLD);
+	wm.conf.CfgUpdate(lv,"/texteditor/wrap",IWnd_stc::ms_param.flags,IWnd_stc::FLAG_WRAPMODE);
 
 	return true;
 }

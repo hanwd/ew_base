@@ -5,17 +5,6 @@
 
 EW_ENTER
 
-class DLLIMPEXP_EWC_BASE IDat_wndconfig
-{
-public:
-
-	int bmp_menu_size;
-	int bmp_tool_size;
-
-	IDat_wndconfig();
-
-};
-
 
 class DLLIMPEXP_EWC_BASE IDat_search
 {
@@ -31,6 +20,15 @@ public:
 
 };
 
+class DLLIMPEXP_EWC_BASE AppData
+{
+public:
+	AppData();
+
+	int toolbitmap_size;
+	int menubitmap_size;
+	String toolbar_type;
+};
 
 
 class DLLIMPEXP_EWC_BASE IWndParam
@@ -57,16 +55,17 @@ class DLLIMPEXP_EWC_BASE IStdParam
 public:
 
 	IStdParam(int p1=-1,int p2=-1):param1(p1),param2(p2){}
-	IStdParam(const String& s1,int p1=-1,int p2=-1):param1(p1),param2(p2),extra(s1){}
+	IStdParam(const String& s1,int p1=-1,int p2=-1):param1(p1),param2(p2),extra1(s1){}
 	IStdParam(EvtBase* evt,int p1=-1,int p2=-1,wxWindow* pw=NULL):param1(p1),param2(p2),evtptr(evt),wndptr(pw){}
-	IStdParam(EvtBase* evt,const String& s1,int p1=-1,int p2=-1,wxWindow* pw=NULL):param1(p1),param2(p2),extra(s1),evtptr(evt),wndptr(pw){}
+	IStdParam(EvtBase* evt,const String& s1,int p1=-1,int p2=-1,wxWindow* pw=NULL):param1(p1),param2(p2),extra1(s1),evtptr(evt),wndptr(pw){}
 
 	BitFlags flags;
 
 	intptr_t param1;
 	intptr_t param2;
 
-	String extra;
+	String extra1;
+	String extra2;
 
 	LitePtrT<EvtBase> evtptr;
 	LitePtrT<wxWindow> wndptr;

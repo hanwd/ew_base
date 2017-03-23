@@ -38,15 +38,24 @@ class wxSizer;
 class wxVariant;
 class wxIconBundle;
 class wxImageList;
+class wxAuiToolBar;
+class wxAuiToolBarItem;
+class wxControl;
 
 EW_ENTER
 
 typedef wxWindow* IWindowPtr;
 typedef wxBitmap* IBitmapPtr;
-typedef wxMenuItem* IMenuItemPtr;
-typedef wxToolBarToolBase* IToolItemPtr;
-typedef wxMenu* IMenuPtr;
+
 typedef wxToolBar* ITbarPtr;
+typedef wxToolBarToolBase* IToolItemPtr;
+
+typedef wxAuiToolBar* IAuiTbarPtr;
+typedef wxAuiToolBarItem* IAuiToolItemPtr;
+
+typedef wxMenu* IMenuPtr;
+typedef wxMenuItem* IMenuItemPtr;
+
 typedef wxSizer* ISizerPtr;
 
 
@@ -68,6 +77,7 @@ class DLLIMPEXP_EWC_BASE ResManager;
 
 class DLLIMPEXP_EWC_BASE IEW_MenuImpl;
 class DLLIMPEXP_EWC_BASE IEW_TBarImpl;
+class DLLIMPEXP_EWC_BASE IEW_AuiTBarImpl;
 
 class DLLIMPEXP_EWC_BASE Plugin;
 class DLLIMPEXP_EWC_BASE PluginManager;

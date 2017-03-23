@@ -3,130 +3,10 @@
 #include "ewc_base/app/res_manager.h"
 #include "ewc_base/wnd/impl_wx/impl_wx.h"
 #include <wx/artprov.h>
+#include <wx/aui/auibar.h>
 
 EW_ENTER
 
-template<typename A>
-class serial_helper_test<A,wxBitmap>
-{
-public:
-	typedef wxBitmap type;
-
-	static void g(SerializerReader& ar,type& val)
-	{
-		int32_t nx=-1,ny=-1,na=0;
-		ar & nx & ny;
-		if(nx<0||ny<0)
-		{
-			val=wxNullBitmap;
-			return;
-		}
-
-		ar & na;
-		wxImage img(nx,ny);
-
-		ar.recv((char*)img.GetData(),nx*ny*3);
-		if(na)
-		{
-			img.InitAlpha();
-			ar.recv((char*)img.GetAlpha(),nx*ny);
-		}	
-
-		val=wxBitmap(img);
-	}
-
-	static void g(SerializerWriter& ar,type& val)
-	{
-		int32_t nx=-1,ny=-1,na=0;
-		if(!val.IsOk())
-		{
-			ar & nx & ny;
-			return;
-		}
-		wxImage img(val.ConvertToImage());
-		nx=img.GetWidth();
-		ny=img.GetHeight();
-		na=img.HasAlpha();
-
-		ar & nx & ny & na;
-		ar.send((const char*)img.GetData(),nx*ny*3);
-		if(na)
-		{
-			ar.send((const char*)img.GetAlpha(),nx*ny);
-		}
-
-	}
-};
-
-class BitmapBundle
-{
-public:
-	enum
-	{
-		FLAG_SCALED	=1<<0,
-	};
-
-	void set(const wxBitmap& bmp,int w=-1)
-	{
-		if(!bmp.IsOk()) return;
-		if(w<0||bmp.GetHeight()==w)
-		{
-			bmp_normal=bmp;
-			flags.del(FLAG_SCALED);
-		}
-		else
-		{
-			bmp_normal=wxBitmap(bmp.ConvertToImage().Scale(w,w));
-			flags.add(FLAG_SCALED);
-		}
-
-		update_disabled();
-	}
-
-	void update_disabled()
-	{
-		wxImage image=bmp_normal.ConvertToImage();
-		bmp_disabled=wxBitmap(image.ConvertToGreyscale().ConvertToDisabled(255));
-	}
-
-	bool update(const wxBitmap& bmp,int w)
-	{
-		if(bmp_normal.IsOk()) return true;
-		if(!bmp.IsOk()) return false;
-		set(bmp,w);
-		return true;
-	}
-
-	bool IsOk()
-	{
-		return bmp_normal.IsOk();
-	}
-
-	wxBitmap bmp_normal;
-	wxBitmap bmp_disabled;
-	BitFlags flags;
-
-	void Serialize(Serializer& ar)
-	{
-		ar & flags;
-
-		if(ar.is_reader() && flags.get(FLAG_SCALED))
-		{
-			bmp_normal=wxNullBitmap;
-			bmp_disabled=wxNullBitmap;
-			return;
-		}
-		
-		if(ar.is_writer() && flags.get(FLAG_SCALED))
-		{
-			return;
-		}
-
-		ar & bmp_normal;
-		ar & bmp_disabled;
-
-	}
-};
 
 
 class CallableBitmap : public CallableData
@@ -152,37 +32,53 @@ public:
 
 	wxBitmap& GetBitmap(int w=-1);
 
-	bool update(IToolItemPtr item)
-	{
-		wxToolBarBase* tb=item->GetToolBar();
-		wxSize sz=tb->GetToolBitmapSize();
+	//bool update(IToolItemPtr item)
+	//{
+	//	wxToolBarBase* tb=item->GetToolBar();
+	//	wxSize sz=tb->GetToolBitmapSize();
 
-		BitmapBundle& bundle(GetBundle(sz.y));
-		if(!bundle.IsOk())
-		{
-			return false;
-		}
+	//	BitmapBundle& bundle(GetBundle(sz.y));
+	//	if(!bundle.IsOk())
+	//	{
+	//		return false;
+	//	}
 
-		item->SetNormalBitmap(bundle.bmp_normal);
-		item->SetDisabledBitmap(bundle.bmp_disabled);
-		return true;
-	
-	}
+	//	item->SetNormalBitmap(bundle.bmp_normal);
+	//	item->SetDisabledBitmap(bundle.bmp_disabled);
+	//	return true;
+	//
+	//}
 
-	bool update(IMenuItemPtr item)
-	{
-		if(item->IsCheckable()) return true;
+	//bool update(IAuiToolItemPtr item)
+	//{
 
-		BitmapBundle& bundle(GetBundle(16));
-		if(!bundle.IsOk())
-		{
-			return true;
-		}
+	//	BitmapBundle& bundle(GetBundle(24));
+	//	if(!bundle.IsOk())
+	//	{
+	//		return false;
+	//	}
 
-		item->SetBitmap(bundle.bmp_normal);
-		item->SetDisabledBitmap(bundle.bmp_disabled);
-		return true;
-	}
+	//	item->SetBitmap(bundle.bmp_normal);
+	//	item->SetDisabledBitmap(bundle.bmp_disabled);
+
+	//	return true;
+	//
+	//}
+
+	//bool update(IMenuItemPtr item)
+	//{
+	//	if(item->IsCheckable()) return true;
+
+	//	BitmapBundle& bundle(GetBundle(16));
+	//	if(!bundle.IsOk())
+	//	{
+	//		return true;
+	//	}
+
+	//	item->SetBitmap(bundle.bmp_normal);
+	//	item->SetDisabledBitmap(bundle.bmp_disabled);
+	//	return true;
+	//}
 
 
 	static const wxBitmap& null_bitmap()
@@ -468,24 +364,54 @@ void BitmapHolder::AddBitmap(const wxBitmap& bmp)
 	CallableBitmap* p=(CallableBitmap*)m_refData.get();
 	return p->AddBitmap(bmp);
 }
+//
+//bool BitmapHolder::update(IToolItemPtr toolitem) const
+//{
+//	CallableBitmap* hcb = (CallableBitmap*)m_refData.get();
+//	if (hcb && hcb->update(toolitem)) return true;
+//
+//	hcb=(CallableBitmap*)ResManager::current().bmp_missing.GetData();
+//	if (hcb && hcb->update(toolitem)) return true;
+//
+//	return false;
+//}
 
-bool BitmapHolder::update(IToolItemPtr toolitem) const
+const BitmapBundle& BitmapHolder::GetBundle(int w,int t) const
 {
 	CallableBitmap* hcb = (CallableBitmap*)m_refData.get();
-	if (hcb && hcb->update(toolitem)) return true;
+	if (hcb)
+	{
+		BitmapBundle& bundle(hcb->GetBundle(w));
+		if(bundle.IsOk()) return bundle;
+	}
 
-	hcb=(CallableBitmap*)ResManager::current().bmp_missing.GetData();
-	if (hcb && hcb->update(toolitem)) return true;
+	if(t==0)
+	{
+		static BitmapBundle bundle;
+		return bundle;
+	}
 
-	return false;
+	return ((CallableBitmap*)ResManager::current().bmp_missing.GetData())->GetBundle(w);
+
 }
 
-bool BitmapHolder::update(IMenuItemPtr menuitem) const
-{
-	CallableBitmap* p=(CallableBitmap*)m_refData.get();
-	if(!p) return false;
-	return p->update(menuitem);
-}
+//bool BitmapHolder::update(IAuiToolItemPtr toolitem) const
+//{
+//	CallableBitmap* hcb = (CallableBitmap*)m_refData.get();
+//	if (hcb && hcb->update(toolitem)) return true;
+//
+//	hcb=(CallableBitmap*)ResManager::current().bmp_missing.GetData();
+//	if (hcb && hcb->update(toolitem)) return true;
+//
+//	return false;
+//}
+//
+//bool BitmapHolder::update(IMenuItemPtr menuitem) const
+//{
+//	CallableBitmap* p=(CallableBitmap*)m_refData.get();
+//	if(!p) return false;
+//	return p->update(menuitem);
+//}
 
 
 

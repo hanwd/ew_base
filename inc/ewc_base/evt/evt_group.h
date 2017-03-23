@@ -11,6 +11,7 @@ class DLLIMPEXP_EWC_BASE EvtGroup  : public ObjectGroupT<EvtCommand,EvtCommandWi
 public:
 	typedef ObjectGroupT<EvtCommand,EvtCommandWindow> basetype;
 
+	friend class IEW_Ctrl;
 	friend class IEW_TBarImpl;
 	friend class IEW_MenuImpl;
 
@@ -19,13 +20,10 @@ public:
 	virtual void DoUpdateCtrl(IUpdParam& upd);
 	virtual void PrepareItems();
 
-	virtual IToolItemPtr CreateToolItem(IEW_TBarImpl* tb);
-	virtual IMenuItemPtr CreateMenuItem(IEW_MenuImpl* mu);
+	virtual void CreateCtrlItem(IEW_Ctrl* pctrl);
 
 	IMenuPtr CreateMenu(IEW_MenuImpl* mu=NULL,bool prepare=true);
-	ITbarPtr CreateTbar(IWindowPtr pw,int wd=-1);
-
-	static void ClearMenu(wxMenu* mu);
+	IWindowPtr CreateCtrl(IWindowPtr pw,int wd=-1,const String& type="");
 
 	virtual EvtGroup* cast_group(){return this;}
 
@@ -44,8 +42,7 @@ public:
 
 protected:
 
-	bst_set<IEW_TBarImpl*> m_aSubTbars;
-	bst_set<IEW_MenuImpl*> m_aSubMenus;
+	bst_set<IEW_Ctrl*> m_aCtrls;
 	arr_1t<EvtItem> m_aItems;
 
 	void DoPrepareItems(const arr_1t<EvtItem>& a);

@@ -12,22 +12,45 @@ EW_ENTER
 
 class DLLIMPEXP_EWC_BASE IWnd_bookbase;
 
-class IEW_TBarImpl;
-class IEW_MenuImpl;
-
-class DLLIMPEXP_EWC_BASE IEW_CtrlData : public Object
+class DLLIMPEXP_EWC_BASE IEW_CtrlData : public ObjectData
 {
 public:
-
 
 	IEW_CtrlData(EvtCommand* p);
 	~IEW_CtrlData();
 
 	virtual void UpdateCtrl(){}
+	virtual void UpdateBmps(){}
 
 protected:
 	DataPtrT<EvtCommand> pevt;
 
+};
+
+class DLLIMPEXP_EWC_BASE IEW_Ctrl : public Object
+{
+public:
+
+	IEW_Ctrl(EvtGroup* p=NULL);
+	~IEW_Ctrl();
+
+	virtual bool StdExecute(IStdParam&){return true;}
+
+	virtual void AddCtrlItem(EvtCommand* pevt){}
+	virtual void AddCtrlItem(EvtCommand* pevt, wxControl* p){}
+	virtual void AddCtrlItem(EvtCommand* pevt, wxMenu* menu){}
+
+	virtual wxWindow* GetWindow(){return NULL;}
+
+	bool StdExecuteEx(const String& func)
+	{
+		IStdParam cmd(func);
+		return StdExecute(cmd);
+	}
+
+protected:
+	ObjectGroupT<IEW_CtrlData> m_aItems;
+	DataPtrT<EvtGroup> m_pGroup;
 };
 
 
@@ -35,8 +58,6 @@ class DLLIMPEXP_EWC_BASE EvtCommand  : public EvtBase
 {
 public:
 
-	friend class IEW_TBarImpl;
-	friend class IEW_MenuImpl;
 	friend class IEW_CtrlData;
 
 	String m_sText;
@@ -90,9 +111,7 @@ public:
 
 	virtual String MakeLabel(int hint=LABEL_TOOL) const;
 
-	virtual IToolItemPtr CreateToolItem(IEW_TBarImpl* tb);
-	virtual IMenuItemPtr CreateMenuItem(IEW_MenuImpl* mu);
-
+	virtual void CreateCtrlItem(IEW_Ctrl* pctrl);
 	virtual IWindowPtr CreateWndsItem(IWindowPtr pw);
 	virtual Validator* CreateValidator(wxWindow*);
 
@@ -100,9 +119,9 @@ public:
 
 	virtual EvtCommand* cast_command(){return this;}
 
-protected:
+	const BitmapBundle& GetBundle(int w,int t);
 
-	void _ensure_bmp_param();
+protected:
 
 	bst_set<IEW_CtrlData*> m_setAttachedControls;
 	BitmapHolder m_bmpParam;
@@ -145,7 +164,8 @@ public:
 
 	EvtCommandCtrl(const String& id,const String& type,const WndProperty& w=WndProperty());
 
-	virtual IToolItemPtr CreateToolItem(IEW_TBarImpl* tb);
+
+	void CreateCtrlItem(IEW_Ctrl* pctrl);
 
 	virtual IWindowPtr CreateWndsItem(IWindowPtr pw);
 	Validator* CreateValidator(wxWindow*);

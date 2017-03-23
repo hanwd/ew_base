@@ -129,7 +129,7 @@ public:
 
 	bool StdExecute(IStdParam& cmd)
 	{
-		GetWindow()->SetStatusTextEx(cmd.extra,cmd.param1);
+		GetWindow()->SetStatusTextEx(cmd.extra1,cmd.param1);
 		return true;
 	}
 

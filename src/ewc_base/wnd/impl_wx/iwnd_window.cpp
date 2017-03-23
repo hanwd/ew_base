@@ -5,6 +5,8 @@
 #include "ewc_base/wnd/impl_wx/topwindow.h"
 #include "ewc_base/wnd/wnd_model.h"
 
+#include "../../evt/evt_ctrlimpl.h"
+
 EW_ENTER
 
 
@@ -71,6 +73,38 @@ void IWnd_topwindow<T>::OnActivate(wxActivateEvent &evt)
 		m_pModelTop->wm.Activate();
 	}
 	evt.Skip(true);
+}
+
+
+template<typename T>
+void IWnd_topwindow<T>::OnDropDown(wxAuiToolBarEvent& evt)
+{
+    if (!evt.IsDropDownClicked())
+    {
+		OnCommandEvent(evt);
+		return;
+	}
+
+	int evtid=evt.GetId();
+	if(EvtBase* pevt=m_pModel->local_evtmgr.chained_get(evtid))
+	{
+		wxAuiToolBar* tb = static_cast<wxAuiToolBar*>(evt.GetEventObject());
+		tb->SetToolSticky(evtid, true);
+
+		IEW_MenuImpl menuPopup;
+		pevt->CreateMenu(&menuPopup);
+
+		// line up our menu with the button
+		wxRect rect = tb->GetToolRect(evtid);
+		wxPoint pt = tb->ClientToScreen(rect.GetBottomLeft());
+		pt = ScreenToClient(pt);
+
+		PopupMenu(&menuPopup, pt);
+		tb->SetToolSticky(evtid, false);
+
+	}
+
+
 }
 
 
@@ -155,6 +189,8 @@ IWnd_topwindow<T>::IWnd_topwindow(wxWindow* w,const WndPropertyEx& h,int f)
 	this->Connect(wxID_ANY,wxEVT_TOOL,wxCommandEventHandler(IWnd_topwindow::OnCommandEvent));
 	this->Connect(wxID_ANY,wxEVT_CLOSE_WINDOW,wxEVT_CLOSE_WINDOW,wxCloseEventHandler(IWnd_topwindow::OnCloseFrame));
 	this->Connect(wxID_ANY,wxEVT_ACTIVATE,wxActivateEventHandler(IWnd_topwindow::OnActivate));
+
+	this->Connect(wxID_ANY,wxEVT_AUITOOLBAR_TOOL_DROPDOWN, wxAuiToolBarEventHandler(IWnd_topwindow::OnDropDown));
 
 }
 

@@ -61,8 +61,9 @@ public:
 
 	Language& lang;
 
-	IDat_wndconfig conf;
+	AppConfig conf;
 
+	AppData data;
 
 	WndManager();
 	~WndManager();

@@ -6,6 +6,7 @@
 EW_ENTER
 
 class CallableBitmapGroup;
+class BitmapBundle;
 
 class DLLIMPEXP_EWC_BASE BitmapHolder
 {
@@ -23,11 +24,13 @@ public:
 
 	void AddBitmap(const wxBitmap& bmp);
 
-	bool update(IToolItemPtr toolitem) const;
-	bool update(IMenuItemPtr menuitem) const;
+
 	bool update(wxIconBundle& iconbundle) const;
 
 	const wxBitmap& GetBitmap(int w=-1) const;
+
+	const BitmapBundle& GetBundle(int w,int t) const;
+
 
 	void Serialize(Serializer& ar);
 

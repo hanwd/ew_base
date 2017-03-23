@@ -8,6 +8,7 @@
 EW_ENTER
 
 class DLLIMPEXP_EWC_BASE IUpdParam;
+class IEW_Ctrl;
 
 class DLLIMPEXP_EWC_BASE IValueOptionData : public ObjectData
 {
@@ -143,20 +144,17 @@ public:
 	virtual EvtGroup* cast_group(){return NULL;}
 
 	// 创建关联的工具，菜单，或窗口。
-	virtual IToolItemPtr CreateToolItem(ITbarPtr){return NULL;}
-	virtual IMenuItemPtr CreateMenuItem(IMenuPtr){return NULL;}
-	virtual IWindowPtr CreateWndsItem(IWindowPtr){return NULL;}
 
-	//virtual void UpdateMenuItem(IMenuItemPtr){}
-	//virtual void UpdateToolItem(IToolItemPtr){}
+	virtual void CreateCtrlItem(IEW_Ctrl* pctrl){}
+
+	virtual IWindowPtr CreateWndsItem(IWindowPtr){return NULL;}
 
 	virtual EvtGroup* CreateGroup(const String&){return NULL;}
 
 	virtual wxWindow* GetWindow(){return NULL;}
 
-
 	virtual IMenuPtr CreateMenu(IEW_MenuImpl* mu=NULL,bool prepare=true){return NULL;}
-	virtual ITbarPtr CreateTbar(IWindowPtr pw,int wd=-1){return NULL;}
+	virtual IWindowPtr CreateCtrl(IWindowPtr pw,int wd=-1,const String& type=""){return NULL;}
 
 	virtual bool PopupMenu(IWindowPtr pw=NULL);
 

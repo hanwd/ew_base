@@ -88,6 +88,10 @@ public:
 			{
 				amgr.AddPane(w,info.ToolbarPane().Top());
 			}
+			else if(dynamic_cast<wxAuiToolBar*>(w))
+			{
+				amgr.AddPane(w,info.ToolbarPane().Top());
+			}
 			else if(dynamic_cast<wxStatusBar*>(w))
 			{
 				pWindow->SetStatusBar(static_cast<wxStatusBar*>(w));

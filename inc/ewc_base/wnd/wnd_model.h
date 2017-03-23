@@ -32,6 +32,7 @@ public:
 	friend class WndManager;
 	friend class WndMaker;
 
+
 	WndModel(const String& s="");
 	~WndModel();
 
@@ -79,6 +80,8 @@ public:
 	void AttachEvent(const String& s);
 	void DetachEvent(const String& s);
 
+	EvtManager local_evtmgr;
+
 protected:
 
 	virtual bool DoUpdate(WndMaker& km);
@@ -88,10 +91,9 @@ protected:
 
 	virtual bool Create(){return false;}
 
-
 	DataPtrT<ValidatorGroup> vald_grp;
 	DataPtrT<ValidatorTop> vald_top;
-	EvtManager local_evtmgr;
+
 
 	LitePtrT<wxWindow> m_pWindow;
 	LitePtrT<wxWindow> m_pParent;

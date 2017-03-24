@@ -201,13 +201,15 @@ public:
 	}
 };
 
-MvcBook::MvcBook(WndManager& app_):wm(app_)
+MvcBook::MvcBook()
 {
+	WndManager& wm(WndManager::current());
 	m_pViewListener.reset(new EvtListenerCurrentView(wm));
 }
 
 wxAuiNotebook* MvcBook::CreateBook(wxWindow* p)
 {
+	WndManager& wm(WndManager::current());
 	MvcBookImpl* book=new MvcBookImpl(p,wm.evtmgr.id_new(),wm);
 	book->SetName("centerpane");
 	m_pBook.reset(book);
@@ -431,6 +433,7 @@ bool MvcBook::AnyDirty()
 
 void MvcBook::SaveAll()
 {
+	WndManager& wm(WndManager::current());
 	size_t n=m_pBook->GetPageCount();
 	for(size_t i=0;i<n;i++)
 	{
@@ -446,6 +449,8 @@ void MvcBook::SaveAll()
 
 bool MvcBook::CloseAll()
 {
+	WndManager& wm(WndManager::current());
+
 	ICmdParam cmd(-1);
 	LockGuard<WndUpdator> lock(wm.wup);
 

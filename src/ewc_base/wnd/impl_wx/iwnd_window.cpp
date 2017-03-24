@@ -68,10 +68,10 @@ bool IWnd_topwindow<T>::Show(bool f)
 template<typename T>
 void IWnd_topwindow<T>::OnActivate(wxActivateEvent &evt)
 {
-	if(m_pModelTop)
-	{
-		m_pModelTop->wm.Activate();
-	}
+	//if(m_pModelTop)
+	//{
+	//	m_pModelTop->wm.Activate();
+	//}
 	evt.Skip(true);
 }
 
@@ -81,7 +81,7 @@ void IWnd_topwindow<T>::OnDropDown(wxAuiToolBarEvent& evt)
 {
     if (!evt.IsDropDownClicked())
     {
-		OnCommandEvent(evt);
+		evt.Skip();
 		return;
 	}
 

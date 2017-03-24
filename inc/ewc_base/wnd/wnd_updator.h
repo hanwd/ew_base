@@ -7,10 +7,10 @@
 EW_ENTER
 
 
-class DLLIMPEXP_EWC_BASE WndUpdator
+class DLLIMPEXP_EWC_BASE WndUpdator : private NonCopyable
 {
 public:
-	WndUpdator(WndManager& app_);
+	WndUpdator();
 
 	void lock();
 	void unlock();
@@ -29,7 +29,6 @@ public:
 
 protected:
 
-	WndManager& wm;
 
 	void tb_add(const String& s,int f=0);
 	indexer_set<String> m_aUpdate;

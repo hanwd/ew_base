@@ -76,7 +76,7 @@ bool PluginManager::AttachPlugin(Plugin* p)
 	return flag;
 }
 
-PluginManager::PluginManager(WndManager& app_):wm(app_)
+PluginManager::PluginManager()
 {
 
 }

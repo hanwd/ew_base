@@ -36,10 +36,11 @@ public:
 
 	virtual bool StdExecute(IStdParam&){return true;}
 
-	virtual void AddCtrlItem(EvtCommand* pevt){}
-	virtual void AddCtrlItem(EvtCommand* pevt, wxControl* p){}
-	virtual void AddCtrlItem(EvtCommand* pevt, wxMenu* menu){}
+	virtual bool AddCtrlItem(EvtCommand* pevt);
+	virtual bool AddCtrlItem(EvtCommand* pevt, wxControl* p);
+	virtual bool AddCtrlItem(EvtGroup* pevt);
 
+	virtual wxMenu* GetMenu(){ return NULL; }
 	virtual wxWindow* GetWindow(){return NULL;}
 
 	bool StdExecuteEx(const String& func)
@@ -105,7 +106,7 @@ public:
 
 	EvtCommand& radio()
 	{
-		flags.add(FLAG_RADIO);
+		flags.add(FLAG_CHECK|FLAG_RADIO);
 		return *this;
 	}
 
@@ -120,6 +121,8 @@ public:
 	virtual EvtCommand* cast_command(){return this;}
 
 	const BitmapBundle& GetBundle(int w,int t);
+
+	bool DoCmdExecute(ICmdParam&);
 
 protected:
 

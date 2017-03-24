@@ -12,8 +12,6 @@ public:
 	typedef ObjectGroupT<EvtCommand,EvtCommandWindow> basetype;
 
 	friend class IEW_Ctrl;
-	friend class IEW_TBarImpl;
-	friend class IEW_MenuImpl;
 
 	EvtGroup(const String& name="");
 
@@ -46,9 +44,23 @@ protected:
 	arr_1t<EvtItem> m_aItems;
 
 	void DoPrepareItems(const arr_1t<EvtItem>& a);
-	void DoAppendItem(const arr_1t<EvtItem>& a);
+	virtual void DoAppendItem(const arr_1t<EvtItem>& a);
 
 };
+
+class DLLIMPEXP_EWC_BASE EvtRadio : public EvtGroup
+{
+public:
+	typedef EvtGroup basetype;
+	EvtRadio(const String& id);
+
+	EvtGroup* CreateGroup(const String& s){return new EvtRadio(s);}
+
+	virtual void DoUpdateCtrl(IUpdParam& upd);
+	void DoAppendItem(const arr_1t<EvtItem>& a);
+	bool OnCmdEvent(ICmdParam& cmd, int phase);
+};
+
 
 EW_LEAVE
 

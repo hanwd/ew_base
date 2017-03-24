@@ -37,6 +37,7 @@ void WndProperty::reset()
 WndMaker::WndMaker(IWindowPtr t):pwin(NULL)
 {
 	icur.hwnd=t;
+	pevtmgr.reset(&EvtManager::current());
 }
 
 
@@ -175,15 +176,19 @@ void WndMaker::set_model(WndModel* p)
 	pevtmgr.reset(NULL);
 	icur.hwnd=NULL;
 	vald.reset(NULL);
+	ld(0);
 
-	if(!pmodel)
+	if(pmodel)
 	{
-		ld(0);
-		return;
+		pevtmgr.reset(&pmodel->local_evtmgr);
+		icur.hwnd=pmodel->GetParent();
+	}
+	else
+	{
+		pevtmgr.reset(&EvtManager::current());
 	}
 
-	pevtmgr.reset(&pmodel->local_evtmgr);
-	icur.hwnd=pmodel->GetParent();
+
 
 }
 
@@ -346,12 +351,13 @@ WndMaker& WndMaker::end()
 EvtBase* WndMaker::find(const String& s)
 {
 	if(s=="") return NULL;
-	if(pevtmgr)
-	{
-		EvtBase* vp=pevtmgr->get(s);
-		if(vp) return vp;
-	}
-	return EvtManager::current().get(s);
+	return pevtmgr->chained_get(s);
+	//if(pevtmgr)
+	//{
+	//	EvtBase* vp=pevtmgr->get(s);
+	//	if(vp) return vp;
+	//}
+	//return EvtManager::current().get(s);
 }
 
 

@@ -1,6 +1,8 @@
 
 #include "ewc_base/evt/evt_group.h"
 #include "evt_ctrlimpl.h"
+#include "ewc_base/wnd/wnd_manager.h"
+#include "ewc_base/wnd/wnd_updator.h"
 
 EW_ENTER
 
@@ -115,19 +117,14 @@ void EvtGroup::DoPrepareItems(const arr_1t<EvtItem>& items)
 
 void EvtGroup::CreateCtrlItem(IEW_Ctrl* pctrl)
 {
-	if(pctrl->GetWindow())
+	if(pctrl->GetWindow()||!flags.get(FLAG_CHECK))
 	{
-		pctrl->AddCtrlItem(this, this->CreateMenu());
-	}
-	else if(flags.get(FLAG_CHECK))
-	{
-		return EvtCommand::CreateCtrlItem(pctrl);
+		pctrl->AddCtrlItem(this);
 	}
 	else
 	{
-		return pctrl->AddCtrlItem(this, this->CreateMenu());
+		return EvtCommand::CreateCtrlItem(pctrl);
 	}
-
 }
 
 wxMenu* EvtGroup::CreateMenu(IEW_MenuImpl* pctrl,bool prepare)
@@ -244,85 +241,6 @@ IWindowPtr EvtGroup::CreateCtrl(IWindowPtr pw,int wd,const String& type)
 	}
 }
 
-/*
-wxToolBar* EvtGroup::CreateTbar(wxWindow* pw,int wd)
-{
-
-	PrepareItems();
-
-	IEW_TBarImpl* tb=new IEW_TBarImpl(this,pw,wd);
-
-	for(size_t i=0;i<size();i++)
-	{
-		EvtCommand* pCommand=(*this)[i].get();
-		if(pCommand->flags.get(EvtBase::FLAG_HIDE_UI)) continue;
-		if(pCommand->flags.get(EvtBase::FLAG_SEPARATOR)) {tb->AddSeparator();continue;}
-
-		pCommand->CreateToolItem(tb);
-	}
-
-	bool flag=tb->Realize();
-
-	if (!flag)
-	{
-		System::LogMessage("tb realize failed!");
-	}
-
-	if(flags.get(FLAG_HIDE_UI)) tb->Show(false);
-	if(flags.get(FLAG_DISABLE)) tb->Enable(false);
-
-	flags.set(FLAG_CHECKED,!flags.get(FLAG_HIDE_UI));
-
-	tb->SetName(str2wx(m_sId));
-
-	return tb;
-
-}
-
-wxAuiToolBar* EvtGroup::CreateAuiTbar(wxWindow* pw,int wd)
-{
-
-	PrepareItems();
-
-	IEW_AuiTBarImpl* tb=new IEW_AuiTBarImpl(this,pw,wd);
-
-	for(size_t i=0;i<size();i++)
-	{
-		EvtCommand* pCommand=(*this)[i].get();
-		if(pCommand->flags.get(EvtBase::FLAG_HIDE_UI)) continue;
-		if(pCommand->flags.get(EvtBase::FLAG_SEPARATOR)) {tb->AddSeparator();continue;}
-
-		pCommand->CreateAuiToolItem(tb);
-	}
-
-	bool flag=tb->Realize();
-
-	if (!flag)
-	{
-		System::LogMessage("tb realize failed!");
-	}
-
-	if(flags.get(FLAG_HIDE_UI)) tb->Show(false);
-	if(flags.get(FLAG_DISABLE)) tb->Enable(false);
-
-	flags.set(FLAG_CHECKED,!flags.get(FLAG_HIDE_UI));
-
-	tb->SetName(str2wx(m_sId));
-
-	return tb;
-
-}
-*/
-//void EvtGroup::ClearMenu(wxMenu* mu)
-//{
-//	int nc=mu->GetMenuItemCount();
-//	while(--nc>=0)
-//	{
-//		wxMenuItem* mi=mu->FindItemByPosition(0);
-//		mu->Destroy(mi);
-//	}
-//}
-
 bool EvtGroup::CmdExecute(ICmdParam& cmd)
 {
 	if(flags.get(FLAG_RECURSIVE))
@@ -365,6 +283,56 @@ bool EvtGroup::WndExecute(IWndParam& cmd)
 		return true;
 	}
 	return basetype::WndExecute(cmd);
+}
+
+
+EvtRadio::EvtRadio(const String& id) :basetype(id)
+{
+	this->AttachEvent("StartFrame");
+}
+
+void EvtRadio::DoUpdateCtrl(IUpdParam& upd)
+{
+	basetype::DoUpdateCtrl(upd);
+}
+
+void EvtRadio::DoAppendItem(const arr_1t<EvtItem>& a)
+{
+	basetype::DoAppendItem(a);
+	for (size_t i = 0; i < impl.size(); i++)
+	{
+		(*this)[i]->flags.add(FLAG_CHECK|FLAG_RADIO);
+		AttachEvent((*this)[i].get());
+	}
+
+}
+
+bool EvtRadio::OnCmdEvent(ICmdParam& cmd, int phase)
+{
+	if (cmd.evtptr->m_sId == "StartFrame")
+	{
+		if (phase == IDefs::PHASE_PRECALL)
+		{
+			PrepareItems();
+		}
+
+		return true;
+	}
+
+
+	if (!phase == IDefs::PHASE_POSTCALL)
+	{
+		return true;
+	}
+
+	for (size_t i = 0; i < impl.size(); i++)
+	{
+		EvtBase* pevt = (*this)[i].get();
+		pevt->flags.set(FLAG_CHECKED,pevt==cmd.evtptr);
+	}
+
+	WndManager::current().wup.gp_add(m_sId);	
+	return true;
 }
 
 EW_LEAVE

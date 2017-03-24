@@ -38,6 +38,7 @@ bool EvtBase::CmdExecute(ICmdParam& cmd)
 		}
 	}
 
+
 	cmd.flags.set(IDefs::CMD_HANDLED_OK,DoCmdExecute(cmd));
 
 	while(num>0)
@@ -46,7 +47,13 @@ bool EvtBase::CmdExecute(ICmdParam& cmd)
 		lis->OnCmdEvent(cmd,IDefs::PHASE_POSTCALL);
 	}
 
+	if (flags.get(FLAG_CHECK))
+	{
+		this->UpdateCtrl();
+	}
+
 	return cmd.flags.get(IDefs::CMD_HANDLED_OK);
+
 }
 
 bool EvtBase::StdExecute(IStdParam& cmd)

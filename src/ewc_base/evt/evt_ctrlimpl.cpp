@@ -1,6 +1,8 @@
 #include "evt_ctrlimpl.h"
 #include "ewc_base/evt/evt_group.h"
 #include "ewc_base/app/res_manager.h"
+#include "ewc_base/wnd/wnd_manager.h"
+#include "ewc_base/evt/evt_manager.h"
 
 EW_ENTER
 
@@ -17,35 +19,88 @@ IEW_MenuImpl::~IEW_MenuImpl()
 
 }
 
-void IEW_MenuImpl::AddCtrlItem(EvtCommand* pevt, wxMenu* menu)
+
+bool IEW_MenuImpl::StdExecute(IStdParam& cmd)
 {
-	IMenuItemPtr item = new wxMenuItem(this, pevt->m_nId, str2wx(pevt->MakeLabel(EvtBase::LABEL_MENU)));
-	item->SetSubMenu(menu);
-	InitMenuItem(pevt, item);
+	if (cmd.extra1 == "clear")
+	{
+		m_aItems.clear();
+		
+		
+		int nc = this->GetMenuItemCount();
+		while (--nc >= 0)
+		{
+			wxMenuItem* mi = this->FindItemByPosition(0);
+			this->Destroy(mi);
+		}
+	}
+	else if (cmd.extra1 == "update")
+	{
+		m_pGroup->CreateMenu(this, false);
+	}
+	return true;
 }
 
-void IEW_MenuImpl::AddCtrlItem(EvtCommand* pevt)
+
+bool IEW_MenuImpl::AddCtrlItem(EvtGroup* pevt)
+{
+
+	IMenuItemPtr item = new wxMenuItem(this, pevt->m_nId, str2wx(pevt->MakeLabel(EvtBase::LABEL_MENU)));
+	item->SetSubMenu(pevt->CreateMenu());
+
+	this->Append(item);
+	InitMenuItem(pevt, item);
+
+	return true;
+}
+
+bool IEW_MenuImpl::AddCtrlItem(EvtCommand* pevt)
 {
 	if(pevt->flags.get(EvtCommand::FLAG_SEPARATOR))
 	{
 		this->AppendSeparator();
-		return;
+		return true;
 	}
 
-	IMenuItemPtr item = new wxMenuItem(this, pevt->m_nId, str2wx(pevt->MakeLabel(EvtBase::LABEL_MENU)));
+	IMenuItemPtr item = NULL;
+
 	if (pevt->flags.get(EvtCommand::FLAG_CHECK))
 	{
-		item->SetCheckable(true);
+		item = this->AppendCheckItem(pevt->m_nId, str2wx(pevt->MakeLabel(EvtBase::LABEL_MENU)));
+
+		if (pevt->flags.get(EvtBase::FLAG_RADIO))
+		{
+			static const BitmapBundle bundle(ResManager::current().icons.get("IconRadio").GetBundle(16, 0));
+			if (bundle.IsOk())
+			{
+				item->SetBitmap(bundle.bmp_normal);
+			}
+		}
+		else
+		{
+			static const BitmapBundle bundle(ResManager::current().icons.get("IconCheck").GetBundle(16, 0));
+			if (bundle.IsOk())
+			{
+				item->SetBitmap(bundle.bmp_normal);
+			}
+		}
+	}
+	else
+	{
+		item = this->Append(pevt->m_nId, str2wx(pevt->MakeLabel(EvtBase::LABEL_MENU)));
 	}
 
 	InitMenuItem(pevt, item);
-
+	return true;
 }
 
 
 void IEW_MenuImpl::IEW_WxCtrlData_menu::UpdateBmps()
 {
-	if(item->IsCheckable()) return;
+	if (item->IsCheckable())
+	{
+		return;
+	}
 
 	const BitmapBundle& bundle(pevt->GetBundle(16,0));
 	if(!bundle.IsOk())
@@ -86,7 +141,7 @@ void IEW_MenuImpl::InitMenuItem(EvtCommand* pevt, IMenuItemPtr item)
 	m_aItems.append(ctrl);
 
 	ctrl->UpdateBmps();	
-	Append(item);
+	//Append(item);
 	ctrl->UpdateCtrl();
 }
 
@@ -125,24 +180,36 @@ bool IEW_TBarImpl::StdExecute(IStdParam& cmd)
 	return true;
 }
 
-void IEW_TBarImpl::AddCtrlItem(EvtCommand* pevt, wxControl* p)
+bool IEW_TBarImpl::AddCtrlItem(EvtCommand* pevt, wxControl* p)
 {
 	pevt->CreateValidator(p);
 	IToolItemPtr item = wxToolBar::AddControl(p);
 	InitToolItem(pevt, item);
+	return true;
 }
 
-void IEW_TBarImpl::AddCtrlItem(EvtCommand* pevt)
+bool IEW_TBarImpl::AddCtrlItem(EvtCommand* pevt)
 {
-	IToolItemPtr item = wxToolBar::AddTool(pevt->m_nId, str2wx(pevt->MakeLabel()), wxNullBitmap, wxString(), pevt->flags.get(EvtCommand::FLAG_CHECK) ? wxITEM_CHECK : wxITEM_NORMAL);
+	if (pevt->flags.get(EvtCommand::FLAG_SEPARATOR))
+	{
+		this->AddSeparator();
+		return true;
+	}
+
+	wxItemKind kind = wxITEM_NORMAL;
+	if (pevt->flags.get(EvtCommand::FLAG_CHECK)) kind = wxITEM_CHECK;
+
+	IToolItemPtr item = wxToolBar::AddTool(pevt->m_nId, str2wx(pevt->MakeLabel()), wxNullBitmap, wxString(), kind);
 	InitToolItem(pevt, item);
+	return true;
 }
 
-void IEW_TBarImpl::AddCtrlItem(EvtCommand* pevt, wxMenu* menu)
+bool IEW_TBarImpl::AddCtrlItem(EvtGroup* pevt)
 {
 	IToolItemPtr item = wxToolBar::AddTool(pevt->m_nId, str2wx(pevt->MakeLabel()), wxNullBitmap, wxString(), wxITEM_DROPDOWN);
-	item->SetDropdownMenu(menu);
+	item->SetDropdownMenu(pevt->CreateMenu());
 	InitToolItem(pevt, item);
+	return true;
 }
 
 
@@ -214,25 +281,37 @@ IEW_AuiTBarImpl::~IEW_AuiTBarImpl()
 
 }
 
-void IEW_AuiTBarImpl::AddCtrlItem(EvtCommand* pevt, wxControl* p)
+bool IEW_AuiTBarImpl::AddCtrlItem(EvtCommand* pevt, wxControl* p)
 {
 	pevt->CreateValidator(p);
 	IAuiToolItemPtr item = AddControl(p);
 	InitToolItem(pevt, item);
+	return true;
 }
 
-void IEW_AuiTBarImpl::AddCtrlItem(EvtCommand* pevt)
+bool IEW_AuiTBarImpl::AddCtrlItem(EvtCommand* pevt)
 {
-	IAuiToolItemPtr item = AddTool(pevt->m_nId, str2wx(pevt->MakeLabel()), wxNullBitmap, wxString(), pevt->flags.get(EvtCommand::FLAG_CHECK) ? wxITEM_CHECK : wxITEM_NORMAL);
+	if (pevt->flags.get(EvtCommand::FLAG_SEPARATOR))
+	{
+		this->AddSeparator();
+		return true;
+	}
+
+	wxString label = str2wx(pevt->MakeLabel(EvtBase::LABEL_TOOL));
+	wxItemKind kind = wxITEM_NORMAL;
+	if(pevt->flags.get(EvtCommand::FLAG_CHECK)) kind=wxITEM_CHECK;
+
+	IAuiToolItemPtr item = AddTool(pevt->m_nId, label, wxNullBitmap, label, kind);
 	InitToolItem(pevt, item);
+	return true;
 }
 
-void IEW_AuiTBarImpl::AddCtrlItem(EvtCommand* pevt, wxMenu* menu)
+bool IEW_AuiTBarImpl::AddCtrlItem(EvtGroup* pevt)
 {
-	delete menu;
 	IAuiToolItemPtr item = AddTool(pevt->m_nId, str2wx(pevt->MakeLabel()), wxNullBitmap);
 	item->SetHasDropDown(true);
 	InitToolItem(pevt, item);
+	return true;
 }
 
 
@@ -243,8 +322,6 @@ void IEW_AuiTBarImpl::IEW_WxCtrlData_tool::UpdateCtrl()
 		return;
 	}
 
-	//IEW_AuiTBarImpl* tb = (IEW_AuiTBarImpl*)item->GetToolBar();
-	//if (!tb) return;
 
 	item->SetShortHelp(str2wx(pevt->MakeLabel()));
 	item->SetLabel(str2wx(pevt->MakeLabel(EvtBase::LABEL_TOOL)));
@@ -252,9 +329,8 @@ void IEW_AuiTBarImpl::IEW_WxCtrlData_tool::UpdateCtrl()
 
 	if (pevt->flags.get(EvtBase::FLAG_CHECK))
 	{
-		item->SetKind(wxITEM_CHECK);
-		//item->SetToggle(true);
 		tbar->ToggleTool(pevt->m_nId, pevt->flags.get(EvtBase::FLAG_CHECKED));
+		tbar->RefreshRect(tbar->GetToolRect(pevt->m_nId));
 	}
 	tbar->EnableTool(pevt->m_nId, !pevt->flags.get(EvtBase::FLAG_DISABLE | EvtBase::FLAG_HIDE_UI));
 }

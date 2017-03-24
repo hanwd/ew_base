@@ -19,7 +19,7 @@ AppData::AppData()
 {
 	toolbitmap_size=24;
 	menubitmap_size=16;
-	toolbar_type="aui_bar";
+	toolbar_type="toolbar";
 }
 
 

@@ -6,6 +6,8 @@
 #include "ewc_base/evt/evt_manager.h"
 #include "ewc_base/plugin/plugin_manager.h"
 #include "ewc_base/wnd/wnd_model.h"
+#include "ewc_base/wnd/wnd_manager.h"
+#include "ewc_base/wnd/wnd_updator.h"
 
 EW_ENTER
 
@@ -19,6 +21,23 @@ IEW_CtrlData::~IEW_CtrlData()
 {
 	pevt->m_setAttachedControls.erase(this);
 }
+
+bool IEW_Ctrl::AddCtrlItem(EvtCommand*)
+{
+	return false;
+}
+
+bool IEW_Ctrl::AddCtrlItem(EvtCommand*, wxControl*)
+{
+	return false;
+}
+
+bool IEW_Ctrl::AddCtrlItem(EvtGroup*)
+{
+	return false;
+}
+
+
 
 
 const BitmapBundle& EvtCommand::GetBundle(int w,int t)
@@ -40,6 +59,14 @@ bool EvtCommandFunctor::CmdExecute(ICmdParam& cmd)
 	return func(cmd);
 }
 
+bool EvtCommand::DoCmdExecute(ICmdParam& cmd)
+{
+	if (flags.get(FLAG_CHECK))
+	{
+		flags.set(FLAG_CHECKED, cmd.param1 != 0);
+	}
+	return true;
+}
 
 String EvtCommand::MakeLabel(int hint) const
 {
@@ -242,14 +269,17 @@ void EvtCommandCtrl::CreateCtrlItem(IEW_Ctrl* pctrl)
 	}
 
 	wxControl* ctrl=dynamic_cast<wxControl*>(pwin);
-	if(!ctrl)
+	if(!ctrl||!pctrl->AddCtrlItem(this, ctrl))
 	{
 		delete pwin;
 	}
+	else
+	{
+		m_pWindow=pwin;
+	}
 
-	pctrl->AddCtrlItem(this, ctrl);
-	
-	m_pWindow=pwin;
+
+
 }
 
 
@@ -432,13 +462,17 @@ bool EvtCommandShowModel::OnWndEvent(IWndParam& cmd,int phase)
 
 void EvtCommandShowModel::DoUpdateCtrl(IUpdParam& upd)
 {
-	flags.set(FLAG_CHECKED,m_pModel && m_pModel->IsShown());
+	bool checked = m_pModel && m_pModel->IsShown();
+	flags.set(FLAG_CHECKED,checked);
 	basetype::DoUpdateCtrl(upd);
 }
 
 bool EvtCommandShowModel::DoCmdExecute(ICmdParam& cmd)
 {
-	if(m_pModel) m_pModel->Show(cmd.param1!=0);
+	if (m_pModel)
+	{
+		m_pModel->Show(cmd.param1 != 0);
+	}
 	return true;
 }
 

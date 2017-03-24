@@ -1,6 +1,8 @@
 #include "ewc_base/app/app.h"
 #include "ewc_base/app/res_manager.h"
 #include "ewc_base/wnd/wnd_maker.h"
+#include "ewc_base/wnd/wnd_updator.h"
+#include "ewc_base/wnd/wnd_manager.h"
 
 #ifdef EWC_BASE_DLL
 
@@ -41,8 +43,7 @@ public:
 
 App& App::current()
 {
-	static App gInstance;
-	return gInstance;
+	return WndManager::current().app;
 }
 
 bool App::Init(int argc,char** argv)
@@ -90,9 +91,6 @@ bool App::Init(int argc,char** argv)
 
 		ResManager::current();
 
-		CG_GGVar &gi(CG_GGVar::current());
-		gi.add(new CallableMaker,"ui.maker");
-
 		set_logs_dialog_function(&Wrapper::LogsDialog);
 	}
 
@@ -104,6 +102,7 @@ bool App::Init(int argc,char** argv)
 int App::MainLoop()
 {
 	if(!IDat_internal::current().bInitOk) return -1;
+
 	return wxApp::GetInstance()->OnRun();
 }
 

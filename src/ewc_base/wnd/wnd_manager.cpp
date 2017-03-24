@@ -9,6 +9,37 @@
 
 EW_ENTER
 
+
+
+class WndManagerImpl
+{
+public:
+
+	WndManagerImpl()
+	{
+		plogptr.reset(new LogPtr());
+	}
+
+	App app;
+
+	EvtManagerTop evtmgr;
+
+	WndUpdator wup;
+
+	PluginManager plugin;
+
+	MvcBook book;
+
+	DataPtrT<LogPtr> plogptr;
+
+	static WndManagerImpl& current()
+	{
+		static WndManagerImpl gInstance;
+		return gInstance;
+	}
+};
+
+
 wxWindow* WndModelHolder::GetWindow()
 {
 	return m_refData?m_refData->GetWindow():NULL;
@@ -39,46 +70,32 @@ bool WndModelHolder::Create()
 	return true;
 }
 
-class WndManagerImpl
-{
-public:
-	PluginManager plugin;
-	EvtManagerTop	evtmgr;
-	WndUpdator wup;
-	MvcBook book;
-	DataPtrT<LogPtr> plogptr;
 
-	DataPtrT<WndModelTop> pmodel;
-
-	WndManagerImpl(WndManager& wm):plugin(wm),evtmgr(wm),wup(wm),book(wm)
-	{		
-		plogptr.reset(new LogPtr());
-	}
-};
 
 
 WndManager::WndManager()
-	:m_pImpl(new WndManagerImpl(*this))
-	,evtmgr(m_pImpl->evtmgr)
-	,wup(m_pImpl->wup)
-	,book(m_pImpl->book)
-	,plugin(m_pImpl->plugin)
-	,logptr(*m_pImpl->plogptr)
-	,app(App::current())
+	:evtmgr(WndManagerImpl::current().evtmgr)
+	,wup(WndManagerImpl::current().wup)
+	,book(WndManagerImpl::current().book)
+	,plugin(WndManagerImpl::current().plugin)
+	,app(WndManagerImpl::current().app)
+	,logptr(*WndManagerImpl::current().plogptr)
 	,lang(Language::current())
 {
-
+	Logger::def(&logptr);
 }
 
 WndManager::~WndManager()
 {
-	delete m_pImpl;
+
 }
 
 
 void WndManager::StartFrame()
 {
+
 	evtmgr["StartFrame"].CmdExecuteEx(-1);
+	
 	UpdateTitle();
 	model.Show(true);
 }
@@ -86,6 +103,9 @@ void WndManager::StartFrame()
 bool WndManager::LoadPlugins()
 {
 	LockGuard<WndUpdator> lock(wup);
+
+	model.SetData(new WndModelTop(*this));
+
 	for(size_t i=0;i<plugin.plugin_map.size();i++)
 	{
 		Plugin* p=plugin.plugin_map.get(i).second.get();
@@ -421,38 +441,26 @@ bool WndManager::LoadScript(const String& fp)
 
 
 
-WndManager* g_pCurrentApp = NULL;
+WndManager* g_pWndManagerInstance = NULL;
 
 WndManager& WndManager::current()
 {
-	if (!g_pCurrentApp)
+	if (!g_pWndManagerInstance)
 	{
 		static WndManager gInstance;
-		gInstance.Activate();
+		g_pWndManagerInstance = &gInstance;
+
+		CG_GGVar &gi(CG_GGVar::current());
+		gi.add(new EvtManagerGroupBeg);
+		gi.add(new EvtManagerGroupAdd);
+		gi.add(new EvtManagerGroupEnd);
+		gi.add(new EvtManagerGroupNew);
+		gi.add(new EvtManagerGroupSetAccel);
+		gi.add(new EvtManagerGroupSetHotkey);
+		gi.add(new CallableMaker, "ui.maker");
 	}
-	return *g_pCurrentApp;
+	return *g_pWndManagerInstance;
 }
 
-void WndManager::Activate()
-{
-	if (g_pCurrentApp == this) return;
-
-	g_pCurrentApp = this;
-
-	m_pImpl->pmodel.reset(new WndModelTop(*this));
-	model.SetData(m_pImpl->pmodel.get());
-
-	Logger::def(&logptr);
-	Language::current() = lang;
-
-	CG_GGVar &gi(CG_GGVar::current());
-	gi.add(new EvtManagerGroupBeg);
-	gi.add(new EvtManagerGroupAdd);
-	gi.add(new EvtManagerGroupEnd);
-	gi.add(new EvtManagerGroupNew);
-	gi.add(new EvtManagerGroupSetAccel);
-	gi.add(new EvtManagerGroupSetHotkey);
-
-}
 
 EW_LEAVE

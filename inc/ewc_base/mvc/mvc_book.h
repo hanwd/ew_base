@@ -16,7 +16,7 @@ public:
 
 	static MvcBook& current();
 
-	MvcBook(WndManager& w);
+	MvcBook();
 
 	bool IsActivated(const String& fn);
 	bool Activate(const String& fn);
@@ -45,7 +45,6 @@ public:
 
 protected:
 
-	WndManager& wm;
 
 	class ViewInfo
 	{

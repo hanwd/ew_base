@@ -22,6 +22,11 @@ kr.gp_set("Message","wxART_INFORMATION");
 kr.gp_set("Warning","wxART_WARNING");
 kr.gp_set("Error","wxART_ERROR");
 
+kr.gp_set("FullScreen","wxART_FULL_SCREEN");
+
+//kr.gp_set("IConCheck","");
+//kr.gp_set("IconRadio","");
+
 kr.gp_set("Find","wxART_FIND");
 kr.gp_set("Replace","wxART_FIND_AND_REPLACE");
 

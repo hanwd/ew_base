@@ -17,7 +17,7 @@ public:
 	friend class WndBuilder;
 
 	EvtBase* chained_get(int evtid);
-	EvtBase* chanded_get(const String& s);
+	EvtBase* chained_get(const String& s);
 
 	EvtBase* get(int evtid);
 	EvtBase* get(const String& s);
@@ -119,7 +119,7 @@ protected:
 class DLLIMPEXP_EWC_BASE EvtManagerTop : public EvtManager
 {
 public:
-	EvtManagerTop(WndManager& wm_);
+	EvtManagerTop();
 
 	void langup();
 	wxWindow* GetWindow();
@@ -138,8 +138,7 @@ public:
 		return link_v<T>(s,table,p,k);
 	}
 
-protected:
-	WndManager& wm;
+
 };
 
 

@@ -15,28 +15,12 @@ public:
 	IEW_MenuImpl(EvtGroup* mu = NULL);
 	~IEW_MenuImpl();
 
-	void AddCtrlItem(EvtCommand* pevt, wxMenu* menu);
-	void AddCtrlItem(EvtCommand* pevt);
+	bool AddCtrlItem(EvtGroup* pevt);
+	bool AddCtrlItem(EvtCommand* pevt);
 
-	bool StdExecute(IStdParam& cmd)
-	{
-		if(cmd.extra1=="clear")
-		{
-			m_aItems.clear();
-			int nc=this->GetMenuItemCount();
-			while(--nc>=0)
-			{
-				wxMenuItem* mi=this->FindItemByPosition(0);
-				this->Destroy(mi);
-			}		
-		}
-		else if(cmd.extra1=="update")
-		{
-			m_pGroup->CreateMenu(this,false);
-		}
-		return true;
-	}
+	bool StdExecute(IStdParam& cmd);
 
+	virtual wxMenu* GetMenu(){ return this; }
 
 protected:
 
@@ -62,9 +46,9 @@ public:
 	IEW_TBarImpl(EvtGroup* mu, wxWindow* pw, int wd);
 	~IEW_TBarImpl();
 
-	void AddCtrlItem(EvtCommand* pevt);
-	void AddCtrlItem(EvtCommand* pevt, wxControl* p);
-	void AddCtrlItem(EvtCommand* pevt, wxMenu* menu);
+	bool AddCtrlItem(EvtCommand* pevt);
+	bool AddCtrlItem(EvtCommand* pevt, wxControl* p);
+	bool AddCtrlItem(EvtGroup* pevt);
 
 	virtual wxWindow* GetWindow(){return this;}
 
@@ -96,9 +80,9 @@ public:
 	IEW_AuiTBarImpl(EvtGroup* mu, wxWindow* pw, int wd);
 	~IEW_AuiTBarImpl();
 
-	void AddCtrlItem(EvtCommand* pevt);
-	void AddCtrlItem(EvtCommand* pevt, wxControl* p);
-	void AddCtrlItem(EvtCommand* pevt, wxMenu* menu);
+	bool AddCtrlItem(EvtCommand* pevt);
+	bool AddCtrlItem(EvtCommand* pevt, wxControl* p);
+	bool AddCtrlItem(EvtGroup* pevt);
 
 	virtual wxWindow* GetWindow(){return this;}
 

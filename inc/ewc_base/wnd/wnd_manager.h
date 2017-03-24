@@ -10,8 +10,6 @@ EW_ENTER
 class DLLIMPEXP_EWC_BASE App;
 class DLLIMPEXP_EWC_BASE EvtManagerTop;
 class DLLIMPEXP_EWC_BASE WndModelTop;
-class DLLIMPEXP_EWC_BASE WndManagerImpl;
-
 class DLLIMPEXP_EWC_BASE WndModelHolder
 {
 public:
@@ -36,9 +34,6 @@ private:
 
 class DLLIMPEXP_EWC_BASE WndManager : public NonCopyable
 {
-protected:
-	WndManagerImpl* m_pImpl;
-
 public:
 
 	friend class WndModel;
@@ -88,7 +83,6 @@ public:
 
 	void UpdateTitle();
 
-	void Activate();
 
 };
 

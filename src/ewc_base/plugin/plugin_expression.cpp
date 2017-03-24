@@ -37,6 +37,15 @@ bool PluginExpression::OnAttach()
 	wm.evtmgr.link("expr.expression",idat.expr_expresion);
 	wm.evtmgr.link("expr.result",idat.expr_result);
 
+	//wm.evtmgr.gp_beg(new EvtRadio("RadioGroup1"));
+	//	wm.evtmgr.gp_add(new EvtCommand("Radio1"));
+	//	wm.evtmgr.gp_add(new EvtCommand("Radio2"));
+	//	wm.evtmgr.gp_add(new EvtCommand("Radio3"));
+	//wm.evtmgr.gp_end();
+
+	//wm.evtmgr["RadioGroup1"].cast_group()->PrepareItems();
+
+
 	class expr_timer : public EvtCommandTimer
 	{
 	public:

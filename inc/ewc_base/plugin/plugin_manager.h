@@ -7,7 +7,7 @@
 
 EW_ENTER
 
-class WndManager;
+class DLLIMPEXP_EWC_BASE WndManager;
 
 class DLLIMPEXP_EWC_BASE PluginManager
 {
@@ -24,13 +24,9 @@ public:
 	ObjectGroupT<PluginEditor> plugin_editor;
 	ObjectGroupT<IEditorPlugin> plugin_plugin;
 
-	PluginManager(WndManager& w);
-
-
+	PluginManager();
 
 protected:
-
-	WndManager& wm;
 
 	bool AttachPlugin(Plugin* p);
 

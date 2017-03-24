@@ -9,7 +9,7 @@ EW_ENTER
 
 
 
-WndUpdator::WndUpdator(WndManager& app_):wm(app_)
+WndUpdator::WndUpdator()
 {
 	m_nLocked=0;
 }
@@ -23,7 +23,7 @@ void WndUpdator::update()
 	else
 	{
 		m_bUpdate=false;
-		wm.model.OnChildWindow(NULL,0);
+		WndManager::current().model.OnChildWindow(NULL,0);
 	}
 }
 
@@ -35,18 +35,21 @@ void WndUpdator::gp_add(const String& s)
 	}
 	else
 	{
-		wm.evtmgr[s].UpdateCtrl();
+		WndManager::current().evtmgr[s].UpdateCtrl();
 	}
 }
 
 void WndUpdator::gp_add(const String& s,int)
 {
+	WndManager& wm(WndManager::current());
 	wm.evtmgr[s].flags.del(EvtCommand::FLAG_G_LOADED);
 	gp_add(s);
 }
 
 void WndUpdator::tb_add(const String& s,int f)
 {
+	WndManager& wm(WndManager::current());
+
 	EvtGroup* pg=wm.evtmgr.get_group(s);
 	if(!pg) return;
 
@@ -74,6 +77,8 @@ void WndUpdator::tb_add(const String& s,int f)
 
 void WndUpdator::mu_set(const String& s)
 {
+	WndManager& wm(WndManager::current());
+
 	if(m_nLocked)
 	{
 		m_sMenubar=s;
@@ -86,6 +91,8 @@ void WndUpdator::mu_set(const String& s)
 
 void WndUpdator::tb_set(const String& s)
 {
+	WndManager& wm(WndManager::current());
+
 	arr_1t<EvtItem> arr;
 	wm.evtmgr.item_get(s,arr);
 	if(arr.empty()) return;
@@ -98,6 +105,8 @@ void WndUpdator::tb_set(const String& s)
 
 void WndUpdator::sb_set(const String& s)
 {
+	WndManager& wm(WndManager::current());
+
 	if(m_nLocked)
 	{
 		m_sStatbar=s;
@@ -118,6 +127,8 @@ static wxWindow* g_pMainWindow=NULL;
 
 void WndUpdator::lock()
 {
+	WndManager& wm(WndManager::current());
+
 	if(m_nLocked++!=0) return;
 	g_pMainWindow=wm.model.GetWindow();
 	if(g_pMainWindow) g_pMainWindow->Freeze();
@@ -127,6 +138,8 @@ void WndUpdator::lock()
 
 void WndUpdator::unlock()
 {
+	WndManager& wm(WndManager::current());
+
 	if(--m_nLocked!=0) return;
 
 	if(m_sMenubar!="")

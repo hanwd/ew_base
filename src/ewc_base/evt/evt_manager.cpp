@@ -87,7 +87,7 @@ EvtBase* EvtManager::chained_get(int evtid)
 	return NULL;
 }
 
-EvtBase* EvtManager::chanded_get(const String& s)
+EvtBase* EvtManager::chained_get(const String& s)
 {
 	for(EvtManager* p=this;p;p=p->m_pNextEvtManager)
 	{
@@ -227,7 +227,6 @@ void EvtManager::gp_end()
 	}
 
 	g->flags.del(EvtCommand::FLAG_G_LOADED);
-	//g->DoUpdateCtrl(IUpdParam& upd);
 }
 
 void EvtManager::gp_add(const String& s,int f)
@@ -333,16 +332,19 @@ void EvtManager::pending(const String& sid,int v)
 
 
  
-EvtManagerTop::EvtManagerTop(WndManager& wm_):wm(wm_)
+EvtManagerTop::EvtManagerTop()
 {
 }
 
  wxWindow* EvtManagerTop::GetWindow()
  {
+	 WndManager& wm(WndManager::current());
 	 return wm.model.GetWindow();
  }
 void EvtManagerTop::langup()
 {
+	WndManager& wm(WndManager::current());
+
 	for(size_t i=0;i<m_aEvents.size();++i)
 	{
 		EvtBase* p=m_aEvents.get(i).second.get();

@@ -273,7 +273,7 @@ class EvtCommandFullScreen : public EvtCommand
 public:
 	EvtCommandFullScreen():EvtCommand(_kT("FullScreen"))
 	{
-		flags.add(FLAG_CHECK);
+		//flags.add(FLAG_CHECK);
 	}
 
 	wxTopLevelWindow* GetTopLevelWindow()
@@ -288,7 +288,7 @@ public:
 	void DoUpdateCtrl(IUpdParam& upd)
 	{
 		wxTopLevelWindow* top=GetTopLevelWindow();
-		flags.set(FLAG_CHECKED,top && top->IsFullScreen());
+		//flags.set(FLAG_CHECKED,top && top->IsFullScreen());
 		EvtCommand::DoUpdateCtrl(upd);
 	}
 
@@ -843,6 +843,8 @@ bool PluginBasic::OnAttach()
 	ec.append(new EvtCommand("About"));
 	ec.append(new EvtCommandWindowMenuBar);
 	ec.append(new EvtLanguages);
+
+	ec.append(new EvtRadio("RadioGroup"));
 
 	ec.gp_beg("Menu.New");
 

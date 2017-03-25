@@ -66,6 +66,7 @@ public:
 	const char* file;
 	int line;
 };
+
 bool operator<(const MpFileLine& lhs,const MpFileLine& rhs)
 {
 	if(lhs.file<rhs.file) return true;
@@ -659,8 +660,11 @@ void* MpAllocGlobal::alloc_large(size_t n,MpAllocInfo& i)
 
 	size_t sz=(n+MpAllocConfig::pg_mask+sizeof(MpAllocInfo))&(~MpAllocConfig::pg_mask);
 	char* p1=(char*)page_alloc(sz);
-
-	if(sz-n-sizeof(MpAllocInfo)>=sizeof(MpAllocSpan))
+	if(!p1)
+	{
+		return NULL;
+	}
+	else if(sz-n-sizeof(MpAllocInfo)>=sizeof(MpAllocSpan))
 	{
 		MpAllocSpan* sp=(MpAllocSpan*)(p1+sz-sizeof(MpAllocSpan));
 		sp->sp_base=reinterpret_cast<uintptr_t>(p1);

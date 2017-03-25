@@ -13,7 +13,7 @@ public:
 
 	void init_system_info();
 	void update_system_info();
-
+	void update_language();
 
 	int64_t m_nMemTotalPhys;
 	int64_t m_nMemAvailPhys;
@@ -32,6 +32,8 @@ public:
 
 	int nLangId;
 	String sLanguage;
+
+
 
 
 	static SystemData& current()

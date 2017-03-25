@@ -378,9 +378,11 @@ inline void arr_container<T,A,pod>::reserve(size_type capacity_)
 	}
 
 	size_t n0=size();
-	T* p1=_alloc_copy(capacity_,m_base,n0);
+	size_t n1=sz_helper::gen(capacity_);
+
+	T* p1=_alloc_copy(n1,m_base,n0);
 	T* p2=p1+n0;
-	T* p3=p1+capacity_;
+	T* p3=p1+n1;
 
 	_clear_and_rawset(p1,p2,p3);
 

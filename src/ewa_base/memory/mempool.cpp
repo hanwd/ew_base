@@ -43,26 +43,80 @@ template class MpFixedSizePool<80,0,1>;
 template class MpFixedSizePool<88,0,1>;
 
 EW_THREAD_TLS MpAllocCachedNoLock* tls_tc_data;
+EW_THREAD_TLS size_t tls_pg_limit;
+
+size_t page_limit(size_t n)
+{
+	size_t ret=tls_pg_limit;
+
+	if(n==(size_t)-1)
+	{
+		return ret;
+	}
+
+	if(n>0)
+	{
+		n=n+1;
+	}
+
+	if(n!=ret)
+	{
+		tls_pg_limit=n;
+	}
+
+	return ret;
+}
 
 #ifdef EW_WINDOWS
 
 void* page_alloc(size_t n)
 {
-	void* p = ::VirtualAlloc(NULL, n, MEM_COMMIT, PAGE_READWRITE );
-	if(p)
+	if(tls_pg_limit>0) 
 	{
-		return p;
+		if(n>tls_pg_limit)
+		{
+			return NULL;
+		}
+
+		void* p = ::VirtualAlloc(NULL, n, MEM_COMMIT, PAGE_READWRITE );
+		if(p)
+		{
+			tls_pg_limit-=n;
+			return p;
+		}
+
+		if(g_myalloc_impl)
+		{
+			System::LogTrace("page_alloc failed, call gc() and retry");
+			mp_force_gc(0);
+
+			p = ::VirtualAlloc(NULL, n, MEM_COMMIT, PAGE_READWRITE );
+			if(p)
+			{
+				tls_pg_limit-=n;
+				return p;
+			}
+		}
 	}
-
-	if(g_myalloc_impl)
+	else
 	{
-		System::LogTrace("page_alloc failed, call gc() and retry");
-		mp_force_gc(0);
 
-		p = ::VirtualAlloc(NULL, n, MEM_COMMIT, PAGE_READWRITE );
+		void* p = ::VirtualAlloc(NULL, n, MEM_COMMIT, PAGE_READWRITE );
 		if(p)
 		{
 			return p;
+		}
+
+		if(g_myalloc_impl)
+		{
+			System::LogTrace("page_alloc failed, call gc() and retry");
+			mp_force_gc(0);
+
+			p = ::VirtualAlloc(NULL, n, MEM_COMMIT, PAGE_READWRITE );
+			if(p)
+			{
+				return p;
+			}
 		}
 	}
 
@@ -70,11 +124,15 @@ void* page_alloc(size_t n)
 	return NULL;
 }
 
-void page_free(void* p,size_t)
+void page_free(void* p,size_t n)
 {
 	if(::VirtualFree(p, 0, MEM_RELEASE)==0)
 	{
 		System::LogTrace("VirtualFree failed: ptr=%p",p);
+	}
+	else if(tls_pg_limit>0)
+	{
+		tls_pg_limit+=n;
 	}
 }
 

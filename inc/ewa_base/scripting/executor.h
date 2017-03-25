@@ -133,16 +133,30 @@ public:
 	DataPtrT<CallableCoroutine> co_last;
 
 	Mutex mutex;
+	BitFlags flags;
+
+	void set_time_limit(const TimeSpan& tp=TimeSpan());
+	void set_page_limit(size_t n);
+
+	TimeSpan get_time_limit();
+	size_t get_page_limit();
+
 
 protected:
 
 	VariantTable tb1_internal;
 
 	void _vm_run1();
-	void _vm_run2();
+
+	template<typename P>
+	void _vm_run2(P& t);
+
 	void _vm_check_ret(int ret);
 
 	void _vm_handle_exception(std::exception &e);
+
+	TimeSpan ts_limit;
+	size_t pg_limit;
 
 };
 

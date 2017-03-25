@@ -361,7 +361,7 @@ bool Language::SetLanguage(const String& s)
 	impl.sLanguage=s;
 	impl.Clear();
 	bool flag=impl.AddCatalog("res:/languages/"+s+"/default.po");
-	_language_updated();
+	SystemData::current().update_language();
 	return flag;
 
 }
@@ -374,7 +374,7 @@ String Language::GetLanguage()
 Language& Language::operator=(const Language& o)
 {
 	m_pimpl=o.m_pimpl;
-	_language_updated();
+	SystemData::current().update_language();
 	return *this;
 }
 
@@ -384,17 +384,6 @@ Language& Language::current()
 	return detail::StaticInstance<Language>::current();
 }
 
-
-void Language::_language_updated()
-{
-	if(this!=&current()) return;
-
-	SystemData& sdata(SystemData::current());
-	sdata.sLanguage=GetLanguage();
-#ifdef EW_WINDOWS
-	sdata.nLangId=string_to_lower(sdata.sLanguage)=="english"?MAKELANGID(LANG_ENGLISH, SUBLANG_DEFAULT):0;
-#endif
-}
 
 arr_1t<String> Language::GetLanguages()
 {

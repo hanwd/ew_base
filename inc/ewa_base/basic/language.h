@@ -41,7 +41,6 @@ public:
 
 private:
 	DataPtrT<ObjectData> m_pimpl;
-	void _language_updated();
 };
 
 EW_LEAVE

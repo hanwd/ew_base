@@ -53,11 +53,14 @@ public:
 	{
 
 		if(sz<4) return sz;
+		if(sz<(1<<16))
+		{
+			size_t sz2=sz<<1;
+			return adj(sz2,4);
+		}
 		size_t sz2=sz+(sz>>1);
-		if(sz2>sz) return sz2;
-
 		size_t mk=(1<<16)-1;
-		sz2=(sz+mk)&~mk;
+		sz2=(sz2+mk)&~mk;
 		if(sz2>sz) return sz2;
 		return sz;
 	}

@@ -60,7 +60,7 @@ TEST_DEFINE(TEST_Scripting_Executor1)
 	TEST_ASSERT(variant_cast<double>(ewsl.tb1["ans"])==::sin(1.23));
 
 // string cat operator..
-	ewsl.execute("local a='hello';local b='world';global c=a..b;print(ans);");
+	ewsl.execute("local a='hello';local b='world';global c=a..b;");
 	TEST_ASSERT(variant_cast<String>(ewsl.tb1["c"])==String("helloworld"));
 
 
@@ -139,6 +139,7 @@ TEST_DEFINE(TEST_Scripting_Executor1)
 	TEST_ASSERT(variant_cast<int64_t>(1)==1);
 	TEST_ASSERT(variant_cast<int64_t>(b)==2);
 	TEST_ASSERT(variant_cast<int64_t>(c)==3);
+
 }
 
 

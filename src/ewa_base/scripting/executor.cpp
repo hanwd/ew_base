@@ -141,6 +141,8 @@ Executor::Executor(size_t stack_size)
 
 	ci0.nip=NULL;
 
+	pg_limit=0;
+
 }
 
 void Executor::reset()
@@ -166,6 +168,8 @@ Executor::Executor(const Executor& o)
 
 	ci0=co_main->ci0;
 	ci1=co_main->ci1;
+
+	pg_limit=0;
 
 	ci0.nip=NULL;
 
@@ -396,30 +400,9 @@ void Executor::_vm_handle_exception(std::exception &e)
 
 }
 
-void Executor::_vm_run1()
-{
 
-	while (ci0.nip)
-	{
-		try
-		{
-			_vm_run2();
-
-			EW_ASSERT(co_this==co_main);
-			EW_ASSERT(co_this->aFrame.empty());
-		}
-		catch(std::exception& e)
-		{
-			_vm_handle_exception(e);
-		}
-	}
-
-	EW_ASSERT(co_this->aCatch.empty());
-
-}
-
-
-void Executor::_vm_run2()
+template<typename P>
+void Executor::_vm_run2(P& policy)
 {
 
 	Executor& ewsl(*this);
@@ -673,6 +656,7 @@ void Executor::_vm_run2()
 			break;
 		case XOP_JUMP:
 			ci0.nip+=cip->p1;
+			policy.check(this);
 			break;
 		case XOP_JUMP_N:
 			ci0.nip+=(*ci1.nsp--).get<int64_t>();
@@ -682,12 +666,14 @@ void Executor::_vm_run2()
 			{
 				ci0.nip+=cip->p1;
 			}
+			policy.check(this);
 			break;
 		case XOP_JUMP_1:
 			if(pl_cast<bool>::k((*ci1.nsp--)))
 			{
 				ci0.nip+=cip->p1;
 			}
+			policy.check(this);
 			break;
 		case XOP_INC:
 			if(ci1.nsp[0].type()==type_flag<int64_t>::value)
@@ -806,6 +792,108 @@ void Executor::_vm_run2()
 			kerror("unknown instruction");
 		}
 	}
+}
+
+class ExecutorPolicy
+{
+public:
+	static void check(Executor*){}
+};
+
+class ExecutorPolicyProtected
+{
+public:
+
+	ExecutorPolicyProtected(TimeSpan& ts)
+	{
+		tp_end=Clock::now()+ts;
+		b_exit=false;
+		tp_cnt=0;
+	}
+
+	size_t tp_cnt;
+	TimePoint tp_end;
+	bool b_exit;
+
+	inline void check(Executor* pewsl)
+	{
+		if(++tp_cnt%1000==0 && Clock::now()>tp_end)
+		{
+			b_exit=true;
+			pewsl->ci2.xop.op=XOP_EXIT;
+			pewsl->ci0.nip=&pewsl->ci2.xop;
+		}
+	}
+
+};
+
+void Executor::set_time_limit(const TimeSpan& tp)
+{
+	ts_limit=tp;
+}
+
+TimeSpan Executor::get_time_limit()
+{
+	return ts_limit;
+}
+
+void Executor::set_page_limit(size_t n)
+{
+	pg_limit=n;
+}
+
+size_t Executor::get_page_limit()
+{
+	return pg_limit;
+}
+
+void Executor::_vm_run1()
+{
+	size_t n=page_limit(pg_limit);
+
+	if(ts_limit.val>0)
+	{
+		ExecutorPolicyProtected t(ts_limit);
+		while (ci0.nip)
+		{
+			try
+			{
+				_vm_run2(t);
+				EW_ASSERT(co_this==co_main);
+				EW_ASSERT(co_this->aFrame.empty());
+			}
+			catch(std::exception& e)
+			{
+				_vm_handle_exception(e);
+			}
+		}
+		if(t.b_exit)
+		{
+			kerror("time_limit");
+		}
+	}
+	else
+	{
+		ExecutorPolicy t;
+		while (ci0.nip)
+		{
+			try
+			{
+				_vm_run2(t);
+				EW_ASSERT(co_this==co_main);
+				EW_ASSERT(co_this->aFrame.empty());
+			}
+			catch(std::exception& e)
+			{
+				_vm_handle_exception(e);
+			}
+		}		
+	}
+
+	page_limit(n);
+
+	EW_ASSERT(co_this->aCatch.empty());
+
 }
 
 void Executor::_vm_check_ret(int ret)

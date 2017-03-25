@@ -1,4 +1,5 @@
 #include "system_data.h"
+#include "ewa_base/basic/language.h"
 
 #ifdef EW_MSVC
 #include "windows.h"
@@ -11,6 +12,15 @@ SystemData::SystemData()
 	nLangId = 0;
 	init_system_info();
 	update_system_info();
+}
+
+void SystemData::update_language()
+{
+	sLanguage=Language::current().GetLanguage();
+
+#ifdef EW_WINDOWS
+	nLangId=string_to_lower(sLanguage)=="english"?MAKELANGID(LANG_ENGLISH, SUBLANG_DEFAULT):0;
+#endif
 }
 
 #ifdef EW_MSVC

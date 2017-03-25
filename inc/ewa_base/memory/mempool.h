@@ -11,6 +11,7 @@ DLLIMPEXP_EWA_BASE void* mp_alloc(size_t n);
 DLLIMPEXP_EWA_BASE void* mp_alloc(size_t n,const char* f,int line);
 DLLIMPEXP_EWA_BASE void* mp_realloc(void* p,size_t n);
 DLLIMPEXP_EWA_BASE void mp_free(void* p);
+DLLIMPEXP_EWA_BASE size_t page_limit(size_t n);
 
 DLLIMPEXP_EWA_BASE void mp_force_gc(int level);
 

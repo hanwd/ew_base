@@ -2,7 +2,6 @@
 #include "ewc_base/evt/validator.h"
 #include "ewc_base/app/data_defs.h"
 
-#include "evt_ctrlimpl.h"
 
 EW_ENTER
 
@@ -201,22 +200,27 @@ void EvtBase::DetachListener(EvtListener* pListener)
 }
 
 
-bool EvtBase::PopupMenu(IWindowPtr pw)
+bool EvtBase::PopupMenu(IWindowPtr pw,int x,int y)
 {
-	IEW_MenuImpl mu;
-	if(CreateMenu(&mu)==NULL)
-	{
-		return false;
-	}
+	AutoPtrT<IEW_Ctrl> pctrl(CreateCtrl(ICtlParam("menu")));
+	if(!pctrl||!pctrl->WndIsOk()) return false;
+	return Wrapper::PopupMenu(pctrl->GetMenu(),pw,x,y);
+}
 
-	if(!pw)
-	{
-		pw=WndManager::current().model.GetWindow();
-		if(!pw) return false;
-	}
+IMenuPtr EvtBase::CreateMenu(const ICtlParam& ctl)
+{
+	IEW_Ctrl* p=CreateCtrl(ctl);
+	if(p && p->GetMenu()) return p->GetMenu();
+	delete p;
+	return NULL;
+}
 
-	pw->PopupMenu(&mu);
-	return true;
+IWindowPtr EvtBase::CreateTbar(const ICtlParam& ctl)
+{
+	IEW_Ctrl* p=CreateCtrl(ctl);
+	if(p && p->GetWindow()) return p->GetWindow();
+	delete p;
+	return NULL;
 }
 
 Validator* EvtBase::CreateValidator(wxWindow*)

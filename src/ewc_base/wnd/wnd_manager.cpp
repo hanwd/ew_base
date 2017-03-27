@@ -5,7 +5,7 @@
 #include "ewc_base/plugin/plugin_manager.h"
 #include "ewc_base/mvc/mvc_book.h"
 #include "ewc_base/wnd/wnd_updator.h"
-
+#include "ewc_base/wnd/wnd_maker.h"
 
 EW_ENTER
 

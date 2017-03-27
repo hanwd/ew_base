@@ -698,22 +698,6 @@ EvtViewLayout::EvtViewLayout(WndManager& w):EvtGroup(_kT("Layout")),wm(w)
 	m_nSelection=-1;
 };
 
-class EvtCommandWindowMenuBar : public EvtCommandWindow
-{
-public:
-
-	EvtCommandWindowMenuBar(const String& n=_kT("MenuBar")):EvtCommandWindow(n)
-	{
-		wxMenuBar* mb=new wxMenuBar;
-		mb->SetName(str2wx(m_sId));
-		SetWindow(mb);
-	}
-
-	~EvtCommandWindowMenuBar()
-	{
-
-	}
-};
 
 
 class IEvtCommandButton : public EvtCommand
@@ -841,7 +825,7 @@ bool PluginBasic::OnAttach()
 	ec.append(new EvtCommand("Website"));
 	ec.append(new EvtCommand("Document"));
 	ec.append(new EvtCommand("About"));
-	ec.append(new EvtCommandWindowMenuBar);
+
 	ec.append(new EvtLanguages);
 
 	ec.append(new EvtRadio("RadioGroup"));
@@ -850,9 +834,7 @@ bool PluginBasic::OnAttach()
 
 	ec.gp_end();
 
-	ec.gp_beg("Menu.Extra");
 
-	ec.gp_end();
 
 	ec.gp_beg("MainWindow");
 
@@ -942,14 +924,7 @@ bool PluginBasic::OnAttach()
 		ec.gp_add("About");
 	ec.gp_end();
 
-	ec.gp_beg("MenuBar.default");
-		ec.gp_add("File");
-		ec.gp_add("Edit");
-		ec.gp_add("View");
-		//ec.gp_add("Layout");
-		ec.gp_add("Menu.Extra",1);
-		ec.gp_add("Help");
-	ec.gp_end();
+
 
 
 	ec.gp_beg(_kT("tb.Standard"));
@@ -985,16 +960,15 @@ bool PluginBasic::OnAttach()
 
 	ec.gp_end();
 
-	ec.gp_add(new EvtCommandTimer("timer.idle"));
+	//ec.gp_add(new EvtCommandTimer("timer.idle"));
 
-	ec["timer.idle"].StdExecuteEx(1000,1);
+	//ec["timer.idle"].StdExecuteEx(1000,1);
 
 	EvtManager::current()["StartFrame"].AttachListener(this);
 
 	wm.evtmgr.link_c<String>("/basic/language").opt_data.reset(wm.evtmgr["Languages"].GetComboArray());
 
 	wm.evtmgr.gp_beg(_kT("Option.pages"));
-		//wm.evtmgr.gp_add(new EvtOptionCommon(_kT("Option.common")));
 		wm.evtmgr.gp_add(new EvtOptionPageScript(_kT("Option.Common"), "scripting/ui/option_common.ewsl"));
 	wm.evtmgr.gp_end();
 

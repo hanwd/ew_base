@@ -5,7 +5,6 @@
 #include "ewc_base/wnd/impl_wx/topwindow.h"
 #include "ewc_base/wnd/wnd_model.h"
 
-#include "../../evt/evt_ctrlimpl.h"
 
 EW_ENTER
 
@@ -91,17 +90,12 @@ void IWnd_topwindow<T>::OnDropDown(wxAuiToolBarEvent& evt)
 		wxAuiToolBar* tb = static_cast<wxAuiToolBar*>(evt.GetEventObject());
 		tb->SetToolSticky(evtid, true);
 
-		IEW_MenuImpl menuPopup;
-		pevt->CreateMenu(&menuPopup);
-
-		// line up our menu with the button
 		wxRect rect = tb->GetToolRect(evtid);
 		wxPoint pt = tb->ClientToScreen(rect.GetBottomLeft());
 		pt = ScreenToClient(pt);
 
-		PopupMenu(&menuPopup, pt);
+		pevt->PopupMenu(this,pt.x,pt.y);
 		tb->SetToolSticky(evtid, false);
-
 	}
 
 

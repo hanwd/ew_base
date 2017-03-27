@@ -18,6 +18,9 @@ public:
 	static bool SetClipboardText(const String& s);
 	static bool GetClipboardText(String& s);
 
+	static bool PopupMenu(IMenuPtr mu,IWindowPtr pw=NULL,int x=-1,int y=-1);
+
+
 	static int wxid_to_btn(int id);
 	static int btn_to_wxid(int id);
 

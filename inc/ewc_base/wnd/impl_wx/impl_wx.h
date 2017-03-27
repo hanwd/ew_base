@@ -42,6 +42,7 @@ class WndPropertyEx;
 
 String wx2str(const wxString& v);
 wxString str2wx(const String& v);
+
 bool wx2buf(const wxString& v,StringBuffer<char>& sb);
 
 template<typename T>

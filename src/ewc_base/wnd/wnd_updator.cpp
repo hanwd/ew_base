@@ -2,6 +2,7 @@
 #include "ewc_base/wnd/wnd_model.h"
 #include "ewc_base/evt/evt_manager.h"
 
+#include "ewc_base/wnd/impl_wx/window.h"
 #include <wx/toolbar.h>
 #include <wx/aui/auibar.h>
 
@@ -54,7 +55,7 @@ void WndUpdator::tb_add(const String& s,int f)
 	if(!pg) return;
 
 	pg->flags.add(f);
-	wxWindow* tb=pg->CreateCtrl(wm.model.GetWindow(),-1,wm.data.toolbar_type);
+	wxWindow* tb=pg->CreateTbar(ICtlParam("aui_bar",24,wm.model.GetWindow()));
 	if(!tb) return;
 	
 	pg->flags.del(EvtCommand::FLAG_DOTDOT);

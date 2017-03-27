@@ -67,12 +67,15 @@
     <ClInclude Include="..\..\inc\ewc_base\plugin\plugin_editorplugin.h" />
     <ClInclude Include="..\..\inc\ewc_base\plugin\plugin_mainwindow.h" />
     <ClInclude Include="..\..\inc\ewc_base\plugin\plugin_manager.h" />
+    <ClInclude Include="..\..\inc\ewc_base\plugin\plugin_menu.h" />
     <ClInclude Include="..\..\inc\ewc_base\plugin\plugin_message.h" />
     <ClInclude Include="..\..\inc\ewc_base\plugin\plugin_option.h" />
     <ClInclude Include="..\..\inc\ewc_base\plugin\plugin_plugineditor.h" />
     <ClInclude Include="..\..\inc\ewc_base\plugin\plugin_historyfiles.h" />
+    <ClInclude Include="..\..\inc\ewc_base\plugin\plugin_ribbon.h" />
     <ClInclude Include="..\..\inc\ewc_base\plugin\plugin_search.h" />
     <ClInclude Include="..\..\inc\ewc_base\plugin\plugin_statusbar.h" />
+    <ClInclude Include="..\..\inc\ewc_base\plugin\plugin_toolbar.h" />
     <ClInclude Include="..\..\inc\ewc_base\plugin\plugin_workspace.h" />
     <ClInclude Include="..\..\inc\ewc_base\wnd\impl_wx\impl_wx.h" />
     <ClInclude Include="..\..\inc\ewc_base\wnd\impl_wx\iwnd_bookbase.h" />
@@ -110,7 +113,6 @@
     <ClInclude Include="..\..\src\ewc_base\editor\plugin_ewsl_iface.h" />
     <ClInclude Include="..\..\src\ewc_base\editor\plugin_ewsl_caret.h" />
     <ClInclude Include="..\..\src\ewc_base\editor\plugin_ewsl_vartable.h" />
-    <ClInclude Include="..\..\src\ewc_base\evt\evt_ctrlimpl.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\ewc_base\app\app.cpp" />
@@ -132,7 +134,6 @@
     <ClCompile Include="..\..\src\ewc_base\editor\plugin_text_editor.cpp" />
     <ClCompile Include="..\..\src\ewc_base\editor\plugin_webview.cpp" />
     <ClCompile Include="..\..\src\ewc_base\evt\evt_cmdproc.cpp" />
-    <ClCompile Include="..\..\src\ewc_base\evt\evt_ctrlimpl.cpp" />
     <ClCompile Include="..\..\src\ewc_base\evt\evt_manager.cpp" />
     <ClCompile Include="..\..\src\ewc_base\evt\evt_group.cpp" />
     <ClCompile Include="..\..\src\ewc_base\evt\evt_listener.cpp" />
@@ -168,12 +169,15 @@
     <ClCompile Include="..\..\src\ewc_base\plugin\plugin_expression.cpp" />
     <ClCompile Include="..\..\src\ewc_base\plugin\plugin_mainwindow.cpp" />
     <ClCompile Include="..\..\src\ewc_base\plugin\plugin_manager.cpp" />
+    <ClCompile Include="..\..\src\ewc_base\plugin\plugin_menu.cpp" />
     <ClCompile Include="..\..\src\ewc_base\plugin\plugin_message.cpp" />
     <ClCompile Include="..\..\src\ewc_base\plugin\plugin_option.cpp" />
     <ClCompile Include="..\..\src\ewc_base\plugin\plugin_plugineditor.cpp" />
     <ClCompile Include="..\..\src\ewc_base\plugin\plugin_historyfiles.cpp" />
+    <ClCompile Include="..\..\src\ewc_base\plugin\plugin_ribbon.cpp" />
     <ClCompile Include="..\..\src\ewc_base\plugin\plugin_search.cpp" />
     <ClCompile Include="..\..\src\ewc_base\plugin\plugin_statusbar.cpp" />
+    <ClCompile Include="..\..\src\ewc_base\plugin\plugin_toolbar.cpp" />
     <ClCompile Include="..\..\src\ewc_base\plugin\plugin_workspace.cpp" />
     <ClCompile Include="..\..\src\ewc_base\wnd\impl_wx\impl_wx.cpp" />
     <ClCompile Include="..\..\src\ewc_base\wnd\impl_wx\iwnd_bookbase.cpp" />

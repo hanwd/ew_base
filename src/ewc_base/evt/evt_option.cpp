@@ -1,4 +1,5 @@
 #include "ewc_base/evt/evt_option.h"
+#include "ewc_base/wnd/wnd_model.h"
 #include "ewc_base/wnd/wnd_maker.h"
 
 EW_ENTER

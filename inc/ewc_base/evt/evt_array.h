@@ -2,6 +2,7 @@
 #define __H_EW_UI_VALUEPROXY_ARRAY__
 
 #include "ewc_base/evt/evt_element.h"
+
 class wxDataViewColumn;
 
 EW_ENTER

@@ -20,6 +20,9 @@ class DLLIMPEXP_EWC_BASE IEditorPlugin;
 
 class DLLIMPEXP_EWC_BASE PluginMainWindow;
 class DLLIMPEXP_EWC_BASE PluginBasic;
+class DLLIMPEXP_EWC_BASE PluginMenu;
+class DLLIMPEXP_EWC_BASE PluginToolBar;
+class DLLIMPEXP_EWC_BASE PluginRibbon;
 class DLLIMPEXP_EWC_BASE PluginSearch;
 class DLLIMPEXP_EWC_BASE PluginWorkspace;
 class DLLIMPEXP_EWC_BASE PluginHistoryFiles;

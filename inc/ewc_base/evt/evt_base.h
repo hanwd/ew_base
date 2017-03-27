@@ -8,7 +8,26 @@
 EW_ENTER
 
 class DLLIMPEXP_EWC_BASE IUpdParam;
-class IEW_Ctrl;
+class DLLIMPEXP_EWC_BASE IEW_Ctrl;
+
+class DLLIMPEXP_EWC_BASE ICtlParam
+{
+public:
+
+	ICtlParam(const String& t,int n=-1,IWindowPtr p=NULL)
+		:type(t)
+		,bmpsize(n)
+		,parent(p)
+	{
+		type=t;
+		bmpsize=n;
+		parent=p;
+	}
+
+	String type;
+	IWindowPtr parent;
+	int bmpsize;
+};
 
 class DLLIMPEXP_EWC_BASE IValueOptionData : public ObjectData
 {
@@ -153,10 +172,12 @@ public:
 
 	virtual wxWindow* GetWindow(){return NULL;}
 
-	virtual IMenuPtr CreateMenu(IEW_MenuImpl* mu=NULL,bool prepare=true){return NULL;}
-	virtual IWindowPtr CreateCtrl(IWindowPtr pw,int wd=-1,const String& type=""){return NULL;}
+	virtual IEW_Ctrl* CreateCtrl(const ICtlParam&){return NULL;}
 
-	virtual bool PopupMenu(IWindowPtr pw=NULL);
+	IMenuPtr CreateMenu(const ICtlParam& ctl=ICtlParam("menu"));
+	IWindowPtr CreateTbar(const ICtlParam&);
+
+	virtual bool PopupMenu(IWindowPtr pw=NULL,int x=-1,int y=-1);
 
 	void DetachAllListeners();
 

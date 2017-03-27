@@ -306,8 +306,14 @@
     <ClInclude Include="..\..\inc\ewc_base\plugin\plugin.h">
       <Filter>include\plugin</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\ewc_base\evt\evt_ctrlimpl.h">
-      <Filter>source\evt</Filter>
+    <ClInclude Include="..\..\inc\ewc_base\plugin\plugin_menu.h">
+      <Filter>include\plugin</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewc_base\plugin\plugin_ribbon.h">
+      <Filter>include\plugin</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewc_base\plugin\plugin_toolbar.h">
+      <Filter>include\plugin</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -545,8 +551,14 @@
     <ClCompile Include="..\..\src\ewc_base\plugin\plugin_expression.cpp">
       <Filter>source\plugin</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\ewc_base\evt\evt_ctrlimpl.cpp">
-      <Filter>source\evt</Filter>
+    <ClCompile Include="..\..\src\ewc_base\plugin\plugin_menu.cpp">
+      <Filter>source\plugin</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewc_base\plugin\plugin_ribbon.cpp">
+      <Filter>source\plugin</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewc_base\plugin\plugin_toolbar.cpp">
+      <Filter>source\plugin</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

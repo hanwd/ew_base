@@ -43,6 +43,13 @@ public:
 	virtual wxMenu* GetMenu(){ return NULL; }
 	virtual wxWindow* GetWindow(){return NULL;}
 
+
+	static void WndRegister(const String& type,Functor<IEW_Ctrl*(const ICtlParam&,EvtGroup*)> func);
+	static IEW_Ctrl* WndCreateCtrl(const ICtlParam& param,EvtGroup* pevt);
+
+	virtual void WndUpdateCtrl(){}
+	virtual bool WndIsOk(){return m_pGroup;}
+
 	bool StdExecuteEx(const String& func)
 	{
 		IStdParam cmd(func);

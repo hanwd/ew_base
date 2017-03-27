@@ -4,6 +4,8 @@
 #include "ewc_base/wnd/wnd_updator.h"
 #include "ewc_base/wnd/wnd_manager.h"
 
+#include "ewc_base/wnd/impl_wx/window.h"
+
 #ifdef EWC_BASE_DLL
 
 BOOL APIENTRY DllMain(HANDLE hModule,DWORD ul_reason_for_call,LPVOID lpReserved)

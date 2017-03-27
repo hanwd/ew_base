@@ -186,4 +186,21 @@ bool Wrapper::GetClipboardText(String& s)
 	return true;
 }
 
+bool Wrapper::PopupMenu(IMenuPtr mu,IWindowPtr pw,int x,int y)
+{
+	if(!mu)
+	{
+		return false;
+	}
+
+	if(!pw)
+	{
+		pw=WndManager::current().model.GetWindow();
+		if(!pw) return false;
+	}
+
+	pw->PopupMenu(mu,wxPoint(x,y));
+	return true;
+}
+
 EW_LEAVE

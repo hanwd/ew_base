@@ -26,6 +26,9 @@ int ew_main()
 // ×¢²á²å¼þ
 	wm.RegisterT<PluginMainWindow>();
 	wm.RegisterT<PluginBasic>();
+	wm.RegisterT<PluginMenu>();
+	wm.RegisterT<PluginToolBar>();
+	wm.RegisterT<PluginRibbon>();
 	wm.RegisterT<PluginSearch>();
 	wm.RegisterT<PluginWorkspace>();
 	wm.RegisterT<PluginStatusBar>();

@@ -20,8 +20,7 @@ public:
 
 	virtual void CreateCtrlItem(IEW_Ctrl* pctrl);
 
-	IMenuPtr CreateMenu(IEW_MenuImpl* mu=NULL,bool prepare=true);
-	IWindowPtr CreateCtrl(IWindowPtr pw,int wd=-1,const String& type="");
+	IEW_Ctrl* CreateCtrl(const ICtlParam&);
 
 	virtual EvtGroup* cast_group(){return this;}
 

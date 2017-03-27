@@ -1,6 +1,4 @@
 #include "ewc_base/evt/evt_command.h"
-#include "evt_ctrlimpl.h"
-
 #include "ewc_base/evt/validator.h"
 #include "ewc_base/app/res_manager.h"
 #include "ewc_base/evt/evt_manager.h"
@@ -8,6 +6,9 @@
 #include "ewc_base/wnd/wnd_model.h"
 #include "ewc_base/wnd/wnd_manager.h"
 #include "ewc_base/wnd/wnd_updator.h"
+
+#include "ewc_base/wnd/impl_wx/iwnd_textctrl.h"
+#include "ewc_base/wnd/impl_wx/iwnd_bookbase.h"
 
 EW_ENTER
 
@@ -38,6 +39,27 @@ bool IEW_Ctrl::AddCtrlItem(EvtGroup*)
 }
 
 
+
+static bst_map<String,Functor<IEW_Ctrl*(const ICtlParam&,EvtGroup*)> > g_WndCreators;
+
+void IEW_Ctrl::WndRegister(const String& type,Functor<IEW_Ctrl*(const ICtlParam&,EvtGroup*)> func)
+{
+	g_WndCreators[type]=func;
+}
+
+IEW_Ctrl* IEW_Ctrl::WndCreateCtrl(const ICtlParam& param,EvtGroup* pevt)
+{
+	auto it=g_WndCreators.find(param.type);
+	if(it!=g_WndCreators.end())
+	{
+		return (*it).second(param,pevt);
+	}
+	else
+	{
+		return NULL;
+	}
+
+}
 
 
 const BitmapBundle& EvtCommand::GetBundle(int w,int t)

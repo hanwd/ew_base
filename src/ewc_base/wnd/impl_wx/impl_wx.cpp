@@ -7,6 +7,8 @@
 
 EW_ENTER
 
+int wxEVT_USER_DROPDOWN_MENU = wxEVT_USER_FIRST;
+
 int32_t WndPropertyEx::flag_nb_dir() const
 {
 	int d=nb_dir();

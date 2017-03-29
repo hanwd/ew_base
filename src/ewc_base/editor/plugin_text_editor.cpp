@@ -279,49 +279,6 @@ IWnd_stc* PluginTextEditor::GetStc()
 }
 
 
-
-//
-//class EvtOptionTextEditor : public EvtOptionPage
-//{
-//public:
-//	typedef EvtOptionPage basetype;
-//
-//	EvtOptionTextEditor(const String& s):basetype(s)
-//	{
-//	
-//	}
-//	
-//	void DoCreatePage(WndMaker& km)
-//	{
-//
-//		km.border(2).sv(0);
-//		km.width(120).flags(IDefs::IWND_WITHCOLON).align(IDefs::ALIGN_RIGHT).sv(1);
-//		km.propotion(1).sv(2);
-//		km.flags(IDefs::IWND_EXPAND).sv(3);
-//
-//		km.win("container");
-//			km.row();
-//				km.col(km.ld(3));
-//					km.add("label"		,km.ld(1).label(_hT("fontsize")));
-//					km.add("textctrl"	,km.ld(2).name("/texteditor/fontsize"));
-//				km.end();
-//				km.col(km.ld(3));
-//					km.add("label"		,km.ld(1).label(_hT("tab_size")));
-//					km.add("textctrl"	,km.ld(2).name("/texteditor/tab_size"));
-//				km.end();
-//				km.col(km.ld(3));
-//					km.add("label"		,km.ld(1).label(_hT("flags")));
-//					km.col();
-//						km.add("checkbox"	,km.name("/texteditor/fold").label("fold"));
-//						km.add("checkbox"	,km.name("/texteditor/wrap").label("wrap"));
-//					km.end();
-//				km.end();
-//			km.end();
-//		km.end();
-//	}
-//
-//};
-
 bool PluginTextEditor::OnAttach()
 {
 

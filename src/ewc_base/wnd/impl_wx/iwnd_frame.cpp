@@ -35,6 +35,16 @@ void IWnd_frame::OnPaneClose(wxAuiManagerEvent& evt)
 	}
 }
 
+bool IWnd_frame::Layout()
+{
+	wxToolBar* tbar = GetToolBar();
+	if (tbar)
+	{
+		PositionToolBar();
+	}
+	return basetype::Layout();
+}
+
 bool IWnd_frame::UpdateModel()
 {
 	if(!basetype::UpdateModel())
@@ -127,6 +137,11 @@ public:
 						delete m_pRealBar;
 					}
 
+					wxSize DoGetBestSize() const
+					{
+						return m_pRealBar->GetBestSize();
+					}
+
 					void DoSetSize(int x, int y, int width, int height, int sizeFlags)
 					{
 						m_pRealBar->SetSize(x,y,width,height,sizeFlags);
@@ -140,6 +155,14 @@ public:
 					void DoGetPosition(int *x, int *y) const
 					{
 						m_pRealBar->GetPosition(x,y);
+					}
+
+					bool Layout()
+					{
+						wxSize sz=m_pRealBar->GetBestSize();
+						sz.x = -1;
+						m_pRealBar->SetSize(sz);
+						return true;
 					}
 
 					bool IsShown() const { return m_pRealBar->IsShown(); }

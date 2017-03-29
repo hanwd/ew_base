@@ -55,7 +55,7 @@ void WndUpdator::tb_add(const String& s,int f)
 	if(!pg) return;
 
 	pg->flags.add(f);
-	wxWindow* tb=pg->CreateTbar(ICtlParam("toolbar",24,wm.model.GetWindow()));
+	wxWindow* tb=pg->CreateTbar(ICtlParam("aui_bar",24,wm.model.GetWindow()));
 	if(!tb) return;
 	
 	pg->flags.del(EvtCommand::FLAG_DOTDOT);

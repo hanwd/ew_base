@@ -15,13 +15,17 @@ IDat_search& IDat_search::current()
 	return gInstance;
 }
 
-AppData::AppData()
+AppData::AppData() :evt_user_dropdown_menu(wxEVT_USER_FIRST)
 {
 	toolbitmap_size=24;
 	menubitmap_size=16;
 	toolbar_type="toolbar";
 }
 
+AppData& AppData::current()
+{
+	return WndManager::current().data;
+}
 
 IFileNameData* IFileNameData::DoClone(ObjectCloneState&)
 {

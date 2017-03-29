@@ -22,6 +22,8 @@ public:
 	void OnPaneClose(wxAuiManagerEvent& evt);
 	bool UpdateModel();
 
+	bool Layout();
+	
 };
 
 EW_LEAVE

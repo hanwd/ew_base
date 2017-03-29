@@ -84,6 +84,34 @@ protected:
 protected:
 	void InitToolItem(EvtCommand* pevt, IAuiToolItemPtr item);
 
+
+
+
+	void OnDropDown(wxAuiToolBarEvent& evt)
+	{
+		if (!evt.IsDropDownClicked())
+		{
+			evt.Skip();
+			return;
+		}
+
+		evt.SetEventType(AppData::current().evt_user_dropdown_menu);
+		AppData::current().popup_dropdown_menu.bind(&IEW_AuiTBarImpl::EvtPopupMenu, _1, _2, evt);
+
+		evt.Skip();
+	}
+
+	static void EvtPopupMenu(wxWindow*, wxMenu* menu, wxAuiToolBarEvent& evt)
+	{
+		int evtid = evt.GetId();
+		wxAuiToolBar* tbar = static_cast<wxAuiToolBar*>(evt.GetEventObject());
+		if (!tbar) return;
+		wxRect rect = tbar->GetToolRect(evtid);
+		tbar->PopupMenu(menu, rect.GetBottomLeft());
+	}
+
+
+
 };
 
 
@@ -264,6 +292,8 @@ IEW_AuiTBarImpl::IEW_AuiTBarImpl(EvtGroup* pevt, wxWindow* pw, int wd)
 
 	this->SetName(str2wx(pevt->m_sId));
 
+
+	this->Connect(wxID_ANY, wxEVT_AUITOOLBAR_TOOL_DROPDOWN, wxAuiToolBarEventHandler(IEW_AuiTBarImpl::OnDropDown));
 
 }
 

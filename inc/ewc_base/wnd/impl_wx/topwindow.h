@@ -52,8 +52,10 @@ public:
 
 
 	void OnCloseFrame(wxCloseEvent& evt);
-	void OnDropDown(wxAuiToolBarEvent& evt);
+
 	void OnActivate(wxActivateEvent &evt);
+
+	void OnDropDown(wxCommandEvent& evt);
 
 	virtual bool UpdateModel();
 

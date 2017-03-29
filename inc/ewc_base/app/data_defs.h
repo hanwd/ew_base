@@ -28,6 +28,12 @@ public:
 	int toolbitmap_size;
 	int menubitmap_size;
 	String toolbar_type;
+
+	const int evt_user_dropdown_menu;
+	Functor<void(wxWindow*,wxMenu*)> popup_dropdown_menu;
+
+	static AppData& current();
+	
 };
 
 

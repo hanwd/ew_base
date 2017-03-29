@@ -5,6 +5,10 @@
 #include "ewc_base/wnd/impl_wx/topwindow.h"
 #include "ewc_base/wnd/wnd_model.h"
 
+#include "wx/ribbon/bar.h"
+#include "wx/ribbon/buttonbar.h"
+#include "wx/ribbon/gallery.h"
+#include "wx/ribbon/toolbar.h"
 
 EW_ENTER
 
@@ -76,30 +80,45 @@ void IWnd_topwindow<T>::OnActivate(wxActivateEvent &evt)
 
 
 template<typename T>
-void IWnd_topwindow<T>::OnDropDown(wxAuiToolBarEvent& evt)
+void IWnd_topwindow<T>::OnDropDown(wxCommandEvent& evt)
 {
-    if (!evt.IsDropDownClicked())
-    {
-		evt.Skip();
-		return;
-	}
 
 	int evtid=evt.GetId();
 	if(EvtBase* pevt=m_pModel->local_evtmgr.chained_get(evtid))
 	{
-		wxAuiToolBar* tb = static_cast<wxAuiToolBar*>(evt.GetEventObject());
-		tb->SetToolSticky(evtid, true);
-
-		wxRect rect = tb->GetToolRect(evtid);
-		wxPoint pt = tb->ClientToScreen(rect.GetBottomLeft());
-		pt = ScreenToClient(pt);
-
-		pevt->PopupMenu(this,pt.x,pt.y);
-		tb->SetToolSticky(evtid, false);
+		AutoPtrT<IEW_Ctrl> pctrl(pevt->CreateCtrl(ICtlParam("menu")));
+		if (!pctrl || !pctrl->WndIsOk() || !AppData::current().popup_dropdown_menu) return;
+		AppData::current().popup_dropdown_menu(this, pctrl->GetMenu());
+		AppData::current().popup_dropdown_menu.clear();
 	}
-
-
 }
+
+//
+//template<typename T>
+//void IWnd_topwindow<T>::OnDropDown(wxAuiToolBarEvent& evt)
+//{
+//    if (!evt.IsDropDownClicked())
+//    {
+//		evt.Skip();
+//		return;
+//	}
+//
+//	int evtid=evt.GetId();
+//	if(EvtBase* pevt=m_pModel->local_evtmgr.chained_get(evtid))
+//	{
+//		wxAuiToolBar* tb = static_cast<wxAuiToolBar*>(evt.GetEventObject());
+//		tb->SetToolSticky(evtid, true);
+//
+//		wxRect rect = tb->GetToolRect(evtid);
+//		wxPoint pt = tb->ClientToScreen(rect.GetBottomLeft());
+//		pt = ScreenToClient(pt);
+//
+//		pevt->PopupMenu(this,pt.x,pt.y);
+//		tb->SetToolSticky(evtid, false);
+//	}
+//
+//
+//}
 
 
 template<typename T>
@@ -154,6 +173,7 @@ wxWindow* IWnd_get_topwindow(wxWindow* w)
 	return w;
 }
 
+
 template<typename T>
 IWnd_topwindow<T>::IWnd_topwindow(wxWindow* w,const WndPropertyEx& h,int f)
 	:T(
@@ -184,7 +204,8 @@ IWnd_topwindow<T>::IWnd_topwindow(wxWindow* w,const WndPropertyEx& h,int f)
 	this->Connect(wxID_ANY,wxEVT_CLOSE_WINDOW,wxEVT_CLOSE_WINDOW,wxCloseEventHandler(IWnd_topwindow::OnCloseFrame));
 	this->Connect(wxID_ANY,wxEVT_ACTIVATE,wxActivateEventHandler(IWnd_topwindow::OnActivate));
 
-	this->Connect(wxID_ANY,wxEVT_AUITOOLBAR_TOOL_DROPDOWN, wxAuiToolBarEventHandler(IWnd_topwindow::OnDropDown));
+	//this->Connect(wxID_ANY,wxEVT_AUITOOLBAR_TOOL_DROPDOWN, wxAuiToolBarEventHandler(IWnd_topwindow::OnDropDown));
+	this->Connect(wxID_ANY,AppData::current().evt_user_dropdown_menu, wxCommandEventHandler(IWnd_topwindow::OnDropDown));
 
 }
 

@@ -16,12 +16,12 @@ EW_ENTER
 
 
 
-class IEW_RibbonImpl : public wxRibbonToolBar, public IEW_Ctrl
+class IEW_RibbonToolBarImpl : public wxRibbonToolBar, public IEW_Ctrl
 {
 public:
 
-	IEW_RibbonImpl(EvtGroup* mu, wxWindow* pw, int wd);
-	~IEW_RibbonImpl();
+	IEW_RibbonToolBarImpl(EvtGroup* mu, wxWindow* pw, int wd);
+	~IEW_RibbonToolBarImpl();
 
 	bool AddCtrlItem(EvtCommand* pevt);
 	bool AddCtrlItem(EvtCommand* pevt, wxControl* p);
@@ -31,15 +31,33 @@ public:
 
 	bool StdExecute(IStdParam& cmd);
 
+	static void EvtPopupMenu(wxWindow*, wxMenu* p, wxRibbonToolBarEvent* e)
+	{
+		e->PopupMenu(p);
+	}
+
+	void OnRibbonToolDropdown(wxRibbonToolBarEvent& evt)
+	{
+		evt.SetEventType(AppData::current().evt_user_dropdown_menu);
+		AppData::current().popup_dropdown_menu.bind(&IEW_RibbonToolBarImpl::EvtPopupMenu, _1, _2, &evt);
+		evt.Skip();
+	}
+
+	void OnRibbonToolClick(wxRibbonToolBarEvent& evt)
+	{
+		evt.SetEventType(wxEVT_COMMAND_BUTTON_CLICKED);
+		evt.Skip();
+	}
 
 protected:
 
 	class IEW_WxCtrlData_tool : public IEW_CtrlData
 	{
 	public:
-		IEW_WxCtrlData_tool(EvtCommand* pevt_, wxRibbonToolBarToolBase* item_) :IEW_CtrlData(pevt_), item(item_){}
+		IEW_WxCtrlData_tool(EvtCommand* pevt_, wxRibbonToolBarToolBase* item_, IEW_RibbonToolBarImpl* tbar_) 
+			:IEW_CtrlData(pevt_), item(item_),tbar(tbar_){}
 		wxRibbonToolBarToolBase* item;
-
+		IEW_RibbonToolBarImpl* tbar;
 		void UpdateCtrl();
 		void UpdateBmps();
 	};
@@ -50,14 +68,13 @@ protected:
 };
 
 
-IEW_RibbonImpl::IEW_RibbonImpl(EvtGroup* pevt, wxWindow* pw, int wd)
+IEW_RibbonToolBarImpl::IEW_RibbonToolBarImpl(EvtGroup* pevt, wxWindow* pw, int wd)
 :wxRibbonToolBar()
 , IEW_Ctrl(pevt)
 {
 	wd=wd<0?WndManager::current().data.toolbitmap_size:wd;
 	this->Create(pw, pevt->m_nId, wxDefaultPosition, wxDefaultSize);
 	this->SetName(str2wx(m_pGroup->m_sId));
-	//this->SetToolBitmapSize(wxSize(wd, wd));
 
 	for(size_t i=0;i<pevt->size();i++)
 	{
@@ -84,14 +101,17 @@ IEW_RibbonImpl::IEW_RibbonImpl(EvtGroup* pevt, wxWindow* pw, int wd)
 
 	this->SetName(str2wx(pevt->m_sId));
 
+	this->Connect(wxID_ANY, wxEVT_RIBBONTOOLBAR_CLICKED, wxRibbonToolBarEventHandler(IEW_RibbonToolBarImpl::OnRibbonToolClick));
+	this->Connect(wxID_ANY, wxEVT_RIBBONTOOLBAR_DROPDOWN_CLICKED, wxRibbonToolBarEventHandler(IEW_RibbonToolBarImpl::OnRibbonToolDropdown));
+
 }
 
-IEW_RibbonImpl::~IEW_RibbonImpl()
+IEW_RibbonToolBarImpl::~IEW_RibbonToolBarImpl()
 {
 
 }
 
-bool IEW_RibbonImpl::StdExecute(IStdParam& cmd)
+bool IEW_RibbonToolBarImpl::StdExecute(IStdParam& cmd)
 {
 	if(cmd.extra1=="clear")
 	{
@@ -109,13 +129,13 @@ bool IEW_RibbonImpl::StdExecute(IStdParam& cmd)
 	return true;
 }
 
-bool IEW_RibbonImpl::AddCtrlItem(EvtCommand* pevt, wxControl* p)
+bool IEW_RibbonToolBarImpl::AddCtrlItem(EvtCommand* pevt, wxControl* p)
 {
 
 	return false;
 }
 
-bool IEW_RibbonImpl::AddCtrlItem(EvtCommand* pevt)
+bool IEW_RibbonToolBarImpl::AddCtrlItem(EvtCommand* pevt)
 {
 	if (pevt->flags.get(EvtCommand::FLAG_SEPARATOR))
 	{
@@ -133,55 +153,103 @@ bool IEW_RibbonImpl::AddCtrlItem(EvtCommand* pevt)
 	return true;
 }
 
-bool IEW_RibbonImpl::AddCtrlItem(EvtGroup* pevt)
+bool IEW_RibbonToolBarImpl::AddCtrlItem(EvtGroup* pevt)
 {
 	const BitmapBundle& bundle(pevt->GetBundle(16,1));
 	wxRibbonToolBarToolBase* item = wxRibbonToolBar::AddTool(pevt->m_nId, bundle.bmp_normal,bundle.bmp_disabled,str2wx(pevt->MakeLabel()), wxRIBBON_BUTTON_DROPDOWN);
-	//item->SetDropdownMenu(pevt->CreateMenu());
 	InitToolItem(pevt, item);
 	return true;
 }
 
 
-void IEW_RibbonImpl::IEW_WxCtrlData_tool::UpdateCtrl()
+
+void IEW_RibbonToolBarImpl::IEW_WxCtrlData_tool::UpdateCtrl()
 {
 	if (pevt->m_nId<0)
 	{
 		return;
 	}
 
+	if (!tbar) return;
+	tbar->SetToolHelpString(pevt->m_nId, str2wx(pevt->MakeLabel(EvtBase::LABEL_TOOL)));
+
+	if (pevt->flags.get(EvtBase::FLAG_CHECK))
+	{
+		tbar->ToggleTool(pevt->m_nId, pevt->flags.get(EvtBase::FLAG_CHECKED));
+	}
 	
 
-	IEW_RibbonImpl* tb = (IEW_RibbonImpl*)NULL;//item->GetToolBar();
-	if (!tb) return;
+	tbar->EnableTool(pevt->m_nId, !pevt->flags.get(EvtBase::FLAG_DISABLE | EvtBase::FLAG_HIDE_UI));
 
 	//item->SetShortHelp(str2wx(pevt->MakeLabel()));
 	//item->SetLabel(str2wx(pevt->MakeLabel(EvtBase::LABEL_TOOL)));
 	//item->SetLongHelp(str2wx(pevt->m_sHelp));
 
-	//if (pevt->flags.get(EvtBase::FLAG_CHECK))
-	//{
-	//	item->SetToggle(true);
-	//	tb->ToggleTool(pevt->m_nId, pevt->flags.get(EvtBase::FLAG_CHECKED));
-	//}
-	tb->EnableTool(pevt->m_nId, !pevt->flags.get(EvtBase::FLAG_DISABLE | EvtBase::FLAG_HIDE_UI));
 }
 
 
-void IEW_RibbonImpl::IEW_WxCtrlData_tool::UpdateBmps()
+void IEW_RibbonToolBarImpl::IEW_WxCtrlData_tool::UpdateBmps()
 {
 
 
 }
 
-void IEW_RibbonImpl::InitToolItem(EvtCommand* pevt, wxRibbonToolBarToolBase* item)
+void IEW_RibbonToolBarImpl::InitToolItem(EvtCommand* pevt, wxRibbonToolBarToolBase* item)
 {
-	IEW_WxCtrlData_tool* pctrl = new IEW_WxCtrlData_tool(pevt, item);
+	IEW_WxCtrlData_tool* pctrl = new IEW_WxCtrlData_tool(pevt, item,this);
 	m_aItems.append(pctrl);
 	pctrl->UpdateBmps();
 	pctrl->UpdateCtrl();
 }
 
+class XXRibbonPanel : public wxRibbonPanel
+{
+public:
+	String name;
+	XXRibbonPanel(const String& n) :name(n){}
+};
+
+class XXRibbonPanelToolbar : public XXRibbonPanel
+{
+public:
+
+	XXRibbonPanelToolbar(const String& n,IWindowPtr p,EvtGroup* pevt) :XXRibbonPanel(n)
+	{
+		Create(p, wxID_ANY, str2wx(Translate(name)),
+		wxNullBitmap, wxDefaultPosition, wxDefaultSize,
+		wxRIBBON_PANEL_NO_AUTO_MINIMISE |
+		wxRIBBON_PANEL_EXT_BUTTON);
+		new IEW_RibbonToolBarImpl(pevt, this, 16);
+	}
+
+};
+
+
+class XXRibbonPage : public wxRibbonPage
+{
+public:
+	XXRibbonPage(const String& n) :name(n){}
+
+	String name;
+	arr_1t<XXRibbonPanel*> panels;
+
+	void AddPanel(EvtGroup* pevt)
+	{
+		String panel_name = pevt->m_sId;
+		XXRibbonPanelToolbar* p = new XXRibbonPanelToolbar(panel_name, this, pevt);
+		for (size_t i = 0; i < panels.size(); i++)
+		{
+			if (panels[i]->name == panel_name)
+			{
+				delete panels[i];
+				panels[i] = p;
+				return;
+			}
+		}
+		panels.push_back(p);
+	}
+
+};
 
 class XXRibbonBar : public wxRibbonBar, public IEW_Ctrl
 {
@@ -193,15 +261,97 @@ public:
                                 | wxRIBBON_BAR_SHOW_HELP_BUTTON
                                 )
 	{
-        
+		wxRibbonBarEvent evt;
+		                       
 
+
+		this->Connect(wxID_ANY,wxEVT_RIBBONBUTTONBAR_CLICKED,  wxRibbonButtonBarEventHandler(XXRibbonBar::OnRibbonButtonClick));
+		this->Connect(wxID_ANY,wxEVT_RIBBONBUTTONBAR_DROPDOWN_CLICKED,  wxRibbonButtonBarEventHandler(XXRibbonBar::OnRibbonButtonDropdown));
+
+
+		this->Connect(wxID_ANY,wxEVT_RIBBONBAR_HELP_CLICK,wxRibbonBarEventHandler(XXRibbonBar::OnRibbonBarHelpClicked));
+		this->Connect(wxID_ANY,wxEVT_RIBBONBAR_TOGGLED,wxRibbonBarEventHandler(XXRibbonBar::OnRibbonBarToggled));
+		this->Connect(wxID_ANY, wxEVT_RIBBONBAR_PAGE_CHANGED, wxRibbonBarEventHandler(XXRibbonBar::OnRibbonBarPageChanged));
+	}
+
+
+
+
+
+	void OnRibbonButtonDropdown(wxRibbonButtonBarEvent& evt)
+	{
+		evt.SetEventType(AppData::current().evt_user_dropdown_menu);
+		evt.Skip();
+	}
+
+	void OnRibbonButtonClick(wxRibbonButtonBarEvent& evt)
+	{
+		evt.SetEventType(wxEVT_COMMAND_BUTTON_CLICKED);
+		evt.Skip();
+	}
+
+	void OnRibbonBarToggled(wxRibbonBarEvent&)
+	{
+		wxSize sz1 = this->GetBestSize();
+		sz1.x = -1;
+
+		this->SetSize(sz1);
+
+		wxWindow* p = GetParent();
+		p->Layout();
+	}
+
+	void OnRibbonBarPageChanged(wxRibbonBarEvent&)
+	{
+		wxSize sz1 = this->GetBestSize();
+		sz1.x = -1;
+
+		this->SetSize(sz1);
+
+		wxWindow* p = GetParent();
+		p->Layout();
+	}
+
+	void OnRibbonBarHelpClicked(wxRibbonBarEvent&)
+	{
 
 	}
+	
+
+
+	XXRibbonPage* find2(const String& name)
+	{
+		XXRibbonPage* p = NULL;
+		for (size_t i = 0; i < pages.size(); i++)
+		{
+			if (pages[i]->name == name)
+			{
+				p = pages[i];
+				break;
+			}
+		}
+		if (!p)
+		{
+			p = new XXRibbonPage(name);
+			p->Create(this, wxID_ANY, str2wx(Translate(name)), wxNullBitmap);
+			pages.push_back(p);
+		}
+		return p;
+	}
+
+	void AddPanel(const String& page_name, EvtGroup* pevt)
+	{
+		XXRibbonPage* p = find2(page_name);
+		p->AddPanel(pevt);
+	}
+
+
+	arr_1t<XXRibbonPage*> pages;
 
 	wxWindow* GetWindow(){return this;}
 
-
 };
+
 
 
 static XXRibbonBar* p_ribbon_bar=NULL;
@@ -216,14 +366,8 @@ static IEW_Ctrl* WndCreateRibbonToolBar(const ICtlParam& param,EvtGroup* pevt)
 	}
 
 	static int n=0;
+	p_ribbon_bar->AddPanel(String::Format("page_%d",n++), pevt);
 
-	wxRibbonPage* page = new wxRibbonPage(p_ribbon_bar, wxID_ANY, wxT("Examples"), wxNullBitmap);
-    wxRibbonPanel* t = new wxRibbonPanel(page, wxID_ANY, wxT("Toolbar"), 
-                                        wxNullBitmap, wxDefaultPosition, wxDefaultSize, 
-                                        wxRIBBON_PANEL_NO_AUTO_MINIMISE |
-                                        wxRIBBON_PANEL_EXT_BUTTON);
-
-	new IEW_RibbonImpl(pevt,t,param.bmpsize);
 
 	if(first)
 	{

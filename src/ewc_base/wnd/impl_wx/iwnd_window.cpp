@@ -285,6 +285,7 @@ bool IWnd_topwindow<T>::Validate()
 	return m_pVald->WndExecuteEx(IDefs::ACTION_VALIDATE);
 }
 
+
 template<typename T>
 bool IWnd_topwindow<T>::IsModified()
 {

@@ -1,5 +1,6 @@
 #include "ewc_base/wnd/impl_wx/iwnd_frame.h"
 #include "ewc_base/wnd/wnd_updator.h"
+#include "wx/ribbon/bar.h"
 
 EW_ENTER
 
@@ -108,6 +109,45 @@ public:
 					pWindow->SetMenuBar(NULL);
 					pMenuBar.reset(mb);
 				}
+			}
+			else if(wxRibbonBar* rb=dynamic_cast<wxRibbonBar*>(w))
+			{
+
+				class MyToolBar : public wxToolBar
+				{
+				public:
+
+					MyToolBar(wxWindow* p):m_pRealBar(p)
+					{
+						m_windowStyle=wxTB_TOP;
+					}
+
+					~MyToolBar()
+					{
+						delete m_pRealBar;
+					}
+
+					void DoSetSize(int x, int y, int width, int height, int sizeFlags)
+					{
+						m_pRealBar->SetSize(x,y,width,height,sizeFlags);
+					}
+
+					void DoGetSize(int *x, int *y) const
+					{
+						m_pRealBar->GetBestSize(x,y);	
+					}
+
+					void DoGetPosition(int *x, int *y) const
+					{
+						m_pRealBar->GetPosition(x,y);
+					}
+
+					bool IsShown() const { return m_pRealBar->IsShown(); }
+
+					wxWindow* m_pRealBar;
+				};	
+				pWindow->GetMenuBar()->Show(false);
+				pWindow->SetToolBar(new MyToolBar(rb));		
 			}
 			else
 			{

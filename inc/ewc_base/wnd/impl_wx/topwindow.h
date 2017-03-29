@@ -45,6 +45,7 @@ class DLLIMPEXP_EWC_BASE IWnd_topwindow : public T
 {
 public:
 
+	typedef T basetype;
 
 	IWnd_topwindow(wxWindow* w,const WndPropertyEx& h,int f);
 	~IWnd_topwindow();
@@ -73,9 +74,8 @@ public:
 	EvtCtrlGroup aMenus;
 	EvtCtrlGroup aTools;
 
-
-
 	void SetValidatorTop(ValidatorTop* p);
+
 
 protected:
 

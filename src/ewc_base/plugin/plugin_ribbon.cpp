@@ -254,29 +254,21 @@ public:
 class XXRibbonBar : public wxRibbonBar, public IEW_Ctrl
 {
 public:
-	XXRibbonBar(wxWindow * p):wxRibbonBar(p,-1,wxDefaultPosition, wxDefaultSize, wxRIBBON_BAR_FLOW_HORIZONTAL
+	XXRibbonBar(wxWindow * p):wxRibbonBar(p,-1,wxDefaultPosition, wxDefaultSize
+								, wxRIBBON_BAR_FLOW_HORIZONTAL
                                 | wxRIBBON_BAR_SHOW_PAGE_LABELS
+								| wxRIBBON_BAR_SHOW_PAGE_ICONS
                                 | wxRIBBON_BAR_SHOW_PANEL_EXT_BUTTONS
                                 | wxRIBBON_BAR_SHOW_TOGGLE_BUTTON
                                 | wxRIBBON_BAR_SHOW_HELP_BUTTON
+								| wxRIBBON_BAR_SHOW_PANEL_MINIMISE_BUTTONS
                                 )
 	{
-		wxRibbonBarEvent evt;
-		                       
-
 
 		this->Connect(wxID_ANY,wxEVT_RIBBONBUTTONBAR_CLICKED,  wxRibbonButtonBarEventHandler(XXRibbonBar::OnRibbonButtonClick));
 		this->Connect(wxID_ANY,wxEVT_RIBBONBUTTONBAR_DROPDOWN_CLICKED,  wxRibbonButtonBarEventHandler(XXRibbonBar::OnRibbonButtonDropdown));
-
-
 		this->Connect(wxID_ANY,wxEVT_RIBBONBAR_HELP_CLICK,wxRibbonBarEventHandler(XXRibbonBar::OnRibbonBarHelpClicked));
-		this->Connect(wxID_ANY,wxEVT_RIBBONBAR_TOGGLED,wxRibbonBarEventHandler(XXRibbonBar::OnRibbonBarToggled));
-		this->Connect(wxID_ANY, wxEVT_RIBBONBAR_PAGE_CHANGED, wxRibbonBarEventHandler(XXRibbonBar::OnRibbonBarPageChanged));
 	}
-
-
-
-
 
 	void OnRibbonButtonDropdown(wxRibbonButtonBarEvent& evt)
 	{
@@ -288,28 +280,6 @@ public:
 	{
 		evt.SetEventType(wxEVT_COMMAND_BUTTON_CLICKED);
 		evt.Skip();
-	}
-
-	void OnRibbonBarToggled(wxRibbonBarEvent&)
-	{
-		wxSize sz1 = this->GetBestSize();
-		sz1.x = -1;
-
-		this->SetSize(sz1);
-
-		wxWindow* p = GetParent();
-		p->Layout();
-	}
-
-	void OnRibbonBarPageChanged(wxRibbonBarEvent&)
-	{
-		wxSize sz1 = this->GetBestSize();
-		sz1.x = -1;
-
-		this->SetSize(sz1);
-
-		wxWindow* p = GetParent();
-		p->Layout();
 	}
 
 	void OnRibbonBarHelpClicked(wxRibbonBarEvent&)
@@ -341,7 +311,23 @@ public:
 
 	void AddPanel(const String& page_name, EvtGroup* pevt)
 	{
-		XXRibbonPage* p = find2(page_name);
+		XXRibbonPage* p = NULL;
+		for (size_t i = 0; i < pages.size(); i++)
+		{
+			if (pages[i]->name == page_name)
+			{
+				p = pages[i];
+				break;
+			}
+		}
+		if (!p)
+		{
+			p = new XXRibbonPage(page_name);
+			const BitmapBundle& bundle(pevt->GetBundle(16,1));
+			p->Create(this, wxID_ANY, str2wx(Translate(page_name)), bundle.bmp_normal);
+			pages.push_back(p);
+		}
+
 		p->AddPanel(pevt);
 	}
 

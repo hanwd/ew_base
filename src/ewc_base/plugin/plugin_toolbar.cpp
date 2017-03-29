@@ -18,8 +18,6 @@ PluginToolBar::PluginToolBar(WndManager& w):PluginCommon(w,"Plugin.ToolBar")
 
 }
 
-
-
 class IEW_TBarImpl : public wxToolBar, public IEW_Ctrl
 {
 public:

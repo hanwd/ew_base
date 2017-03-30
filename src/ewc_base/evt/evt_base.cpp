@@ -202,14 +202,14 @@ void EvtBase::DetachListener(EvtListener* pListener)
 
 bool EvtBase::PopupMenu(IWindowPtr pw,int x,int y)
 {
-	AutoPtrT<IEW_Ctrl> pctrl(CreateCtrl(ICtlParam("menu")));
+	AutoPtrT<ICtl_object> pctrl(CreateCtrl(ICtlParam("menu")));
 	if(!pctrl||!pctrl->WndIsOk()) return false;
 	return Wrapper::PopupMenu(pctrl->GetMenu(),pw,x,y);
 }
 
 IMenuPtr EvtBase::CreateMenu(const ICtlParam& ctl)
 {
-	IEW_Ctrl* p=CreateCtrl(ctl);
+	ICtl_object* p=CreateCtrl(ctl);
 	if(p && p->GetMenu()) return p->GetMenu();
 	delete p;
 	return NULL;
@@ -217,7 +217,7 @@ IMenuPtr EvtBase::CreateMenu(const ICtlParam& ctl)
 
 IWindowPtr EvtBase::CreateTbar(const ICtlParam& ctl)
 {
-	IEW_Ctrl* p=CreateCtrl(ctl);
+	ICtl_object* p=CreateCtrl(ctl);
 	if(p && p->GetWindow()) return p->GetWindow();
 	delete p;
 	return NULL;

@@ -11,16 +11,16 @@ class DLLIMPEXP_EWC_BASE EvtGroup  : public ObjectGroupT<EvtCommand,EvtCommandWi
 public:
 	typedef ObjectGroupT<EvtCommand,EvtCommandWindow> basetype;
 
-	friend class IEW_Ctrl;
+	friend class ICtl_object;
 
 	EvtGroup(const String& name="");
 
 	virtual void DoUpdateCtrl(IUpdParam& upd);
 	virtual void PrepareItems();
 
-	virtual void CreateCtrlItem(IEW_Ctrl* pctrl);
+	virtual void CreateCtrlItem(ICtl_object* pctrl);
 
-	IEW_Ctrl* CreateCtrl(const ICtlParam&);
+	ICtl_object* CreateCtrl(const ICtlParam&);
 
 	virtual EvtGroup* cast_group(){return this;}
 
@@ -39,7 +39,7 @@ public:
 
 protected:
 
-	bst_set<IEW_Ctrl*> m_aCtrls;
+	bst_set<ICtl_object*> m_aCtrls;
 	arr_1t<EvtItem> m_aItems;
 
 	void DoPrepareItems(const arr_1t<EvtItem>& a);

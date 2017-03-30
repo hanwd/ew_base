@@ -75,9 +75,9 @@ class DLLIMPEXP_EWC_BASE ValidatorGroup;
 class DLLIMPEXP_EWC_BASE EvtManager;
 class DLLIMPEXP_EWC_BASE ResManager;
 
-class DLLIMPEXP_EWC_BASE IEW_MenuImpl;
-class DLLIMPEXP_EWC_BASE IEW_TBarImpl;
-class DLLIMPEXP_EWC_BASE IEW_AuiTBarImpl;
+class DLLIMPEXP_EWC_BASE ICtl_menu;
+class DLLIMPEXP_EWC_BASE ICtl_toolbar;
+class DLLIMPEXP_EWC_BASE ICtl_aui_toolbar;
 
 class DLLIMPEXP_EWC_BASE Plugin;
 class DLLIMPEXP_EWC_BASE PluginManager;

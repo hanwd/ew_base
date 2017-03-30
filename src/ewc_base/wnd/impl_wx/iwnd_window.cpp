@@ -81,7 +81,7 @@ void IWnd_topwindow<T>::OnDropDown(wxCommandEvent& evt)
 	int evtid=evt.GetId();
 	if(EvtBase* pevt=m_pModel->local_evtmgr.chained_get(evtid))
 	{
-		AutoPtrT<IEW_Ctrl> pctrl(pevt->CreateCtrl(ICtlParam("menu")));
+		AutoPtrT<ICtl_object> pctrl(pevt->CreateCtrl(ICtlParam("menu")));
 		if (!pctrl || !pctrl->WndIsOk() || !AppData::current().popup_dropdown_menu) return;
 		AppData::current().popup_dropdown_menu(this, pctrl->GetMenu());
 		AppData::current().popup_dropdown_menu.clear();

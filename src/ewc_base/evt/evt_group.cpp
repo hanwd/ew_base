@@ -28,7 +28,7 @@ void EvtGroup::DoUpdateCtrl(IUpdParam& upd)
 		basetype::DoUpdateCtrl(upd);
 	}
 
-	for(bst_set<IEW_Ctrl*>::iterator it=m_aCtrls.begin();it!=m_aCtrls.end();++it)
+	for(bst_set<ICtl_object*>::iterator it=m_aCtrls.begin();it!=m_aCtrls.end();++it)
 	{
 		(*it)->StdExecuteEx("update");
 	}
@@ -105,7 +105,7 @@ void EvtGroup::DoPrepareItems(const arr_1t<EvtItem>& items)
 
 
 
-void EvtGroup::CreateCtrlItem(IEW_Ctrl* pctrl)
+void EvtGroup::CreateCtrlItem(ICtl_object* pctrl)
 {
 	if(pctrl->GetWindow()||!flags.get(FLAG_CHECK))
 	{
@@ -118,10 +118,10 @@ void EvtGroup::CreateCtrlItem(IEW_Ctrl* pctrl)
 }
 
 
-IEW_Ctrl* EvtGroup::CreateCtrl(const ICtlParam& param)
+ICtl_object* EvtGroup::CreateCtrl(const ICtlParam& param)
 {
 	PrepareItems();
-	return IEW_Ctrl::WndCreateCtrl(param,this);
+	return ICtl_object::WndCreateCtrl(param,this);
 }
 
 

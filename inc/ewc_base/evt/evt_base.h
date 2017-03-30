@@ -8,7 +8,7 @@
 EW_ENTER
 
 class DLLIMPEXP_EWC_BASE IUpdParam;
-class DLLIMPEXP_EWC_BASE IEW_Ctrl;
+class DLLIMPEXP_EWC_BASE ICtl_object;
 
 class DLLIMPEXP_EWC_BASE ICtlParam
 {
@@ -164,7 +164,7 @@ public:
 
 	// 创建关联的工具，菜单，或窗口。
 
-	virtual void CreateCtrlItem(IEW_Ctrl* pctrl){}
+	virtual void CreateCtrlItem(ICtl_object* pctrl){}
 
 	virtual IWindowPtr CreateWndsItem(IWindowPtr){return NULL;}
 
@@ -172,7 +172,7 @@ public:
 
 	virtual wxWindow* GetWindow(){return NULL;}
 
-	virtual IEW_Ctrl* CreateCtrl(const ICtlParam&){return NULL;}
+	virtual ICtl_object* CreateCtrl(const ICtlParam&){return NULL;}
 
 	IMenuPtr CreateMenu(const ICtlParam& ctl=ICtlParam("menu"));
 	IWindowPtr CreateTbar(const ICtlParam&);

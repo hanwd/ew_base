@@ -12,12 +12,12 @@ EW_ENTER
 
 class DLLIMPEXP_EWC_BASE IWnd_bookbase;
 
-class DLLIMPEXP_EWC_BASE IEW_CtrlData : public ObjectData
+class DLLIMPEXP_EWC_BASE ICtl_itemdata : public ObjectData
 {
 public:
 
-	IEW_CtrlData(EvtCommand* p);
-	~IEW_CtrlData();
+	ICtl_itemdata(EvtCommand* p);
+	~ICtl_itemdata();
 
 	virtual void UpdateCtrl(){}
 	virtual void UpdateBmps(){}
@@ -27,12 +27,12 @@ protected:
 
 };
 
-class DLLIMPEXP_EWC_BASE IEW_Ctrl : public Object
+class DLLIMPEXP_EWC_BASE ICtl_object : public Object
 {
 public:
 
-	IEW_Ctrl(EvtGroup* p=NULL);
-	~IEW_Ctrl();
+	ICtl_object(EvtGroup* p=NULL);
+	~ICtl_object();
 
 	virtual bool StdExecute(IStdParam&){return true;}
 
@@ -44,8 +44,8 @@ public:
 	virtual wxWindow* GetWindow(){return NULL;}
 
 
-	static void WndRegister(const String& type,Functor<IEW_Ctrl*(const ICtlParam&,EvtGroup*)> func);
-	static IEW_Ctrl* WndCreateCtrl(const ICtlParam& param,EvtGroup* pevt);
+	static void WndRegister(const String& type,Functor<ICtl_object*(const ICtlParam&,EvtGroup*)> func);
+	static ICtl_object* WndCreateCtrl(const ICtlParam& param,EvtGroup* pevt);
 
 	virtual void WndUpdateCtrl(){}
 	virtual bool WndIsOk(){return m_pGroup;}
@@ -57,7 +57,7 @@ public:
 	}
 
 protected:
-	ObjectGroupT<IEW_CtrlData> m_aItems;
+	ObjectGroupT<ICtl_itemdata> m_aItems;
 	DataPtrT<EvtGroup> m_pGroup;
 };
 
@@ -66,7 +66,7 @@ class DLLIMPEXP_EWC_BASE EvtCommand  : public EvtBase
 {
 public:
 
-	friend class IEW_CtrlData;
+	friend class ICtl_itemdata;
 
 	String m_sText;
 	String m_sExtra;
@@ -119,7 +119,7 @@ public:
 
 	virtual String MakeLabel(int hint=LABEL_TOOL) const;
 
-	virtual void CreateCtrlItem(IEW_Ctrl* pctrl);
+	virtual void CreateCtrlItem(ICtl_object* pctrl);
 	virtual IWindowPtr CreateWndsItem(IWindowPtr pw);
 	virtual Validator* CreateValidator(wxWindow*);
 
@@ -133,7 +133,7 @@ public:
 
 protected:
 
-	bst_set<IEW_CtrlData*> m_setAttachedControls;
+	bst_set<ICtl_itemdata*> m_setAttachedControls;
 	BitmapHolder m_bmpParam;
 
 };
@@ -175,7 +175,7 @@ public:
 	EvtCommandCtrl(const String& id,const String& type,const WndProperty& w=WndProperty());
 
 
-	void CreateCtrlItem(IEW_Ctrl* pctrl);
+	void CreateCtrlItem(ICtl_object* pctrl);
 
 	virtual IWindowPtr CreateWndsItem(IWindowPtr pw);
 	Validator* CreateValidator(wxWindow*);

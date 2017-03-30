@@ -37,12 +37,12 @@ PluginMenu::PluginMenu(WndManager& w):PluginCommon(w,"Plugin.Menu")
 
 
 
-class IEW_MenuImpl : public wxMenu, public IEW_Ctrl
+class ICtl_menu : public wxMenu, public ICtl_object
 {
 public:
 
-	IEW_MenuImpl(EvtGroup* mu = NULL);
-	~IEW_MenuImpl();
+	ICtl_menu(EvtGroup* mu = NULL);
+	~ICtl_menu();
 
 	bool AddCtrlItem(EvtGroup* pevt);
 	bool AddCtrlItem(EvtCommand* pevt);
@@ -51,14 +51,20 @@ public:
 
 	virtual wxMenu* GetMenu(){ return this; }
 
+	void ClearMenus()
+	{
+		while (this->GetMenuItemCount() > 0 && this->Destroy(this->FindItemByPosition(0)));
+	}
+
 protected:
+
 
 	void WndUpdateCtrl();
 
-	class IEW_WxCtrlData_menu : public IEW_CtrlData
+	class IEW_WxCtrlData_menu : public ICtl_itemdata
 	{
 	public:
-		IEW_WxCtrlData_menu(EvtCommand* pevt_, IMenuItemPtr item_) :IEW_CtrlData(pevt_), item(item_){ }
+		IEW_WxCtrlData_menu(EvtCommand* pevt_, IMenuItemPtr item_) :ICtl_itemdata(pevt_), item(item_){ }
 		IMenuItemPtr item;
 
 		void UpdateCtrl();
@@ -72,18 +78,18 @@ protected:
 
 
 
-IEW_MenuImpl::IEW_MenuImpl(EvtGroup* pevt)
-:IEW_Ctrl(pevt)
+ICtl_menu::ICtl_menu(EvtGroup* pevt)
+:ICtl_object(pevt)
 {
 	WndUpdateCtrl();
 }
 
-IEW_MenuImpl::~IEW_MenuImpl()
+ICtl_menu::~ICtl_menu()
 {
 
 }
 
-void IEW_MenuImpl::WndUpdateCtrl()
+void ICtl_menu::WndUpdateCtrl()
 {
 	if(!m_pGroup)
 	{
@@ -92,12 +98,8 @@ void IEW_MenuImpl::WndUpdateCtrl()
 
 	m_aItems.clear();
 		
-	int nc = this->GetMenuItemCount();
-	while (--nc >= 0)
-	{
-		wxMenuItem* mi = this->FindItemByPosition(0);
-		this->Destroy(mi);
-	}
+	ClearMenus();
+
 
 	int last_is_seperator=-1;
 	for(size_t i=0;i<m_pGroup->size();i++)
@@ -126,17 +128,12 @@ void IEW_MenuImpl::WndUpdateCtrl()
 	}
 }
 
-bool IEW_MenuImpl::StdExecute(IStdParam& cmd)
+bool ICtl_menu::StdExecute(IStdParam& cmd)
 {
 	if (cmd.extra1 == "clear")
 	{
 		m_aItems.clear();
-		int nc = this->GetMenuItemCount();
-		while (--nc >= 0)
-		{
-			wxMenuItem* mi = this->FindItemByPosition(0);
-			this->Destroy(mi);
-		}
+		ClearMenus();
 	}
 	else if (cmd.extra1 == "update")
 	{
@@ -146,7 +143,7 @@ bool IEW_MenuImpl::StdExecute(IStdParam& cmd)
 }
 
 
-bool IEW_MenuImpl::AddCtrlItem(EvtGroup* pevt)
+bool ICtl_menu::AddCtrlItem(EvtGroup* pevt)
 {
 
 	IMenuItemPtr item = new wxMenuItem(this, pevt->m_nId, str2wx(pevt->MakeLabel(EvtBase::LABEL_MENU)));
@@ -158,7 +155,7 @@ bool IEW_MenuImpl::AddCtrlItem(EvtGroup* pevt)
 	return true;
 }
 
-bool IEW_MenuImpl::AddCtrlItem(EvtCommand* pevt)
+bool ICtl_menu::AddCtrlItem(EvtCommand* pevt)
 {
 	if(pevt->flags.get(EvtCommand::FLAG_SEPARATOR))
 	{
@@ -199,7 +196,7 @@ bool IEW_MenuImpl::AddCtrlItem(EvtCommand* pevt)
 }
 
 
-void IEW_MenuImpl::IEW_WxCtrlData_menu::UpdateBmps()
+void ICtl_menu::IEW_WxCtrlData_menu::UpdateBmps()
 {
 	if (item->IsCheckable())
 	{
@@ -216,9 +213,9 @@ void IEW_MenuImpl::IEW_WxCtrlData_menu::UpdateBmps()
 	item->SetDisabledBitmap(bundle.bmp_disabled);
 }
 
-void IEW_MenuImpl::IEW_WxCtrlData_menu::UpdateCtrl()
+void ICtl_menu::IEW_WxCtrlData_menu::UpdateCtrl()
 {
-	IEW_MenuImpl* mu = (IEW_MenuImpl*)item->GetMenu();
+	ICtl_menu* mu = (ICtl_menu*)item->GetMenu();
 	if (!mu) return;
 
 	if (pevt->flags.get(EvtBase::FLAG_HIDE_UI))
@@ -239,7 +236,7 @@ void IEW_MenuImpl::IEW_WxCtrlData_menu::UpdateCtrl()
 }
 
 
-void IEW_MenuImpl::InitMenuItem(EvtCommand* pevt, IMenuItemPtr item)
+void ICtl_menu::InitMenuItem(EvtCommand* pevt, IMenuItemPtr item)
 {
 	IEW_WxCtrlData_menu* ctrl = new IEW_WxCtrlData_menu(pevt, item);
 	m_aItems.append(ctrl);
@@ -250,9 +247,9 @@ void IEW_MenuImpl::InitMenuItem(EvtCommand* pevt, IMenuItemPtr item)
 }
 
 
-static IEW_Ctrl* WndCreateMenu(const ICtlParam& param,EvtGroup* pevt)
+static ICtl_object* WndCreateMenu(const ICtlParam& param,EvtGroup* pevt)
 {
-	return new IEW_MenuImpl(pevt);
+	return new ICtl_menu(pevt);
 }
 
 
@@ -262,7 +259,7 @@ bool PluginMenu::OnAttach()
 
 	EvtManager& ec(wm.evtmgr);
 
-	IEW_Ctrl::WndRegister("menu",&WndCreateMenu);
+	ICtl_object::WndRegister("menu",&WndCreateMenu);
 
 	ec.append(new EvtCommandWindowMenuBar);
 

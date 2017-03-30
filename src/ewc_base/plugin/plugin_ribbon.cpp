@@ -16,20 +16,64 @@ EW_ENTER
 
 
 
-class IEW_RibbonToolBarImpl : public wxRibbonToolBar, public IEW_Ctrl
+class ICtl_ribbon_panel : public wxRibbonPanel, public ICtl_object
 {
 public:
+	String name;
+	ICtl_ribbon_panel(EvtGroup* pevt) :ICtl_object(pevt),name(pevt->m_sId){}
+	virtual wxWindow* GetWindow(){ return this; }
+};
 
-	IEW_RibbonToolBarImpl(EvtGroup* mu, wxWindow* pw, int wd);
-	~IEW_RibbonToolBarImpl();
+class ICtl_ribbon_toolbar : public ICtl_ribbon_panel
+{
+public:
 
 	bool AddCtrlItem(EvtCommand* pevt);
 	bool AddCtrlItem(EvtCommand* pevt, wxControl* p);
 	bool AddCtrlItem(EvtGroup* pevt);
 
-	virtual wxWindow* GetWindow(){return this;}
+	wxRibbonToolBar* m_p_wx_impl;
 
-	bool StdExecute(IStdParam& cmd);
+	ICtl_ribbon_toolbar(IWindowPtr p, EvtGroup* pevt,int wd) :ICtl_ribbon_panel(pevt)
+	{
+		Create(p, pevt->m_nId, str2wx(Translate(name)),
+			wxNullBitmap, wxDefaultPosition, wxDefaultSize,
+			wxRIBBON_PANEL_NO_AUTO_MINIMISE |
+			wxRIBBON_PANEL_EXT_BUTTON);
+
+		wd = 16;
+		m_p_wx_impl=new wxRibbonToolBar(this, wxID_ANY, wxDefaultPosition, wxDefaultSize);
+		m_p_wx_impl->SetName(str2wx(m_pGroup->m_sId));
+
+		for (size_t i = 0; i<pevt->size(); i++)
+		{
+			EvtCommand* pCommand = (*pevt)[i].get();
+			if (pCommand->flags.get(EvtBase::FLAG_HIDE_UI)) continue;
+			if (pCommand->flags.get(EvtBase::FLAG_SEPARATOR)) { m_p_wx_impl->AddSeparator(); continue; }
+
+			pCommand->CreateCtrlItem(this);
+		}
+
+		m_p_wx_impl->SetRows(2, -1);
+
+		bool flag = m_p_wx_impl->Realize();
+
+		if (!flag)
+		{
+			System::LogMessage("wxToolBar realize failed!");
+		}
+
+		if (pevt->flags.get(EvtBase::FLAG_HIDE_UI)) m_p_wx_impl->Show(false);
+		if (pevt->flags.get(EvtBase::FLAG_DISABLE)) m_p_wx_impl->Enable(false);
+
+		pevt->flags.set(EvtBase::FLAG_CHECKED, !pevt->flags.get(EvtBase::FLAG_HIDE_UI));
+
+		m_p_wx_impl->SetName(str2wx(pevt->m_sId));
+
+		this->Connect(wxID_ANY, wxEVT_RIBBONTOOLBAR_CLICKED, wxRibbonToolBarEventHandler(ICtl_ribbon_toolbar::OnRibbonToolClick));
+		this->Connect(wxID_ANY, wxEVT_RIBBONTOOLBAR_DROPDOWN_CLICKED, wxRibbonToolBarEventHandler(ICtl_ribbon_toolbar::OnRibbonToolDropdown));
+	}
+
 
 	static void EvtPopupMenu(wxWindow*, wxMenu* p, wxRibbonToolBarEvent* e)
 	{
@@ -39,7 +83,7 @@ public:
 	void OnRibbonToolDropdown(wxRibbonToolBarEvent& evt)
 	{
 		evt.SetEventType(AppData::current().evt_user_dropdown_menu);
-		AppData::current().popup_dropdown_menu.bind(&IEW_RibbonToolBarImpl::EvtPopupMenu, _1, _2, &evt);
+		AppData::current().popup_dropdown_menu.bind(&ICtl_ribbon_toolbar::EvtPopupMenu, _1, _2, &evt);
 		evt.Skip();
 	}
 
@@ -49,17 +93,20 @@ public:
 		evt.Skip();
 	}
 
+
+	bool StdExecute(IStdParam& cmd);
+
+
 protected:
 
-	class IEW_WxCtrlData_tool : public IEW_CtrlData
+	class ICtl_wxctrl_itemdata : public ICtl_itemdata
 	{
 	public:
-		IEW_WxCtrlData_tool(EvtCommand* pevt_, wxRibbonToolBarToolBase* item_, IEW_RibbonToolBarImpl* tbar_) 
-			:IEW_CtrlData(pevt_), item(item_),tbar(tbar_){}
+		ICtl_wxctrl_itemdata(EvtCommand* pevt_, wxRibbonToolBarToolBase* item_, wxRibbonToolBar* tbar_)
+			:ICtl_itemdata(pevt_), item(item_), tbar(tbar_){}
 		wxRibbonToolBarToolBase* item;
-		IEW_RibbonToolBarImpl* tbar;
+		wxRibbonToolBar* tbar;
 		void UpdateCtrl();
-		void UpdateBmps();
 	};
 
 protected:
@@ -68,59 +115,12 @@ protected:
 };
 
 
-IEW_RibbonToolBarImpl::IEW_RibbonToolBarImpl(EvtGroup* pevt, wxWindow* pw, int wd)
-:wxRibbonToolBar()
-, IEW_Ctrl(pevt)
-{
-	wd=wd<0?WndManager::current().data.toolbitmap_size:wd;
-	this->Create(pw, pevt->m_nId, wxDefaultPosition, wxDefaultSize);
-	this->SetName(str2wx(m_pGroup->m_sId));
-
-	for(size_t i=0;i<pevt->size();i++)
-	{
-		EvtCommand* pCommand=(*pevt)[i].get();
-		if(pCommand->flags.get(EvtBase::FLAG_HIDE_UI)) continue;
-		if(pCommand->flags.get(EvtBase::FLAG_SEPARATOR)) {this->AddSeparator();continue;}
-
-		pCommand->CreateCtrlItem(this);
-	}
-
-	this->SetRows(2, -1);
-
-	bool flag=this->Realize();
-
-	if (!flag)
-	{
-		System::LogMessage("wxToolBar realize failed!");
-	}
-
-	if(pevt->flags.get(EvtBase::FLAG_HIDE_UI)) this->Show(false);
-	if(pevt->flags.get(EvtBase::FLAG_DISABLE)) this->Enable(false);
-
-	pevt->flags.set(EvtBase::FLAG_CHECKED,!pevt->flags.get(EvtBase::FLAG_HIDE_UI));
-
-	this->SetName(str2wx(pevt->m_sId));
-
-	this->Connect(wxID_ANY, wxEVT_RIBBONTOOLBAR_CLICKED, wxRibbonToolBarEventHandler(IEW_RibbonToolBarImpl::OnRibbonToolClick));
-	this->Connect(wxID_ANY, wxEVT_RIBBONTOOLBAR_DROPDOWN_CLICKED, wxRibbonToolBarEventHandler(IEW_RibbonToolBarImpl::OnRibbonToolDropdown));
-
-}
-
-IEW_RibbonToolBarImpl::~IEW_RibbonToolBarImpl()
-{
-
-}
-
-bool IEW_RibbonToolBarImpl::StdExecute(IStdParam& cmd)
+bool ICtl_ribbon_toolbar::StdExecute(IStdParam& cmd)
 {
 	if(cmd.extra1=="clear")
 	{
 		m_aItems.clear();
-		int nc=this->GetToolCount();
-		while(--nc>=0)
-		{
-			this->DeleteToolByPos(0);
-		}		
+		DestroyChildren();	
 	}
 	else if(cmd.extra1=="update")
 	{
@@ -129,17 +129,17 @@ bool IEW_RibbonToolBarImpl::StdExecute(IStdParam& cmd)
 	return true;
 }
 
-bool IEW_RibbonToolBarImpl::AddCtrlItem(EvtCommand* pevt, wxControl* p)
+bool ICtl_ribbon_toolbar::AddCtrlItem(EvtCommand* pevt, wxControl* p)
 {
 
 	return false;
 }
 
-bool IEW_RibbonToolBarImpl::AddCtrlItem(EvtCommand* pevt)
+bool ICtl_ribbon_toolbar::AddCtrlItem(EvtCommand* pevt)
 {
 	if (pevt->flags.get(EvtCommand::FLAG_SEPARATOR))
 	{
-		this->AddSeparator();
+		m_p_wx_impl->AddSeparator();
 		return true;
 	}
 
@@ -147,23 +147,21 @@ bool IEW_RibbonToolBarImpl::AddCtrlItem(EvtCommand* pevt)
 	if (pevt->flags.get(EvtCommand::FLAG_CHECK)) kind = wxRIBBON_BUTTON_TOGGLE;
 
 	const BitmapBundle& bundle(pevt->GetBundle(16,1));
-	wxRibbonToolBarToolBase* item = wxRibbonToolBar::AddTool(pevt->m_nId, bundle.bmp_normal,bundle.bmp_disabled,str2wx(pevt->MakeLabel()), kind);
+	wxRibbonToolBarToolBase* item = m_p_wx_impl->AddTool(pevt->m_nId, bundle.bmp_normal, bundle.bmp_disabled, str2wx(pevt->MakeLabel()), kind);
 
 	InitToolItem(pevt, item);
 	return true;
 }
 
-bool IEW_RibbonToolBarImpl::AddCtrlItem(EvtGroup* pevt)
+bool ICtl_ribbon_toolbar::AddCtrlItem(EvtGroup* pevt)
 {
 	const BitmapBundle& bundle(pevt->GetBundle(16,1));
-	wxRibbonToolBarToolBase* item = wxRibbonToolBar::AddTool(pevt->m_nId, bundle.bmp_normal,bundle.bmp_disabled,str2wx(pevt->MakeLabel()), wxRIBBON_BUTTON_DROPDOWN);
+	wxRibbonToolBarToolBase* item = m_p_wx_impl->AddTool(pevt->m_nId, bundle.bmp_normal, bundle.bmp_disabled, str2wx(pevt->MakeLabel()), wxRIBBON_BUTTON_DROPDOWN);
 	InitToolItem(pevt, item);
 	return true;
 }
 
-
-
-void IEW_RibbonToolBarImpl::IEW_WxCtrlData_tool::UpdateCtrl()
+void ICtl_ribbon_toolbar::ICtl_wxctrl_itemdata::UpdateCtrl()
 {
 	if (pevt->m_nId<0)
 	{
@@ -177,66 +175,202 @@ void IEW_RibbonToolBarImpl::IEW_WxCtrlData_tool::UpdateCtrl()
 	{
 		tbar->ToggleTool(pevt->m_nId, pevt->flags.get(EvtBase::FLAG_CHECKED));
 	}
-	
 
 	tbar->EnableTool(pevt->m_nId, !pevt->flags.get(EvtBase::FLAG_DISABLE | EvtBase::FLAG_HIDE_UI));
-
-	//item->SetShortHelp(str2wx(pevt->MakeLabel()));
-	//item->SetLabel(str2wx(pevt->MakeLabel(EvtBase::LABEL_TOOL)));
-	//item->SetLongHelp(str2wx(pevt->m_sHelp));
-
 }
 
 
-void IEW_RibbonToolBarImpl::IEW_WxCtrlData_tool::UpdateBmps()
+
+void ICtl_ribbon_toolbar::InitToolItem(EvtCommand* pevt, wxRibbonToolBarToolBase* item)
 {
-
-
-}
-
-void IEW_RibbonToolBarImpl::InitToolItem(EvtCommand* pevt, wxRibbonToolBarToolBase* item)
-{
-	IEW_WxCtrlData_tool* pctrl = new IEW_WxCtrlData_tool(pevt, item,this);
+	ICtl_wxctrl_itemdata* pctrl = new ICtl_wxctrl_itemdata(pevt, item,m_p_wx_impl);
 	m_aItems.append(pctrl);
-	pctrl->UpdateBmps();
 	pctrl->UpdateCtrl();
 }
 
-class XXRibbonPanel : public wxRibbonPanel
-{
-public:
-	String name;
-	XXRibbonPanel(const String& n) :name(n){}
-};
 
-class XXRibbonPanelToolbar : public XXRibbonPanel
+
+
+
+class ICtl_ribbon_buttonbar : public ICtl_ribbon_panel
 {
 public:
 
-	XXRibbonPanelToolbar(const String& n,IWindowPtr p,EvtGroup* pevt) :XXRibbonPanel(n)
+	bool AddCtrlItem(EvtCommand* pevt);
+	bool AddCtrlItem(EvtCommand* pevt, wxControl* p);
+	bool AddCtrlItem(EvtGroup* pevt);
+
+	wxRibbonButtonBar* m_p_wx_impl;
+
+	ICtl_ribbon_buttonbar(IWindowPtr p, EvtGroup* pevt, int wd) :ICtl_ribbon_panel(pevt)
 	{
-		Create(p, wxID_ANY, str2wx(Translate(name)),
-		wxNullBitmap, wxDefaultPosition, wxDefaultSize,
-		wxRIBBON_PANEL_NO_AUTO_MINIMISE |
-		wxRIBBON_PANEL_EXT_BUTTON);
-		new IEW_RibbonToolBarImpl(pevt, this, 16);
+		Create(p, pevt->m_nId, str2wx(Translate(name)),
+			wxNullBitmap, wxDefaultPosition, wxDefaultSize,
+			wxRIBBON_PANEL_NO_AUTO_MINIMISE |
+			wxRIBBON_PANEL_EXT_BUTTON);
+
+		wd = 16;
+		m_p_wx_impl = new wxRibbonButtonBar(this, wxID_ANY, wxDefaultPosition, wxDefaultSize);
+		m_p_wx_impl->SetName(str2wx(m_pGroup->m_sId));
+
+		for (size_t i = 0; i<pevt->size(); i++)
+		{
+			EvtCommand* pCommand = (*pevt)[i].get();
+			if (pCommand->flags.get(EvtBase::FLAG_HIDE_UI)) continue;
+			if (pCommand->flags.get(EvtBase::FLAG_SEPARATOR)) { continue; }
+
+			pCommand->CreateCtrlItem(this);
+		}
+
+		bool flag = m_p_wx_impl->Realize();
+
+		if (!flag)
+		{
+			System::LogMessage("wxRibbonButtonBar realize failed!");
+		}
+
+		if (pevt->flags.get(EvtBase::FLAG_HIDE_UI)) m_p_wx_impl->Show(false);
+		if (pevt->flags.get(EvtBase::FLAG_DISABLE)) m_p_wx_impl->Enable(false);
+
+		pevt->flags.set(EvtBase::FLAG_CHECKED, !pevt->flags.get(EvtBase::FLAG_HIDE_UI));
+
+		m_p_wx_impl->SetName(str2wx(pevt->m_sId));
+
+		this->Connect(wxID_ANY, wxEVT_RIBBONBUTTONBAR_CLICKED, wxRibbonButtonBarEventHandler(ICtl_ribbon_buttonbar::OnRibbonButtonClick));
+		this->Connect(wxID_ANY, wxEVT_RIBBONBUTTONBAR_DROPDOWN_CLICKED, wxRibbonButtonBarEventHandler(ICtl_ribbon_buttonbar::OnRibbonButtonDropdown));
 	}
 
+
+	static void EvtPopupMenu(wxWindow*, wxMenu* p, wxRibbonButtonBarEvent* e)
+	{
+		e->PopupMenu(p);
+	}
+
+	void OnRibbonButtonDropdown(wxRibbonButtonBarEvent& evt)
+	{
+		evt.SetEventType(AppData::current().evt_user_dropdown_menu);
+		AppData::current().popup_dropdown_menu.bind(&ICtl_ribbon_buttonbar::EvtPopupMenu, _1, _2, &evt);
+		evt.Skip();
+	}
+
+	void OnRibbonButtonClick(wxRibbonButtonBarEvent& evt)
+	{
+		evt.SetEventType(wxEVT_COMMAND_BUTTON_CLICKED);
+		evt.Skip();
+	}
+
+
+	bool StdExecute(IStdParam& cmd);
+
+
+protected:
+
+	class ICtl_wxctrl_itemdata : public ICtl_itemdata
+	{
+	public:
+		ICtl_wxctrl_itemdata(EvtCommand* pevt_, wxRibbonButtonBarButtonBase* item_, wxRibbonButtonBar* tbar_)
+			:ICtl_itemdata(pevt_), item(item_), tbar(tbar_){}
+		wxRibbonButtonBarButtonBase* item;
+		wxRibbonButtonBar* tbar;
+		void UpdateCtrl();
+	};
+
+protected:
+	void InitToolItem(EvtCommand* pevt, wxRibbonButtonBarButtonBase* item);
+
 };
 
 
-class XXRibbonPage : public wxRibbonPage
+bool ICtl_ribbon_buttonbar::StdExecute(IStdParam& cmd)
+{
+	if (cmd.extra1 == "clear")
+	{
+		
+		m_aItems.clear();
+		DestroyChildren();
+	}
+	else if (cmd.extra1 == "update")
+	{
+		this->Enable(!m_pGroup->flags.get(EvtBase::FLAG_DISABLE));
+	}
+	return true;
+}
+
+bool ICtl_ribbon_buttonbar::AddCtrlItem(EvtCommand* pevt, wxControl* p)
+{
+
+	return false;
+}
+
+bool ICtl_ribbon_buttonbar::AddCtrlItem(EvtCommand* pevt)
+{
+	if (pevt->flags.get(EvtCommand::FLAG_SEPARATOR))
+	{
+		//m_p_wx_impl->AddSeparator();
+		return true;
+	}
+
+	wxRibbonButtonKind kind = wxRIBBON_BUTTON_NORMAL;
+	if (pevt->flags.get(EvtCommand::FLAG_CHECK)) kind = wxRIBBON_BUTTON_TOGGLE;
+
+	const BitmapBundle& bundle(pevt->GetBundle(16, 1));
+	wxRibbonButtonBarButtonBase* item = m_p_wx_impl->AddButton(pevt->m_nId,  str2wx(pevt->MakeLabel()),bundle.bmp_normal,"", kind);
+
+	InitToolItem(pevt, item);
+	return true;
+}
+
+bool ICtl_ribbon_buttonbar::AddCtrlItem(EvtGroup* pevt)
+{
+	const BitmapBundle& bundle(pevt->GetBundle(16, 1));
+	wxRibbonButtonBarButtonBase* item = m_p_wx_impl->AddButton(pevt->m_nId, str2wx(pevt->MakeLabel()),bundle.bmp_normal,"",   wxRIBBON_BUTTON_DROPDOWN);
+	InitToolItem(pevt, item);
+	return true;
+}
+
+void ICtl_ribbon_buttonbar::ICtl_wxctrl_itemdata::UpdateCtrl()
+{
+	if (pevt->m_nId<0)
+	{
+		return;
+	}
+
+	if (!tbar) return;
+	//tbar->SetToolHelpString(pevt->m_nId, str2wx(pevt->MakeLabel(EvtBase::LABEL_TOOL)));
+
+	if (pevt->flags.get(EvtBase::FLAG_CHECK))
+	{
+		tbar->ToggleButton(pevt->m_nId, pevt->flags.get(EvtBase::FLAG_CHECKED));
+	}
+
+	tbar->EnableButton(pevt->m_nId, !pevt->flags.get(EvtBase::FLAG_DISABLE | EvtBase::FLAG_HIDE_UI));
+}
+
+
+
+void ICtl_ribbon_buttonbar::InitToolItem(EvtCommand* pevt, wxRibbonButtonBarButtonBase* item)
+{
+	ICtl_wxctrl_itemdata* pctrl = new ICtl_wxctrl_itemdata(pevt, item, m_p_wx_impl);
+	m_aItems.append(pctrl);
+	pctrl->UpdateCtrl();
+}
+
+
+
+
+class ICtl_ribbon_page : public wxRibbonPage
 {
 public:
-	XXRibbonPage(const String& n) :name(n){}
+	ICtl_ribbon_page(const String& n) :name(n){}
 
 	String name;
-	arr_1t<XXRibbonPanel*> panels;
+	arr_1t<ICtl_ribbon_panel*> panels;
 
 	void AddPanel(EvtGroup* pevt)
 	{
 		String panel_name = pevt->m_sId;
-		XXRibbonPanelToolbar* p = new XXRibbonPanelToolbar(panel_name, this, pevt);
+		//ICtl_ribbon_toolbar* p = new ICtl_ribbon_toolbar(this, pevt,16);
+		ICtl_ribbon_buttonbar* p = new ICtl_ribbon_buttonbar(this, pevt, 16);
 		for (size_t i = 0; i < panels.size(); i++)
 		{
 			if (panels[i]->name == panel_name)
@@ -251,10 +385,10 @@ public:
 
 };
 
-class XXRibbonBar : public wxRibbonBar, public IEW_Ctrl
+class ICtl_ribbon_bar : public wxRibbonBar, public ICtl_object
 {
 public:
-	XXRibbonBar(wxWindow * p):wxRibbonBar(p,-1,wxDefaultPosition, wxDefaultSize
+	ICtl_ribbon_bar(wxWindow * p):wxRibbonBar(p,-1,wxDefaultPosition, wxDefaultSize
 								, wxRIBBON_BAR_FLOW_HORIZONTAL
                                 | wxRIBBON_BAR_SHOW_PAGE_LABELS
 								| wxRIBBON_BAR_SHOW_PAGE_ICONS
@@ -265,9 +399,9 @@ public:
                                 )
 	{
 
-		this->Connect(wxID_ANY,wxEVT_RIBBONBUTTONBAR_CLICKED,  wxRibbonButtonBarEventHandler(XXRibbonBar::OnRibbonButtonClick));
-		this->Connect(wxID_ANY,wxEVT_RIBBONBUTTONBAR_DROPDOWN_CLICKED,  wxRibbonButtonBarEventHandler(XXRibbonBar::OnRibbonButtonDropdown));
-		this->Connect(wxID_ANY,wxEVT_RIBBONBAR_HELP_CLICK,wxRibbonBarEventHandler(XXRibbonBar::OnRibbonBarHelpClicked));
+		this->Connect(wxID_ANY,wxEVT_RIBBONBUTTONBAR_CLICKED,  wxRibbonButtonBarEventHandler(ICtl_ribbon_bar::OnRibbonButtonClick));
+		this->Connect(wxID_ANY,wxEVT_RIBBONBUTTONBAR_DROPDOWN_CLICKED,  wxRibbonButtonBarEventHandler(ICtl_ribbon_bar::OnRibbonButtonDropdown));
+		this->Connect(wxID_ANY,wxEVT_RIBBONBAR_HELP_CLICK,wxRibbonBarEventHandler(ICtl_ribbon_bar::OnRibbonBarHelpClicked));
 	}
 
 	void OnRibbonButtonDropdown(wxRibbonButtonBarEvent& evt)
@@ -289,9 +423,9 @@ public:
 	
 
 
-	XXRibbonPage* find2(const String& name)
+	ICtl_ribbon_page* find2(const String& name)
 	{
-		XXRibbonPage* p = NULL;
+		ICtl_ribbon_page* p = NULL;
 		for (size_t i = 0; i < pages.size(); i++)
 		{
 			if (pages[i]->name == name)
@@ -302,7 +436,7 @@ public:
 		}
 		if (!p)
 		{
-			p = new XXRibbonPage(name);
+			p = new ICtl_ribbon_page(name);
 			p->Create(this, wxID_ANY, str2wx(Translate(name)), wxNullBitmap);
 			pages.push_back(p);
 		}
@@ -311,7 +445,7 @@ public:
 
 	void AddPanel(const String& page_name, EvtGroup* pevt)
 	{
-		XXRibbonPage* p = NULL;
+		ICtl_ribbon_page* p = NULL;
 		for (size_t i = 0; i < pages.size(); i++)
 		{
 			if (pages[i]->name == page_name)
@@ -322,7 +456,7 @@ public:
 		}
 		if (!p)
 		{
-			p = new XXRibbonPage(page_name);
+			p = new ICtl_ribbon_page(page_name);
 			const BitmapBundle& bundle(pevt->GetBundle(16,1));
 			p->Create(this, wxID_ANY, str2wx(Translate(page_name)), bundle.bmp_normal);
 			pages.push_back(p);
@@ -332,7 +466,7 @@ public:
 	}
 
 
-	arr_1t<XXRibbonPage*> pages;
+	arr_1t<ICtl_ribbon_page*> pages;
 
 	wxWindow* GetWindow(){return this;}
 
@@ -340,15 +474,15 @@ public:
 
 
 
-static XXRibbonBar* p_ribbon_bar=NULL;
+static ICtl_ribbon_bar* p_ribbon_bar=NULL;
 
-static IEW_Ctrl* WndCreateRibbonToolBar(const ICtlParam& param,EvtGroup* pevt)
+static ICtl_object* WndCreateRibbonToolBar(const ICtlParam& param,EvtGroup* pevt)
 {
 	bool first=!p_ribbon_bar;
 
 	if(!p_ribbon_bar)
 	{
-		p_ribbon_bar=new XXRibbonBar(param.parent);	
+		p_ribbon_bar=new ICtl_ribbon_bar(param.parent);	
 	}
 
 	static int n=0;
@@ -379,7 +513,7 @@ bool PluginRibbon::OnAttach()
 
 	EvtManager& ec(wm.evtmgr);
 
-	IEW_Ctrl::WndRegister("ribbon_toolbar",&WndCreateRibbonToolBar);
+	ICtl_object::WndRegister("ribbon_toolbar",&WndCreateRibbonToolBar);
 
 	return true;
 

@@ -13,41 +13,41 @@
 EW_ENTER
 
 
-IEW_CtrlData::IEW_CtrlData(EvtCommand* p) :pevt(p)
+ICtl_itemdata::ICtl_itemdata(EvtCommand* p) :pevt(p)
 {
 	pevt->m_setAttachedControls.insert(this);
 }
 
-IEW_CtrlData::~IEW_CtrlData()
+ICtl_itemdata::~ICtl_itemdata()
 {
 	pevt->m_setAttachedControls.erase(this);
 }
 
-bool IEW_Ctrl::AddCtrlItem(EvtCommand*)
+bool ICtl_object::AddCtrlItem(EvtCommand*)
 {
 	return false;
 }
 
-bool IEW_Ctrl::AddCtrlItem(EvtCommand*, wxControl*)
+bool ICtl_object::AddCtrlItem(EvtCommand*, wxControl*)
 {
 	return false;
 }
 
-bool IEW_Ctrl::AddCtrlItem(EvtGroup*)
+bool ICtl_object::AddCtrlItem(EvtGroup*)
 {
 	return false;
 }
 
 
 
-static bst_map<String,Functor<IEW_Ctrl*(const ICtlParam&,EvtGroup*)> > g_WndCreators;
+static bst_map<String,Functor<ICtl_object*(const ICtlParam&,EvtGroup*)> > g_WndCreators;
 
-void IEW_Ctrl::WndRegister(const String& type,Functor<IEW_Ctrl*(const ICtlParam&,EvtGroup*)> func)
+void ICtl_object::WndRegister(const String& type,Functor<ICtl_object*(const ICtlParam&,EvtGroup*)> func)
 {
 	g_WndCreators[type]=func;
 }
 
-IEW_Ctrl* IEW_Ctrl::WndCreateCtrl(const ICtlParam& param,EvtGroup* pevt)
+ICtl_object* ICtl_object::WndCreateCtrl(const ICtlParam& param,EvtGroup* pevt)
 {
 	auto it=g_WndCreators.find(param.type);
 	if(it!=g_WndCreators.end())
@@ -132,7 +132,7 @@ String EvtCommand::MakeLabel(int hint) const
 	return txt;
 }
 
-void EvtCommand::CreateCtrlItem(IEW_Ctrl* pctrl)
+void EvtCommand::CreateCtrlItem(ICtl_object* pctrl)
 {
 	pctrl->AddCtrlItem(this);
 }
@@ -142,7 +142,7 @@ void EvtCommand::DoUpdateCtrl(IUpdParam& upd)
 
 	if (flags.get(FLAG_HIDE_UI))
 	{
-		bst_set<IEW_CtrlData*> ctrls(m_setAttachedControls);
+		bst_set<ICtl_itemdata*> ctrls(m_setAttachedControls);
 		for (auto it = ctrls.begin(); it != ctrls.end(); it++)
 		{
 			(*it)->UpdateCtrl();
@@ -150,7 +150,7 @@ void EvtCommand::DoUpdateCtrl(IUpdParam& upd)
 	}
 	else
 	{
-		bst_set<IEW_CtrlData*>& ctrls(m_setAttachedControls);
+		bst_set<ICtl_itemdata*>& ctrls(m_setAttachedControls);
 		for (auto it = ctrls.begin(); it != ctrls.end(); it++)
 		{
 			(*it)->UpdateCtrl();
@@ -269,7 +269,7 @@ EvtCommandExtraWindow::EvtCommandExtraWindow(const String& id,const String& type
 	StdExecuteEx(h);
 }
 
-void EvtCommandCtrl::CreateCtrlItem(IEW_Ctrl* pctrl)
+void EvtCommandCtrl::CreateCtrlItem(ICtl_object* pctrl)
 {
 	if(m_pWindow)
 	{
@@ -555,12 +555,12 @@ bool EvtCommandTimer::DoStdExecute(IStdParam& cmd)
 }
 
 
-IEW_Ctrl::IEW_Ctrl(EvtGroup* p):m_pGroup(p)
+ICtl_object::ICtl_object(EvtGroup* p):m_pGroup(p)
 {
 	if(m_pGroup) m_pGroup->m_aCtrls.insert(this);
 }
 
-IEW_Ctrl::~IEW_Ctrl()
+ICtl_object::~ICtl_object()
 {
 	if(m_pGroup) m_pGroup->m_aCtrls.erase(this);
 }

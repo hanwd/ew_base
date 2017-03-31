@@ -35,6 +35,8 @@ public:
 	virtual bool OnUpdateWindow(wxWindow* p,EvtBase* x);
 
 	bool OnWndUpdate(IWndParam&,EvtBase*);
+
+	virtual wxWindow* GetWindow(){ return NULL; }
 };
 
 

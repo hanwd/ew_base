@@ -101,10 +101,20 @@ public:
 		{
 			v|=wxTE_READONLY;
 		}
+		if (flags().get(IDefs::IWND_PROCESS_TAB))
+		{
+			v |= wxTE_PROCESS_TAB;
+		}
 		if(flags().get(IDefs::IWND_MULTILINE))
 		{
 			v|=wxTE_MULTILINE;
 		}
+		else
+		{
+			v |= wxTE_PROCESS_ENTER;
+		}
+
+
 		return v;
 	}
 
@@ -212,7 +222,9 @@ public:
 	void OnChar(wxKeyEvent& evt)
 	{
 		if(!m_pVald) return;
+
 		m_pVald->WndExecuteEx(IDefs::ACTION_VALUE_CHANGING);
+
 	}
 
 

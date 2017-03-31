@@ -231,10 +231,62 @@ bool IWnd_topwindow<T>::UpdateModel()
 }
 
 
+arr_1t<wxWindow*> g_aCommandWindowLink;
+
+EvtListener* FindNearestListener(EvtListenerGroup& alis)
+{
+
+	EvtListener* plistener = NULL;
+	int level_max = -1;
+	arr_1t<wxWindow*> _aWindows;
+
+	for (size_t num = 0; num<alis.size(); num++)
+	{
+		EvtListener* lis = alis[num];
+		int level = 0;
+
+		if (!dynamic_cast<Validator*>(lis))
+		{
+
+		}
+		else if (wxWindow* p = lis->GetWindow())
+		{
+			_aWindows.clear();
+			_aWindows.push_back(NULL);
+			for (; p; p = p->GetParent()) _aWindows.push_back(p);
+			auto it1 = g_aCommandWindowLink.rbegin();
+			for (auto it2 = _aWindows.rbegin(); it2 != _aWindows.rend();)
+			{
+				if (*it2++ != *it1++) break;
+				level++;
+			}
+		}
+
+		if (level > level_max)
+		{
+			level_max = level;
+			plistener = lis;
+		}
+
+	}
+
+	return plistener;
+
+}
+
 template<typename T>
 void IWnd_topwindow<T>::OnCommandEvent(wxCommandEvent& evt)
 {
 	if(!m_pModel) return;
+
+	g_aCommandWindowLink.clear();
+	g_aCommandWindowLink.push_back(NULL);
+
+	for (wxWindow* p = dynamic_cast<wxWindow*>(evt.GetEventObject()); p; p = p->GetParent())
+	{
+		g_aCommandWindowLink.push_back(p);
+	}
+
 	m_pModel->OnCmdExecute(evt.GetId(),evt.GetInt());
 }
 

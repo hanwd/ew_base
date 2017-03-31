@@ -5,17 +5,18 @@ EW_ENTER
 
 
 IWnd_textctrl::IWnd_textctrl(wxWindow* p,const WndPropertyEx& h,int w)
-	:wxTextCtrl(p,h.id(),h.value(),h,h,h.flag_text()|w|wxTE_PROCESS_ENTER)
+	:wxTextCtrl(p,h.id(),h.value(),h,h,h.flag_text()|w)
 {
 	if(!h.flags().get(IDefs::IWND_MULTILINE))
 	{
 		this->SetHint(h.hint());
+		this->Connect(wxEVT_TEXT_ENTER,wxCommandEventHandler(IWnd_controlT<IWnd_textctrl>::OnEnter));
 	}
+	this->GetExtraStyle();
 
-	this->Connect(wxEVT_TEXT,wxCharEventHandler(IWnd_controlT<IWnd_textctrl>::OnChar));
-	this->Connect(wxEVT_TEXT_ENTER,wxCommandEventHandler(IWnd_controlT<IWnd_textctrl>::OnEnter));
-	this->Connect(wxEVT_RIGHT_UP,wxMouseEventHandler(IWnd_controlT<IWnd_textctrl>::OnContextEditMenu));
+	this->Connect(wxEVT_TEXT,wxCharEventHandler(IWnd_controlT<IWnd_textctrl>::OnChar));	
 	this->Connect(wxEVT_MENU,wxCommandEventHandler(IWnd_controlT<IWnd_textctrl>::OnCommandEditEvent));
+	this->Connect(wxEVT_RIGHT_UP,wxMouseEventHandler(IWnd_controlT<IWnd_textctrl>::OnContextEditMenu));
 
 }
 
@@ -59,6 +60,7 @@ public:
 	{
 		pWindow->m_pVald.reset(this);
 	}
+	wxWindow* GetWindow(){ return pWindow; }
 };
 
 

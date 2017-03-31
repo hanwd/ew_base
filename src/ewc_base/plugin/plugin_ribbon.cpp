@@ -24,6 +24,158 @@ public:
 	virtual wxWindow* GetWindow(){ return this; }
 };
 
+class ICtl_ribbon_sizer : public ICtl_ribbon_panel
+{
+public:
+
+	bool AddWindow(wxWindow* p)
+	{
+		if (!p) return false;
+		p_top_sizer->Add(p);
+		return true;
+	}
+
+	bool AddCtrlItem(EvtCommand* pevt)
+	{
+		return AddWindow(pevt->CreateWndsItem(this));
+	}
+
+	bool AddCtrlItem(EvtCommand* pevt, wxControl* p)
+	{
+		return AddWindow(p);
+	}
+
+	bool AddCtrlItem(EvtGroup* pevt)
+	{
+		return false;
+	}
+
+	ICtl_ribbon_sizer(IWindowPtr p, EvtGroup* pevt, int wd) :ICtl_ribbon_panel(pevt)
+	{
+		Create(p, pevt->m_nId, str2wx(Translate(name)),
+			wxNullBitmap, wxDefaultPosition, wxDefaultSize,
+			wxRIBBON_PANEL_DEFAULT_STYLE |
+			wxRIBBON_PANEL_EXT_BUTTON);
+
+		//p_top_sizer = new wxBoxSizer(wxHORIZONTAL);
+		//for (size_t i = 0; i<pevt->size(); i++)
+		//{
+		//	EvtCommand* pCommand = (*pevt)[i].get();
+		//	if (pCommand->flags.get(EvtBase::FLAG_HIDE_UI)) continue;
+		//	//if (pCommand->flags.get(EvtBase::FLAG_SEPARATOR)) { m_p_wx_impl->AddSeparator(); continue; }
+		//	pCommand->CreateCtrlItem(this);
+		//}
+		//this->SetSizer(p_top_sizer);
+		
+	}
+
+
+	wxBoxSizer* p_top_sizer;
+	
+};
+
+
+class ICtl_ribbon_gallery : public ICtl_ribbon_panel
+{
+public:
+
+	bool AddCtrlItem(EvtCommand* pevt)
+	{
+
+		if (pevt->flags.get(EvtCommand::FLAG_SEPARATOR))
+		{
+			return true;
+		}
+
+
+		const BitmapBundle& bundle(pevt->GetBundle(16, 1));
+		wxRibbonGalleryItem* item = m_p_wx_impl->Append(bundle.bmp_normal, pevt->m_nId);
+
+		InitToolItem(pevt, item);
+		return true;
+
+	}
+
+	bool AddCtrlItem(EvtCommand* pevt, wxControl* p)
+	{
+
+		return false;
+	}
+	bool AddCtrlItem(EvtGroup* pevt)
+	{
+		return false;
+	}
+
+	wxRibbonGallery* m_p_wx_impl;
+
+	ICtl_ribbon_gallery(IWindowPtr p, EvtGroup* pevt, int wd) :ICtl_ribbon_panel(pevt)
+	{
+		Create(p, pevt->m_nId, str2wx(Translate(name)),
+			wxNullBitmap, wxDefaultPosition, wxDefaultSize,
+			wxRIBBON_PANEL_NO_AUTO_MINIMISE |
+			wxRIBBON_PANEL_EXT_BUTTON);
+
+		wd = 16;
+		m_p_wx_impl = new wxRibbonGallery(this, wxID_ANY, wxDefaultPosition, wxDefaultSize);
+		m_p_wx_impl->SetName(str2wx(m_pGroup->m_sId));
+
+		for (size_t i = 0; i<pevt->size(); i++)
+		{
+			EvtCommand* pCommand = (*pevt)[i].get();
+			if (pCommand->flags.get(EvtBase::FLAG_HIDE_UI)) continue;
+			//if (pCommand->flags.get(EvtBase::FLAG_SEPARATOR)) { m_p_wx_impl->AddSeparator(); continue; }
+
+			pCommand->CreateCtrlItem(this);
+		}
+
+		m_p_wx_impl->SetName(str2wx(pevt->m_sId));
+		this->Connect(wxID_ANY, wxEVT_RIBBONGALLERY_SELECTED, wxRibbonGalleryEventHandler(ICtl_ribbon_gallery::OnRibbonGallerySelected));
+	}
+
+
+	
+	void OnRibbonGallerySelected(wxRibbonGalleryEvent& evt)
+	{
+		int evtid = -1;
+		for (size_t i = 0; i < m_aItems.size(); i++)
+		{
+			if (static_cast<ICtl_wxctrl_itemdata*>(m_aItems[i].get())->item == evt.GetGalleryItem())
+			{
+				evtid = m_aItems[i]->pevt->m_nId;
+				break;
+			}
+		}
+		evt.SetEventType(wxEVT_COMMAND_BUTTON_CLICKED);
+		evt.SetId(evtid);
+		evt.Skip();
+	}
+
+	bool StdExecute(IStdParam& cmd)
+	{
+		return true;
+	}
+
+
+protected:
+
+	class ICtl_wxctrl_itemdata : public ICtl_itemdata
+	{
+	public:
+		ICtl_wxctrl_itemdata(EvtCommand* pevt_, wxRibbonGalleryItem* item_, wxRibbonGallery* tbar_)
+			:ICtl_itemdata(pevt_), item(item_), tbar(tbar_){}
+		wxRibbonGalleryItem* item;
+		wxRibbonGallery* tbar;
+		void UpdateCtrl(){}
+	};
+
+protected:
+	void InitToolItem(EvtCommand* pevt, wxRibbonGalleryItem* item)
+	{
+		m_aItems.append(new ICtl_wxctrl_itemdata(pevt, item, m_p_wx_impl));
+	}
+
+};
+
 class ICtl_ribbon_toolbar : public ICtl_ribbon_panel
 {
 public:
@@ -131,7 +283,6 @@ bool ICtl_ribbon_toolbar::StdExecute(IStdParam& cmd)
 
 bool ICtl_ribbon_toolbar::AddCtrlItem(EvtCommand* pevt, wxControl* p)
 {
-
 	return false;
 }
 
@@ -298,7 +449,6 @@ bool ICtl_ribbon_buttonbar::StdExecute(IStdParam& cmd)
 
 bool ICtl_ribbon_buttonbar::AddCtrlItem(EvtCommand* pevt, wxControl* p)
 {
-
 	return false;
 }
 
@@ -306,7 +456,6 @@ bool ICtl_ribbon_buttonbar::AddCtrlItem(EvtCommand* pevt)
 {
 	if (pevt->flags.get(EvtCommand::FLAG_SEPARATOR))
 	{
-		//m_p_wx_impl->AddSeparator();
 		return true;
 	}
 
@@ -336,7 +485,6 @@ void ICtl_ribbon_buttonbar::ICtl_wxctrl_itemdata::UpdateCtrl()
 	}
 
 	if (!tbar) return;
-	//tbar->SetToolHelpString(pevt->m_nId, str2wx(pevt->MakeLabel(EvtBase::LABEL_TOOL)));
 
 	if (pevt->flags.get(EvtBase::FLAG_CHECK))
 	{
@@ -370,7 +518,9 @@ public:
 	{
 		String panel_name = pevt->m_sId;
 		//ICtl_ribbon_toolbar* p = new ICtl_ribbon_toolbar(this, pevt,16);
-		ICtl_ribbon_buttonbar* p = new ICtl_ribbon_buttonbar(this, pevt, 16);
+		//ICtl_ribbon_buttonbar* p = new ICtl_ribbon_buttonbar(this, pevt, 16);
+		ICtl_ribbon_sizer* p=new ICtl_ribbon_sizer(this, pevt, 16);
+		//ICtl_ribbon_gallery* p = new ICtl_ribbon_gallery(this, pevt, 16);
 		for (size_t i = 0; i < panels.size(); i++)
 		{
 			if (panels[i]->name == panel_name)
@@ -380,6 +530,7 @@ public:
 				return;
 			}
 		}
+		p->Layout();
 		panels.push_back(p);
 	}
 
@@ -399,22 +550,9 @@ public:
                                 )
 	{
 
-		this->Connect(wxID_ANY,wxEVT_RIBBONBUTTONBAR_CLICKED,  wxRibbonButtonBarEventHandler(ICtl_ribbon_bar::OnRibbonButtonClick));
-		this->Connect(wxID_ANY,wxEVT_RIBBONBUTTONBAR_DROPDOWN_CLICKED,  wxRibbonButtonBarEventHandler(ICtl_ribbon_bar::OnRibbonButtonDropdown));
 		this->Connect(wxID_ANY,wxEVT_RIBBONBAR_HELP_CLICK,wxRibbonBarEventHandler(ICtl_ribbon_bar::OnRibbonBarHelpClicked));
 	}
 
-	void OnRibbonButtonDropdown(wxRibbonButtonBarEvent& evt)
-	{
-		evt.SetEventType(AppData::current().evt_user_dropdown_menu);
-		evt.Skip();
-	}
-
-	void OnRibbonButtonClick(wxRibbonButtonBarEvent& evt)
-	{
-		evt.SetEventType(wxEVT_COMMAND_BUTTON_CLICKED);
-		evt.Skip();
-	}
 
 	void OnRibbonBarHelpClicked(wxRibbonBarEvent&)
 	{
@@ -445,23 +583,23 @@ public:
 
 	void AddPanel(const String& page_name, EvtGroup* pevt)
 	{
-		ICtl_ribbon_page* p = NULL;
-		for (size_t i = 0; i < pages.size(); i++)
-		{
-			if (pages[i]->name == page_name)
-			{
-				p = pages[i];
-				break;
-			}
-		}
-		if (!p)
-		{
-			p = new ICtl_ribbon_page(page_name);
-			const BitmapBundle& bundle(pevt->GetBundle(16,1));
-			p->Create(this, wxID_ANY, str2wx(Translate(page_name)), bundle.bmp_normal);
-			pages.push_back(p);
-		}
-
+		//ICtl_ribbon_page* p = NULL;
+		//for (size_t i = 0; i < pages.size(); i++)
+		//{
+		//	if (pages[i]->name == page_name)
+		//	{
+		//		p = pages[i];
+		//		break;
+		//	}
+		//}
+		//if (!p)
+		//{
+		//	p = new ICtl_ribbon_page(page_name);
+		//	const BitmapBundle& bundle(pevt->GetBundle(16,1));
+		//	p->Create(this, wxID_ANY, str2wx(Translate(page_name)), bundle.bmp_normal);
+		//	pages.push_back(p);
+		//}
+		ICtl_ribbon_page* p = find2(page_name);
 		p->AddPanel(pevt);
 	}
 
@@ -487,18 +625,14 @@ static ICtl_object* WndCreateRibbonToolBar(const ICtlParam& param,EvtGroup* pevt
 
 	static int n=0;
 	p_ribbon_bar->AddPanel(String::Format("page_%d",n++), pevt);
-
+	p_ribbon_bar->Realize();
 
 	if(first)
-	{
-		p_ribbon_bar->Realize();
-		return p_ribbon_bar;
+	{		
+		WndModel::current().OnChildWindow(p_ribbon_bar, IDefs::WND_ATTACH);
 	}
-	else
-	{
-		p_ribbon_bar->Realize();
-		return NULL;
-	}
+
+	return NULL;
 
 }
 

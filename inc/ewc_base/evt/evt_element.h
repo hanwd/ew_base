@@ -21,6 +21,7 @@ public:
 	virtual bool InternalTransfer2Window(){return true;}
 
 	virtual bool DoWndExecute(IWndParam& cmd);
+	virtual bool WndExecute(IWndParam& cmd);
 
 };
 

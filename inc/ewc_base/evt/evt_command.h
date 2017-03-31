@@ -22,7 +22,6 @@ public:
 	virtual void UpdateCtrl(){}
 	virtual void UpdateBmps(){}
 
-protected:
 	DataPtrT<EvtCommand> pevt;
 
 };

@@ -199,14 +199,15 @@ public:
 	static const int IWND_NOHEADER		=1<<8;
 
 	static const int IWND_TE_READONLY	=1<<9;
-	static const int IWND_NO_RESIZABLE	=1<<10;
-	static const int IWND_NO_CAPTION	=1<<11;
-	static const int IWND_NO_SYS_MENU	=1<<12;
-	static const int IWND_NO_CLOSE_BOX	=1<<13;
+	static const int IWND_PROCESS_TAB	=1<<10;
+	static const int IWND_NO_RESIZABLE	=1<<11;
+	static const int IWND_NO_CAPTION	=1<<12;
+	static const int IWND_NO_SYS_MENU	=1<<13;
+	static const int IWND_NO_CLOSE_BOX	=1<<14;
 
-	static const int IWND_NO_CLOSE		=1<<14;
-	static const int IWND_AUTO_FIT		=1<<15;
-	static const int IWND_WINDOW_INITED	=1<<16;
+	static const int IWND_NO_CLOSE		=1<<15;
+	static const int IWND_AUTO_FIT		=1<<16;
+	static const int IWND_WINDOW_INITED	=1<<17;
 
 	static const int ALIGN_LEFT		=1;
 	static const int ALIGN_CENTER	=2;

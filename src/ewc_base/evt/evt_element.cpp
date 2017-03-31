@@ -27,6 +27,27 @@ bool EvtProxyBase::DoWndExecute(IWndParam& cmd)
 	return true;
 }
 
+EvtListener* FindNearestListener(EvtListenerGroup& alis);
+
+bool EvtProxyBase::WndExecute(IWndParam& cmd)
+{
+	if (cmd.action != IDefs::ACTION_TRANSFER2MODEL)
+	{
+		return basetype::WndExecute(cmd);
+	}
+	
+
+	EvtListener* plistener=FindNearestListener(this->m_aAttachedListeners);
+
+	if (plistener) plistener->OnWndEvent(cmd, IDefs::PHASE_PRECALL);
+	cmd.flags.set(IDefs::CMD_HANDLED_OK, DoWndExecute(cmd));
+	if (plistener) plistener->OnWndEvent(cmd, IDefs::PHASE_POSTCALL);
+
+
+	return cmd.flags.get(IDefs::CMD_HANDLED_OK);
+
+}
+
 template<typename T>
 Validator* EvtProxyT<T>::CreateValidator(wxWindow* w)
 {

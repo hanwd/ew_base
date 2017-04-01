@@ -146,7 +146,6 @@
     <ClInclude Include="..\..\inc\ewa_base\serialization.h" />
     <ClInclude Include="..\..\inc\ewa_base\serialization\cachedobjects.h" />
     <ClInclude Include="..\..\inc\ewa_base\serialization\serializer.h" />
-    <ClInclude Include="..\..\inc\ewa_base\serialization\serializer_buffer.h" />
     <ClInclude Include="..\..\inc\ewa_base\testing\test.h" />
     <ClInclude Include="..\..\inc\ewa_base\threading.h" />
     <ClInclude Include="..\..\inc\ewa_base\threading\coroutine.h" />

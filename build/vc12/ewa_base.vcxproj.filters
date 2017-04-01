@@ -357,9 +357,6 @@
     <ClInclude Include="..\..\inc\ewa_base\serialization\serializer.h">
       <Filter>include\serialization</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\inc\ewa_base\serialization\serializer_buffer.h">
-      <Filter>include\serialization</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\src\ewa_base\net\socket_impl_detail.h">
       <Filter>source\net</Filter>
     </ClInclude>

@@ -20,7 +20,26 @@ bool WndModel::DoCmdExecute(ICmdParam&)
 
 bool WndModel::DoStdExecute(IStdParam& cmd)
 {
-	Show(cmd.param1!=0);
+	if (cmd.param1 == 2)
+	{
+		cmd.param2=ShowModal();
+		return true;
+	}
+	else if (cmd.param1 != 0)
+	{
+		Show(true);
+	}
+	else if (IsModal())
+	{
+		EndModal(cmd.param2);
+		return true;
+	}
+	else
+	{
+		Show(false);
+
+	}
+
 	return true;
 }
 
@@ -158,6 +177,7 @@ void WndModel::EndModal()
 
 void WndModel::EndModal(int h)
 {
+
 	if(!EnsureCreated(true))
 	{
 		return;
@@ -172,9 +192,14 @@ void WndModel::EndModal(int h)
 
 int WndModel::ShowModal()
 {
-	if(!EnsureCreated(true)||vald_top->IsShown())
+	if(!EnsureCreated(true))
 	{
 		return IDefs::BTN_CANCEL;
+	}
+
+	if (vald_top->IsShown())
+	{
+		vald_top->Show(false);
 	}
 
 	return vald_top->ShowModal();

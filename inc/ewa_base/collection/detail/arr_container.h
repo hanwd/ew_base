@@ -650,9 +650,10 @@ void arr_container<T,A,pod>::assign(size_type count_,const T& val_)
 	}
 	else if(capacity()>=count_)
 	{
+
+		xmem<T>::fill(m_base,m_end1,val_);
 		T* _end2=m_base+count_;
 		xmem<T>::uninitialized_fill(m_end1,_end2,val_);
-		xmem<T>::fill(m_base,m_end1,val_);
 		m_end1=_end2;
 	}
 	else

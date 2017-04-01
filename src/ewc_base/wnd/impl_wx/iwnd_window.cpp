@@ -251,9 +251,11 @@ EvtListener* FindNearestListener(EvtListenerGroup& alis)
 		}
 		else if (wxWindow* p = lis->GetWindow())
 		{
-			_aWindows.clear();
-			_aWindows.push_back(NULL);
+			level = 1;
+
+			_aWindows.assign(1,NULL);
 			for (; p; p = p->GetParent()) _aWindows.push_back(p);
+
 			auto it1 = g_aCommandWindowLink.rbegin();
 			for (auto it2 = _aWindows.rbegin(); it2 != _aWindows.rend();)
 			{
@@ -262,7 +264,7 @@ EvtListener* FindNearestListener(EvtListenerGroup& alis)
 			}
 		}
 
-		if (level > level_max)
+		if (level >= level_max)
 		{
 			level_max = level;
 			plistener = lis;
@@ -279,8 +281,7 @@ void IWnd_topwindow<T>::OnCommandEvent(wxCommandEvent& evt)
 {
 	if(!m_pModel) return;
 
-	g_aCommandWindowLink.clear();
-	g_aCommandWindowLink.push_back(NULL);
+	g_aCommandWindowLink.assign(1,NULL);
 
 	for (wxWindow* p = dynamic_cast<wxWindow*>(evt.GetEventObject()); p; p = p->GetParent())
 	{

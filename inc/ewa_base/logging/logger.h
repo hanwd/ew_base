@@ -66,6 +66,8 @@ public:
 	//clear error
 	void Clear();
 
+	void Clear(arr_1t<LogRecord>& msgs);
+
 	void DoLog(int v,const String&);
 
 #ifdef EW_C11

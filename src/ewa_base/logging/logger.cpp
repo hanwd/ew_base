@@ -291,6 +291,15 @@ void Logger::Clear()
 	impl->m_aMsg.clear();
 }
 
+void Logger::Clear(arr_1t<LogRecord>& msgs)
+{
+	msgs.swap(impl->m_aMsg);
+
+	impl->m_nErrCount=0;
+	impl->m_nWrnCount=0;
+	impl->m_aMsg.clear();
+}
+
 void Logger::def(LogTarget* p)
 {
 	LoggerImpl::def()->SetData(p);

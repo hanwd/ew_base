@@ -73,6 +73,7 @@ int ValidatorTop::ShowModal()
 
 void ValidatorTop::EndModal(int h)
 {
+	if (h == 0) h = IDefs::BTN_CANCEL;
 
 	wxTopLevelWindow* pw=win2top(pWindow);
 	wxDialog* dlg=dynamic_cast<wxDialog*>(pw);

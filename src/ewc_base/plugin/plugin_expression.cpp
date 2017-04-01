@@ -65,13 +65,28 @@ bool PluginExpression::OnAttach()
 			wm.evtmgr["expr.expression"].WndExecuteEx(IDefs::ACTION_TRANSFER2MODEL);
 			IExprData& idat(IExprData::current());
 			LoggerSwap logger;//disable the error messages
+			
+			this_logger().Cache(true);
+
 			if(idat.expr_expresion.empty())
 			{
 				idat.expr_result="";
 			}
 			else if(!idat.lexer.eval(idat.expr_expresion,idat.expr_result))
 			{
-				idat.expr_result="---";			
+				arr_1t<LogRecord> msgs;
+				this_logger().Clear(msgs);
+
+				if (!msgs.empty())
+				{
+					idat.expr_result = "ERROR: " + msgs[0].m_sMessage;
+				}
+				else
+				{
+					idat.expr_result="---";	
+				}
+
+		
 			}
 			wm.evtmgr["expr.result"].WndExecuteEx(IDefs::ACTION_TRANSFER2WINDOW);
 			return true;
@@ -86,7 +101,7 @@ bool PluginExpression::OnAttach()
 		}
 		bool DoCmdExecute(ICmdParam&)
 		{
-			WndManager::current().evtmgr["Model.Expr"].StdExecuteEx(0);
+			WndManager::current().evtmgr["Model.Expr"].StdExecuteEx(0,IDefs::BTN_OK);
 			return true;
 		}
 	};
@@ -99,7 +114,7 @@ bool PluginExpression::OnAttach()
 		}
 		bool DoCmdExecute(ICmdParam&)
 		{
-			WndManager::current().evtmgr["Model.Expr"].StdExecuteEx(0);
+			WndManager::current().evtmgr["Model.Expr"].StdExecuteEx(0,IDefs::BTN_CANCEL);
 			return true;
 		}
 	};

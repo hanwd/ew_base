@@ -37,6 +37,8 @@ public:
 	inline explicit arr_1t(const A& al):basetype(al){}
 	
 	explicit arr_1t(size_t n){ resize(n); }
+	arr_1t(size_t n,const_reference v){ resize(n,v); }
+
 
 	inline arr_1t& operator=(const arr_1t& o){impl=o.impl;return *this;}
 
@@ -49,20 +51,20 @@ public:
 
 	void reserve(size_type capacity_){impl.reserve(capacity_);}
 
-	void resize(size_type newsize_,const T& value_=T()){impl.resize(newsize_,value_);}
+	void resize(size_type newsize_, const_reference value_ = T()){ impl.resize(newsize_, value_); }
 
-	void assign(size_type count_,const T& val_)
+	void assign(size_type count_,const_reference val_)
 	{
 		impl.assign(count_,val_);
 	}
 
 	template<typename It>
-	void assign(It first_,size_type count_){impl.assign(first_,count_);}
+	typename tl::disable_if_c<tl::is_scalar_type<It> >::type assign(It first_, size_type count_){ impl.assign(first_, count_); }
 
 	template<typename It>
-	void assign(It first_,It last_){impl.assign(first_,last_);}
+	typename tl::disable_if_c<tl::is_scalar_type<It> >::type assign(It first_, It last_){ impl.assign(first_, last_); }
 
-	iterator insert(const_iterator where_,const T& val_)
+	iterator insert(const_iterator where_, const_reference val_)
 	{
 		return impl.insert(where_,val_);
 	}
@@ -79,7 +81,7 @@ public:
 		return impl.insert(where_,first_,last_);
 	}
 
-	inline iterator append(const T& val_)
+	inline iterator append(const_reference val_)
 	{
 		return impl.append(val_);
 	}
@@ -117,7 +119,7 @@ public:
 	inline const_reference front() const{return impl.front();}
 	inline const_reference back() const{return impl.back();}
 
-	inline void push_back(const T& val_){impl.append(val_);}
+	inline void push_back(const_reference val_){ impl.append(val_); }
 
 #if defined(EW_C11)
 	inline void push_back(T&& val_){impl.append(std::forward<T>(val_));}
@@ -126,7 +128,7 @@ public:
 
 	inline void pop_back(){impl.pop_back();}
 
-	inline void pop_back(T& val){val=impl.back();impl.pop_back();}
+	inline void pop_back(reference val){val=impl.back();impl.pop_back();}
 
 	inline reference at (size_type n)
 	{

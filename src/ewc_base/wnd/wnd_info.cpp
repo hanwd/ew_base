@@ -27,6 +27,8 @@ WndInfoManger::WndInfoManger()
 	WndInfoManger_Register<IWnd_container>(*this,"container");
 	WndInfoManger_Register<IWnd_bookbase>(*this,"bookbase");
 
+	WndInfoManger_Register<IWnd_glcanvas>(*this,"glcanvas");
+
 	WndInfoManger_Register<IWnd_button>(*this,"button");
 	WndInfoManger_Register<IWnd_label>(*this,"label");
 	WndInfoManger_Register<IWnd_textctrl>(*this,"textctrl");

@@ -8,6 +8,9 @@ EwslIface::EwslIface(MvcModel& target):Target(target)
 {
 	busy=false;
 	model=new DataModelTable();
+
+	ewsl.set_time_limit(TimeSpan::MilliSeconds(3000));
+	ewsl.set_page_limit(1024 * 1024 * 512);
 }
 
 EwslIface::~EwslIface()

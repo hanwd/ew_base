@@ -90,6 +90,7 @@
     <ClInclude Include="..\..\inc\ewc_base\wnd\impl_wx\iwnd_flash.h" />
     <ClInclude Include="..\..\inc\ewc_base\wnd\impl_wx\iwnd_frame.h" />
     <ClInclude Include="..\..\inc\ewc_base\wnd\impl_wx\iwnd_gauge.h" />
+    <ClInclude Include="..\..\inc\ewc_base\wnd\impl_wx\iwnd_glcanvas.h" />
     <ClInclude Include="..\..\inc\ewc_base\wnd\impl_wx\iwnd_hyperlink.h" />
     <ClInclude Include="..\..\inc\ewc_base\wnd\impl_wx\iwnd_info.h" />
     <ClInclude Include="..\..\inc\ewc_base\wnd\impl_wx\iwnd_label.h" />
@@ -191,6 +192,7 @@
     <ClCompile Include="..\..\src\ewc_base\wnd\impl_wx\iwnd_dialog.cpp" />
     <ClCompile Include="..\..\src\ewc_base\wnd\impl_wx\iwnd_frame.cpp" />
     <ClCompile Include="..\..\src\ewc_base\wnd\impl_wx\iwnd_gauge.cpp" />
+    <ClCompile Include="..\..\src\ewc_base\wnd\impl_wx\iwnd_glcanvas.cpp" />
     <ClCompile Include="..\..\src\ewc_base\wnd\impl_wx\iwnd_hyperlink.cpp" />
     <ClCompile Include="..\..\src\ewc_base\wnd\impl_wx\iwnd_label.cpp" />
     <ClCompile Include="..\..\src\ewc_base\wnd\impl_wx\iwnd_notebook.cpp" />

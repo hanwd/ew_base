@@ -301,11 +301,12 @@ public:
 class DLLIMPEXP_EWC_BASE IWnd_dialog;
 class DLLIMPEXP_EWC_BASE IWnd_frame;
 class DLLIMPEXP_EWC_BASE IWnd_container;
+class DLLIMPEXP_EWC_BASE IWnd_glcanvas;
 class DLLIMPEXP_EWC_BASE IWnd_button;
 class DLLIMPEXP_EWC_BASE IWnd_label;
 class DLLIMPEXP_EWC_BASE IWnd_textctrl;
-class IWnd_password;
-class IWnd_search;
+class DLLIMPEXP_EWC_BASE IWnd_password;
+class DLLIMPEXP_EWC_BASE IWnd_search;
 class DLLIMPEXP_EWC_BASE IWnd_notebook;
 class DLLIMPEXP_EWC_BASE IWnd_checkbox;
 class DLLIMPEXP_EWC_BASE IWnd_hline;

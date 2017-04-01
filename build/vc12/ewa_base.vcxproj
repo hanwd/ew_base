@@ -206,6 +206,7 @@
     <ClCompile Include="..\..\src\ewa_base\basic\process.cpp" />
     <ClCompile Include="..\..\src\ewa_base\basic\scanner_helper.cpp" />
     <ClCompile Include="..\..\src\ewa_base\basic\stream.cpp" />
+    <ClCompile Include="..\..\src\ewa_base\basic\stream_buffer.cpp" />
     <ClCompile Include="..\..\src\ewa_base\basic\string.cpp" />
     <ClCompile Include="..\..\src\ewa_base\basic\stringbuffer.cpp" />
     <ClCompile Include="..\..\src\ewa_base\basic\string_impl.cpp" />
@@ -286,7 +287,6 @@
     <ClCompile Include="..\..\src\ewa_base\scripting\callable_table.cpp" />
     <ClCompile Include="..\..\src\ewa_base\serialization\cachedobjects.cpp" />
     <ClCompile Include="..\..\src\ewa_base\serialization\serializer.cpp" />
-    <ClCompile Include="..\..\src\ewa_base\serialization\serializer_buffer.cpp" />
     <ClCompile Include="..\..\src\ewa_base\serialization\serialize_reader.cpp" />
     <ClCompile Include="..\..\src\ewa_base\serialization\serialize_writer.cpp" />
     <ClCompile Include="..\..\src\ewa_base\testing\test.cpp" />

@@ -5,7 +5,7 @@
 
 #include "ewa_base/scripting/executor.h"
 #include "ewa_base/logging/logtarget.h"
-#include "ewa_base/serialization/serializer_buffer.h"
+#include "ewa_base/basic/stream_buffer.h"
 
 EW_ENTER
 

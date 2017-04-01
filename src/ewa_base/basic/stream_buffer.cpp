@@ -1,5 +1,5 @@
 
-#include "ewa_base/serialization/serializer_buffer.h"
+#include "ewa_base/basic/stream_buffer.h"
 
 EW_ENTER
 

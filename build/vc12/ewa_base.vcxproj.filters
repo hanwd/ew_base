@@ -785,9 +785,6 @@
     <ClCompile Include="..\..\src\ewa_base\serialization\serializer.cpp">
       <Filter>source\serialization</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\ewa_base\serialization\serializer_buffer.cpp">
-      <Filter>source\serialization</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\src\ewa_base\testing\test.cpp">
       <Filter>source\testing</Filter>
     </ClCompile>
@@ -916,6 +913,9 @@
     </ClCompile>
     <ClCompile Include="..\..\src\ewa_base\net\session_http_ssl.cpp">
       <Filter>source\net</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewa_base\basic\stream_buffer.cpp">
+      <Filter>source\basic</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

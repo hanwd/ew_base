@@ -1,8 +1,8 @@
 
-#ifndef __H_EW_SERIALIZER_BUFFER__
-#define __H_EW_SERIALIZER_BUFFER__
+#ifndef __H_EW_STREAM_BUFFER__
+#define __H_EW_STREAM_BUFFER__
 
-#include "ewa_base/serialization/serializer.h"
+#include "ewa_base/basic/stream.h"
 #include "ewa_base/collection/linear_buffer.h"
 
 

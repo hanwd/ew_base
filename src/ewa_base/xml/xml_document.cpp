@@ -1,6 +1,6 @@
 #include "ewa_base/xml/xml_document.h"
 #include "ewa_base/logging/logger.h"
-#include "ewa_base/serialization/serializer_buffer.h"
+#include "ewa_base/basic/stream_buffer.h"
 
 #include "xml_parser.h"
 

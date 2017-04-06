@@ -9,7 +9,7 @@ IWnd_notebook::IWnd_notebook(wxWindow* p,const WndPropertyEx& h)
 {
 	this->Connect(wxEVT_NOTEBOOK_PAGE_CHANGING,wxBookCtrlEventHandler(IWnd_notebook::OnNBChanging));
 	this->Connect(wxEVT_NOTEBOOK_PAGE_CHANGED,wxBookCtrlEventHandler(IWnd_notebook::OnNBChanged));
-	m_bPageOnly=h.flags().get(IDefs::IWND_PAGEONLY);
+	flags.set(ValidatorGroupBook::FLAG_PAGE_ONLY,h.flags().get(IDefs::IWND_PAGEONLY));
 }
 
 void IWnd_notebook::OnNBChanging(wxBookCtrlEvent& evt)
@@ -25,18 +25,28 @@ void IWnd_notebook::OnNBChanging(wxBookCtrlEvent& evt)
 void IWnd_notebook::OnNBChanged(wxBookCtrlEvent& evt)
 {
 	if(!m_pVald) return;
-	m_pVald->WndExecuteEx(IDefs::ACTION_SELECTION_CHANGING,evt.GetSelection(),evt.GetOldSelection());
+	m_pVald->WndExecuteEx(IDefs::ACTION_SELECTION_CHANGED,evt.GetSelection(),evt.GetOldSelection());
+	m_pVald->ISelPage(this->GetPage(evt.GetSelection()));
+}
+
+
+bool IWnd_notebook::IAddPage(wxWindow *w, const WndProperty& wp)
+{
+	if (m_pVald) m_pVald->IAddPage(w, wp);
+	return wxNotebook::AddPage(w, str2wx(wp.page()));
 }
 
 template<>
-class ValidatorW<IWnd_notebook> : public ValidatorGroupEx
+class ValidatorW<IWnd_notebook> : public ValidatorGroupBook
 {
 public:
 
 	LitePtrT<IWnd_notebook> pWindow;
+
 	ValidatorW(IWnd_notebook* w_):pWindow(w_)
 	{
-		pageid=pWindow->m_bPageOnly?0:-1;
+		flags = pWindow->flags;
+		pageid = flags.get(FLAG_PAGE_ONLY) ? 0 : -1;
 		pWindow->m_pVald.reset(this);
 	}
 

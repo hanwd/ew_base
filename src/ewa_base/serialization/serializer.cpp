@@ -56,7 +56,7 @@ SerializerWriter& Serializer::writer()
 	{
 		errstr("NOT_WRITER");
 	}
-	return *(SerializerWriter*)this;
+	return static_cast<SerializerWriter&>(*this);
 }
 
 SerializerReader& Serializer::reader()
@@ -65,7 +65,7 @@ SerializerReader& Serializer::reader()
 	{
 		errstr("NOT_READER");
 	}
-	return *(SerializerReader*)this;
+	return static_cast<SerializerReader&>(*this);
 }
 
 

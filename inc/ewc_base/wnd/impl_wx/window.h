@@ -298,6 +298,7 @@ public:
 };
 
 
+
 class DLLIMPEXP_EWC_BASE IWnd_dialog;
 class DLLIMPEXP_EWC_BASE IWnd_frame;
 class DLLIMPEXP_EWC_BASE IWnd_container;

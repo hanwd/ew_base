@@ -3,7 +3,6 @@
 
 int main(int argc, char** argv)
 {
-
 	using namespace ew;
 
 	mp_check_leak(1);

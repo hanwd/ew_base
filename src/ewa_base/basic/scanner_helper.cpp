@@ -2,46 +2,6 @@
 
 EW_ENTER
 
-
-//
-//
-//template<typename B>
-//bool ScannerHelper<B>::read_uint(B &p, int64_t& v)
-//{
-//	v = 0;
-//
-//	char ch = p[0];
-//	if (ch == '0')
-//	{
-//
-//		ch = rebind<lkt2uppercase,0>::type::test(*++p);
-//		if (ch == 'X')
-//		{
-//			return read_uint_t<16>(++p, v);
-//		}
-//		else if (ch == 'B')
-//		{
-//			return read_uint_t<2>(++p, v);
-//		}
-//		else if (ch >= '1'&&ch <= '9')
-//		{
-//			return read_uint_t<8>(++p, v);
-//		}
-//		else if (ch == '0')
-//		{
-//			return false;
-//		}
-//		else
-//		{
-//			return true;
-//		}
-//	}
-//	else
-//	{
-//		return read_uint_t<10>(p, v);
-//	}
-//}
-
 template<typename B>
 bool ScannerHelper<B>::read_sign(B &p)
 {

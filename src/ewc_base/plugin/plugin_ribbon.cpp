@@ -57,15 +57,6 @@ public:
 			wxRIBBON_PANEL_DEFAULT_STYLE |
 			wxRIBBON_PANEL_EXT_BUTTON);
 
-		//p_top_sizer = new wxBoxSizer(wxHORIZONTAL);
-		//for (size_t i = 0; i<pevt->size(); i++)
-		//{
-		//	EvtCommand* pCommand = (*pevt)[i].get();
-		//	if (pCommand->flags.get(EvtBase::FLAG_HIDE_UI)) continue;
-		//	//if (pCommand->flags.get(EvtBase::FLAG_SEPARATOR)) { m_p_wx_impl->AddSeparator(); continue; }
-		//	pCommand->CreateCtrlItem(this);
-		//}
-		//this->SetSizer(p_top_sizer);
 		
 	}
 
@@ -123,7 +114,7 @@ public:
 		{
 			EvtCommand* pCommand = (*pevt)[i].get();
 			if (pCommand->flags.get(EvtBase::FLAG_HIDE_UI)) continue;
-			//if (pCommand->flags.get(EvtBase::FLAG_SEPARATOR)) { m_p_wx_impl->AddSeparator(); continue; }
+			if (pCommand->flags.get(EvtBase::FLAG_SEPARATOR)) continue; 
 
 			pCommand->CreateCtrlItem(this);
 		}
@@ -339,10 +330,6 @@ void ICtl_ribbon_toolbar::InitToolItem(EvtCommand* pevt, wxRibbonToolBarToolBase
 	pctrl->UpdateCtrl();
 }
 
-
-
-
-
 class ICtl_ribbon_buttonbar : public ICtl_ribbon_panel
 {
 public:
@@ -517,9 +504,9 @@ public:
 	void AddPanel(EvtGroup* pevt)
 	{
 		String panel_name = pevt->m_sId;
-		//ICtl_ribbon_toolbar* p = new ICtl_ribbon_toolbar(this, pevt,16);
+		ICtl_ribbon_toolbar* p = new ICtl_ribbon_toolbar(this, pevt,16);
 		//ICtl_ribbon_buttonbar* p = new ICtl_ribbon_buttonbar(this, pevt, 16);
-		ICtl_ribbon_sizer* p=new ICtl_ribbon_sizer(this, pevt, 16);
+		//ICtl_ribbon_sizer* p=new ICtl_ribbon_sizer(this, pevt, 16);
 		//ICtl_ribbon_gallery* p = new ICtl_ribbon_gallery(this, pevt, 16);
 		for (size_t i = 0; i < panels.size(); i++)
 		{

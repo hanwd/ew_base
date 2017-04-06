@@ -32,7 +32,38 @@ public:
 	virtual bool WndExecute(IWndParam& cmd);
 
 	int32_t pageid;
+
 };
+
+
+class DLLIMPEXP_EWC_BASE ValidatorGroupBook : public ValidatorGroupEx
+{
+public:
+	typedef ValidatorGroupEx basetype;
+
+	ValidatorGroupBook();
+
+	void IAddPage(wxWindow *w, const WndProperty& p);
+
+	bool IGetBestSize(int& x, int& y);
+	void ISetMinSize(int x, int y);
+	void IEnableDynamicSize(bool bflag);
+	void ISelPage(wxWindow* w);
+
+	enum
+	{
+		FLAG_PAGE_ONLY = 1 << 0,
+		FLAG_DYNAMIC_SIZE_X = 1 << 1,
+		FLAG_DYNAMIC_SIZE_Y = 1 << 2,
+		FLAG_FITINSIDE = 1 << 3,
+		FLAG_FITLAYOUT = 1 << 4,
+	};
+
+	BitFlags flags;
+	vec2i m_v2MinSize;
+	LitePtrT<wxWindow> m_pSelectedPage;
+};
+
 
 
 EW_LEAVE

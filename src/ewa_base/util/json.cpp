@@ -180,6 +180,17 @@ public:
 
 	}
 
+	bool read_name(String& name)
+	{
+		skip_blank();
+		if (*pchar == '\"')
+		{
+			return read_string(name);
+		}
+
+		return read_chunk(name);
+	}
+
 	bool read_string(String& name)
 	{
 		if (!match('"'))
@@ -359,7 +370,7 @@ public:
 		{
 
 			String name;
-			if (!read_string(name))
+			if (!read_name(name))
 			{
 				return false;
 			}

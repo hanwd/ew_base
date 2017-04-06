@@ -386,17 +386,24 @@ inline void XmlParser::parse_comment_node()
 
 	mychar_ptr p1=pcur;
 
-	helper::skip<lkt_not_gt>(pcur);
-	if(pcur[0]!='>')
+	while(1)
 	{
-		kexpected(">");
+		helper::skip<lkt_not_gt>(pcur);
+		if(pcur[0]!='>')
+		{
+			kexpected(">");
+		}
+
+		if(pcur[-1]!='-'||pcur[-2]!='-')
+		{
+			pcur+=1;
+		}	
+		else
+		{
+			break;
+		}
 	}
 
-	if(pcur[-1]!='-'||pcur[-2]!='-')
-	{
-		pcur-=2;
-		kexpected("-->");
-	}
 
 	mychar_ptr p2=pcur-2;
 

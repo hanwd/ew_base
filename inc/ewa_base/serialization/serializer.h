@@ -178,6 +178,8 @@ public:
 	virtual SerializerReader& handle_head();
 	virtual SerializerReader& handle_tail();
 
+	virtual SerializerReader& reader(){ return *this; }
+
 };
 
 class DLLIMPEXP_EWA_BASE SerializerWriter : public SerializerEx
@@ -206,6 +208,8 @@ public:
 
 	virtual SerializerWriter& handle_head();
 	virtual SerializerWriter& handle_tail();
+
+	virtual SerializerWriter& writer(){ return *this; }
 
 };
 

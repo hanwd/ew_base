@@ -2,6 +2,8 @@
 #include "ewc_base/evt/evt_manager.h"
 #include "ewc_base/wnd/wnd_info.h"
 #include "ewc_base/wnd/impl_wx/topwindow.h"
+#include "ewc_base/wnd/impl_wx/iwnd_bookbase.h"
+#include "ewc_base/wnd/impl_wx/iwnd_notebook.h"
 
 #include "ewa_base/scripting/callable_memfunc.h"
 
@@ -270,10 +272,13 @@ WndMaker& WndMaker::end()
 		}
 		else if(itmp.prop.page()!="") // window in notebook
 		{
-			wxNotebook* book=dynamic_cast<wxNotebook*>(icur.hwnd);
-			if(book)
+			if (IWnd_notebook* book = dynamic_cast<IWnd_notebook*>(icur.hwnd))
 			{
-				book->AddPage(itmp.hwnd,str2wx(itmp.prop.page()));
+				book->IAddPage(itmp.hwnd,itmp.prop);
+			}
+			else if (IWnd_bookbase* book = dynamic_cast<IWnd_bookbase*>(icur.hwnd))
+			{
+				book->IAddPage(itmp.hwnd, itmp.prop);
 			}
 			else
 			{

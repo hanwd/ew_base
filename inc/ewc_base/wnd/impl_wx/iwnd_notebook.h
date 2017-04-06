@@ -11,14 +11,16 @@ class DLLIMPEXP_EWC_BASE IWnd_notebook : public wxNotebook
 {
 public:
 
+	BitFlags flags;
+
 	IWnd_notebook(wxWindow* p,const WndPropertyEx& h);
 
 	void OnNBChanging(wxBookCtrlEvent& evt);
 	void OnNBChanged(wxBookCtrlEvent& evt);
 
-	bool m_bPageOnly;
+	bool IAddPage(wxWindow *w, const WndProperty& wp);
 
-	ValidatorHolderT<Validator> m_pVald;
+	mutable ValidatorHolderT<ValidatorGroupBook> m_pVald;
 };
 
 EW_LEAVE

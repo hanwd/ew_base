@@ -37,7 +37,6 @@ bool WndModel::DoStdExecute(IStdParam& cmd)
 	else
 	{
 		Show(false);
-
 	}
 
 	return true;

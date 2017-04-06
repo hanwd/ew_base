@@ -97,9 +97,6 @@ public:
 		return true;
 	}
 
-
-
-
 	bool OnCreated()
 	{
 		m_pBook=dynamic_cast<IWnd_bookbase*>(WndManager::current().evtmgr["Wnd.Variable"].GetWindow());

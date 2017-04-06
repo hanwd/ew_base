@@ -379,6 +379,7 @@ void MvcBook::UpdateTitle()
 
 bool MvcBook::OpenModel(MvcModel* pModel)
 {
+	
 	if(!pModel)
 	{
 		System::LogMessage("MvcBook::OpenModel: pModel is NULL");
@@ -390,6 +391,9 @@ bool MvcBook::OpenModel(MvcModel* pModel)
 		System::LogMessage("MvcBook::OpenModel: m_pBook is NULL");
 		return false;
 	}
+
+	
+	LockGuard<WndUpdator> lock(WndManager::current().wup);
 
 	AutoPtrT<MvcView> pView;
 

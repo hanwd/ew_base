@@ -52,7 +52,8 @@ public:
 	intptr_t param2;
 
 	LitePtrT<EvtBase> evtptr;
-	LitePtrT<Validator> iwvptr;	
+	LitePtrT<Validator> iwvptr;
+	LitePtrT<wxWindow> wndptr;
 
 };
 

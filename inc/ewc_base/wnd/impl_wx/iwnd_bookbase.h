@@ -11,15 +11,9 @@ public:
 
 	typedef wxWindow basetype;
 
+	BitFlags flags;
+
 	IWnd_bookbase(wxWindow* p,const WndPropertyEx& h);
-
-	enum
-	{
-		FLAG_DYNAMIC_SIZE_X	=1<<0,
-		FLAG_DYNAMIC_SIZE_Y	=1<<1,
-		FLAG_FITINSIDE		=1<<2,
-	};
-
 	IWnd_bookbase(wxWindow *p,int f=0);
 	~IWnd_bookbase();
 
@@ -29,17 +23,14 @@ public:
 	bool SelPage(wxWindow *w);
 	void DefPage(wxWindow *w);
 
-	void SetMinSizeEx(const wxSize& size);
-	void EnableDynamicSize(bool bflag);
+	bool IAddPage(wxWindow *w, const WndProperty& wp);
+
 	virtual wxSize DoGetBestSize() const;
 
-	BitFlags flags;
-
-	ValidatorHolderT<Validator> m_pVald;
+	mutable ValidatorHolderT<ValidatorGroupBook> m_pVald;
 
 protected:
-
-	wxSize m_v2MinSize;
+	
 	LitePtrT<wxWindow> win;
 	LitePtrT<wxWindow> def;
 

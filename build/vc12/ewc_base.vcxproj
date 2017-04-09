@@ -105,6 +105,7 @@
     <ClInclude Include="..\..\inc\ewc_base\wnd\impl_wx\iwnd_webview.h" />
     <ClInclude Include="..\..\inc\ewc_base\wnd\impl_wx\topwindow.h" />
     <ClInclude Include="..\..\inc\ewc_base\wnd\impl_wx\window.h" />
+    <ClInclude Include="..\..\inc\ewc_base\wnd\wnd_glcontext.h" />
     <ClInclude Include="..\..\inc\ewc_base\wnd\wnd_info.h" />
     <ClInclude Include="..\..\inc\ewc_base\wnd\wnd_maker.h" />
     <ClInclude Include="..\..\inc\ewc_base\wnd\wnd_manager.h" />
@@ -206,6 +207,7 @@
     <ClCompile Include="..\..\src\ewc_base\wnd\impl_wx\iwnd_webview.cpp" />
     <ClCompile Include="..\..\src\ewc_base\wnd\impl_wx\iwnd_webview_msw.cpp" />
     <ClCompile Include="..\..\src\ewc_base\wnd\impl_wx\iwnd_window.cpp" />
+    <ClCompile Include="..\..\src\ewc_base\wnd\wnd_glcontext.cpp" />
     <ClCompile Include="..\..\src\ewc_base\wnd\wnd_info.cpp" />
     <ClCompile Include="..\..\src\ewc_base\wnd\wnd_maker.cpp" />
     <ClCompile Include="..\..\src\ewc_base\wnd\wnd_manager.cpp" />

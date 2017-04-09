@@ -318,6 +318,9 @@
     <ClInclude Include="..\..\inc\ewc_base\wnd\impl_wx\iwnd_glcanvas.h">
       <Filter>include\wnd\impl_wx</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\inc\ewc_base\wnd\wnd_glcontext.h">
+      <Filter>include\wnd</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\ewc_base\wnd\impl_wx\impl_wx.cpp">
@@ -565,6 +568,9 @@
     </ClCompile>
     <ClCompile Include="..\..\src\ewc_base\wnd\impl_wx\iwnd_glcanvas.cpp">
       <Filter>source\wnd\impl_wx</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewc_base\wnd\wnd_glcontext.cpp">
+      <Filter>source\wnd</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

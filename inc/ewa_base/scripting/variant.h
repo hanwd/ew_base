@@ -223,7 +223,10 @@ public:
 	static void clone(Variant& d,CallableData* p)
 	{
 		EW_ASSERT(p!=NULL);
-		d.kptr(p->Clone());
+		ObjectCloneState cs(0);
+		CallableData* p2=p->DoClone(cs);
+		EW_ASSERT(p2!=NULL);
+		d.kptr(p2);
 	}
 
 	template<typename X>

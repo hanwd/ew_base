@@ -58,7 +58,7 @@ public:
 	bool callx(int n,int k=1);
 	int callx_raw(int n,int k);
 
-	void kerror(const String& s);
+	int kerror(const String& s);
 	void kthrow(int n);
 
 	inline void check_pmc(CallableData*,int pm1,int pm2)

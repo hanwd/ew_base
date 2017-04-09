@@ -110,9 +110,10 @@ bool Executor::execute_file(const String& ss,int pmc,int kep)
 	return callx(pmc,kep);
 }
 
-void Executor::kerror(const String& s)
+int Executor::kerror(const String& s)
 {
 	Exception::XError(s);
+	return -1;
 }
 
 void Executor::kthrow(int n)

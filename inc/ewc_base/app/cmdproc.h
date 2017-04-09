@@ -2,6 +2,7 @@
 #define __H_EW_UI_APP_CMDPROC__
 
 #include "ewc_base/config.h"
+#include "ewc_base/app/data_defs.h"
 
 EW_ENTER
 	

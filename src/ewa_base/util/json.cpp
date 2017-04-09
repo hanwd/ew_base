@@ -180,6 +180,17 @@ public:
 
 	}
 
+	bool read_name(String& name)
+	{
+		skip_blank();
+		if (*pchar == '\"')
+		{
+			return read_string(name);
+		}
+
+		return read_chunk(name);
+	}
+
 	bool read_string(String& name)
 	{
 		if (!match('"'))
@@ -359,7 +370,7 @@ public:
 		{
 
 			String name;
-			if (!read_string(name))
+			if (!read_name(name))
 			{
 				return false;
 			}
@@ -515,7 +526,7 @@ void JsonWriter::WriteValue(bool value)
 
 void JsonWriter::WriteValue(const VariantTable& value)
 {
-	sb<<tb<<"{"<<"\r\n";
+	sb<<"{"<<"\r\n";
 	{
 		LockState<String> lock(tb,tb+"\t");
 		for(size_t i=0;i<value.size();i++)
@@ -538,7 +549,6 @@ void to_json(const Variant& json,StringBuffer<char>& sb)
 {
 	JsonWriter writer(sb);
 	writer.WriteValue(json);
-	//variant_to_json_dispatch<0>::g(json,sb,"");
 }
 
 EW_LEAVE

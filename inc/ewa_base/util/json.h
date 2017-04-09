@@ -23,22 +23,35 @@ public:
 	void WriteValue(const VariantTable& value);
 	void WriteValue(const dcomplex& value);
 
-
 	template<typename T>
-	void WriteValue(const arr_xt<T>& value)
+	void WriteArray(T* p,size_t n)
 	{
-		sb<<tb<<"["<<"\r\n";
-		LockState<String> lock(tb,tb+"\t");
-		for(size_t i=0;i<value.size();i++)
+		sb<<"["<<"\r\n";
 		{
-			WriteValue(value[i]);
-			if(i+1<value.size()) sb<<",";
-			sb<<"\r\n";
+			LockState<String> lock(tb,tb+"\t");
+			for(size_t i=0;i<n;i++)
+			{
+				sb<<tb;
+				WriteValue(p[i]);
+				if(i+1<n) sb<<",";
+				sb<<"\r\n";
+			}		
 		}
 		sb<<tb<<"]";
 	}
 
 
+	template<typename T>
+	void WriteValue(const arr_xt<T>& value)
+	{
+		WriteArray(value.data(),value.size());
+	}
+
+	template<typename T>
+	void WriteValue(const arr_1t<T>& value)
+	{
+		WriteArray(value.data(),value.size());
+	}
 
 	template<typename T>
 	void Write(const String& name,const T& value,bool prop_end=false)

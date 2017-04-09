@@ -177,7 +177,7 @@ public:
 	SessionHttpServer();
 
 	void NewSession(PerIO_socket& sk);
-	void Register(const String& name,Variant& object);
+	void Register(const String& name,const Variant& object);
 
 
 };

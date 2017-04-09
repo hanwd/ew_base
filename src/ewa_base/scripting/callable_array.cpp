@@ -302,7 +302,7 @@ template<typename T>
 template<typename A,typename X>
 void CallableWrapT<arr_xt<T> >::__arrset_1t(A& sub,const arr_xt<X>& tmp)
 {
-	if(sub.idx[0].size!=tmp.size(0))
+	if(sub.idx[0].size!=tmp.size())
 	{
 		Exception::XInvalidIndex();
 	}

@@ -63,6 +63,10 @@ public:
 	}
 };
 
+template<typename T>
+class FunctionParamT<const T&> : public FunctionParamT<T>{};
+
+
 template<typename B>
 class CallableFunctionTargetFunc0 : public B
 {
@@ -83,9 +87,7 @@ public:
 	{
 		ewsl.check_pmc(this,pm,0);
 		target_type& Target(this->get_target(ewsl,ewsl.ci1.nbp[StackState1::SBASE_THIS].kptr()));
-		(Target.*func)();
-		ewsl.ci0.nbx[1]=ewsl.ci1.nbp[StackState1::SBASE_THIS];
-		return 1;
+		return this->set_result(ewsl,(Target.*func)());
 	}
 };
 
@@ -115,15 +117,12 @@ public:
 		FunctionParamT<T1> val1;
 		if(val1.update(ewsl.ci0.nbx[1]))
 		{
-			(Target.*func)(val1.value);
+			return this->set_result(ewsl,(Target.*func)(val1.value));
 		}
 		else
 		{
-			ewsl.kerror("invalid param");
+			return ewsl.kerror("invalid param");
 		}
-
-		ewsl.ci0.nbx[1]=ewsl.ci1.nbp[StackState1::SBASE_THIS];
-		return 1;
 	}
 };
 
@@ -159,15 +158,12 @@ public:
 
 		if(val1.update(ewsl.ci0.nbx[1]) && val2.update(ewsl.ci0.nbx[2]))
 		{
-			(Target.*func)(val1.value,val2.value);
+			return this->set_result(ewsl,(Target.*func)(val1.value,val2.value));
 		}
 		else
 		{
-			ewsl.kerror("invalid param");
+			return ewsl.kerror("invalid param");
 		}
-
-		ewsl.ci0.nbx[1]=ewsl.ci1.nbp[StackState1::SBASE_THIS];
-		return 1;
 	}
 
 };
@@ -206,15 +202,13 @@ public:
 
 		if(val1.update(ewsl.ci0.nbx[1]) && val2.update(ewsl.ci0.nbx[2]) && val3.update(ewsl.ci0.nbx[3]))
 		{
-			(Target.*func)(val1.value,val2.value,val3.value);
+			return this->set_result(ewsl,(Target.*func)(val1.value,val2.value,val3.value));
 		}
 		else
 		{
-			ewsl.kerror("invalid param");
+			return ewsl.kerror("invalid param");
 		}
 
-		ewsl.ci0.nbx[1]=ewsl.ci1.nbp[StackState1::SBASE_THIS];
-		return 1;
 	}
 
 };

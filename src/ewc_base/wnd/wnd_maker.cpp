@@ -478,6 +478,7 @@ public:
 
 	CallableFunctionMaker(const String& n):CallableFunction(n){}
 	target_type& get_target(Executor& ewsl,CallableData* pd);
+	int set_result(Executor& ewsl,return_type);
 };
 
 
@@ -734,5 +735,10 @@ WndMaker& CallableFunctionMaker::get_target(Executor& ewsl,CallableData* pd)
 	return pm->km;
 }
 
+int CallableFunctionMaker::set_result(Executor& ewsl,return_type)
+{
+	ewsl.ci0.nbx[1]=ewsl.ci1.nbp[StackState1::SBASE_THIS];
+	return 1;
+}
 
 EW_LEAVE

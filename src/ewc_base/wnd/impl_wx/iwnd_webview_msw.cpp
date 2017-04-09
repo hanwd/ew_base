@@ -260,14 +260,10 @@ bool IWnd_webview::Invoke(Variant& rt,const String& fn,const arr_1t<Variant>& pm
 	wxCOMPtr<IHTMLWindow2> ie(IE_GetWindow(m_pImpl));
 	if(!ie) return false;
 
-	MsVariant ret, wnd,ifn;
-
-	//wnd.vt = VT_BSTR;
-	//wnd.bstrVal = L"window";
+	MsVariant ret, wnd, ifn;
 
 	StringBuffer<wchar_t> sb;
 	IConv::ansi_to_unicode(sb,fn.c_str(),fn.length());
-
 
 	if(IE_GetProperty(ie, L"window", &wnd)==E_FAIL)
 	{

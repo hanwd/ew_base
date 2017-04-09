@@ -926,7 +926,7 @@ SessionHttpServer::SessionHttpServer()
 
 
 
-void SessionHttpServer::Register(const String& name,Variant& object)
+void SessionHttpServer::Register(const String& name,const Variant& object)
 {
 	Target->server_objects->value[name]=object;
 }

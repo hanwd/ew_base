@@ -8,12 +8,9 @@ EW_ENTER
 
 class DLLIMPEXP_EWC_BASE DataNode;
 
-class DataNodeArray : public wxDataViewItemArray
+class DataNodeArray : public arr_1t<DataNode*>
 {
 public:
-	typedef DataNode* node_type;
-	node_type& operator[](size_t i);
-	void push_back(DataNode* d);
 	void clear_and_destroy();
 };
 

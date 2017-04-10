@@ -65,7 +65,7 @@ public:
 		if(m_pCurrentCanvas==pPage)
 		{
 			m_pCurrentCanvas.reset(NULL);
-			m_pActiveView=NULL;
+			SetActiveView(NULL);
 		}
 
 		DeletePage(nSelection);
@@ -89,14 +89,12 @@ public:
 
 		m_pCurrentCanvas.reset(w);
 
-		m_pActiveView=MvcView::GetViewByCanvas(w);
+		SetActiveView(MvcView::GetViewByCanvas(w));
 
 		if(m_pActiveView)
 		{
 			m_pActiveView->OnActivate(wm,+2);
 		}
-
-		MvcView::ms_pActiveView=m_pActiveView;
 
 		return true;
 	}
@@ -129,12 +127,17 @@ public:
 		if(this->GetPageCount()==0)
 		{
 			m_pCurrentCanvas.reset(NULL);
-			m_pActiveView.reset(NULL);
-			MvcView::ms_pActiveView=NULL;
+			SetActiveView(NULL);
 			wm.wup.gp_add("CmdProc");
 		}
 
 		wm.wup.unlock();
+	}
+
+	void SetActiveView(MvcView* pview)
+	{
+		m_pActiveView=pview;
+		MvcView::ms_pActiveView = pview;
 	}
 
 
@@ -162,7 +165,7 @@ public:
 		if(pPage==m_pCurrentCanvas)
 		{
 			m_pCurrentCanvas.reset(NULL);
-			m_pActiveView.reset(NULL);
+			SetActiveView(NULL);
 		}
 
 		wm.book.DetachView(pView);

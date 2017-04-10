@@ -3,7 +3,7 @@
 EW_ENTER
 
 
-DataNode::DataNode(wxDataViewItem p,const String& n):name(n),parent(p)
+DataNode::DataNode(DataNode* p,const String& n):parent(p),name(n)
 {
 	depth=0;
 }
@@ -13,13 +13,11 @@ DataNode::~DataNode()
 	subnodes.clear_and_destroy();
 }
 
-unsigned int DataNode::GetChildren(wxDataViewItemArray &children )
+
+void DataNode::UpdateGroup()
 {
 	EW_ASSERT(flags.get(DataNode::FLAG_IS_GROUP));
-
 	flags.add(DataNode::FLAG_TOUCHED);
-	children=subnodes;
-	return children.size();
 }
 
 EW_LEAVE

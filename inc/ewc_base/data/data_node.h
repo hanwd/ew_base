@@ -16,18 +16,16 @@ public:
 		FLAG_IS_GROUP	=1<<1,
 	};
 
-	DataNode(wxDataViewItem p=wxDataViewItem(),const String& n="");
+	DataNode(DataNode* p = NULL, const String& n = "");
 	~DataNode();
 
-	virtual unsigned int GetChildren(wxDataViewItemArray &children );
+	virtual void UpdateGroup();
 
+	DataNode* parent;
 	String name;
+	DataNodeArray subnodes;
 	BitFlags flags;
 	int depth;
-	wxDataViewItem parent;
-
-	DataNodeArray subnodes;
-
 };
 
 EW_LEAVE

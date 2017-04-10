@@ -53,6 +53,7 @@ void MvcView::OnDestroy()
 	delete this;
 }
 
+
 void MvcView::SetCanvas(wxWindow* w)
 {
 	if(m_pCanvas==w)
@@ -195,7 +196,18 @@ String MvcView::GetTitle()
 
 void MvcView::Refresh()
 {
-	if(m_pCanvas) m_pCanvas->Refresh();
+	if (!IsActive()) return;
+	if (m_nRequestFresh++) return;
+
+	WndManager::current().evtmgr.pending("View.Refresh");
+
+}
+
+void MvcView::DoRefresh()
+{
+	if (!m_pCanvas) return;
+	m_pCanvas->Refresh();
+	m_nRequestFresh = 0;
 }
 
 void MvcView::CaptureMouse()

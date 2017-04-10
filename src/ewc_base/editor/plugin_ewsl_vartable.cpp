@@ -16,7 +16,7 @@ public:
 
 
 
-DataNodeVariant::DataNodeVariant(wxDataViewItem p,const String& s,const Variant& v):DataNode(p,s),value(v)
+DataNodeVariant::DataNodeVariant(DataNode* p,const String& s,const Variant& v):DataNode(p,s),value(v)
 {		
 	if(dynamic_cast<CallableWrapT<VariantTable>*>(value.kptr())!=NULL)
 	{
@@ -34,26 +34,24 @@ bool DataNodeVariant::UpdateLabel()
 	return true;
 }
 
-unsigned int DataNodeVariant::GetChildren(wxDataViewItemArray &children)
+
+void DataNodeVariant::UpdateGroup()
 {
-	if(!flags.get(DataNode::FLAG_TOUCHED))
+	if (flags.get(DataNode::FLAG_TOUCHED)) return;
+
+	flags.add(DataNode::FLAG_TOUCHED);
+	CallableWrapT<VariantTable>* ptable=dynamic_cast<CallableWrapT<VariantTable>*>(value.kptr());
+	if(!ptable) return;
+
+	const VariantTable& table(ptable->value);
+
+	subnodes.clear_and_destroy();
+	for(size_t i=0;i<table.size();i++)
 	{
-		flags.add(DataNode::FLAG_TOUCHED);
-		CallableWrapT<VariantTable>* ptable=dynamic_cast<CallableWrapT<VariantTable>*>(value.kptr());
-		if(!ptable) return 0;
-
-		const VariantTable& table(ptable->value);
-
-		subnodes.clear_and_destroy();
-		for(size_t i=0;i<table.size();i++)
-		{
-			DataNodeVariant* pv=new DataNodeVariant(wxDataViewItem(this),table.get(i).first,table.get(i).second);
-			subnodes.push_back(pv);
-		}		
+		DataNodeVariant* pv=new DataNodeVariant(this,table.get(i).first,table.get(i).second);
+		subnodes.push_back(pv);
 	}
 
-	children=subnodes;
-	return children.size();
 }
 
 
@@ -65,18 +63,10 @@ DataModelTable::DataModelTable()
 
 void DataModelTable::Update(VariantTable& table)
 {
-	//if(m_tRoot.subnodes.empty())
-	//{
-	//	m_tRoot.subnodes.push_back(new DataNodeVariant(wxDataViewItem(),"variables",Variant()));
-	//	m_tRoot.subnodes[0]->flags.add(DataNode::FLAG_IS_GROUP|DataNode::FLAG_TOUCHED);
-	//	ItemsAdded(m_tRoot.parent,m_tRoot.subnodes);
-	//}
-	//Update(table,wxDataViewItem(m_tRoot.subnodes[0]),m_tRoot.subnodes[0]->subnodes,0);
-
-	Update(table,wxDataViewItem(),m_tRoot.subnodes,0);
+	Update(table,NULL,m_tRoot.subnodes,0);
 }
 
-void DataModelTable::Update(VariantTable& table,wxDataViewItem parent,wxDataViewItemArray& children,int depth)
+void DataModelTable::Update(VariantTable& table, DataNode* parent, DataNodeArray& children, int depth)
 {
 	typedef std::pair<Variant,DataNodeVariant*> nodeinfo;
 	indexer_map<String,nodeinfo> hmap;
@@ -84,8 +74,8 @@ void DataModelTable::Update(VariantTable& table,wxDataViewItem parent,wxDataView
 	size_t n_new=table.size();
 	size_t n_old=children.size();
 
-	DataNodeArray items_add;
-	DataNodeArray items_del;
+	wxDataViewItemArray items_add;
+	wxDataViewItemArray items_del;
 
 	for(size_t i=0;i<n_new;i++)
 	{
@@ -93,7 +83,7 @@ void DataModelTable::Update(VariantTable& table,wxDataViewItem parent,wxDataView
 	}
 	for(size_t i=0;i<n_old;i++)
 	{
-		DataNodeVariant* node=(DataNodeVariant*)children[i].GetID();
+		DataNodeVariant* node=(DataNodeVariant*)children[i];
 		hmap[node->name].second=node;
 	}
 
@@ -109,11 +99,11 @@ void DataModelTable::Update(VariantTable& table,wxDataViewItem parent,wxDataView
 
 		if(!it.second||g1!=g2)
 		{
-			if(it.second) items_del.push_back(it.second);
+			if(it.second) items_del.push_back(wxDataViewItem(it.second));
 
 			it.second=new DataNodeVariant(parent,hmap.get(i).first,table.get(i).second);
 			it.second->depth=depth;
-			items_add.push_back(it.second);
+			items_add.push_back(wxDataViewItem(it.second));
 		}
 		else
 		{
@@ -125,7 +115,7 @@ void DataModelTable::Update(VariantTable& table,wxDataViewItem parent,wxDataView
 
 			if(g1 && it.second->flags.get(DataNode::FLAG_TOUCHED))
 			{
-				Update(ptable->value,wxDataViewItem(it.second),it.second->subnodes,depth+1);
+				Update(ptable->value,it.second,it.second->subnodes,depth+1);
 			}
 		}			
 	}
@@ -133,18 +123,21 @@ void DataModelTable::Update(VariantTable& table,wxDataViewItem parent,wxDataView
 
 	for(size_t i=n_new;i<hmap.size();i++)
 	{
-		items_del.push_back(hmap.get(i).second.second);
+		items_del.push_back(wxDataViewItem(hmap.get(i).second.second));
 	}
-	ItemsDeleted(parent,items_del);
+	ItemsDeleted(wxDataViewItem(parent),items_del);
 
 	children.resize(n_new);
 	for(size_t i=0;i<n_new;i++)
 	{
-		children[i]=wxDataViewItem(hmap.get(i).second.second);
+		children[i]=hmap.get(i).second.second;
 	}
-	ItemsAdded(parent,items_add);
+	ItemsAdded(wxDataViewItem(parent), items_add);
 
-	items_del.clear_and_destroy();
+	for (auto it = items_del.begin(); it != items_del.end(); ++it)
+	{
+		delete (DataNode*)(*it).GetID();
+	}
 
 }
 

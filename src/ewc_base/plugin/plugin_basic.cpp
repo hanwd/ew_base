@@ -798,6 +798,24 @@ bool PluginBasic::OnCmdEvent(ICmdParam& cmd,int phase)
 	return true;
 }
 
+class EvtCommandViewRefresh : public EvtCommand
+{
+public:
+	EvtCommandViewRefresh() :EvtCommand("View.Refresh")
+	{
+
+	}
+
+	bool DoCmdExecute(ICmdParam& cmd)
+	{
+		if (MvcView::ms_pActiveView)
+		{
+			MvcView::ms_pActiveView->DoRefresh();
+		}
+		return true;
+	}
+};
+
 
 bool PluginBasic::OnAttach()
 {
@@ -805,6 +823,7 @@ bool PluginBasic::OnAttach()
 	EvtManager& ec(wm.evtmgr);
 
 	ec.append(new EvtCommand(_kT("Empty")));
+	ec.append(new EvtCommandViewRefresh());
 
 	ec.append(new IEvtCommandButton(_kT("Btn.Ok")));
 	ec.append(new IEvtCommandButton(_kT("Btn.Apply")));

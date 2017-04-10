@@ -71,7 +71,7 @@ wxDataViewItem DataModel::GetParent( const wxDataViewItem &item ) const
 {
 	DataNode* node=(DataNode*)item.GetID();
 	if(!node) wxDataViewItem();
-	return node->parent;
+	return wxDataViewItem(node->parent);
 }
 
 bool DataModel::IsContainer( const wxDataViewItem &item ) const
@@ -93,13 +93,21 @@ unsigned int DataModel::GetChildren(const wxDataViewItem &item, wxDataViewItemAr
 	DataNode* node=(DataNode*)item.GetID();
 	if(!node)
 	{
-		children=m_tRoot.subnodes;
-		return children.size();
+		node = (DataNode*)&m_tRoot;
 	}
 	else
-	{		
-		return node->GetChildren(children);
+	{
+		node->UpdateGroup();
 	}
+
+	size_t n = node->subnodes.size();
+	children.resize(n);
+	for (size_t i = 0; i < n;i++)
+	{
+		children[i] = wxDataViewItem(node->subnodes[i]);
+	}
+	return n;
+
 }
 
 

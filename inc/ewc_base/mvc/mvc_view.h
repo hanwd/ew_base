@@ -13,10 +13,11 @@ public:
 
 	enum
 	{
-		FLAG_INITED=1<<0,
-		FLAG_ACTIVE=1<<1,
+		FLAG_MIN	= 1,
+		FLAG_INITED = FLAG_MIN << 0,
+		FLAG_ACTIVE = FLAG_MIN << 1,
+		FLAG_MAX = FLAG_MIN << 2,
 	};
-
 
 	friend class MvcViewProxy;
 
@@ -59,12 +60,18 @@ public:
 
 	IFileNameHolder fn;
 
+	void DoRefresh();
+
 protected:
 	virtual bool DoClose(WndManager&);
 	virtual bool DoActivate(WndManager&,int);
 
 	LitePtrT<wxWindow> m_pCanvas;
 	BitFlags flags;
+
+	AtomicInt32 m_nRequestFresh;
+
+
 
 };
 

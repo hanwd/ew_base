@@ -9,14 +9,13 @@ class DataNodeVariant : public DataNode
 {
 public:
 
-	DataNodeVariant(wxDataViewItem p,const String& s,const Variant& v);
+	DataNodeVariant(DataNode* p,const String& s,const Variant& v);
 
 	Variant value;
 	String label;
 
 	bool UpdateLabel();
-
-	virtual unsigned int GetChildren(wxDataViewItemArray &children);
+	void UpdateGroup();
 
 };
 
@@ -27,7 +26,7 @@ public:
 	DataModelTable();
 
 	void Update(VariantTable& table);
-	void Update(VariantTable& table,wxDataViewItem parent,wxDataViewItemArray& children,int depth);
+	void Update(VariantTable& table,DataNode* parent,DataNodeArray& children,int depth);
 
 };
 

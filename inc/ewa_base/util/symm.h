@@ -49,6 +49,17 @@ public:
 
 DEFINE_OBJECT_NAME(DExprItem,"expritem");
 
+class DLLIMPEXP_EWA_BASE ObjectSymbolInfo : public ObjectInfo
+{
+public:
+
+	ObjectSymbolInfo(const String& s = "") :ObjectInfo(s)
+	{
+
+	}
+
+};
+
 
 class DLLIMPEXP_EWA_BASE CallableSymbol : public CallableData
 {
@@ -68,8 +79,8 @@ public:
 
 	virtual bool DoUpdateValue(DState&){return true;}
 	virtual bool DoCheckParam(DState&){return true;}
-
 	virtual bool DoTransferData(TableSerializer&){return true;}
+	virtual bool DoGetChildren(arr_1t<DataPtrT<CallableSymbol> >*){ return false; }
 
 };
 

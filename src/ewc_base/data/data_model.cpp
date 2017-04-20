@@ -35,7 +35,7 @@ wxDataViewCtrl* DataModel::CreateDataView(wxWindow* p)
 
 DataModel::DataModel()
 {
-	m_tRoot.flags.add(DataNode::FLAG_IS_GROUP|DataNode::FLAG_TOUCHED);
+	
 }
 
 DataModel::~DataModel()
@@ -67,10 +67,12 @@ bool DataModel::SetValue(const wxVariant &variant,const wxDataViewItem &item,uns
 	return false;
 }
 
+
 wxDataViewItem DataModel::GetParent( const wxDataViewItem &item ) const
 {
 	DataNode* node=(DataNode*)item.GetID();
-	if(!node) wxDataViewItem();
+	if(!node||node->parent==m_pRoot.get()) wxDataViewItem();
+
 	return wxDataViewItem(node->parent);
 }
 
@@ -90,14 +92,17 @@ void DataModel::GetValue( wxVariant &variant,const wxDataViewItem &item, unsigne
 
 unsigned int DataModel::GetChildren(const wxDataViewItem &item, wxDataViewItemArray &children) const
 {
+	DataChangedParam dpm(*this);
+
 	DataNode* node=(DataNode*)item.GetID();
-	if(!node)
+	if(node)
 	{
-		node = (DataNode*)&m_tRoot;
+		node->OnChanged(dpm);
 	}
 	else
 	{
-		node->UpdateGroup();
+		node = (DataNode*)m_pRoot.get();
+		if (!node) return 0;
 	}
 
 	size_t n = node->subnodes.size();
@@ -109,6 +114,19 @@ unsigned int DataModel::GetChildren(const wxDataViewItem &item, wxDataViewItemAr
 	return n;
 
 }
+
+void DataModel::SetRootNode(DataNode* p)
+{
+	DataChangedParam dpm(*this);
+	Cleared();
+
+	m_pRoot.reset(p);
+	if (m_pRoot)
+	{
+		m_pRoot->OnChanged(dpm);
+	}
+}
+
 
 
 
@@ -127,5 +145,34 @@ wxString DataModel::GetColumnType( unsigned int col ) const
 	if(col>=m_aColumnInfo.size()) return "";
 	return str2wx(m_aColumnInfo[col]->name);
 }
+
+class CallableSymbolArray : public CallableSymbol
+{
+public:
+	arr_1t<DataPtrT<CallableSymbol> > value;
+	void set(CallableSymbol* p){ value.assign(1,p); }
+
+	virtual bool DoGetChildren(arr_1t<DataPtrT<CallableSymbol> >* p)
+	{ 
+		if (p) *p = value;
+		return false;
+	}
+};
+
+void DataModelSymbol::Update(CallableSymbol* pitem)
+{
+	if (!m_pRoot)
+	{
+		m_pRoot.reset(new DataNodeSymbol(NULL, new CallableSymbolArray));
+		m_pRoot->flags.add(DataNode::FLAG_IS_GROUP | DataNode::FLAG_TOUCHED);
+	}
+
+	((CallableSymbolArray*)((DataNodeSymbol*)m_pRoot.get())->value.get())->set(pitem);
+
+	DataChangedParam dpm(*this);
+	m_pRoot->OnChanged(dpm);
+
+}
+
 
 EW_LEAVE

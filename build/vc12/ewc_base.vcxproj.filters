@@ -270,9 +270,6 @@
     <ClInclude Include="..\..\inc\ewc_base.h">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\inc\ewc_base\editor\plugin_wndeditor.h">
-      <Filter>include\editor</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\inc\ewc_base\data\data_array.h">
       <Filter>include\data</Filter>
     </ClInclude>
@@ -320,6 +317,9 @@
     </ClInclude>
     <ClInclude Include="..\..\inc\ewc_base\wnd\wnd_glcontext.h">
       <Filter>include\wnd</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewc_base\editor\plugin_figure_viewer.h">
+      <Filter>include\editor</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -571,6 +571,9 @@
     </ClCompile>
     <ClCompile Include="..\..\src\ewc_base\wnd\wnd_glcontext.cpp">
       <Filter>source\wnd</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewc_base\editor\plugin_figure_viewer.cpp">
+      <Filter>source\editor</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

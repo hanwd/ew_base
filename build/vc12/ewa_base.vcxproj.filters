@@ -91,6 +91,12 @@
     <Filter Include="source\util">
       <UniqueIdentifier>{7960ec57-bf19-48d2-83a1-405a00c881ae}</UniqueIdentifier>
     </Filter>
+    <Filter Include="include\figure">
+      <UniqueIdentifier>{560d3986-c204-4e00-84ea-66d36c8e4022}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="source\figure">
+      <UniqueIdentifier>{e6992343-4e28-4253-a944-e8b4bca17389}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\inc\ewa_base\basic\atomic.h">
@@ -552,6 +558,9 @@
     <ClInclude Include="..\..\inc\ewa_base\basic\misc.h">
       <Filter>include\basic</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\inc\ewa_base\figure\fig.h">
+      <Filter>include\figure</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\ewa_base\basic\atomic.cpp">
@@ -913,6 +922,9 @@
     </ClCompile>
     <ClCompile Include="..\..\src\ewa_base\basic\stream_buffer.cpp">
       <Filter>source\basic</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewa_base\figure\fig.cpp">
+      <Filter>source\figure</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

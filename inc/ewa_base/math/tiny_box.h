@@ -70,15 +70,12 @@ public:
 	}
 
 	template<int X>
-	bool test_n(const tiny_vec<T,N>& v)
+	typename tl::enable_if<X<N,bool>::type test_n(const tiny_vec<T, N>& v)
 	{
 		return v[X]>=lo[X] && v[X]<=hi[X];
 	}
 
-	typename tl::enable_if<N==3,bool>::type test(T x,T y,T z)
-	{
-		return test_x(x) && test_y(y) && test_z(z);
-	}
+
 
 	void add_x(T v)
 	{
@@ -172,6 +169,12 @@ public:
 		if(N>2) return hi[2]-lo[2];
 		return 0;
 	}
+
+	tiny_vec<T, N> width()
+	{
+		return hi - lo;
+	}
+
 
 };
 

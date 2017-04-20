@@ -7,26 +7,36 @@
 EW_ENTER
 
 class DLLIMPEXP_EWC_BASE DataNode;
+
 class DLLIMPEXP_EWC_BASE DataColumn : public IValueColumn
 {
 public:
-
 	DataColumn(const String& n,int t=COLUMNTYPE_STRING,int w=80);
     virtual void GetValue(wxVariant &variant,DataNode* node) const=0;
+};
+
+
+class DLLIMPEXP_EWC_BASE DataColumnType : public DataColumn
+{
+public:
+	DataColumnType();
+	virtual void GetValue(wxVariant &variant, DataNode* node) const;
 };
 
 
 class DLLIMPEXP_EWC_BASE DataColumnName : public DataColumn
 {
 public:
-	DataColumnName():DataColumn("name"){}
-    virtual void GetValue(wxVariant &variant,DataNode* node) const
-	{
-		WxImpl<String>::set(variant,node->name);
-	}
+	DataColumnName();
+	virtual void GetValue(wxVariant &variant, DataNode* node) const;
 };
 
-
+class DLLIMPEXP_EWC_BASE DataColumnValue : public DataColumn
+{
+public:
+	DataColumnValue();
+	virtual void GetValue(wxVariant &variant, DataNode* node) const;
+};
 
 EW_LEAVE
 #endif

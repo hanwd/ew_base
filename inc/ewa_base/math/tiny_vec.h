@@ -460,28 +460,6 @@ protected:
 	storage_type storage;
 };
 
-//
-//template<template<typename,int> class G,int N,typename T>
-//struct opx_scalar_vec : public tl::value_type<false>
-//{
-//	typedef T type;
-//};
-//
-//template<template<typename,int> class G,int N,typename T>
-//struct opx_scalar_vec<G,N,G<T,N> > : public tl::value_type<true>
-//{
-//	typedef T type;
-//};
-
-//template<template<typename,int> class G,typename X,typename Y,int N>
-//struct opx_helper_vec
-//{
-//	static const bool value=opx_scalar_vec<G,N,X>::value||opx_scalar_vec<G,N,Y>::value;
-//	typedef typename opx_scalar_vec<G,N,X>::type type1;
-//	typedef typename opx_scalar_vec<G,N,Y>::type type2;
-//	template<typename T> struct rebind{typedef G<T,N> type;};
-//};
-
 template<typename T,int N>
 struct opx_scalar_vec_n : public tl::value_type<false>
 {

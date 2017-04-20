@@ -40,12 +40,12 @@
     <ClInclude Include="..\..\inc\ewc_base\data\data_column.h" />
     <ClInclude Include="..\..\inc\ewc_base\data\data_model.h" />
     <ClInclude Include="..\..\inc\ewc_base\data\data_node.h" />
+    <ClInclude Include="..\..\inc\ewc_base\editor\plugin_figure_viewer.h" />
     <ClInclude Include="..\..\inc\ewc_base\editor\plugin_flashviewer.h" />
     <ClInclude Include="..\..\inc\ewc_base\editor\plugin_ewsl_editor.h" />
     <ClInclude Include="..\..\inc\ewc_base\editor\plugin_text_editor.h" />
     <ClInclude Include="..\..\inc\ewc_base\config.h" />
     <ClInclude Include="..\..\inc\ewc_base\editor\plugin_webview.h" />
-    <ClInclude Include="..\..\inc\ewc_base\editor\plugin_wndeditor.h" />
     <ClInclude Include="..\..\inc\ewc_base\evt\evt_cmdproc.h" />
     <ClInclude Include="..\..\inc\ewc_base\evt\evt_manager.h" />
     <ClInclude Include="..\..\inc\ewc_base\evt\evt_group.h" />
@@ -133,6 +133,7 @@
     <ClCompile Include="..\..\src\ewc_base\editor\plugin_ewsl_caret.cpp" />
     <ClCompile Include="..\..\src\ewc_base\editor\plugin_ewsl_iface.cpp" />
     <ClCompile Include="..\..\src\ewc_base\editor\plugin_ewsl_vartable.cpp" />
+    <ClCompile Include="..\..\src\ewc_base\editor\plugin_figure_viewer.cpp" />
     <ClCompile Include="..\..\src\ewc_base\editor\plugin_text_editor.cpp" />
     <ClCompile Include="..\..\src\ewc_base\editor\plugin_webview.cpp" />
     <ClCompile Include="..\..\src\ewc_base\evt\evt_cmdproc.cpp" />

@@ -80,7 +80,7 @@ public:
 class DLLIMPEXP_EWC_BASE DataNodeSymbol : public DataNode
 {
 public:
-	DataNodeSymbol(DataNode* p, CallableSymbol* s);
+	DataNodeSymbol(DataNode* n, CallableSymbol* p);
 
 	DataPtrT<CallableSymbol> value;
 

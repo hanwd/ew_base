@@ -84,7 +84,14 @@
     <ClInclude Include="..\..\inc\ewa_base\collection\ring_buffer.h" />
     <ClInclude Include="..\..\inc\ewa_base\collection\tmp_xt.h" />
     <ClInclude Include="..\..\inc\ewa_base\config.h" />
+    <ClInclude Include="..\..\inc\ewa_base\figure\figaxis.h" />
+    <ClInclude Include="..\..\inc\ewa_base\figure\figaxis_d.h" />
     <ClInclude Include="..\..\inc\ewa_base\figure\fig.h" />
+    <ClInclude Include="..\..\inc\ewa_base\figure\figcoord.h" />
+    <ClInclude Include="..\..\inc\ewa_base\figure\figdata.h" />
+    <ClInclude Include="..\..\inc\ewa_base\figure\figitem.h" />
+    <ClInclude Include="..\..\inc\ewa_base\figure\figtable.h" />
+    <ClInclude Include="..\..\inc\ewa_base\figure\figtext.h" />
     <ClInclude Include="..\..\inc\ewa_base\ipc.h" />
     <ClInclude Include="..\..\inc\ewa_base\ipc\pipe.h" />
     <ClInclude Include="..\..\inc\ewa_base\ipc\shm.h" />
@@ -221,7 +228,14 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='DLLRelease|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="..\..\src\ewa_base\figure\figaxis.cpp" />
+    <ClCompile Include="..\..\src\ewa_base\figure\figaxis_d.cpp" />
     <ClCompile Include="..\..\src\ewa_base\figure\fig.cpp" />
+    <ClCompile Include="..\..\src\ewa_base\figure\figcoord.cpp" />
+    <ClCompile Include="..\..\src\ewa_base\figure\figdata.cpp" />
+    <ClCompile Include="..\..\src\ewa_base\figure\figitem.cpp" />
+    <ClCompile Include="..\..\src\ewa_base\figure\figtable.cpp" />
+    <ClCompile Include="..\..\src\ewa_base\figure\figtext.cpp" />
     <ClCompile Include="..\..\src\ewa_base\ipc\pipe.cpp" />
     <ClCompile Include="..\..\src\ewa_base\ipc\shm.cpp" />
     <ClCompile Include="..\..\src\ewa_base\logging\logger.cpp" />

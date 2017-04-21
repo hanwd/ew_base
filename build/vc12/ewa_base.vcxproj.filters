@@ -561,6 +561,27 @@
     <ClInclude Include="..\..\inc\ewa_base\figure\fig.h">
       <Filter>include\figure</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\inc\ewa_base\figure\figitem.h">
+      <Filter>include\figure</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewa_base\figure\figcoord.h">
+      <Filter>include\figure</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewa_base\figure\figtable.h">
+      <Filter>include\figure</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewa_base\figure\figdata.h">
+      <Filter>include\figure</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewa_base\figure\figtext.h">
+      <Filter>include\figure</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewa_base\figure\figaxis.h">
+      <Filter>include\figure</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewa_base\figure\figaxis_d.h">
+      <Filter>include\figure</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\ewa_base\basic\atomic.cpp">
@@ -924,6 +945,27 @@
       <Filter>source\basic</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\ewa_base\figure\fig.cpp">
+      <Filter>source\figure</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewa_base\figure\figitem.cpp">
+      <Filter>source\figure</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewa_base\figure\figaxis.cpp">
+      <Filter>source\figure</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewa_base\figure\figaxis_d.cpp">
+      <Filter>source\figure</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewa_base\figure\figcoord.cpp">
+      <Filter>source\figure</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewa_base\figure\figdata.cpp">
+      <Filter>source\figure</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewa_base\figure\figtable.cpp">
+      <Filter>source\figure</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewa_base\figure\figtext.cpp">
       <Filter>source\figure</Filter>
     </ClCompile>
   </ItemGroup>

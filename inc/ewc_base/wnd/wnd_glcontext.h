@@ -2,7 +2,7 @@
 #define __H_EW_WND_GLCONTEXT__
 
 #include "ewc_base/config.h"
-#include "ewa_base/figure/fig.h"
+#include "ewa_base/figure/figitem.h"
 
 EW_ENTER
 
@@ -65,6 +65,18 @@ protected:
 	AutoPtrT<Object> m_pExtraData;
 
 };
+
+
+class GLStatusLocker
+{
+public:
+	GLStatusLocker(int cap_);
+	~GLStatusLocker();
+private:
+	int cap;
+	bool status;
+};
+
 
 class DVec2i : public vec2i
 {
@@ -130,7 +142,23 @@ public:
 
 	DataNode* HitTest(unsigned x, unsigned y);
 
+	void LineWidth(double w);
+	void LineStyle(const DLineStyle& style);
+
+
+	vec2i GetTextSize(const String& text);	
+
+	void PrintText(const String& text, const vec3d& pos=vec3d(),const vec3d& shf=vec3d(), const vec3d& pxl=vec3d());
+
+	void SetFont(const DFontStyle& font);
+
+
 protected:
+
+	class TextData;
+
+	vec2i DoGetTextSize(const TextData& text);	
+	void DoPrintText(const TextData& text, const vec3d& pos,const vec3d& shf, const vec3d& pxl);
 
 	arr_1t<int> m_aLights;
 	int m_nMode;
@@ -142,6 +170,8 @@ protected:
 	static void _Color2(const DColor& color);
 
 	indexer_set<DataNode*> m_aNodes;
+	DataPtrT<ObjectData> m_pFontData;
+	arr_1t<uint8_t> m_aBitmapCachedData;
 };
 
 

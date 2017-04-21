@@ -29,21 +29,6 @@ void DataNode::DoRender(GLDC& dc)
 	//dc.LeaveGroup();
 }
 
-//void DataNode::OnUpdateSize(DataSizeParam& dpm)
-//{
-//	if (dpm.action == DataSizeParam::ACTION_CALC_MINSIZE)
-//	{
-//		dpm.b3bbox.lo = dpm.b3bbox.hi = vec3d();
-//	}
-//	else if (dpm.action == DataSizeParam::ACTION_SET_REALSIZE)
-//	{
-//		for (size_t i = 0; i < subnodes.size(); i++)
-//		{
-//			subnodes[i]->OnUpdateSize(dpm);
-//		}
-//
-//	}
-//}
 
 void DataNode::OnChanged(DataChangedParam&)
 {
@@ -162,7 +147,7 @@ void DataNodeVariant::OnChanged(DataChangedParam& dpm)
 
 
 
-DataNodeSymbol::DataNodeSymbol(DataNode* p, CallableSymbol* s) :DataNode(p, s->m_sId), value(s)
+DataNodeSymbol::DataNodeSymbol(DataNode* n, CallableSymbol* p) :DataNode(n, p->m_sId), value(p)
 {
 	flags.set(FLAG_IS_GROUP, value->DoGetChildren(NULL));
 }
@@ -325,8 +310,10 @@ DataNodeSymbol* DataNodeCreator::Create(DataNode* n, CallableSymbol* p)
 	if (!p) return NULL;
 	indexer_map<ObjectInfo*, data_node_ctor>& hmap(current().hmap);
 	indexer_map<ObjectInfo*, data_node_ctor>::iterator it = hmap.find(&p->GetObjectInfo());
-	if (it == hmap.end()) return NULL;
-	if (!(*it).second) return NULL;
+	if (it == hmap.end() || !(*it).second)
+	{
+		return new DataNodeSymbol(n,p);
+	}
 	return (*it).second(n, p);
 }
 

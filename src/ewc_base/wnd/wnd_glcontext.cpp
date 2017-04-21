@@ -93,10 +93,12 @@ void GLContext::SetCurrent(wxWindow* w)
 	}
 
 	::wglMakeCurrent((HDC)m_hDC, (HGLRC)m_hGL);
+	::glDrawBuffer(GL_BACK);
 }
 
 void GLContext::SwapBuffers()
 {
+	::glFlush();
 	::SwapBuffers((HDC)m_hDC);
 }
 
@@ -236,7 +238,6 @@ void GLDC::Reshape(const DVec2i& s_, const DVec2i& p_)
 	glMatrixMode(GL_MODELVIEW);							// Select The Modelview Matrix
 	glLoadIdentity();
 
-	glDrawBuffer(GL_BACK);
 }
 
 void GLDC::Clear()
@@ -296,6 +297,66 @@ void GLDC::RenderNode(DataNode* node)
 	node->DoRender(*this);
 }
 
+void GLDC::LineWidth(double d)
+{
+	::glLineWidth(d);
+}
+
+void GLDC::LineStyle(const DLineStyle& style)
+{
+	if (m_nMode == RENDER_SELECT)
+	{
+		if (style.ntype == DLineStyle::LINE_NONE)
+		{
+			LineWidth(0.0);
+		}
+		else
+		{
+			LineWidth(style.nsize + 1.5);
+		}
+	}
+	else
+	{
+		Color(style.color);
+		LineWidth(style.nsize);
+		switch (style.ntype)
+		{
+		case DLineStyle::LINE_NONE:
+			::glLineStipple(1, 0x0000);
+			::glEnable(GL_LINE_STIPPLE);
+			break;
+		case DLineStyle::LINE_DOT1:
+			::glLineStipple(1, 0xAAAA);
+			::glEnable(GL_LINE_STIPPLE);
+			break;
+		case DLineStyle::LINE_DOT2:
+			::glLineStipple(2, 0xAAAA);
+			::glEnable(GL_LINE_STIPPLE);
+			break;
+		case DLineStyle::LINE_DASH1:
+			::glLineStipple(1, 0x00FF);
+			::glEnable(GL_LINE_STIPPLE);
+			break;
+		case DLineStyle::LINE_DASH2:
+			::glLineStipple(2, 0x00FF);
+			::glEnable(GL_LINE_STIPPLE);
+			break;
+		case DLineStyle::LINE_DASH3:
+			::glLineStipple(1, 0x087F);
+			::glEnable(GL_LINE_STIPPLE);
+			break;
+		case DLineStyle::LINE_DASH4:
+			::glLineStipple(1, 0x227F);
+			::glEnable(GL_LINE_STIPPLE);
+			break;
+		default:
+			::glLineStipple(1, 0xFFFF);
+			::glDisable(GL_LINE_STIPPLE);
+			break;
+		};
+	}
+
+}
 
 void GLDC::Mode(int mode)
 {
@@ -304,9 +365,7 @@ void GLDC::Mode(int mode)
 	sz.b3bbox = m_b3BBox;
 
 	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
-
-	glDrawBuffer(GL_BACK);
+	glLoadIdentity();	
 
 
 	if (mode == RENDER_SELECT)
@@ -347,6 +406,8 @@ void GLDC::RenderModel(DataModel* model)
 	SwapBuffers();
 }
 
+
+
 void GLDC::RenderSelect(DataModel* model)
 {
 	Clear();	
@@ -372,6 +433,438 @@ DataNode* GLDC::HitTest(unsigned x, unsigned y)
 		return NULL;
 	}
 	return m_aNodes.get(v);
+}
+
+
+class GLFontDataImpl : public ObjectData
+{
+public:
+
+	GLFontDataImpl()
+	{
+		hFont = NULL;
+		hDC = NULL;
+
+		BITMAPINFO *binf = (BITMAPINFO *)&hBitmapHeader;
+
+		binf->bmiHeader.biSize = sizeof(binf->bmiHeader);	/**< 修改结构信息 */
+		binf->bmiHeader.biWidth = 0;
+		binf->bmiHeader.biHeight = 0;
+		binf->bmiHeader.biPlanes = 1;
+		binf->bmiHeader.biBitCount = 1;				 /**< 单色 */
+		binf->bmiHeader.biCompression = BI_RGB;		/**< 颜色方式 */
+		binf->bmiHeader.biSizeImage = 0;
+		binf->bmiHeader.biXPelsPerMeter = 1;
+		binf->bmiHeader.biYPelsPerMeter = 1;
+		binf->bmiHeader.biClrUsed = 0;
+		binf->bmiHeader.biClrImportant = 0;
+	}
+
+	GLFontDataImpl(const DFontStyle& font) :tFont(font)
+	{
+		hFont = NULL;
+		hDC = NULL;
+		update();
+	}
+
+	~GLFontDataImpl()
+	{
+		reset();
+	}
+
+	void reset()
+	{
+		if (hFont)
+		{
+			::DeleteObject(hFont);
+			hFont = NULL;
+		}
+
+		if (hDC)
+		{
+			::DeleteDC(hDC);
+			hDC = NULL;
+		}
+	}
+
+	void update()
+	{
+
+		//WINGDIAPI HFONT   WINAPI CreateFontA( __in int cHeight, 
+		//									 __in int cWidth, 
+		//									 __in int cEscapement, 
+		//									 __in int cOrientation, 
+		//									 __in int cWeight, 
+		//									 __in DWORD bItalic,
+		//									 __in DWORD bUnderline, 
+		//									 __in DWORD bStrikeOut, 
+		//									 __in DWORD iCharSet, 
+		//									 __in DWORD iOutPrecision, 
+		//									 __in DWORD iClipPrecision,
+		//									 __in DWORD iQuality,
+		//									 __in DWORD iPitchAndFamily, 
+		//									 __in_opt LPCSTR pszFaceName);
+
+		reset();
+
+		const DFontStyle& font(tFont);
+
+		hFont = ::CreateFontW(
+			font.nsize,
+			0,										 //字体宽度 
+			font.flags.get(DFontStyle::STYLE_VERTICAL) ? 900 : 0,	//字体的旋转角度  
+			0,										//字体底线的旋转角度  
+			90,//font.nsize,							//字体的重量 
+			font.flags.get(DFontStyle::STYLE_ITALIC),				//是否使用斜体
+			font.flags.get(DFontStyle::STYLE_UNDERLINE),			//是否使用下划线
+			font.flags.get(DFontStyle::STYLE_STRIDE),				//是否使用删除线
+			GB2312_CHARSET,				//设置字符集 
+			OUT_TT_PRECIS,					//输出精度  
+			CLIP_DEFAULT_PRECIS,			//裁剪精度 
+			ANTIALIASED_QUALITY,			//输出质量 
+			FF_DONTCARE | DEFAULT_PITCH,		//Family And Pitch 
+			IConv::to_wide(font.sname).c_str());					//字体名称
+
+		if (!hFont) return;
+		hDC = ::CreateCompatibleDC(NULL);
+		if (!hDC) return;
+		::SelectObject((HDC)hDC, hFont);
+	}
+
+
+	DFontStyle tFont;
+	HFONT hFont;
+	HDC hDC;
+
+	struct
+	{
+		BITMAPINFOHEADER bih;
+		RGBQUAD col[2];
+	}hBitmapHeader;
+};
+
+
+GLStatusLocker::GLStatusLocker(int cap_) : cap(cap_)
+{
+	status = GL_TRUE == glIsEnabled(cap);
+}
+
+GLStatusLocker::~GLStatusLocker()
+{
+	if (status)
+	{
+		glEnable(cap);
+	}
+	else
+	{
+		glDisable(cap);
+	}
+}
+
+
+class GLDC::TextData
+{
+public:
+
+	TextData(const String& text, GLFontDataImpl* pdata)
+	{
+		if (pdata)
+		{
+			dc =pdata->hDC;
+			bv = pdata->tFont.flags.get(DFontStyle::STYLE_VERTICAL);
+			bi = (BITMAPINFO *)&pdata->hBitmapHeader;
+
+			bi->bmiHeader.biSize = sizeof(bi->bmiHeader);	/**< 修改结构信息 */
+			bi->bmiHeader.biWidth = 0;
+			bi->bmiHeader.biHeight = 0;
+			bi->bmiHeader.biPlanes = 1;
+			bi->bmiHeader.biBitCount = 1;				 /**< 单色 */
+			bi->bmiHeader.biCompression = BI_RGB;		/**< 颜色方式 */
+			bi->bmiHeader.biSizeImage = 0;
+			bi->bmiHeader.biXPelsPerMeter = 1;
+			bi->bmiHeader.biYPelsPerMeter = 1;
+			bi->bmiHeader.biClrUsed = 0;
+			bi->bmiHeader.biClrImportant = 0;
+
+		}
+		else
+		{
+			dc = NULL;
+		}
+
+
+		sb = IConv::to_wide(text);
+		wchar_t *p0 = sb.c_str();
+		wchar_t *p2 = p0 + sb.size();
+		for (wchar_t* p1 = p0; p1 != p2;p1++)
+		{
+			if (*p1 == '\n')
+			{
+				*p1 = 0;
+				if (p1>p0 && p1[-1] == '\r')
+				{
+					p1[-1] = 0;
+					wc.push_back(std::make_pair(p0, p1 - p0-1));
+				}
+				else
+				{
+					wc.push_back(std::make_pair(p0, p1 - p0));
+				}
+
+				p0 = p1 + 1;
+			}
+		}
+		wc.push_back(std::make_pair(p0, p2 - p0));
+
+	}
+
+	StringBuffer<wchar_t> sb;
+	arr_1t<std::pair<wchar_t*,size_t> > wc;
+	bool bv;
+
+	HDC dc;
+	BITMAPINFO *bi;
+};
+
+vec2i GLDC::GetTextSize(const String& text)
+{
+	TextData tdata(text, (GLFontDataImpl*)m_pFontData.get());
+	return DoGetTextSize(tdata);
+}
+
+vec2i GLDC::DoGetTextSize(const TextData& data)
+{
+
+	vec2i size;
+	if (!data.dc) return size;
+
+	size_t n = data.wc.size();
+	for (size_t i = 0; i<n; i++)
+	{
+		SIZE sz;
+		if (data.wc[i].second!=0)
+		{
+			::GetTextExtentPoint32W(data.dc, data.wc[i].first, data.wc[i].second, &sz);
+		}
+		else
+		{
+			::GetTextExtentPoint32W(data.dc, L".",1, &sz);
+		}
+		size[0] = std::max<int>(size[0], sz.cx);
+		size[1] = std::max<int>(size[1], sz.cy);
+	}
+	size[1] *= n;
+
+	if (data.bv)
+	{
+		std::swap(size[0], size[1]);
+	}
+
+	return size;
+}
+
+
+void GLDC::PrintText(const String& text, const vec3d& pos,const vec3d& shf, const vec3d& pxl)
+{
+	TextData tdata(text, (GLFontDataImpl*)m_pFontData.get());
+	return DoPrintText(tdata,pos,shf,pxl);
+}
+
+void GLDC::DoPrintText(const TextData& data,const vec3d& pos,const vec3d& shf, const vec3d& pxl)
+{
+
+	if (!data.dc) return;
+
+	
+	vec2i size = DoGetTextSize(data);
+
+	HBITMAP hBitmap = ::CreateBitmap(size[0], size[1], 1, 1, NULL);
+	HBITMAP hOldBmp = (HBITMAP)SelectObject(data.dc, hBitmap);
+	BITMAP bm;
+
+	::SetBkColor(data.dc, RGB(0, 0, 0));
+	::SetTextColor(data.dc, RGB(255, 255, 255));
+	::SetBkMode(data.dc, OPAQUE);
+
+	if (data.bv)
+	{
+		int nw = size[0] / data.wc.size();
+		for (size_t i = 0; i<data.wc.size(); i++)
+		{
+			::TextOutW(data.dc, nw*i, size[1], data.wc[i].first, data.wc[i].second);
+		}
+	}
+	else
+	{
+		int nh = size[1] / data.wc.size();
+		for (size_t i = 0; i<data.wc.size(); i++)
+		{
+			::TextOutW(data.dc, 0, nh*i, data.wc[i].first, data.wc[i].second);
+		}
+	}
+
+
+	::GetObject(hBitmap, sizeof(bm), &bm);
+
+	SIZE sz;
+	sz.cx = (bm.bmWidth + 31) & (~31);
+	sz.cy = bm.bmHeight;
+	int bufsize = sz.cx * sz.cy / 8;
+
+	data.bi->bmiHeader.biWidth = bm.bmWidth;
+	data.bi->bmiHeader.biHeight = bm.bmHeight;
+	data.bi->bmiHeader.biSizeImage = bufsize;
+
+	m_aBitmapCachedData.reserve(bufsize);
+
+	unsigned char* pBmpBits = m_aBitmapCachedData.data();
+	memset(pBmpBits, 0, sizeof(unsigned char)*bufsize);
+
+	::GetDIBits(data.dc, hBitmap, 0, bm.bmHeight, pBmpBits, data.bi, DIB_RGB_COLORS);
+
+	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+	glRasterPos3d(pos[0], pos[1], pos[2]);
+
+	int xorg = ::wxRound((0.5 - 0.5*shf[0])*size[0] - pxl[0]);
+	int yorg = ::wxRound((0.5 - 0.5*shf[1])*size[1] - pxl[1]);
+	glBitmap(sz.cx, sz.cy, xorg, yorg, 0.0, 0.0, pBmpBits);
+
+	::SelectObject(data.dc, hOldBmp);
+	if (hBitmap)::DeleteObject(hBitmap);
+
+}
+
+void GLDC::SetFont(const DFontStyle& font)
+{
+	Color(font.color);
+	m_pFontData.reset(new GLFontDataImpl(font));
+}
+
+
+
+
+class gl_bitmap
+{
+public:
+	int w, h;
+	int bufsize;
+	int xorg, yorg;
+	int xmov, ymov;
+
+	gl_bitmap()
+	{
+		w = h = 0;
+		bits = NULL;
+		xorg = yorg = xmov = ymov = 0;
+	}
+
+	unsigned char* ptr()
+	{
+		return bits;
+	}
+
+	~gl_bitmap()
+	{
+		delete[] bits;
+	}
+
+	void resize(int w_, int h_, int x_ = -1, int y_ = -1);
+
+	void draw(const vec3d& pos);
+
+	void settype(float w, int t);
+
+	void setbit(int x, int y, bool f);
+
+	void setall(bool f);
+
+private:
+	unsigned char* bits;
+
+};
+
+void gl_bitmap::resize(int w_, int h_, int x_, int y_)
+{
+	delete[] bits;
+	w = w_;
+	h = h_;
+	bufsize = w*h / 8 + 1;
+	xorg = x_ >= 0 ? x_ : w_ / 2;
+	yorg = y_ >= 0 ? y_ : h_ / 2;
+	bits = new unsigned char[bufsize];
+	memset(bits, 0, bufsize);
+}
+
+void gl_bitmap::setall(bool f)
+{
+	int val = f ? -1 : 0;
+	::memset(bits, val, bufsize);
+}
+
+void gl_bitmap::setbit(int x, int y, bool f)
+{
+	EW_ASSERT(x >= 0 && x<w&&y >= 0 && y<h);
+
+	int p = y*w + x;
+	int b = p / 8;
+	int s = 7 - (p % 8);
+	unsigned char &c(bits[b]);
+	unsigned char m = 1 << s;
+
+	if (f)
+	{
+		c = c | m;
+	}
+	else
+	{
+		c = c&~m;
+	}
+
+
+}
+
+void gl_bitmap::settype(float w, int t)
+{
+	if (t == 0)
+	{
+		resize(8, 8);
+		return;
+	}
+
+	if (w>7.0) w = 7.0;
+
+	//int iw=::wxRound(fabs(w));
+	//if(iw>7) iw=7;
+	//if(iw<1) iw=1;
+
+	int iw = w;
+	if (iw>3)
+	{
+		resize(16, 16);
+	}
+	else
+	{
+		resize(8, 8);
+	}
+	int i1 = xorg - iw;
+	int i2 = xorg + iw;
+
+	for (int i = i1; i <= i2; i++)
+	{
+		for (int j = i1; j <= i2; j++)
+		{
+			setbit(i, j, true);
+		}
+	}
+
+}
+
+void gl_bitmap::draw(const vec3d& pos)
+{
+	if (!bits) return;
+	::glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+	::glRasterPos3d(pos[0], pos[1], pos[2]);
+	::glBitmap(w, h, xorg, yorg, xmov, ymov, bits);
 }
 
 

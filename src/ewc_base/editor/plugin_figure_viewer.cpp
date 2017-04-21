@@ -13,11 +13,12 @@
 #include "ewc_base/data/data_node.h"
 #include "ewc_base/data/data_model.h"
 
-#include "ewa_base/figure/fig.h"
+#include "ewa_base/figure.h"
+
+
 #include "gl/gl.h"
 
 EW_ENTER
-
 
 template<>
 class DataNodeSymbolT<FigFigure> : public DataNodeSymbol
@@ -29,14 +30,12 @@ public:
 
 	}
 
-
 	void DoRender(GLDC& dc)
 	{
 		if (!flags.get(FLAG_TOUCHED))
 		{
 			// ensure subnodes are generated
 			_TouchNode(-1);
-			return;
 		}
 
 		for (size_t i = 0; i < subnodes.size(); i++)
@@ -45,7 +44,6 @@ public:
 		}
 	}
 };
-
 
 template<>
 class DataNodeSymbolT<FigCoord> : public DataNodeSymbol
@@ -57,7 +55,6 @@ public:
 	{
 	}
 };
-
 
 template<>
 class DataNodeSymbolT<FigCoord2D> : public DataNodeSymbolT<FigCoord>
@@ -124,18 +121,43 @@ public:
 			}
 
 
-			for (size_t i = 0; i < subnodes.size(); i++)
-			{
-				dc.RenderNode(subnodes[i]);
-			}
+			basetype::DoRender(dc);
 
 			for (int i = 0; i < 4; i++)
 			{
 				::glDisable(GL_CLIP_PLANE0 + i);
 			}
 		}
+	}
+};
 
+template<>
+class DataNodeSymbolT<FigDataManager> : public DataNodeSymbol
+{
+public:
+	typedef DataNodeSymbol basetype;
+	DataNodeSymbolT(DataNode* n, CallableSymbol* p) :basetype(n, p)
+	{
+	}
+};
 
+template<>
+class DataNodeSymbolT<AxisUnitD> : public DataNodeSymbol
+{
+public:
+	typedef DataNodeSymbol basetype;
+	DataNodeSymbolT(DataNode* n, CallableSymbol* p) :basetype(n, p)
+	{
+	}
+};
+
+template<>
+class DataNodeSymbolT<FigAxisD> : public DataNodeSymbol
+{
+public:
+	typedef DataNodeSymbol basetype;
+	DataNodeSymbolT(DataNode* n, CallableSymbol* p) :basetype(n, p)
+	{
 	}
 };
 
@@ -249,81 +271,18 @@ public:
 
 
 
-
-
-
-class MvcViewFigure;
-
-class RotateTask : public ITask
-{
-public:
-	MvcViewFigure* pview;
-	AtomicSpin mutex;
-
-	RotateTask() :pview(NULL){}
-
-	void reset(MvcViewFigure* p)
-	{
-		LockGuard<AtomicSpin> lock(mutex);
-		pview = p;
-	}
-
-	virtual void svc(ITimerHolder& th);
-};
-
-
-class IFigureRotateHolder : public ITimerHolder
-{
-public:
-	DataPtrT<RotateTask> ptask;
-
-	void reset(MvcViewFigure *pview)
-	{
-		if (!ptask)
-		{
-			ptask.reset(new RotateTask);			
-			(*(ITimerHolder*)this) = TimerQueue::current().putq(ptask.get(), TimeSpan::MilliSeconds(100));
-		}
-
-		ptask->reset(pview);
-		if (pview)
-		{
-			redue(TimeSpan::MilliSeconds(10));
-		}
-		
-	}
-
-	~IFigureRotateHolder()
-	{
-		TimerQueue& tque(TimerQueue::current());
-		ptask.reset(NULL);
-
-	}
-};
-
-
 class MvcViewFigure : public MvcViewEx
 {
 public:
 	typedef MvcViewEx basetype;
 
-	IFigureRotateHolder th;
 	GLDC dc;
-	wxSize m_v2Size;
-	float rt_zf;
 
 	bool first;
-
-
 
 	~MvcViewFigure()
 	{
 		model->DecRef();
-	}
-
-	void OnSize(wxSizeEvent& evt)
-	{
-		this->Refresh();
 	}
 
 	IWnd_bookbase* m_pBook;
@@ -342,17 +301,18 @@ public:
 	MvcViewFigure(MvcModel& tar):basetype(tar)
 	{
 		this->Connect(wxEVT_PAINT, wxPaintEventHandler(MvcViewFigure::OnPaint));
-		this->Connect(wxEVT_SIZE, wxSizeEventHandler(MvcViewFigure::OnSize));
+		this->Connect(wxEVT_SIZE, wxSizeEventHandler(MvcViewFigure::OnSizeEvent));
 		this->Connect(wxEVT_LEFT_DOWN, wxMouseEventHandler(MvcViewFigure::OnMouseEvent));
-
-		rt_zf = 0;
-		first = true;
 
 		model = new DataModelSymbol();
 
 		DataNodeCreator::Register<FigFigure>();
 		DataNodeCreator::Register<FigCoord2D>();
 		DataNodeCreator::Register<FigData2D>();
+		DataNodeCreator::Register<FigDataManager>();
+		DataNodeCreator::Register<FigAxisD>();
+		DataNodeCreator::Register<AxisUnitD>();
+
 
 		model->AddColumn(new DataColumnName);
 		model->AddColumn(new DataColumnType);
@@ -366,20 +326,27 @@ public:
 		FigData* d = new FigData2D;
 		d->m_sId = "data1";
 
-		c->m_aItems.append(d);
+		c->m_pDataManager->m_aItems.append(d);
+
 		d = new FigData2D;
 		d->m_sId = "data2";
-		c->m_aItems.append(d);
+		c->m_pDataManager->m_aItems.append(d);
 
 		p->m_pItem.reset(c);
 
 		model->Update(p);
 
+		first = true;
+
 	}
 
 	DataModelSymbol* model;
-
 	AtomicSpin spin;
+
+	void OnSizeEvent(wxSizeEvent&)
+	{
+		Refresh();
+	}
 
 	void OnMouseEvent(wxMouseEvent& evt)
 	{
@@ -398,9 +365,10 @@ public:
 
 	void OnPaint(wxPaintEvent&)
 	{
+		wxSize sz = m_pCanvas->GetClientSize();
 		wxPaintDC wxdc(m_pCanvas);
 		dc.SetCurrent(m_pCanvas);
-		dc.Reshape(m_pCanvas->GetClientSize());
+		dc.Reshape(sz);
 		dc.Color(DColor(255, 0, 0));
 		dc.RenderModel(model);
 	}
@@ -426,15 +394,6 @@ public:
 
 		wm.wup.sb_set(v>0?"StatusBar.figviewer":"StatusBar.default");
 
-		if (v < 0)
-		{
-			th.reset(NULL);
-		}
-		else
-		{
-			m_nRequestFresh = 0;
-			th.reset(this);
-		}
 
 		return true;
 	}
@@ -457,20 +416,6 @@ public:
 
 };
 
-
-void RotateTask::svc(ITimerHolder& th)
-{
-	LockGuard<AtomicSpin> lock(mutex);
-	if (!pview) return;
-
-	if (pview->IsActive())
-	{
-		pview->rt_zf += 5.0f;
-		//pview->Refresh();
-	}
-
-	th.redue(TimeSpan::MilliSeconds(50));
-}
 
 DataPtrT<MvcModel> PluginFigureViewer::CreateSampleModel()
 {

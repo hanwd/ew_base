@@ -17,13 +17,10 @@ public:
 	friend class TimerQueue;
 	friend class ITimerHolder;
 
-	//enum
-	//{
-	//	FLAG_ACTIVE =1<<0,
-	//};
-
 	const TimePoint tdue;
-	ITimer(TimerQueue& q,ITask* j,const TimePoint& t):tdue(t),tque(q),hjob(j){}
+
+	ITimer(ITask* ptask, const TimePoint& t);
+	ITimer(ITask* ptask, const TimePoint& t, TimerQueue& q);
 
 protected:
 
@@ -45,6 +42,9 @@ public:
 
 	bool redue(const TimePoint& tp);
 	bool redue(const TimeSpan& ts);
+
+	void bind(ITask* ptask, TimerQueue& q);
+	void bind(ITask* ptask);
 
 	const TimePoint& due() const;
 

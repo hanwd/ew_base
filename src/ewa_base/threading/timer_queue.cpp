@@ -6,6 +6,18 @@
 
 EW_ENTER
 
+ITimer::ITimer(ITask* ptask, const TimePoint& t)
+:tdue(t), tque(TimerQueue::current()), hjob(ptask)
+{
+
+}
+
+ITimer::ITimer(ITask* ptask, const TimePoint& t, TimerQueue& q) 
+:tdue(t), tque(q), hjob(ptask)
+{
+
+}
+
 
 bool ITimerHolder::cancel()
 {
@@ -17,6 +29,16 @@ bool ITimerHolder::redue(const TimePoint& tp)
 {
 	if(!m_ptr) return false;
 	return m_ptr->tque.redue(*this,tp);
+}
+
+void ITimerHolder::bind( ITask* ptask)
+{
+	reset(new ITimer(ptask, Clock::now()));
+}
+
+void ITimerHolder::bind( ITask* ptask,TimerQueue& q)
+{
+	reset(new ITimer(ptask, Clock::now(),q));
 }
 
 bool ITimerHolder::redue(const TimeSpan& ts)
@@ -104,7 +126,7 @@ ITimerHolder TimerQueue::putq(ITask* hjob,const TimePoint& tp)
 {
 	if(!hjob) return NULL;
 
-	ITimerHolder q(new ITimer(*this,hjob,tp));
+	ITimerHolder q(new ITimer(hjob,tp,*this));
 	q->IncRef();
 
 	LockGuard<Mutex> lock1(m_tMutex);

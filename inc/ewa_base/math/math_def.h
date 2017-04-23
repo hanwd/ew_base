@@ -23,6 +23,10 @@ typedef tiny_vec<float,2> vec2f;
 typedef tiny_vec<float,3> vec3f;
 typedef tiny_vec<float,4> vec4f;
 
+typedef tiny_box<int32_t,1> box1i;
+typedef tiny_box<double,1> box1d;
+typedef tiny_box<float,1> box1f;
+
 typedef tiny_box<int32_t,2> box2i;
 typedef tiny_box<double,2> box2d;
 typedef tiny_box<float,2> box2f;

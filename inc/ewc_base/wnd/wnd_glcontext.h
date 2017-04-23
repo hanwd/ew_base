@@ -105,13 +105,13 @@ public:
 	};
 
 
-	class SizeParam
+	class BBoxInfo
 	{
 	public:
 		box3d b3bbox;
 		box3d b3axis;
 		mat4d m4data;
-	}sz;
+	}bi;
 
 
 	void Light(DLight& light, bool f);
@@ -159,15 +159,15 @@ protected:
 
 	vec2i DoGetTextSize(const TextData& text);	
 	void DoPrintText(const TextData& text, const vec3d& pos,const vec3d& shf, const vec3d& pxl);
+	static void _Color1(const DColor& color);
+	static void _Color2(const DColor& color);
 
-	arr_1t<int> m_aLights;
+
 	int m_nMode;
 	box3d m_b3BBox;
 	DColor m_v4BgColor;
 	GLBuffer m_aBuffer[4];
-
-	static void _Color1(const DColor& color);
-	static void _Color2(const DColor& color);
+	arr_1t<int> m_aLights;
 
 	indexer_set<DataNode*> m_aNodes;
 	DataPtrT<ObjectData> m_pFontData;

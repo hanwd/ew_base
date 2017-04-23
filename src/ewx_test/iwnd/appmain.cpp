@@ -41,6 +41,7 @@ int ew_main()
 	wm.RegisterT<PluginTextEditor>();
 	wm.RegisterT<PluginEwslEditor>();
 	wm.RegisterT<PluginWebView>();
+	wm.RegisterT<PluginFigureViewer>();
 
 	wm.SetName(_kT("ew_ui_framework"));
 

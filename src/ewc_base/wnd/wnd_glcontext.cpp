@@ -220,13 +220,13 @@ void GLDC::Reshape(const DVec2i& s_, const DVec2i& p_)
 	if (s[0]<16) s[0] = 16;
 	if (s[1]<16) s[1] = 16;
 
-	sz.b3bbox.set_x(p_[0],p_[0]+s[0]);
-	sz.b3bbox.set_y(p_[1],p_[1]+s[1]);
-	sz.b3bbox.set_z(-100, 100);
+	bi.b3bbox.set_x(p_[0],p_[0]+s[0]);
+	bi.b3bbox.set_y(p_[1],p_[1]+s[1]);
+	bi.b3bbox.set_z(-100, 100);
 
-	if (m_b3BBox == sz.b3bbox) return;
+	if (m_b3BBox == bi.b3bbox) return;
 
-	m_b3BBox = sz.b3bbox;
+	m_b3BBox = bi.b3bbox;
 
 	glViewport(p_[0], p_[1], s[0],s[1]);			// Reset The Current Viewport
 
@@ -362,7 +362,7 @@ void GLDC::Mode(int mode)
 {
 	m_nMode = mode;
 
-	sz.b3bbox = m_b3BBox;
+	bi.b3bbox = m_b3BBox;
 
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();	
@@ -402,6 +402,11 @@ void GLDC::RenderModel(DataModel* model)
 		node->DoRender(*this);
 		Mode(GLDC::RENDER_SOLID);
 		node->DoRender(*this);
+		Mode(GLDC::RENDER_ALPHA);
+		node->DoRender(*this);
+		Mode(GLDC::RENDER_TEXT);
+		node->DoRender(*this);
+
 	}
 	SwapBuffers();
 }

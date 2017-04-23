@@ -68,7 +68,7 @@ public:
 
 	}
 
-	box3d bbox;
+	GLDC::BBoxInfo bi;
 
 	vec4d plane[6];
 
@@ -76,43 +76,45 @@ public:
 	{
 		if (dc.Mode() == GLDC::RENDER_SET_REALSIZE)
 		{
-			dc.sz.b3axis.set_x(-100.0, +100.0);
-			dc.sz.b3axis.set_y(-100.0, +100.0);
-			dc.sz.b3axis.set_z(-1.0, +1.0);
+			dc.bi.b3axis.set_x(-100.0, +100.0);
+			dc.bi.b3axis.set_y(-100.0, +100.0);
+			dc.bi.b3axis.set_z(-1.0, +1.0);
 
-			dc.sz.b3bbox.lo += 10;
-			dc.sz.b3bbox.hi -= 10;
-			bbox = dc.sz.b3bbox;
+			dc.bi.b3bbox.lo += 50;
+			dc.bi.b3bbox.hi -= 25;
+			bi = dc.bi;
 
-			plane[0].set3(+1, 0, 0); plane[0][3] = -dc.sz.b3bbox.lo[0];
-			plane[1].set3(-1, 0, 0); plane[1][3] = +dc.sz.b3bbox.hi[0];
-			plane[2].set3(0, +1, 0); plane[2][3] = -dc.sz.b3bbox.lo[1];
-			plane[3].set3(0, -1, 0); plane[3][3] = +dc.sz.b3bbox.hi[1];
+			plane[0].set3(+1, 0, 0); plane[0][3] = -dc.bi.b3bbox.lo[0];
+			plane[1].set3(-1, 0, 0); plane[1][3] = +dc.bi.b3bbox.hi[0];
+			plane[2].set3(0, +1, 0); plane[2][3] = -dc.bi.b3bbox.lo[1];
+			plane[3].set3(0, -1, 0); plane[3][3] = +dc.bi.b3bbox.hi[1];
 
-			vec3d v3p(dc.sz.b3bbox.lo);
-			vec3d v3w(dc.sz.b3bbox.width());
+			vec3d v3p(dc.bi.b3bbox.lo);
+			vec3d v3w(dc.bi.b3bbox.width());
 
-			dc.sz.m4data.LoadIdentity();
-			dc.sz.m4data.Translate(v3p);
-			dc.sz.m4data.Scale(v3w);
-			dc.sz.m4data.Scale(1.0 / dc.sz.b3axis.width());
-			dc.sz.m4data.Translate(-dc.sz.b3axis.lo);
+			dc.bi.m4data.LoadIdentity();
+			dc.bi.m4data.Translate(v3p);
+			dc.bi.m4data.Scale(v3w);
+			dc.bi.m4data.Scale(1.0 / dc.bi.b3axis.width());
+			dc.bi.m4data.Translate(-dc.bi.b3axis.lo);
 
 			for (size_t i = 0; i < subnodes.size(); i++)
 			{
 				subnodes[i]->DoRender(dc);
 			}
 		}
-		else if (dc.Mode() == GLDC::RENDER_SOLID || dc.Mode() == GLDC::RENDER_SELECT)
+		
+		if (dc.Mode() == GLDC::RENDER_SOLID || dc.Mode() == GLDC::RENDER_SELECT)
 		{
 			int gl_type = dc.Mode() == GLDC::RENDER_SELECT ? GL_QUADS : GL_LINE_LOOP;
 
 			glBegin(gl_type);
-				glVertex2d(bbox.lo[0], bbox.lo[1]);
-				glVertex2d(bbox.hi[0], bbox.lo[1]);
-				glVertex2d(bbox.hi[0], bbox.hi[1]);
-				glVertex2d(bbox.lo[0], bbox.hi[1]);
+				glVertex2d(bi.b3bbox.lo[0], bi.b3bbox.lo[1]);
+				glVertex2d(bi.b3bbox.hi[0], bi.b3bbox.lo[1]);
+				glVertex2d(bi.b3bbox.hi[0], bi.b3bbox.hi[1]);
+				glVertex2d(bi.b3bbox.lo[0], bi.b3bbox.hi[1]);
 			glEnd();
+
 
 			for (int i = 0; i < 4; i++)
 			{
@@ -120,6 +122,7 @@ public:
 				::glEnable(GL_CLIP_PLANE0 + i);
 			}
 
+			dc.Color(DColor(255,0,0));
 
 			basetype::DoRender(dc);
 
@@ -128,6 +131,18 @@ public:
 				::glDisable(GL_CLIP_PLANE0 + i);
 			}
 		}
+		
+		if (dc.Mode() == GLDC::RENDER_TEXT || dc.Mode() == GLDC::RENDER_SELECT)
+		{
+
+			DFontStyle font;
+			font.color.set(200,200,200);
+			dc.SetFont(font);
+		
+			basetype::DoRender(dc);
+
+		}
+
 	}
 };
 
@@ -141,13 +156,341 @@ public:
 	}
 };
 
+
+
 template<>
 class DataNodeSymbolT<AxisUnitD> : public DataNodeSymbol
 {
 public:
 	typedef DataNodeSymbol basetype;
+
+	DataPtrT<AxisUnitD> value;
+
 	DataNodeSymbolT(DataNode* n, CallableSymbol* p) :basetype(n, p)
 	{
+		value.cast_and_set(p);
+		wwdir=value?value->m_nDirection:0;
+		v3lbdir[wwdir]=1.0;		
+	}
+
+	double GetPixel(GLDC& gldc,const String& text)
+	{
+		vec2i v2s=gldc.GetTextSize(text);
+		return (v3lbdir[0]*v2s[0]+v3lbdir[1]*v2s[1])+4.0;
+	}
+
+	int wwdir;
+	box1d range;
+	arr_1t<AxisUnitD::Tick> ticks;
+	vec3d v3lbdir;
+
+	GLDC::BBoxInfo bi;
+
+	void DoRender(GLDC& dc)
+	{
+		if(!value) return;
+
+		if (dc.Mode() == GLDC::RENDER_SET_REALSIZE)
+		{
+			bi=dc.bi;
+			Generate(dc,dc.bi.b3axis.lo[wwdir],dc.bi.b3axis.hi[wwdir],dc.bi.b3bbox.width()[wwdir]);
+		}
+		else if (dc.Mode() == GLDC::RENDER_TEXT || dc.Mode() == GLDC::RENDER_SELECT)
+		{
+			DoRenderN(dc);
+		}
+	}
+
+	void DoRenderN(GLDC& dc)
+	{
+		box3d b3axis(bi.b3axis);
+		box3d b3bbox(bi.b3bbox);
+
+		::glDisable(GL_LINE_STIPPLE);
+		::glLineWidth(1.0);
+		::glBegin(GL_LINES);
+			::glVertex2d(b3bbox.lo[0],b3bbox.lo[1]);
+			::glVertex2d(b3bbox.hi[0],b3bbox.lo[1]);
+		::glEnd();		
+
+		arr_1t<AxisUnitD::Tick>& _aTicks(ticks);
+
+		int udir=wwdir;
+		int vdir=udir==0?1:0;
+
+		double shfdir=+1.0;
+
+		vec3d v3lbshf=wwdir==0?vec3d(0,-shfdir,0):vec3d(-shfdir,0.0);
+		vec3d v3lbpxl=wwdir==0?vec3d(0,-shfdir*5,0):vec3d(-shfdir*5,0.0);
+
+		vec3d v3pos1,v3pos2;
+
+		v3pos1[vdir]=b3bbox.lo[vdir];
+		v3pos2[vdir]=b3bbox.hi[vdir];
+
+		::glBegin(GL_LINES);
+		for(int j=0;j<(int)_aTicks.size();j++)
+		{
+			AxisUnitD::Tick &tick(_aTicks[j]);
+			double pos=(tick.m_nValue-b3axis.lo[udir])*(b3bbox.hi[udir]-b3bbox.lo[udir])/(b3axis.hi[udir]-b3axis.lo[udir])+b3bbox.lo[udir];
+			v3pos1[udir]=pos;
+			::glVertex2dv(v3pos1.data());
+
+			if(tick.flags.get(AxisUnitD::Tick::TICK_MAIN))
+			{
+				::glVertex2dv((v3pos1+v3lbpxl).data());
+			}
+			else
+			{
+				::glVertex2dv((v3pos1+v3lbpxl*0.5).data());
+			}
+		}
+		::glEnd();
+
+
+
+		//if(m_pItem->flags.get(AxisUnitD::FLAG_SHOW_MESH_MAIN))
+		{
+
+			//gldc.LineStyle(m_pItem->LineMain);
+			::glBegin(GL_LINES);
+			for(int j=0;j<(int)_aTicks.size();j++)
+			{
+				AxisUnitD::Tick &tick(_aTicks[j]);
+				double pos=(tick.m_nValue-b3axis.lo[udir])*(b3bbox.hi[udir]-b3bbox.lo[udir])/(b3axis.hi[udir]-b3axis.lo[udir])+b3bbox.lo[udir];
+
+				if( tick.flags.get(AxisUnitD::Tick::TICK_MAIN))
+				{
+					v3pos1[udir]=v3pos2[udir]=pos;
+					::glVertex2dv(v3pos1.data());
+					::glVertex2dv(v3pos2.data());
+				}
+			}
+			::glEnd();
+		}
+
+
+		for(size_t j=0;j<_aTicks.size();j++)
+		{
+			AxisUnitD::Tick &tick(_aTicks[j]);
+			if(!tick.flags.get(AxisUnitD::Tick::TICK_MAIN)) continue;
+
+			v3pos1[udir]=(tick.m_nValue-b3axis.lo[udir])*(b3bbox.hi[udir]-b3bbox.lo[udir])/(b3axis.hi[udir]-b3axis.lo[udir])+b3bbox.lo[udir];
+			dc.PrintText(tick.m_sLabel,v3pos1,v3lbshf,v3lbpxl);
+	
+		}
+
+	}
+
+
+	void Generate(GLDC& gldc,double lo,double hi,double wd)
+	{
+
+		range.set_x(lo,hi);
+		ticks.clear();
+
+		if(wd<10.0)
+		{
+			return;
+		}
+	
+		double dmax=std::max(lo,hi);
+		double dmin=std::min(lo,hi);
+
+		double ws=28.0;
+
+		double br0=(dmax-dmin)*ws/::fabs(wd);
+		double br=::pow(10.0,floor(::log10(br0)));
+	
+		double v1ws=16.0;
+
+		double bw0=br/(dmax-dmin)*(wd);
+
+		String text;
+		long k1=::floor(dmin/br);
+		long k2=::ceil(dmax/br);
+		long dk=(k2-k1);
+		if(dk<=0) dk=1;
+
+		//int tmax=1;
+	
+		std::vector<long> vectk;
+		vectk.push_back(k1-1);
+		vectk.push_back(k1+0);
+		vectk.push_back(k1+1);
+		vectk.push_back(k2-1);
+		vectk.push_back(k2+0);
+		vectk.push_back(k2+1);
+
+		for(int i=0;i<(int)vectk.size();i++)
+		{
+			long k=vectk[i];
+			text.Printf("%g",br*double(k));
+			double v1ts=GetPixel(gldc,text);
+			if(v1ts>v1ws) v1ws=v1ts;
+		}
+
+		if(br0/br>4.0||ws/bw0>4.0)
+		{
+			double brx=br*10;
+			long k1=::floor(dmin/brx);
+			long k2=::ceil(dmax/brx);
+
+			vectk.clear();
+			vectk.push_back(k1-1);
+			vectk.push_back(k1+0);
+			vectk.push_back(k1+1);
+			vectk.push_back(k2-1);
+			vectk.push_back(k2+0);
+			vectk.push_back(k2+1);
+
+			for(int i=0;i<(int)vectk.size();i++)
+			{
+				long k=vectk[i];
+				text.Printf("%g",brx*double(k));
+				double v1ts=GetPixel(gldc,text);
+				if(v1ts>v1ws) v1ws=v1ts;
+			}
+		}
+
+		ws=v1ws;
+		ws+=8;
+		if(ws<30) ws=30;
+
+		double bw=br/(dmax-dmin)*(wd);
+
+		int flag=1;
+		while(flag<50)
+		{
+			double _tmp=flag;
+			if(bw*_tmp*1.0>=ws)
+			{
+				flag*=1;
+				break;			
+			}
+
+			if(bw*_tmp*2.0>=ws)
+			{
+				flag*=2;
+				break;			
+			}
+
+			if(bw*_tmp*5.0>=ws)
+			{
+				flag*=5;
+				break;			
+			}
+
+			if(flag>=10)
+			{
+				flag=50;
+				break;
+			}
+
+			flag*=10;
+		}
+
+
+		br=br*double(flag);
+		bw=bw*double(flag);
+
+		if(flag>=10) flag=flag/10;
+		if(flag>=10) flag=flag/10;
+
+		long y1=floor(dmin/br);
+		long y2=ceil(dmax/br);
+
+		AxisUnitD::Tick tk;
+		tk.flags.add(AxisUnitD::Tick::TICK_MAIN);
+		for(long y=y1; y<=y2; y++)
+		{
+			double d=br*double(y);
+			if(d>=dmin&&d<=dmax)
+			{
+				tk.m_nValue=d;
+				tk.m_sLabel.Printf("%g",d);
+				ticks.push_back(tk);
+			}
+		}
+
+		tk.flags.del(AxisUnitD::Tick::TICK_MAIN);
+
+		double mm=15.0;
+
+		long tm=(long)(bw/mm);
+
+		for(long y=y1; y<=y2; y++)
+		{
+			{
+				long tt=10;
+				if(tm>=tt&&(flag==1))
+				{
+					for(long i=1;i<tt;i++)
+					{
+						double d=br*(double(y)+double(i)/double(tt));
+						if(d>=dmin&&d<=dmax)
+						{
+							tk.m_nValue=d;
+							tk.m_sLabel.Printf("%g",d);
+							ticks.push_back(tk);
+						}
+					}
+					continue;
+				}
+			}
+			{
+				long tt=5;
+				if(tm>=tt&&(flag==5||flag==1))
+				{
+					for(long i=1;i<tt;i++)
+					{
+						double d=br*(double(y)+double(i)/double(tt));
+						if(d>=dmin&&d<=dmax)
+						{
+							tk.m_nValue=d;
+							tk.m_sLabel.Printf("%g",d);
+							ticks.push_back(tk);
+						}
+					}
+					continue;
+				}
+			}
+			{
+				long tt=4;
+				if(tm>=tt&&(flag==2))
+				{
+					for(long i=1;i<tt;i++)
+					{
+						double d=br*(double(y)+double(i)/double(tt));
+						if(d>=dmin&&d<=dmax)
+						{
+							tk.m_nValue=d;
+							tk.m_sLabel.Printf("%g",d);
+							ticks.push_back(tk);
+						}
+					}
+					continue;
+				}
+			}
+			{
+				long tt=2;
+				if(tm>=tt&&(flag==1||flag==2||flag==5))
+				{
+					for(long i=1;i<tt;i++)
+					{
+						double d=br*(double(y)+double(i)/double(tt));
+						if(d>=dmin&&d<=dmax)
+						{
+							tk.m_nValue=d;
+							tk.m_sLabel.Printf("%g",d);
+							ticks.push_back(tk);
+						}
+					}
+					continue;
+				}
+			}		
+
+		}
 	}
 };
 
@@ -206,11 +549,11 @@ public:
 			bool data_updated = false;
 			size_t n = m_pItem->m_aValue.size();
 
-			if (m4 != dc.sz.m4data || cached_data.size() != m_pItem->m_aValue.size())
+			if (m4 != dc.bi.m4data || cached_data.size() != m_pItem->m_aValue.size())
 			{
 
 				cached_data.resize(n);
-				m4 = dc.sz.m4data;
+				m4 = dc.bi.m4data;
 
 				if (m_pItem->m_aTdata.size() == n)
 				{
@@ -243,9 +586,9 @@ public:
 				data_updated = true;
 			}
 
-			if (data_updated || bbox != dc.sz.b3bbox)
+			if (data_updated || bbox != dc.bi.b3bbox)
 			{
-				bbox = dc.sz.b3bbox;
+				bbox = dc.bi.b3bbox;
 				valid_index.clear();
 				valid_index.push_back(0);
 				valid_index.push_back(n);

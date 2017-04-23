@@ -34,6 +34,7 @@ class DLLIMPEXP_EWC_BASE PluginTextEditor;
 class DLLIMPEXP_EWC_BASE PluginFlashViewer;
 class DLLIMPEXP_EWC_BASE PluginWebView;
 class DLLIMPEXP_EWC_BASE PluginEwslEditor;
+class DLLIMPEXP_EWC_BASE PluginFigureViewer;
 
 template<typename T>
 void DLLIMPEXP_EWC_BASE RegisterPluginT(WndManager& wm);

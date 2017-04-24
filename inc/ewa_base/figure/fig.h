@@ -8,10 +8,6 @@
 EW_ENTER
 
 
-
-
-
-
 class DLLIMPEXP_EWA_BASE FigFigure : public FigItem
 {
 public:

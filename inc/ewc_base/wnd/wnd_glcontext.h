@@ -146,7 +146,7 @@ public:
 	void LineStyle(const DLineStyle& style);
 
 
-	vec2i GetTextSize(const String& text);	
+	vec2i GetTextExtend(const String& text);	
 
 	void PrintText(const String& text, const vec3d& pos=vec3d(),const vec3d& shf=vec3d(), const vec3d& pxl=vec3d());
 
@@ -157,7 +157,7 @@ protected:
 
 	class TextData;
 
-	vec2i DoGetTextSize(const TextData& text);	
+	vec2i DoGetTextExtend(const TextData& text);	
 	void DoPrintText(const TextData& text, const vec3d& pos,const vec3d& shf, const vec3d& pxl);
 	static void _Color1(const DColor& color);
 	static void _Color2(const DColor& color);

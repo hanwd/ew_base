@@ -16,9 +16,10 @@ public:
 
 	enum
 	{
-		FLAG_SHOW_MESH_MAIN	=basetype::FLAG_MAX<<0,
-		FLAG_SHOW_MESH_USER	=basetype::FLAG_MAX<<1,
-		FLAG_MAX		=basetype::FLAG_MAX<<2,
+		FLAG_MIN = basetype::FLAG_MAX,
+		FLAG_SHOW_MESH_MAIN = FLAG_MIN << 0,
+		FLAG_SHOW_MESH_USER = FLAG_MIN << 1,
+		FLAG_MAX = FLAG_MIN << 2,
 	};
 
 	AxisUnit(const String& name="");
@@ -41,7 +42,6 @@ public:
 	};
 
 	DFontStyle font;
-	BitFlags flags;
 	arr_1t<Tick> ticks;
 
 	DLineStyle LineMain;
@@ -70,6 +70,13 @@ public:
 
 	AxisUnitD(const String& name="",int d=0);
 	int m_nDirection;
+
+	enum
+	{
+		FLAG_MIN = basetype::FLAG_MAX,
+		FLAG_LABEL_DIR_MAX = FLAG_MIN << 0,
+		FLAG_MAX = FLAG_MIN << 1,
+	};
 
 	DECLARE_OBJECT_INFO(AxisUnitD, ObjectSymbolInfo);
 };

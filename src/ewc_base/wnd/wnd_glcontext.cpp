@@ -631,13 +631,13 @@ public:
 	BITMAPINFO *bi;
 };
 
-vec2i GLDC::GetTextSize(const String& text)
+vec2i GLDC::GetTextExtend(const String& text)
 {
 	TextData tdata(text, (GLFontDataImpl*)m_pFontData.get());
-	return DoGetTextSize(tdata);
+	return DoGetTextExtend(tdata);
 }
 
-vec2i GLDC::DoGetTextSize(const TextData& data)
+vec2i GLDC::DoGetTextExtend(const TextData& data)
 {
 
 	vec2i size;
@@ -681,7 +681,7 @@ void GLDC::DoPrintText(const TextData& data,const vec3d& pos,const vec3d& shf, c
 	if (!data.dc) return;
 
 	
-	vec2i size = DoGetTextSize(data);
+	vec2i size = DoGetTextExtend(data);
 
 	HBITMAP hBitmap = ::CreateBitmap(size[0], size[1], 1, 1, NULL);
 	HBITMAP hOldBmp = (HBITMAP)SelectObject(data.dc, hBitmap);

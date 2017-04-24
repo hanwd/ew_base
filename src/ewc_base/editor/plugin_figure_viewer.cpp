@@ -80,8 +80,8 @@ public:
 			dc.bi.b3axis.set_y(-100.0, +100.0);
 			dc.bi.b3axis.set_z(-1.0, +1.0);
 
-			dc.bi.b3bbox.lo += 50;
-			dc.bi.b3bbox.hi -= 25;
+			dc.bi.b3bbox.lo += 70;
+			dc.bi.b3bbox.hi -= 45;
 			bi = dc.bi;
 
 			plane[0].set3(+1, 0, 0); plane[0][3] = -dc.bi.b3bbox.lo[0];
@@ -171,11 +171,13 @@ public:
 		value.cast_and_set(p);
 		wwdir=value?value->m_nDirection:0;
 		v3lbdir[wwdir]=1.0;		
+		lbmax = value &&  value->flags.get(AxisUnitD::FLAG_LABEL_DIR_MAX);
+		lbmin = true;
 	}
 
-	double GetPixel(GLDC& gldc,const String& text)
+	double DoGetTextExtend(GLDC& dc,const String& text)
 	{
-		vec2i v2s=gldc.GetTextSize(text);
+		vec2i v2s=dc.GetTextExtend(text);
 		return (v3lbdir[0]*v2s[0]+v3lbdir[1]*v2s[1])+4.0;
 	}
 
@@ -184,6 +186,9 @@ public:
 	arr_1t<AxisUnitD::Tick> ticks;
 	vec3d v3lbdir;
 
+	bool lbmax;
+	bool lbmin;
+
 	GLDC::BBoxInfo bi;
 
 	void DoRender(GLDC& dc)
@@ -191,9 +196,8 @@ public:
 		if(!value) return;
 
 		if (dc.Mode() == GLDC::RENDER_SET_REALSIZE)
-		{
-			bi=dc.bi;
-			Generate(dc,dc.bi.b3axis.lo[wwdir],dc.bi.b3axis.hi[wwdir],dc.bi.b3bbox.width()[wwdir]);
+		{			
+			DoGenerate(dc);
 		}
 		else if (dc.Mode() == GLDC::RENDER_TEXT || dc.Mode() == GLDC::RENDER_SELECT)
 		{
@@ -220,39 +224,56 @@ public:
 
 		double shfdir=+1.0;
 
+		vec3d v3pos1,v3pos2;
+		v3pos1[vdir]=b3bbox.lo[vdir];
+		v3pos2[vdir]=b3bbox.hi[vdir];
+
 		vec3d v3lbshf=wwdir==0?vec3d(0,-shfdir,0):vec3d(-shfdir,0.0);
 		vec3d v3lbpxl=wwdir==0?vec3d(0,-shfdir*5,0):vec3d(-shfdir*5,0.0);
 
-		vec3d v3pos1,v3pos2;
-
-		v3pos1[vdir]=b3bbox.lo[vdir];
-		v3pos2[vdir]=b3bbox.hi[vdir];
 
 		::glBegin(GL_LINES);
 		for(int j=0;j<(int)_aTicks.size();j++)
 		{
 			AxisUnitD::Tick &tick(_aTicks[j]);
 			double pos=(tick.m_nValue-b3axis.lo[udir])*(b3bbox.hi[udir]-b3bbox.lo[udir])/(b3axis.hi[udir]-b3axis.lo[udir])+b3bbox.lo[udir];
-			v3pos1[udir]=pos;
-			::glVertex2dv(v3pos1.data());
+			v3pos2[udir]=v3pos1[udir]=pos;
 
-			if(tick.flags.get(AxisUnitD::Tick::TICK_MAIN))
+
+			if (lbmin)
 			{
-				::glVertex2dv((v3pos1+v3lbpxl).data());
+				::glVertex2dv(v3pos1.data());
+				if(tick.flags.get(AxisUnitD::Tick::TICK_MAIN))
+				{
+					::glVertex2dv((v3pos1+v3lbpxl).data());
+				}
+				else
+				{
+					::glVertex2dv((v3pos1+v3lbpxl*0.5).data());
+				}
 			}
-			else
+			if (lbmax)
 			{
-				::glVertex2dv((v3pos1+v3lbpxl*0.5).data());
+				::glVertex2dv(v3pos2.data());
+				if(tick.flags.get(AxisUnitD::Tick::TICK_MAIN))
+				{
+					::glVertex2dv((v3pos2-v3lbpxl).data());
+				}
+				else
+				{
+					::glVertex2dv((v3pos2-v3lbpxl*0.5).data());
+				}
 			}
+
 		}
 		::glEnd();
 
 
 
-		//if(m_pItem->flags.get(AxisUnitD::FLAG_SHOW_MESH_MAIN))
+		if(value->flags.get(AxisUnitD::FLAG_SHOW_MESH_MAIN))
 		{
 
-			//gldc.LineStyle(m_pItem->LineMain);
+			//dc.LineStyle(value->LineMain);
 			::glBegin(GL_LINES);
 			for(int j=0;j<(int)_aTicks.size();j++)
 			{
@@ -283,8 +304,13 @@ public:
 	}
 
 
-	void Generate(GLDC& gldc,double lo,double hi,double wd)
+	void DoGenerate(GLDC& dc)// , double lo, double hi, double wd)
 	{
+		bi = dc.bi;
+
+		double lo = bi.b3axis.lo[wwdir];
+		double hi = bi.b3axis.hi[wwdir];
+		double wd = bi.b3bbox.hi[wwdir] - bi.b3bbox.lo[wwdir];
 
 		range.set_x(lo,hi);
 		ticks.clear();
@@ -326,7 +352,7 @@ public:
 		{
 			long k=vectk[i];
 			text.Printf("%g",br*double(k));
-			double v1ts=GetPixel(gldc,text);
+			double v1ts = DoGetTextExtend(dc, text);
 			if(v1ts>v1ws) v1ws=v1ts;
 		}
 
@@ -348,7 +374,7 @@ public:
 			{
 				long k=vectk[i];
 				text.Printf("%g",brx*double(k));
-				double v1ts=GetPixel(gldc,text);
+				double v1ts = DoGetTextExtend(dc, text);
 				if(v1ts>v1ws) v1ws=v1ts;
 			}
 		}
@@ -515,6 +541,7 @@ public:
 };
 
 
+
 template<>
 class DataNodeSymbolT<FigData2D> : public DataNodeSymbolT<FigData>
 {
@@ -531,13 +558,64 @@ public:
 	DataNodeSymbolT(DataNode* n, CallableSymbol* p) :basetype(n, p)
 	{
 		if (!m_pItem.cast_and_set(p)) return;
-
 	}
 
-	box3d bbox;
-	mat4d m4;
+	box3d b3bbox;
+	mat4d m4data;
 
 	arr_1t<vec3d> cached_data;
+
+	virtual void DoUpdateCachedData(GLDC& dc)
+	{
+		bool data_updated = false;
+
+		arr_1t<double> &adata(m_pItem->m_aTdata);
+		arr_1t<double> &bdata(m_pItem->m_aValue);
+
+		size_t n =bdata.size();
+
+		if (m4data != dc.bi.m4data || cached_data.size() != bdata.size())
+		{
+
+			cached_data.resize(n);
+			m4data = dc.bi.m4data;
+
+			if (adata.size() != bdata.size())
+			{
+				for (size_t i = 0; i < n; i++)
+				{
+					cached_data[i] = m4data*vec3d(i, bdata[i], 0);
+				}
+			}
+			else if (m_pItem->m_nDataType == FigData2D::TYPE_POLAR)
+			{
+				for (size_t i = 0; i < n; i++)
+				{
+					double r = bdata[i];
+					double a = adata[i];
+					cached_data[i] = m4data*vec3d(r*cosdeg(a), r*sindeg(a), 0);
+				}
+			}
+			else
+			{
+				for (size_t i = 0; i < n; i++)
+				{
+					cached_data[i] = m4data*vec3d(adata[i], bdata[i], 0);
+				}
+			}	
+
+			data_updated = true;
+		}
+
+		if (data_updated || b3bbox != dc.bi.b3bbox)
+		{
+			b3bbox = dc.bi.b3bbox;
+			valid_index.clear();
+			valid_index.push_back(0);
+			valid_index.push_back(n);
+		}
+	}
+
 
 
 	void DoRender(GLDC& dc)
@@ -546,53 +624,7 @@ public:
 
 		if (dc.Mode() == GLDC::RENDER_SET_REALSIZE)
 		{
-			bool data_updated = false;
-			size_t n = m_pItem->m_aValue.size();
-
-			if (m4 != dc.bi.m4data || cached_data.size() != m_pItem->m_aValue.size())
-			{
-
-				cached_data.resize(n);
-				m4 = dc.bi.m4data;
-
-				if (m_pItem->m_aTdata.size() == n)
-				{
-					if (m_pItem->m_nDataType == FigData2D::TYPE_POLAR)
-					{
-						for (size_t i = 0; i < n; i++)
-						{
-							double r = m_pItem->m_aValue[i];
-							double a = m_pItem->m_aTdata[i] * M_PI / 180.0;
-							cached_data[i] = m4*vec3d(r*::cos(a), r*::sin(a), 0);
-						}
-					}
-					else
-					{
-						for (size_t i = 0; i < n; i++)
-						{
-							cached_data[i] = m4*vec3d(m_pItem->m_aTdata[i], m_pItem->m_aValue[i], 0);
-						}
-					}
-
-				}
-				else
-				{
-					for (size_t i = 0; i < n; i++)
-					{
-						cached_data[i] = m4*vec3d(i, m_pItem->m_aValue[i], 0);
-					}
-				}
-
-				data_updated = true;
-			}
-
-			if (data_updated || bbox != dc.bi.b3bbox)
-			{
-				bbox = dc.bi.b3bbox;
-				valid_index.clear();
-				valid_index.push_back(0);
-				valid_index.push_back(n);
-			}
+			DoUpdateCachedData(dc);
 		}
 		else if (dc.Mode() == GLDC::RENDER_SOLID||dc.Mode() == GLDC::RENDER_SELECT)
 		{
@@ -609,6 +641,43 @@ public:
 
 
 	}
+
+};
+
+
+
+template<>
+class DataNodeSymbolT<FigText> : public DataNodeSymbol
+{
+public:
+	typedef DataNodeSymbol basetype;
+	DataNodeSymbolT(DataNode* n, CallableSymbol* p) :basetype(n, p)
+	{
+
+	}
+
+	vec3d m_v3Position;
+
+	void DoRender(GLDC& dc)
+	{
+		if (!value) return;
+		FigText* p = static_cast<FigText*>(value.get());
+
+		if (dc.Mode() == GLDC::RENDER_SET_REALSIZE)
+		{
+			m_v3Position[0] =0.5*((p->m_v3Pos[0]+1.0) * dc.bi.b3bbox.hi[0] + (1.0 - p->m_v3Pos[0])*dc.bi.b3bbox.lo[0]) + p->m_v3Pxl[0];
+			m_v3Position[1] =0.5*((p->m_v3Pos[1]+1.0) * dc.bi.b3bbox.hi[1] + (1.0 - p->m_v3Pos[1])*dc.bi.b3bbox.lo[1]) + p->m_v3Pxl[1];			
+		}
+
+		if (dc.Mode() == GLDC::RENDER_TEXT||dc.Mode() == GLDC::RENDER_SELECT)
+		{
+			dc.SetFont(p->m_tFont);
+			dc.PrintText(p->m_sText, m_v3Position, p->m_v3Shf);
+		}
+
+
+	}
+
 
 };
 
@@ -655,7 +724,7 @@ public:
 		DataNodeCreator::Register<FigDataManager>();
 		DataNodeCreator::Register<FigAxisD>();
 		DataNodeCreator::Register<AxisUnitD>();
-
+		DataNodeCreator::Register<FigText>();
 
 		model->AddColumn(new DataColumnName);
 		model->AddColumn(new DataColumnType);
@@ -674,6 +743,32 @@ public:
 		d = new FigData2D;
 		d->m_sId = "data2";
 		c->m_pDataManager->m_aItems.append(d);
+
+		FigText* t = new FigText;
+		t->m_sText = "title";
+		t->m_sId = "title";
+		t->m_v3Pos[1] = 1.0;
+		t->m_v3Shf[1] = 1.0;
+		t->m_v3Pxl[1] = 3.0;		
+		c->m_aItems.append(t);
+
+		t = new FigText;
+		t->m_sText = "xlabel";
+		t->m_sId = "xlabel";
+		t->m_v3Pos[1] = -1.0;
+		t->m_v3Shf[1] = -1.0;
+		t->m_v3Pxl[1] = -23.0;		
+		c->m_aItems.append(t);
+
+
+		t = new FigText;
+		t->m_sText = "ylabel";
+		t->m_sId = "ylabel";
+		t->m_v3Pos[0] = -1.0;
+		t->m_v3Shf[0] = -1.0;
+		t->m_v3Pxl[0] = -23.0;
+		t->m_tFont.flags.add(DFontStyle::STYLE_VERTICAL);
+		c->m_aItems.append(t);
 
 		p->m_pItem.reset(c);
 

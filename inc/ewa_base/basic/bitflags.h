@@ -21,6 +21,23 @@ public:
 	inline void inv(type flag){ m_nFlags ^= flag; }
 	inline int32_t val() const{return m_nFlags;}
 
+	bool add2(type flag)
+	{
+		bool f1 = get(flag);
+		if (f1) return false;
+		add(flag);
+		return true;
+	}
+
+	bool del2(type flag)
+	{
+		bool f1 = get(flag);
+		if (!f1) return false;
+		del(flag);
+		return true;
+	}
+
+
 	void set(type flag, bool v)
 	{
 		if (v) add(flag); else del(flag);

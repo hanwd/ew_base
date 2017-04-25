@@ -102,7 +102,7 @@ void GLContext::SwapBuffers()
 	::SwapBuffers((HDC)m_hDC);
 }
 
-class GLBufferExtraData : public Object
+class GLBufferExtraData : public ObjectData
 {
 public:
 	wxImage image;
@@ -279,11 +279,23 @@ void GLDC::PopMatrix()
 	::glPopMatrix();
 }
 
-void GLDC::Blit(wxDC& dc)
+
+void GLDC::SaveBuffer(const String& id)
 {
-	m_aBuffer[0].ReadPixels();
-	m_aBuffer[0].Blit(dc);
+	m_mapBuffers[id].ReadPixels();
 }
+
+void GLDC::LoadBuffer(const String& id, wxDC& dc)
+{
+	bst_map<String, GLBuffer>::iterator it = m_mapBuffers.find(id);
+	if (it == m_mapBuffers.end())
+	{
+		return;
+	}
+	(*it).second.Blit(dc);
+}
+
+
 
 void GLDC::RenderNode(DataNode* node)
 {
@@ -391,6 +403,7 @@ int GLDC::Mode()
 	return m_nMode;
 }
 
+
 void GLDC::RenderModel(DataModel* model)
 {
 	Clear();	
@@ -408,7 +421,7 @@ void GLDC::RenderModel(DataModel* model)
 		node->DoRender(*this);
 
 	}
-	SwapBuffers();
+	
 }
 
 
@@ -423,10 +436,6 @@ void GLDC::RenderSelect(DataModel* model)
 	{
 		node->DoRender(*this);
 	}
-	
-	//m_aBuffer[1].ReadPixels();
-	//Mode(GLDC::RENDER_SOLID);
-
 }
 
 DataNode* GLDC::HitTest(unsigned x, unsigned y)
@@ -741,7 +750,7 @@ void GLDC::DoPrintText(const TextData& data,const vec3d& pos,const vec3d& shf, c
 
 void GLDC::SetFont(const DFontStyle& font)
 {
-	Color(font.color);
+	if(font.color.a!=0) Color(font.color);
 	m_pFontData.reset(new GLFontDataImpl(font));
 }
 

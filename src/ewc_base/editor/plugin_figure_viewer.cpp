@@ -9,6 +9,7 @@
 #include "ewc_base/wnd/wnd_updator.h"
 #include "ewc_base/wnd/wnd_glcontext.h"
 #include "ewc_base/wnd/impl_wx/iwnd_bookbase.h"
+#include "ewc_base/wnd/impl_wx/iwnd_modelview.h"
 #include "ewc_base/evt/evt_option.h"
 #include "ewc_base/data/data_node.h"
 #include "ewc_base/data/data_model.h"
@@ -56,6 +57,103 @@ public:
 	}
 };
 
+
+class DLLIMPEXP_EWC_BASE GLToolDataCoord2d : public GLToolData
+{
+public:
+
+	GLToolDataCoord2d(GLDC::BBoxInfo& bi0_, GLDC::BBoxInfo& bi1_) :bi0(bi0_), bi1(bi1_)
+	{
+
+	}
+
+	GLDC::BBoxInfo& bi0;
+	GLDC::BBoxInfo& bi1;
+	GLDC::BBoxInfo bi2;
+
+	virtual int OnDraging(GLTool& gt)
+	{
+		gt.flags.add(GLParam::BTN_IS_MOVED);
+
+		if (gt.btn_id == 2)
+		{
+			vec2i dvec = gt.v2pos2 - gt.v2pos1;
+			dvec[1] *= -1;
+
+			double d1 = double(dvec[0])*bi2.b3axis.x_width() / double(bi2.b3bbox.x_width());
+			double d2 = double(dvec[1])*bi2.b3axis.y_width() / double(bi2.b3bbox.y_width());
+
+			bi1.b3axis.lo[0] = bi2.b3axis.lo[0] - d1;
+			bi1.b3axis.hi[0] = bi2.b3axis.hi[0] - d1;
+			bi1.b3axis.lo[1] = bi2.b3axis.lo[1] - d2;
+			bi1.b3axis.hi[1] = bi2.b3axis.hi[1] - d2;
+
+			return GLParam::FLAG_REFRESH;
+		}
+		else
+		{
+			return GLParam::FLAG_CACHING|GLParam::FLAG_REFRESH;
+		}
+	}
+
+	int OnBtnUp(GLTool& gt)
+	{
+		if (gt.flags.get(GLParam::BTN_IS_DOWN))
+		{
+			if (gt.btn_id == 1)
+			{
+
+				gt.v2pos1[1] = gt.v2size[1] - gt.v2pos1[1];
+				gt.v2pos2[1] = gt.v2size[1] - gt.v2pos2[1];
+
+				vec2d p1, p2;
+
+				p1[0] = bi1.b3axis.lo[0] + double(gt.v2pos1[0] - bi1.b3bbox.lo[0])*bi1.b3axis.x_width() / double(bi1.b3bbox.x_width());
+				p1[1] = bi1.b3axis.lo[1] + double(gt.v2pos1[1] - bi1.b3bbox.lo[0])*bi1.b3axis.y_width() / double(bi1.b3bbox.y_width());
+				p2[0] = bi1.b3axis.lo[0] + double(gt.v2pos2[0] - bi1.b3bbox.lo[0])*bi1.b3axis.x_width() / double(bi1.b3bbox.x_width());
+				p2[1] = bi1.b3axis.lo[1] + double(gt.v2pos2[1] - bi1.b3bbox.lo[0])*bi1.b3axis.y_width() / double(bi1.b3bbox.y_width());
+
+
+				bi1.b3axis.set_x(std::min(p1[0], p2[0]), std::max(p1[0],p2[0]));
+				bi1.b3axis.set_y(std::min(p1[1], p2[1]), std::max(p1[1],p2[1]));
+
+			}
+			return GLParam::FLAG_RELEASE | GLParam::FLAG_REFRESH;
+		}
+		return 0;
+	}
+
+	int OnBtnCancel(GLTool& gt)
+	{
+		bi1 = bi2;
+		return GLToolData::OnBtnCancel(gt);
+	}
+
+	virtual int OnBtnDown(GLTool& gt)
+	{
+		bi2 = bi1;
+		if (gt.btn_id == 1||gt.btn_id==2)
+		{
+			return GLParam::FLAG_CAPTURE;
+		}
+		else if (gt.btn_id == 3)
+		{
+			bi1 = bi0;
+			return GLParam::FLAG_REFRESH;
+		}
+		else
+		{
+			return 0;
+		}
+	}
+
+
+	virtual int OnBtnDClick(GLTool&)
+	{
+		return 0;
+	}
+};
+
 template<>
 class DataNodeSymbolT<FigCoord2D> : public DataNodeSymbolT<FigCoord>
 {
@@ -65,10 +163,21 @@ public:
 
 	DataNodeSymbolT(DataNode* n, CallableSymbol* p) :basetype(n, p)
 	{
+		bi0.b3axis.set_x(-100.0, +100.0);
+		bi0.b3axis.set_y(-100.0, +100.0);
+		bi0.b3axis.set_z(-1.0, +1.0);
 
+		bi1 = bi0;
 	}
 
-	GLDC::BBoxInfo bi;
+	virtual DataPtrT<GLToolData> GetToolData()
+	{
+		return new GLToolDataCoord2d(bi0,bi1);
+	}
+
+
+
+	GLDC::BBoxInfo bi0,bi1;
 
 	vec4d plane[6];
 
@@ -76,13 +185,12 @@ public:
 	{
 		if (dc.Mode() == GLDC::RENDER_SET_REALSIZE)
 		{
-			dc.bi.b3axis.set_x(-100.0, +100.0);
-			dc.bi.b3axis.set_y(-100.0, +100.0);
-			dc.bi.b3axis.set_z(-1.0, +1.0);
 
 			dc.bi.b3bbox.lo += 70;
 			dc.bi.b3bbox.hi -= 45;
-			bi = dc.bi;
+
+			bi1.b3bbox = dc.bi.b3bbox;
+			dc.bi.b3axis = bi1.b3axis;
 
 			plane[0].set3(+1, 0, 0); plane[0][3] = -dc.bi.b3bbox.lo[0];
 			plane[1].set3(-1, 0, 0); plane[1][3] = +dc.bi.b3bbox.hi[0];
@@ -106,16 +214,7 @@ public:
 		
 		if (dc.Mode() == GLDC::RENDER_SOLID || dc.Mode() == GLDC::RENDER_SELECT)
 		{
-			int gl_type = dc.Mode() == GLDC::RENDER_SELECT ? GL_QUADS : GL_LINE_LOOP;
-
-			glBegin(gl_type);
-				glVertex2d(bi.b3bbox.lo[0], bi.b3bbox.lo[1]);
-				glVertex2d(bi.b3bbox.hi[0], bi.b3bbox.lo[1]);
-				glVertex2d(bi.b3bbox.hi[0], bi.b3bbox.hi[1]);
-				glVertex2d(bi.b3bbox.lo[0], bi.b3bbox.hi[1]);
-			glEnd();
-
-
+			
 			for (int i = 0; i < 4; i++)
 			{
 				::glClipPlane(GL_CLIP_PLANE0 + i, plane[i].data());
@@ -140,6 +239,14 @@ public:
 			dc.SetFont(font);
 		
 			basetype::DoRender(dc);
+
+			dc.Color(DColor(0, 0, 255));
+			glBegin(dc.Mode() == GLDC::RENDER_SELECT ? GL_QUADS : GL_LINE_LOOP);
+				glVertex2d(bi1.b3bbox.lo[0], bi1.b3bbox.lo[1]);
+				glVertex2d(bi1.b3bbox.hi[0], bi1.b3bbox.lo[1]);
+				glVertex2d(bi1.b3bbox.hi[0], bi1.b3bbox.hi[1]);
+				glVertex2d(bi1.b3bbox.lo[0], bi1.b3bbox.hi[1]);
+			glEnd();
 
 		}
 
@@ -194,6 +301,9 @@ public:
 	void DoRender(GLDC& dc)
 	{
 		if(!value) return;
+
+		value->FontText.color.a = 0;
+		dc.SetFont(value->FontText);
 
 		if (dc.Mode() == GLDC::RENDER_SET_REALSIZE)
 		{			
@@ -303,6 +413,13 @@ public:
 
 	}
 
+	AxisUnitD::Tick tk;
+
+	void GenerateTick(double v)
+	{
+		tk.set(v);
+		ticks.push_back(tk);
+	}
 
 	void DoGenerate(GLDC& dc)// , double lo, double hi, double wd)
 	{
@@ -332,7 +449,7 @@ public:
 
 		double bw0=br/(dmax-dmin)*(wd);
 
-		String text;
+		//String text;
 		long k1=::floor(dmin/br);
 		long k2=::ceil(dmax/br);
 		long dk=(k2-k1);
@@ -340,7 +457,7 @@ public:
 
 		//int tmax=1;
 	
-		std::vector<long> vectk;
+		arr_1t<long> vectk;
 		vectk.push_back(k1-1);
 		vectk.push_back(k1+0);
 		vectk.push_back(k1+1);
@@ -351,8 +468,8 @@ public:
 		for(int i=0;i<(int)vectk.size();i++)
 		{
 			long k=vectk[i];
-			text.Printf("%g",br*double(k));
-			double v1ts = DoGetTextExtend(dc, text);
+			tk.set(br*double(k));
+			double v1ts = DoGetTextExtend(dc, tk.m_sLabel);
 			if(v1ts>v1ws) v1ws=v1ts;
 		}
 
@@ -373,8 +490,8 @@ public:
 			for(int i=0;i<(int)vectk.size();i++)
 			{
 				long k=vectk[i];
-				text.Printf("%g",brx*double(k));
-				double v1ts = DoGetTextExtend(dc, text);
+				tk.set(brx*double(k));
+				double v1ts = DoGetTextExtend(dc, tk.m_sLabel);
 				if(v1ts>v1ws) v1ws=v1ts;
 			}
 		}
@@ -423,19 +540,21 @@ public:
 		if(flag>=10) flag=flag/10;
 		if(flag>=10) flag=flag/10;
 
-		long y1=floor(dmin/br);
-		long y2=ceil(dmax/br);
+		int64_t y1 = dmin / br;
+		int64_t y2 = dmax / br;
 
-		AxisUnitD::Tick tk;
+		if (y2>y1 && dmax > br*double(y2))
+		{
+			y2 = y2 + 1;
+		}
+
 		tk.flags.add(AxisUnitD::Tick::TICK_MAIN);
-		for(long y=y1; y<=y2; y++)
+		for(int64_t y=y1; y<=y2; y++)
 		{
 			double d=br*double(y);
 			if(d>=dmin&&d<=dmax)
 			{
-				tk.m_nValue=d;
-				tk.m_sLabel.Printf("%g",d);
-				ticks.push_back(tk);
+				GenerateTick(d);
 			}
 		}
 
@@ -445,7 +564,7 @@ public:
 
 		long tm=(long)(bw/mm);
 
-		for(long y=y1; y<=y2; y++)
+		for(int64_t y=y1; y<=y2; y++)
 		{
 			{
 				long tt=10;
@@ -456,9 +575,7 @@ public:
 						double d=br*(double(y)+double(i)/double(tt));
 						if(d>=dmin&&d<=dmax)
 						{
-							tk.m_nValue=d;
-							tk.m_sLabel.Printf("%g",d);
-							ticks.push_back(tk);
+							GenerateTick(d);
 						}
 					}
 					continue;
@@ -473,9 +590,7 @@ public:
 						double d=br*(double(y)+double(i)/double(tt));
 						if(d>=dmin&&d<=dmax)
 						{
-							tk.m_nValue=d;
-							tk.m_sLabel.Printf("%g",d);
-							ticks.push_back(tk);
+							GenerateTick(d);
 						}
 					}
 					continue;
@@ -490,9 +605,7 @@ public:
 						double d=br*(double(y)+double(i)/double(tt));
 						if(d>=dmin&&d<=dmax)
 						{
-							tk.m_nValue=d;
-							tk.m_sLabel.Printf("%g",d);
-							ticks.push_back(tk);
+							GenerateTick(d);
 						}
 					}
 					continue;
@@ -507,9 +620,7 @@ public:
 						double d=br*(double(y)+double(i)/double(tt));
 						if(d>=dmin&&d<=dmax)
 						{
-							tk.m_nValue=d;
-							tk.m_sLabel.Printf("%g",d);
-							ticks.push_back(tk);
+							GenerateTick(d);
 						}
 					}
 					continue;
@@ -551,13 +662,13 @@ public:
 
 	arr_1t<unsigned> valid_index;
 
-	DataPtrT<FigData2D> m_pItem;
+	DataPtrT<FigData2D> value;
 
 
 
 	DataNodeSymbolT(DataNode* n, CallableSymbol* p) :basetype(n, p)
 	{
-		if (!m_pItem.cast_and_set(p)) return;
+		if (!value.cast_and_set(p)) return;
 	}
 
 	box3d b3bbox;
@@ -567,10 +678,10 @@ public:
 
 	virtual void DoUpdateCachedData(GLDC& dc)
 	{
-		bool data_updated = false;
+		bool _b_is_data_updated = false;
 
-		arr_1t<double> &adata(m_pItem->m_aTdata);
-		arr_1t<double> &bdata(m_pItem->m_aValue);
+		arr_1t<double> &adata(value->m_aTdata);
+		arr_1t<double> &bdata(value->m_aValue);
 
 		size_t n =bdata.size();
 
@@ -587,7 +698,7 @@ public:
 					cached_data[i] = m4data*vec3d(i, bdata[i], 0);
 				}
 			}
-			else if (m_pItem->m_nDataType == FigData2D::TYPE_POLAR)
+			else if (value->m_nDataType == FigData2D::TYPE_POLAR)
 			{
 				for (size_t i = 0; i < n; i++)
 				{
@@ -604,10 +715,10 @@ public:
 				}
 			}	
 
-			data_updated = true;
+			_b_is_data_updated = true;
 		}
 
-		if (data_updated || b3bbox != dc.bi.b3bbox)
+		if (_b_is_data_updated || b3bbox != dc.bi.b3bbox)
 		{
 			b3bbox = dc.bi.b3bbox;
 			valid_index.clear();
@@ -620,13 +731,14 @@ public:
 
 	void DoRender(GLDC& dc)
 	{
-		if (!m_pItem) return;
+		if (!value) return;
 
 		if (dc.Mode() == GLDC::RENDER_SET_REALSIZE)
 		{
 			DoUpdateCachedData(dc);
 		}
-		else if (dc.Mode() == GLDC::RENDER_SOLID||dc.Mode() == GLDC::RENDER_SELECT)
+		
+		if (dc.Mode() == GLDC::RENDER_SOLID||dc.Mode() == GLDC::RENDER_SELECT)
 		{
 			for (size_t j = 1; j < valid_index.size(); j += 2)
 			{
@@ -681,20 +793,17 @@ public:
 
 };
 
-
-
 class MvcViewFigure : public MvcViewEx
 {
 public:
 	typedef MvcViewEx basetype;
 
-	GLDC dc;
-
+	
 	bool first;
 
 	~MvcViewFigure()
 	{
-		model->DecRef();
+		pmodel->DecRef();
 	}
 
 	IWnd_bookbase* m_pBook;
@@ -705,18 +814,16 @@ public:
 		m_pBook = dynamic_cast<IWnd_bookbase*>(WndManager::current().evtmgr["Wnd.Variable"].GetWindow());
 		if (m_pBook)
 		{
-			m_pMyView.reset(model->CreateDataView(m_pBook));
+			m_pMyView.reset(pmodel->CreateDataView(m_pBook));
 		}
 		return true;
 	}
 
-	MvcViewFigure(MvcModel& tar):basetype(tar)
-	{
-		this->Connect(wxEVT_PAINT, wxPaintEventHandler(MvcViewFigure::OnPaint));
-		this->Connect(wxEVT_SIZE, wxSizeEventHandler(MvcViewFigure::OnSizeEvent));
-		this->Connect(wxEVT_LEFT_DOWN, wxMouseEventHandler(MvcViewFigure::OnMouseEvent));
 
-		model = new DataModelSymbol();
+	static DataModelSymbol* CreateDataModel()
+	{
+
+		DataModelSymbol* model = new DataModelSymbol();
 
 		DataNodeCreator::Register<FigFigure>();
 		DataNodeCreator::Register<FigCoord2D>();
@@ -749,7 +856,7 @@ public:
 		t->m_sId = "title";
 		t->m_v3Pos[1] = 1.0;
 		t->m_v3Shf[1] = 1.0;
-		t->m_v3Pxl[1] = 3.0;		
+		t->m_v3Pxl[1] = 3.0;
 		c->m_aItems.append(t);
 
 		t = new FigText;
@@ -757,7 +864,7 @@ public:
 		t->m_sId = "xlabel";
 		t->m_v3Pos[1] = -1.0;
 		t->m_v3Shf[1] = -1.0;
-		t->m_v3Pxl[1] = -23.0;		
+		t->m_v3Pxl[1] = -23.0;
 		c->m_aItems.append(t);
 
 
@@ -774,42 +881,22 @@ public:
 
 		model->Update(p);
 
+		return model;
+	}
+
+	MvcViewFigure(MvcModel& tar) :basetype(tar)
+	{
+	
+		pmodel = CreateDataModel();
+
 		first = true;
 
 	}
 
-	DataModelSymbol* model;
+	DataModelSymbol* pmodel;
 	AtomicSpin spin;
 
-	void OnSizeEvent(wxSizeEvent&)
-	{
-		Refresh();
-	}
 
-	void OnMouseEvent(wxMouseEvent& evt)
-	{
-
-		dc.SetCurrent(m_pCanvas);
-		dc.Reshape(m_pCanvas->GetClientSize());
-		dc.RenderSelect(model);
-
-		DataNode* p=dc.HitTest(evt.GetX(), m_pCanvas->GetClientSize().y - evt.GetY());
-
-		if (p)
-		{
-			this_logger().LogMessage("selected node: %s", p->name);
-		}
-	}
-
-	void OnPaint(wxPaintEvent&)
-	{
-		wxSize sz = m_pCanvas->GetClientSize();
-		wxPaintDC wxdc(m_pCanvas);
-		dc.SetCurrent(m_pCanvas);
-		dc.Reshape(sz);
-		dc.Color(DColor(255, 0, 0));
-		dc.RenderModel(model);
-	}
 
 	virtual bool OnWndEvent(IWndParam&,int)
 	{
@@ -837,7 +924,7 @@ public:
 	}
 
 
-	LitePtrT<wxWindow> m_pCanvas;
+	LitePtrT<IWnd_modelview> m_pCanvas;
 
 	void OnDestroy()
 	{
@@ -847,8 +934,9 @@ public:
 	wxWindow* CreateCanvas(wxWindow* w)
 	{
 		fn.SetExts(_hT("Text Files")+"(*.txt) | *.txt");
-		m_pCanvas.reset(new wxWindow(w,-1));
-		m_pCanvas->SetBackgroundStyle(wxBG_STYLE_CUSTOM);
+		m_pCanvas.reset(new IWnd_modelview(w, WndProperty()));
+		m_pCanvas->pmodel = pmodel;
+		//m_pCanvas->SetBackgroundStyle(wxBG_STYLE_CUSTOM);
 		return m_pCanvas;
 	}
 

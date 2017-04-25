@@ -62,7 +62,7 @@ public:
 
 protected:
 
-	AutoPtrT<Object> m_pExtraData;
+	DataPtrT<ObjectData> m_pExtraData;
 
 };
 
@@ -129,7 +129,7 @@ public:
 
 	void PopMatrix();
 
-	void Blit(wxDC& dc);
+
 
 	void Mode(int mode);
 
@@ -137,8 +137,12 @@ public:
 
 	void RenderNode(DataNode* node);
 	void RenderModel(DataModel* model);
-
 	void RenderSelect(DataModel* model);
+
+	void SaveBuffer(const String& id);
+	void LoadBuffer(const String& id,wxDC& dc);
+
+
 
 	DataNode* HitTest(unsigned x, unsigned y);
 
@@ -166,12 +170,14 @@ protected:
 	int m_nMode;
 	box3d m_b3BBox;
 	DColor m_v4BgColor;
-	GLBuffer m_aBuffer[4];
+
 	arr_1t<int> m_aLights;
 
 	indexer_set<DataNode*> m_aNodes;
 	DataPtrT<ObjectData> m_pFontData;
 	arr_1t<uint8_t> m_aBitmapCachedData;
+
+	bst_map<String, GLBuffer> m_mapBuffers;
 };
 
 

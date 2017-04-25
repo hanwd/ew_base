@@ -321,6 +321,9 @@
     <ClInclude Include="..\..\inc\ewc_base\editor\plugin_figure_viewer.h">
       <Filter>include\editor</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\inc\ewc_base\wnd\impl_wx\iwnd_modelview.h">
+      <Filter>include\wnd\impl_wx</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\ewc_base\wnd\impl_wx\impl_wx.cpp">
@@ -574,6 +577,9 @@
     </ClCompile>
     <ClCompile Include="..\..\src\ewc_base\editor\plugin_figure_viewer.cpp">
       <Filter>source\editor</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewc_base\wnd\impl_wx\iwnd_modelview.cpp">
+      <Filter>source\wnd\impl_wx</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

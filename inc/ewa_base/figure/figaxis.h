@@ -36,8 +36,11 @@ public:
 		Tick();
 		Tick(double v);
 
+		void set(double v);
+
 		double m_nValue;
 		String m_sLabel;
+
 		int m_nType;
 	};
 

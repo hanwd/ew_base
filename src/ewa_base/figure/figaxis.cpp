@@ -5,14 +5,19 @@ EW_ENTER
 	
 AxisUnit::Tick::Tick()
 {
-
+	m_nType=0;
 }
 
 AxisUnit::Tick::Tick(double v)
 {
-	m_nValue=v;
-	m_sLabel=String::Format("%g",v);
 	m_nType=TICK_MAIN;
+	set(v);
+}
+
+void AxisUnit::Tick::set(double v)
+{
+	m_nValue=v;
+	m_sLabel=String::Format("%.6g",v);
 }
 
 AxisUnit::AxisUnit(const String& name):basetype(name)

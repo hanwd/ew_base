@@ -1,6 +1,7 @@
 #include "ewc_base/data/data_node.h"
 #include "ewc_base/data/data_model.h"
 #include "ewc_base/wnd/wnd_glcontext.h"
+#include "ewc_base/wnd/impl_wx/iwnd_modelview.h"
 
 EW_ENTER
 
@@ -321,6 +322,187 @@ DataNodeVariant* DataNodeCreator::Create(DataNode* p, const std::pair<String, Va
 {
 	return new DataNodeVariant(p, v);
 }
+
+
+int GLToolData::OnDraging(GLTool& gt)
+{
+	gt.flags.add(GLParam::BTN_IS_MOVED);
+	return 0;
+}
+
+int GLToolData::OnBtnDown(GLTool&)
+{
+	return 0;
+}
+
+int GLToolData::OnBtnDClick(GLTool&)
+{
+	return 0;
+}
+
+int GLToolData::OnBtnUp(GLTool& gt)
+{ 
+	return OnBtnCancel(gt);
+}
+
+int GLToolData::OnBtnCancel(GLTool& gt)
+{
+	if (gt.flags.get(GLParam::BTN_IS_DOWN))
+	{
+		return GLParam::FLAG_RELEASE|GLParam::FLAG_REFRESH;
+	}
+	return 0;
+}
+
+GLTool::GLTool()
+{
+	type = 0;
+}
+
+void GLTool::Cancel()
+{
+	HandleValue(pdata->OnBtnCancel(*this));
+}
+
+void GLTool::HandleValue(int ret)
+{
+
+	if (ret & GLParam::FLAG_CAPTURE)
+	{
+		flags.add(GLParam::BTN_IS_DOWN);
+		CaptureMouse();
+	}
+
+	if (ret & GLParam::FLAG_RELEASE)
+	{
+		flags.del(GLParam::BTN_IS_DOWN|GLParam::IMAGE_CACHED);
+		ReleaseMouse();
+	}
+
+
+	if (ret & GLParam::FLAG_CACHING)
+	{
+		if (flags.add2(GLParam::IMAGE_CACHED))
+		{
+			pview->ImageUpdate();
+		}
+	}
+
+	if (ret & GLParam::FLAG_REFRESH)
+	{
+		pview->Refresh();
+
+	}
+
+
+}
+
+void GLTool::OnMouseEvent(wxMouseEvent& evt)
+{
+	if (pview)
+	{
+		wxSize sz=pview->GetClientSize();
+		v2size.set2(sz.x, sz.y);
+	}
+
+
+	v2pos0.set2(evt.GetX(), evt.GetY());
+
+	if (evt.ButtonDown())
+	{
+		if (flags.get(GLParam::BTN_IS_DOWN))
+		{
+			return;
+		}
+
+		flags.del(GLParam::IMAGE_CACHED|GLParam::BTN_IS_MOVED);
+
+		if (!UpdateToolData())
+		{
+			return;
+		}
+
+		btn_id = evt.GetButton();
+		v2pos1 = v2pos0;
+		
+		HandleValue(pdata->OnBtnDown(*this));
+
+	}
+	else if (evt.ButtonDClick())
+	{
+		if (!UpdateToolData())
+		{
+			return;
+		}
+
+		btn_id = evt.GetButton();
+		HandleValue(pdata->OnBtnDClick(*this));
+	}
+	else if (!pdata)
+	{
+
+	}
+	else if (evt.ButtonUp())
+	{
+		HandleValue(pdata->OnBtnUp(*this));
+	}
+	else if (evt.Dragging())
+	{
+		if (flags.get(GLParam::BTN_IS_DOWN))
+		{
+			v2pos2 = v2pos0;
+			HandleValue(pdata->OnDraging(*this));
+		}
+	}
+
+}
+
+void GLTool::CaptureMouse()
+{
+	if (pview)
+	{
+		pview->CaptureMouse();
+	}
+}
+
+void GLTool::ReleaseMouse()
+{
+	if (pview)
+	{
+		pview->ReleaseMouse();
+	}
+}
+
+DataNode* GLTool::HitTest(int x, int y)
+{
+
+	if (!pview)
+	{
+		return NULL;
+	}
+
+	GLDC& dc(pview->dc);
+
+	dc.SetCurrent(pview);
+	dc.Reshape(pview->GetClientSize());
+	dc.RenderSelect(pview->pmodel);
+
+	DataNode* p = dc.HitTest(v2pos0[0], pview->GetClientSize().y - v2pos0[1]);
+
+	return p;
+}
+
+bool GLTool::UpdateToolData()
+{
+	pdata.reset(NULL);
+	for (DataNode* p = HitTest(v2pos0[0], v2pos0[1]); !pdata && p; p = p->parent)
+	{
+		pdata = p->GetToolData();
+	}
+	return pdata;
+}
+
+
 
 IMPLEMENT_OBJECT_INFO(DataNode, ObjectInfo);
 

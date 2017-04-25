@@ -44,8 +44,85 @@ public:
 };
 
 
+class DLLIMPEXP_EWC_BASE GLDC;
+class DLLIMPEXP_EWC_BASE GLTool;
+class DLLIMPEXP_EWC_BASE DataNode;
+class DLLIMPEXP_EWC_BASE IWnd_modelview;
 
-class GLDC;
+
+class DLLIMPEXP_EWC_BASE GLParam
+{
+public:
+
+	enum
+	{
+		FLAG_CAPTURE	=1<<0,
+		FLAG_RELEASE	=1<<1,
+		FLAG_REFRESH	=1<<2,
+		FLAG_CACHING	=1<<3,
+	};
+
+	enum
+	{
+		BTN_IS_DOWN		= 1 << 0,
+		BTN_IS_MOVED	= 1 << 1,
+		IMAGE_CACHED	= 1 << 2,
+	};
+};
+
+class DLLIMPEXP_EWC_BASE GLToolData : public ObjectData
+{
+public:
+
+
+	virtual int OnDraging(GLTool&);
+	virtual int OnBtnDown(GLTool&);
+
+	virtual int OnBtnDClick(GLTool&);
+
+	virtual int OnBtnUp(GLTool&);
+	virtual int OnBtnCancel(GLTool&);
+};
+
+
+
+class DLLIMPEXP_EWC_BASE GLTool : public Object
+{
+public:
+
+
+	int type;
+	int btn_id;
+
+	vec2i v2size;
+	vec2i v2pos0,v2pos1, v2pos2;
+
+	LitePtrT<IWnd_modelview> pview;
+	DataPtrT<GLToolData> pdata;
+
+	BitFlags flags;
+
+
+	void CaptureMouse();
+	void ReleaseMouse();
+
+	DataNode* HitTest(int x, int y);
+
+	void ContextMenu(const String&){}
+
+	void OnMouseEvent(wxMouseEvent& evt);
+
+	void Cancel();
+
+	GLTool();
+
+protected:
+
+	bool UpdateToolData();
+
+	void HandleValue(int ret);
+
+};
 
 class DLLIMPEXP_EWC_BASE DataNode : public Object
 {
@@ -67,6 +144,11 @@ public:
 
 	virtual void DoRender(GLDC& dc);
 
+	virtual DataPtrT<GLToolData> GetToolData()
+	{
+		return NULL; 
+	}
+
 	DataNode* parent;
 	String name;
 	String label;
@@ -85,6 +167,7 @@ public:
 	DataPtrT<CallableSymbol> value;
 
 	bool UpdateLabel();
+
 	virtual void OnChanged(DataChangedParam&);
 
 	const String& GetObjectName() const;

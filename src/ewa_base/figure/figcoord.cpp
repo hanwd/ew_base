@@ -20,8 +20,15 @@ FigCoord2D::FigCoord2D()
 
 }
 
+FigCoord3D::FigCoord3D()
+{
+	//m_pAxis.reset(new FigAxisD);
+	m_aItems.append(m_pDataManager.get());
+
+}
 
 IMPLEMENT_OBJECT_INFO(FigCoord, ObjectSymbolInfo);
 IMPLEMENT_OBJECT_INFO(FigCoord2D, ObjectSymbolInfo);
+IMPLEMENT_OBJECT_INFO(FigCoord3D, ObjectSymbolInfo);
 
 EW_LEAVE

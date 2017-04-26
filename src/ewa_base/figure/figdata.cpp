@@ -28,6 +28,8 @@ FigData2D::FigData2D()
 
 IMPLEMENT_OBJECT_INFO(FigData, ObjectSymbolInfo);
 IMPLEMENT_OBJECT_INFO(FigData2D, ObjectSymbolInfo);
+IMPLEMENT_OBJECT_INFO(FigData3D, ObjectSymbolInfo);
+
 IMPLEMENT_OBJECT_INFO(FigDataManager, ObjectSymbolInfo);
 
 EW_LEAVE

@@ -29,6 +29,28 @@ public:
 
 };
 
+template<typename T,int M,int N>
+class tiny_storage2
+{
+public:
+	T val[M][N];
+
+	T& operator[](size_t n)
+	{
+		EW_ASSERT(n<M*N);
+		return ((T*)val)[n];
+	}
+
+	const T& operator[](size_t n) const
+	{
+		EW_ASSERT(n<M*N);
+		return ((T*)val)[n];
+	}
+
+	T* data(){return (T*)this;}
+	const T* data() const {return (const T*)this;}
+
+};
 template<typename T1,typename T2,int N>
 struct tiny_opx
 {
@@ -367,6 +389,8 @@ public:
 	{
 		(*this)[0]=v1;
 		(*this)[1]=v2;
+		if (N > 2) (*this)[2] = T();
+		if (N > 3) (*this)[3] = T();
 	}
 
 	tiny_vec(const T& v1,const T& v2,const T& v3)
@@ -455,6 +479,13 @@ public:
 		if(N>2) (*this)[2]=k;
 	}
 
+	void set4(T i,T j,T k,T w)
+	{
+		(*this)[0]=i;
+		(*this)[1]=j;
+		if(N>2) (*this)[2]=k;
+		if(N>3) (*this)[3]=w;
+	}
 
 protected:
 	storage_type storage;

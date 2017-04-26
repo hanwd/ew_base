@@ -32,5 +32,15 @@ public:
 	DECLARE_OBJECT_INFO(FigCoord2D, ObjectSymbolInfo);
 };
 
+class DLLIMPEXP_EWA_BASE FigCoord3D : public FigCoord
+{
+public:
+
+	FigCoord3D();
+
+	DECLARE_OBJECT_INFO(FigCoord3D, ObjectSymbolInfo);
+};
+
+
 EW_LEAVE
 #endif

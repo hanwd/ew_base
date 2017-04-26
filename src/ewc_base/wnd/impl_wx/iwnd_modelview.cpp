@@ -18,6 +18,7 @@ IWnd_modelview::IWnd_modelview(wxWindow* p, const WndPropertyEx& h)
 	this->Connect(wxEVT_RIGHT_UP, wxMouseEventHandler(IWnd_modelview::OnMouseEvent));
 	this->Connect(wxEVT_RIGHT_DCLICK, wxMouseEventHandler(IWnd_modelview::OnMouseEvent));
 	this->Connect(wxEVT_MOTION, wxMouseEventHandler(IWnd_modelview::OnMouseEvent));
+	this->Connect(wxEVT_MOUSEWHEEL, wxMouseEventHandler(IWnd_modelview::OnMouseEvent));
 
 	SetBackgroundStyle(wxBG_STYLE_CUSTOM);
 

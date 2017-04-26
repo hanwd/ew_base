@@ -12,7 +12,7 @@ class tiny_mat
 public:
 
 	static const int N=R*C;
-	typedef tiny_storage<T,N> storage_type;
+	typedef tiny_storage2<T, R,C> storage_type;
 
 	tiny_mat(const storage_type& o):storage(o){}
 	tiny_mat(){tiny_opx<T,T,N>::eq_set(storage.data(),T());}
@@ -51,9 +51,6 @@ public:
 
 	T* data(){return storage.data();}
 	const T* data() const {return storage.data();}
-
-	//tl::enable_if_c<R==1||C==1,tiny_vec<T,R*C>&>::type as_vec(){return *(tiny_vec<T,R*C>*)this;}
-	//tl::enable_if_c<R==1||C==1,const tiny_vec<T,R*C>&>::type as_vec() const {return *(tiny_vec<T,R*C>*)this;}
 
 private:
 	storage_type storage;

@@ -41,7 +41,16 @@ public:
 
 		for (size_t i = 0; i < subnodes.size(); i++)
 		{
-			dc.RenderNode(subnodes[i]);
+			::glPushMatrix();
+			try
+			{
+				dc.RenderNode(subnodes[i]);
+			}
+			catch (...)
+			{
+
+			}
+			::glPopMatrix();
 		}
 	}
 };
@@ -100,7 +109,7 @@ public:
 	{
 		if (gt.flags.get(GLParam::BTN_IS_DOWN))
 		{
-			if (gt.btn_id == 1)
+			if (gt.btn_id == 1 && gt.v2pos1[0]!=gt.v2pos2[0] && gt.v2pos1[1]!=gt.v2pos2[1])
 			{
 
 				gt.v2pos1[1] = gt.v2size[1] - gt.v2pos1[1];
@@ -145,6 +154,28 @@ public:
 		{
 			return 0;
 		}
+	}
+
+	virtual int OnWheel(GLTool& gt)
+	{
+		if (gt.flags.get(GLParam::BTN_IS_DOWN))
+		{
+			return 0;
+		}
+
+		vec3d wd = bi1.b3axis.width();
+		double dd = 0.5* gt.wheel*3.0 / (100.0 + ::fabs(3.0*gt.wheel));
+		if (dd < 0.0)
+		{
+			dd = dd / (1.0 - dd);
+		}
+
+		bi1.b3axis.lo[0] += wd[0] * dd;
+		bi1.b3axis.hi[0] -= wd[0] * dd;
+		bi1.b3axis.lo[1] += wd[1] * dd;
+		bi1.b3axis.hi[1] -= wd[1] * dd;
+
+		return GLParam::FLAG_REFRESH;
 	}
 
 
@@ -246,6 +277,233 @@ public:
 				glVertex2d(bi1.b3bbox.hi[0], bi1.b3bbox.lo[1]);
 				glVertex2d(bi1.b3bbox.hi[0], bi1.b3bbox.hi[1]);
 				glVertex2d(bi1.b3bbox.lo[0], bi1.b3bbox.hi[1]);
+			glEnd();
+
+		}
+
+	}
+};
+
+
+
+class DLLIMPEXP_EWC_BASE GLToolDataCoord3d : public GLToolData
+{
+public:
+
+	GLToolDataCoord3d(mat4d& mt0_, mat4d& mt1_) :mt0(mt0_), mt1(mt1_)
+	{
+		mt2 = mt1;
+	}
+
+
+	mat4d& mt0;
+	mat4d& mt1;
+	mat4d mt2;
+
+	GLDC::BBoxInfo bi2;
+
+	virtual int OnDraging(GLTool& gt)
+	{
+		gt.flags.add(GLParam::BTN_IS_MOVED);
+
+		if (gt.btn_id == 2)
+		{
+			mt1 = mt2;
+
+			vec2i dvec = gt.v2pos2 - gt.v2pos1;
+			dvec[1] *= -1;
+			vec3d pt(dvec[0], dvec[1],0);
+
+			mat4d m4d;
+			m4d.LoadIdentity();
+			m4d.Translate(pt);
+
+			mt1 = m4d*mt1;
+
+			return GLParam::FLAG_REFRESH;
+		}
+		else if (gt.btn_id == 1)
+		{
+			mt1 = mt2;
+
+			vec2i dvec = gt.v2pos2 - gt.v2pos1;
+			dvec[1] *= -1;
+			vec3d pt(dvec[0], dvec[1],0);
+
+			double L1=pt.length();
+			if (L1 != 0.0)
+			{
+				pt /= L1;
+				std::swap(pt[0], pt[1]);
+				pt[0] *= -1.0;
+
+				mat4d m4d;
+				m4d.LoadIdentity();
+				m4d.Rotate(0.5*L1, pt);
+				mt1 = m4d*mt1;
+
+			}
+			
+
+			return GLParam::FLAG_REFRESH;
+		}
+		else
+		{
+			return GLParam::FLAG_CACHING | GLParam::FLAG_REFRESH;
+		}
+	}
+
+	int OnBtnUp(GLTool& gt)
+	{
+		if (gt.flags.get(GLParam::BTN_IS_DOWN))
+		{
+			if (gt.btn_id == 1 && gt.v2pos1[0] != gt.v2pos2[0] && gt.v2pos1[1] != gt.v2pos2[1])
+			{
+
+
+			}
+			return GLParam::FLAG_RELEASE | GLParam::FLAG_REFRESH;
+		}
+		return 0;
+	}
+
+	int OnBtnCancel(GLTool& gt)
+	{
+
+		return GLToolData::OnBtnCancel(gt);
+	}
+
+	virtual int OnBtnDown(GLTool& gt)
+	{
+
+		if (gt.btn_id == 1 || gt.btn_id == 2)
+		{
+			return GLParam::FLAG_CAPTURE;
+		}
+		else if (gt.btn_id == 3)
+		{
+			return GLParam::FLAG_REFRESH;
+		}
+		else
+		{
+			return 0;
+		}
+	}
+
+	virtual int OnWheel(GLTool& gt)
+	{
+		if (gt.flags.get(GLParam::BTN_IS_DOWN))
+		{
+			return 0;
+		}
+
+
+		double dd =  gt.wheel*3.0 / (100.0 + ::fabs(3.0*gt.wheel));
+		if (dd < 0.0)
+		{
+			dd = dd / (1.0 - dd);
+		}
+
+		mt1.Scale(1.0 + dd);
+
+		return GLParam::FLAG_REFRESH;
+	}
+
+
+	virtual int OnBtnDClick(GLTool&)
+	{
+		return 0;
+	}
+};
+
+template<>
+class DataNodeSymbolT<FigCoord3D> : public DataNodeSymbolT<FigCoord>
+{
+public:
+
+	typedef DataNodeSymbolT<FigCoord> basetype;
+
+	DataNodeSymbolT(DataNode* n, CallableSymbol* p) :basetype(n, p)
+	{
+		bi0.b3axis.set_x(-100.0, +100.0);
+		bi0.b3axis.set_y(-100.0, +100.0);
+		bi0.b3axis.set_z(-100.0, +100.0);
+
+		bi1 = bi0;
+
+		light0.v4position.set4(0.0f, 0.0f, 200.0f, 0.0f);
+		light0.v4ambient.set4(0.2f, 0.2f, 0.2f, 1.0f);
+		light0.v4diffuse.set4(0.8f,0.8f,0.8f,1.0f);
+		light0.v4specular.set4(0.1f, 0.1f, 0.1f, 1.0f);
+
+	}
+
+	virtual DataPtrT<GLToolData> GetToolData()
+	{
+		return new GLToolDataCoord3d(mt0,mt1);
+	}
+
+
+
+	GLDC::BBoxInfo bi0, bi1;
+
+	mat4d mt0, mt1;
+
+	DLight light0;
+
+	vec4d plane[6];
+
+	void DoRender(GLDC& dc)
+	{
+		vec3d c3 = 0.5*(dc.bi.b3bbox.lo + dc.bi.b3bbox.hi);
+
+		if (dc.Mode() == GLDC::RENDER_SET_REALSIZE)
+		{
+			bi1 = dc.bi;
+			return;
+		}
+
+		dc.bi.m4data = mt1;
+
+		if (dc.Mode() == GLDC::RENDER_SOLID || dc.Mode() == GLDC::RENDER_SELECT)
+		{
+			if (dc.Mode() == GLDC::RENDER_SOLID)
+			{
+				::glEnable(GL_LIGHTING);
+			}
+
+			dc.Color(DColor(255, 0, 0));
+			::glTranslated(c3[0], c3[1], 0.0);
+
+			dc.Light(light0, true);
+			basetype::DoRender(dc);
+			::glTranslated(-c3[0], -c3[1], 0.0);
+
+			dc.Light(light0, false);
+
+			if (dc.Mode() == GLDC::RENDER_SOLID)
+			{
+				::glDisable(GL_LIGHTING);
+			}
+		}
+
+		if (dc.Mode() == GLDC::RENDER_TEXT || dc.Mode() == GLDC::RENDER_SELECT)
+		{
+
+			DFontStyle font;
+			font.color.set(200, 200, 200);
+			dc.SetFont(font);
+
+			::glTranslated(c3[0], c3[1], 0.0);
+			basetype::DoRender(dc);
+			::glTranslated(-c3[0], -c3[1], 0.0);
+
+			dc.Color(DColor(0, 0, 255));
+			glBegin(dc.Mode() == GLDC::RENDER_SELECT ? GL_QUADS : GL_LINE_LOOP);
+			glVertex2d(bi1.b3bbox.lo[0], bi1.b3bbox.lo[1]);
+			glVertex2d(bi1.b3bbox.hi[0], bi1.b3bbox.lo[1]);
+			glVertex2d(bi1.b3bbox.hi[0], bi1.b3bbox.hi[1]);
+			glVertex2d(bi1.b3bbox.lo[0], bi1.b3bbox.hi[1]);
 			glEnd();
 
 		}
@@ -757,6 +1015,131 @@ public:
 };
 
 
+template<>
+class DataNodeSymbolT<FigData3D> : public DataNodeSymbolT<FigData>
+{
+public:
+
+	typedef DataNodeSymbolT<FigData> basetype;
+
+
+	DataPtrT<FigData3D> value;
+
+
+	DataNodeSymbolT(DataNode* n, CallableSymbol* p) :basetype(n, p)
+	{
+		if (!value.cast_and_set(p)) return;
+	}
+
+	mat4d m4;
+
+	void Vertex(const vec3d& v)
+	{
+		::glVertex3dv(v.data());
+	}
+
+	void DoRender(GLDC& dc)
+	{
+		if (!value) return;
+
+		if (dc.Mode() == GLDC::RENDER_SET_REALSIZE)
+		{
+			return;
+		}
+		
+		m4 = dc.bi.m4data;
+		m4.Scale(20.0);
+
+		if (dc.Mode() == GLDC::RENDER_SOLID||dc.Mode() == GLDC::RENDER_SELECT)
+		{
+
+
+			arr_1t<vec3d> vv;
+			vv.push_back(vec3d(-1, -1, -1));
+			vv.push_back(vec3d(+1, -1, -1));
+			vv.push_back(vec3d(-1, +1, -1));
+			vv.push_back(vec3d(+1, +1, -1));
+			vv.push_back(vec3d(-1, -1, +1));
+			vv.push_back(vec3d(+1, -1, +1));
+			vv.push_back(vec3d(-1, +1, +1));
+			vv.push_back(vec3d(+1, +1, +1));
+
+
+			::glPushMatrix();
+			::glMultMatrixd(m4.data());
+			
+
+			dc.Color(DColor(255,0,0));
+
+			::glBegin(GL_TRIANGLES);
+			
+			::glNormal3d(0, 0, -1);
+			Vertex(vv[0]);
+			Vertex(vv[2]);
+			Vertex(vv[1]);
+
+			Vertex(vv[1]);
+			Vertex(vv[2]);
+			Vertex(vv[3]);
+
+			::glNormal3d(0, 0, +1);
+			Vertex(vv[4]);
+			Vertex(vv[5]);
+			Vertex(vv[6]);
+
+			Vertex(vv[6]);
+			Vertex(vv[5]);
+			Vertex(vv[7]);
+
+			::glNormal3d(-1, 0, 0);
+			Vertex(vv[0]);
+			Vertex(vv[4]);
+			Vertex(vv[2]);
+
+			Vertex(vv[2]);
+			Vertex(vv[4]);
+			Vertex(vv[6]);
+
+			::glNormal3d(+1, 0, 0);
+			Vertex(vv[1]);
+			Vertex(vv[3]);
+			Vertex(vv[5]);
+
+			Vertex(vv[5]);
+			Vertex(vv[3]);
+			Vertex(vv[7]);
+
+			::glNormal3d(0, -1, 0);
+			Vertex(vv[0]);
+			Vertex(vv[1]);
+			Vertex(vv[4]);
+
+			Vertex(vv[4]);
+			Vertex(vv[1]);
+			Vertex(vv[5]);
+
+			::glNormal3d(0, +1, 0);
+			Vertex(vv[2]);
+			Vertex(vv[6]);
+			Vertex(vv[3]);
+
+			Vertex(vv[3]);
+			Vertex(vv[6]);
+			Vertex(vv[7]);
+
+
+			::glEnd();
+
+			::glPopMatrix();
+
+
+		}
+
+
+	}
+
+};
+
 
 template<>
 class DataNodeSymbolT<FigText> : public DataNodeSymbol
@@ -820,7 +1203,43 @@ public:
 	}
 
 
-	static DataModelSymbol* CreateDataModel()
+	static DataModelSymbol* CreateDataModel2()
+	{
+
+		DataModelSymbol* model = new DataModelSymbol();
+
+		DataNodeCreator::Register<FigFigure>();
+		DataNodeCreator::Register<FigCoord2D>();
+		DataNodeCreator::Register<FigData2D>();
+		DataNodeCreator::Register<FigCoord3D>();
+		DataNodeCreator::Register<FigData3D>();
+		DataNodeCreator::Register<FigDataManager>();
+		DataNodeCreator::Register<FigAxisD>();
+		DataNodeCreator::Register<AxisUnitD>();
+		DataNodeCreator::Register<FigText>();
+
+		model->AddColumn(new DataColumnName);
+		model->AddColumn(new DataColumnType);
+
+		FigFigure *p = new FigFigure;
+		p->m_sId = "figure";
+
+		FigCoord* c = new FigCoord3D;
+		c->m_sId = "coord";
+
+		FigData* d = new FigData3D;
+		d->m_sId = "data1";
+
+		c->m_pDataManager->m_aItems.append(d);		
+
+		p->m_pItem.reset(c);
+
+		model->Update(p);
+
+		return model;
+	}
+
+	static DataModelSymbol* CreateDataModel1()
 	{
 
 		DataModelSymbol* model = new DataModelSymbol();
@@ -886,8 +1305,8 @@ public:
 
 	MvcViewFigure(MvcModel& tar) :basetype(tar)
 	{
-	
-		pmodel = CreateDataModel();
+		static int g_n_figure = 0;
+		pmodel = ++g_n_figure % 2 ? CreateDataModel1() : CreateDataModel2();
 
 		first = true;
 

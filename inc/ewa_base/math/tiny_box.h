@@ -176,6 +176,16 @@ public:
 	}
 
 
+	bool operator==(const tiny_box& rhs)
+	{
+		return lo == rhs.lo && hi == rhs.hi;
+	}
+
+	bool operator!=(const tiny_box& rhs)
+	{
+		return lo != rhs.lo || hi != rhs.hi;
+	}
+
 };
 
 EW_LEAVE

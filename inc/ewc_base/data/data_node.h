@@ -18,30 +18,30 @@ public:
 	DataModel& model;
 
 };
-
-class DLLIMPEXP_EWC_BASE DataSizeParam
-{
-public:
-
-	enum
-	{
-		ACTION_CALC_MINSIZE,
-		ACTION_SET_REALSIZE,
-	};
-
-	DataSizeParam()
-	{
-
-	}
-
-	int action;
-
-	box3d b3bbox;
-	box3d b3axis;
-
-	mat4d m4;
-
-};
+//
+//class DLLIMPEXP_EWC_BASE DataSizeParam
+//{
+//public:
+//
+//	enum
+//	{
+//		ACTION_CALC_MINSIZE,
+//		ACTION_SET_REALSIZE,
+//	};
+//
+//	DataSizeParam()
+//	{
+//
+//	}
+//
+//	int action;
+//
+//	box3d b3bbox;
+//	box3d b3axis;
+//
+//	mat4d m4;
+//
+//};
 
 
 class DLLIMPEXP_EWC_BASE GLDC;
@@ -74,7 +74,6 @@ class DLLIMPEXP_EWC_BASE GLToolData : public ObjectData
 {
 public:
 
-
 	virtual int OnDraging(GLTool&);
 	virtual int OnBtnDown(GLTool&);
 
@@ -82,6 +81,8 @@ public:
 
 	virtual int OnBtnUp(GLTool&);
 	virtual int OnBtnCancel(GLTool&);
+
+	virtual int OnWheel(GLTool&);
 };
 
 
@@ -93,6 +94,8 @@ public:
 
 	int type;
 	int btn_id;
+
+	double wheel;
 
 	vec2i v2size;
 	vec2i v2pos0,v2pos1, v2pos2;

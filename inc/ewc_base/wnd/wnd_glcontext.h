@@ -143,7 +143,6 @@ public:
 	void LoadBuffer(const String& id,wxDC& dc);
 
 
-
 	DataNode* HitTest(unsigned x, unsigned y);
 
 	void LineWidth(double w);

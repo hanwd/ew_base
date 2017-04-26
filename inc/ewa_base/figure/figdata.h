@@ -87,7 +87,12 @@ public:
 	DECLARE_OBJECT_INFO(FigData2D, ObjectSymbolInfo);
 };
 
+class DLLIMPEXP_EWA_BASE FigData3D : public FigData
+{
+public:
 
+	DECLARE_OBJECT_INFO(FigData3D, ObjectSymbolInfo);
+};
 
 EW_LEAVE
 

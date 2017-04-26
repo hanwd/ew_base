@@ -354,6 +354,11 @@ int GLToolData::OnBtnCancel(GLTool& gt)
 	return 0;
 }
 
+int GLToolData::OnWheel(GLTool&)
+{
+	return 0;
+}
+
 GLTool::GLTool()
 {
 	type = 0;
@@ -423,9 +428,11 @@ void GLTool::OnMouseEvent(wxMouseEvent& evt)
 		}
 
 		btn_id = evt.GetButton();
-		v2pos1 = v2pos0;
+		v2pos2=v2pos1 = v2pos0;
 		
 		HandleValue(pdata->OnBtnDown(*this));
+		
+		return;
 
 	}
 	else if (evt.ButtonDClick())
@@ -437,12 +444,17 @@ void GLTool::OnMouseEvent(wxMouseEvent& evt)
 
 		btn_id = evt.GetButton();
 		HandleValue(pdata->OnBtnDClick(*this));
-	}
-	else if (!pdata)
-	{
 
+		return;
 	}
-	else if (evt.ButtonUp())
+
+	if (!pdata)
+	{
+		return;
+	}
+
+
+	if (evt.ButtonUp())
 	{
 		HandleValue(pdata->OnBtnUp(*this));
 	}
@@ -453,6 +465,11 @@ void GLTool::OnMouseEvent(wxMouseEvent& evt)
 			v2pos2 = v2pos0;
 			HandleValue(pdata->OnDraging(*this));
 		}
+	}
+	else if (int wr = evt.GetWheelRotation())
+	{
+		wheel = double(wr) / double(evt.GetWheelDelta());
+		HandleValue(pdata->OnWheel(*this));
 	}
 
 }

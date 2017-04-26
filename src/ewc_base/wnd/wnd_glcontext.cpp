@@ -200,7 +200,7 @@ void GLDC::Light(DLight& light, bool f)
 		m_aLights.pop_back();
 
 		glLightfv(light.light_index, GL_AMBIENT, light.v4ambient.data());
-		glLightfv(light.light_index, GL_DIFFUSE, light.v4deffuse.data());
+		glLightfv(light.light_index, GL_DIFFUSE, light.v4diffuse.data());
 		glLightfv(light.light_index, GL_SPECULAR, light.v4specular.data());
 		glLightfv(light.light_index, GL_POSITION, light.v4position.data());
 		glEnable(light.light_index);
@@ -222,9 +222,17 @@ void GLDC::Reshape(const DVec2i& s_, const DVec2i& p_)
 
 	bi.b3bbox.set_x(p_[0],p_[0]+s[0]);
 	bi.b3bbox.set_y(p_[1],p_[1]+s[1]);
-	bi.b3bbox.set_z(-100, 100);
+
+	double dz = 3.0*std::max(std::max(s[0], s[1]),100);
+	bi.b3bbox.set_z(-dz, dz);
 
 	if (m_b3BBox == bi.b3bbox) return;
+
+	::glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
+	::glEnable(GL_COLOR_MATERIAL);
+	::glEnable(GL_NORMALIZE);
+	::glDisable(GL_BLEND);
+	::glEnable(GL_DEPTH_TEST);
 
 	m_b3BBox = bi.b3bbox;
 
@@ -284,6 +292,8 @@ void GLDC::SaveBuffer(const String& id)
 {
 	m_mapBuffers[id].ReadPixels();
 }
+
+
 
 void GLDC::LoadBuffer(const String& id, wxDC& dc)
 {

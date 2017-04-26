@@ -84,7 +84,7 @@ public:
 
 	int light_index;
 	vec4f v4ambient;
-	vec4f v4deffuse;
+	vec4f v4diffuse;
 	vec4f v4specular;
 	vec4f v4position;
 };

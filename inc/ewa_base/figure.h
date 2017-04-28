@@ -7,6 +7,7 @@
 #include "ewa_base/figure/figaxis.h"
 #include "ewa_base/figure/figaxis_d.h"
 #include "ewa_base/figure/figtext.h"
+#include "ewa_base/figure/figtable.h"
 #include "ewa_base/figure/fig.h"
 
 

@@ -435,6 +435,7 @@ void GLDC::RenderModel(DataModel* model)
 	DataNode* node = model ? model->GetRootNode() : NULL;
 	if (node)
 	{
+
 		Mode(GLDC::RENDER_SET_REALSIZE);
 		node->DoRender(*this);
 

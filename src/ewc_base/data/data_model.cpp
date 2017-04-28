@@ -192,10 +192,18 @@ void DataModelSymbol::Update(CallableSymbol* pitem)
 	if (!m_pRoot)
 	{
 		m_pRoot.reset(new DataNodeSymbol(NULL, new CallableSymbolArray));
-		m_pRoot->flags.add(DataNode::FLAG_IS_GROUP | DataNode::FLAG_TOUCHED);
+		m_pRoot->flags.add(DataNode::FLAG_IS_GROUP);
+	}
+	else
+	{
+		m_pRoot->flags.del(DataNode::FLAG_TOUCHED);
 	}
 
-	((CallableSymbolArray*)((DataNodeSymbol*)m_pRoot.get())->value.get())->set(pitem);
+	
+	DataNodeSymbol* pnode=static_cast<DataNodeSymbol*>(m_pRoot.get());
+	((CallableSymbolArray*)(pnode)->value.get())->set(pitem);
+
+	pnode->TouchNode(-1);
 
 	DataChangedParam dpm(*this);
 	m_pRoot->OnChanged(dpm);

@@ -171,7 +171,7 @@ bool DataNodeSymbol::UpdateLabel()
 	}
 }
 
-void DataNodeSymbol::_TouchNode(unsigned depth)
+void DataNodeSymbol::TouchNode(unsigned depth)
 {
 	if (flags.get(DataNode::FLAG_TOUCHED))
 	{
@@ -202,7 +202,7 @@ void DataNodeSymbol::_TouchNode(unsigned depth)
 		DataNodeSymbol* pv = dynamic_cast <DataNodeSymbol*>(subnodes[i]);
 		if (pv)
 		{
-			pv->_TouchNode(depth - 1);
+			pv->TouchNode(depth - 1);
 		}
 	}
 
@@ -217,7 +217,7 @@ void DataNodeSymbol::OnChanged(DataChangedParam& dpm)
 
 	if (!flags.get(DataNode::FLAG_TOUCHED))
 	{		
-		_TouchNode();
+		TouchNode();
 		return;
 	}
 

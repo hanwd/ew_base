@@ -36,7 +36,7 @@ public:
 		if (!flags.get(FLAG_TOUCHED))
 		{
 			// ensure subnodes are generated
-			_TouchNode(-1);
+			TouchNode(-1);
 		}
 
 		for (size_t i = 0; i < subnodes.size(); i++)
@@ -55,6 +55,96 @@ public:
 	typedef DataNodeSymbol basetype;
 	DataNodeSymbolT(DataNode* n, CallableSymbol* p) :basetype(n, p)
 	{
+	}
+};
+
+
+template<>
+class DataNodeSymbolT<FigTable> : public DataNodeSymbol
+{
+public:
+public:
+	typedef DataNodeSymbol basetype;
+	DataNodeSymbolT(DataNode* n, CallableSymbol* p) :basetype(n, p)
+	{
+
+	}
+
+	GLDC::BBoxInfo bi0;
+
+	void DoRender(GLDC& dc)
+	{
+		if (dc.Mode() == GLDC::RENDER_SET_REALSIZE)
+		{
+			bi0.b3bbox = dc.bi.b3bbox;
+		}
+
+		if(subnodes.size()<1)
+		{
+			basetype::DoRender(dc);
+			return;
+		}
+
+		size_t n=subnodes.size()-1;			
+		for (size_t i = 0; i < subnodes.size(); i++)
+		{
+			dc.bi.b3axis.lo[1]=(double(i)*bi0.b3bbox.hi[1]+double(n-i)*bi0.b3bbox.lo[1])/double(n);
+			dc.bi.b3axis.hi[1]=(double(i+1)*bi0.b3bbox.hi[1]+double(n-i-1)*bi0.b3bbox.lo[1])/double(n);
+			subnodes[i]->DoRender(dc);
+		}
+
+	}
+};
+
+template<>
+class DataNodeSymbolT<FigTableRow> : public DataNodeSymbol
+{
+public:
+public:
+	typedef DataNodeSymbol basetype;
+	DataNodeSymbolT(DataNode* n, CallableSymbol* p) :basetype(n, p)
+	{
+
+	}
+
+
+	GLDC::BBoxInfo bi0;
+
+	void DoRender(GLDC& dc)
+	{
+		if (dc.Mode() == GLDC::RENDER_SET_REALSIZE)
+		{
+			bi0.b3bbox = dc.bi.b3bbox;
+		}
+
+		if(subnodes.size()<1)
+		{
+			basetype::DoRender(dc);
+			return;
+		}
+
+		GLDC::BBoxInfo bi1=dc.bi;
+		size_t n=subnodes.size();			
+		for (size_t i = 0; i < subnodes.size(); i++)
+		{
+			dc.bi=bi1;
+			dc.bi.b3bbox.lo[0]=(double(i)*bi0.b3bbox.hi[0]+double(n-i)*bi0.b3bbox.lo[0])/double(n);
+			dc.bi.b3bbox.hi[0]=(double(i+1)*bi0.b3bbox.hi[0]+double(n-i-1)*bi0.b3bbox.lo[0])/double(n);
+			subnodes[i]->DoRender(dc);
+		}
+
+	}
+};
+
+template<>
+class DataNodeSymbolT<FigTableCell> : public DataNodeSymbol
+{
+public:
+public:
+	typedef DataNodeSymbol basetype;
+	DataNodeSymbolT(DataNode* n, CallableSymbol* p) :basetype(n, p)
+	{
+
 	}
 };
 
@@ -110,9 +200,9 @@ public:
 				vec2d p1, p2;
 
 				p1[0] = bi1.b3axis.lo[0] + double(gt.v2pos1[0] - bi1.b3bbox.lo[0])*bi1.b3axis.x_width() / double(bi1.b3bbox.x_width());
-				p1[1] = bi1.b3axis.lo[1] + double(gt.v2pos1[1] - bi1.b3bbox.lo[0])*bi1.b3axis.y_width() / double(bi1.b3bbox.y_width());
+				p1[1] = bi1.b3axis.lo[1] + double(gt.v2pos1[1] - bi1.b3bbox.lo[1])*bi1.b3axis.y_width() / double(bi1.b3bbox.y_width());
 				p2[0] = bi1.b3axis.lo[0] + double(gt.v2pos2[0] - bi1.b3bbox.lo[0])*bi1.b3axis.x_width() / double(bi1.b3bbox.x_width());
-				p2[1] = bi1.b3axis.lo[1] + double(gt.v2pos2[1] - bi1.b3bbox.lo[0])*bi1.b3axis.y_width() / double(bi1.b3bbox.y_width());
+				p2[1] = bi1.b3axis.lo[1] + double(gt.v2pos2[1] - bi1.b3bbox.lo[1])*bi1.b3axis.y_width() / double(bi1.b3bbox.y_width());
 
 
 				bi1.b3axis.set_x(std::min(p1[0], p2[0]), std::max(p1[0],p2[0]));
@@ -1260,15 +1350,8 @@ public:
 		return true;
 	}
 
-
-	static DataModelSymbol* CreateDataModel2()
+	static FigFigure* CreateFigure2()
 	{
-
-		DataModelSymbol* model = new DataModelSymbol();
-
-
-		model->AddColumn(new DataColumnName);
-		model->AddColumn(new DataColumnType);
 
 		FigFigure *p = new FigFigure;
 		p->m_sId = "figure";
@@ -1283,18 +1366,26 @@ public:
 
 		p->m_pItem.reset(c);
 
+		return p;
+	}
+
+	static DataModelSymbol* CreateDataModel2()
+	{
+
+		DataModelSymbol* model = new DataModelSymbol();
+
+
+		model->AddColumn(new DataColumnName);
+		model->AddColumn(new DataColumnType);
+
+		FigFigure* p=CreateFigure2();
 		model->Update(p);
 
 		return model;
 	}
 
-	static DataModelSymbol* CreateDataModel1()
+	static FigFigure* CreateFigure()
 	{
-
-		DataModelSymbol* model = new DataModelSymbol();
-
-		model->AddColumn(new DataColumnName);
-		model->AddColumn(new DataColumnType);
 
 		FigFigure *p = new FigFigure;
 		p->m_sId = "figure";
@@ -1340,8 +1431,32 @@ public:
 		c->m_aItems.append(t);
 
 		p->m_pItem.reset(c);
+		return p;
+	}
 
-		model->Update(p);
+	static DataModelSymbol* CreateDataModel1()
+	{
+
+		DataModelSymbol* model = new DataModelSymbol();
+
+		model->AddColumn(new DataColumnName);
+		model->AddColumn(new DataColumnType);
+
+
+		FigFigure* p1=CreateFigure();
+		FigFigure* p2=CreateFigure2();
+
+		FigTableRow* p3=new FigTableRow("row");
+		FigTableCell* c1=new FigTableCell("cell");
+		FigTableCell* c2=new FigTableCell("cell");
+
+		c1->m_aItems.append(p1);
+		c2->m_aItems.append(p2);
+
+		p3->m_aItems.append(c1);
+		p3->m_aItems.append(c2);
+
+		model->Update(p3);
 
 		return model;
 	}
@@ -1424,6 +1539,10 @@ bool PluginFigureViewer::OnAttach()
 	DataNodeCreator::Register<FigAxisD>();
 	DataNodeCreator::Register<AxisUnitD>();
 	DataNodeCreator::Register<FigText>();
+
+	DataNodeCreator::Register<FigTable>();
+	DataNodeCreator::Register<FigTableRow>();
+	DataNodeCreator::Register<FigTableCell>();
 
 	EvtManager& ec(wm.evtmgr);
 

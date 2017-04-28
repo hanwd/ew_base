@@ -18,31 +18,6 @@ public:
 	DataModel& model;
 
 };
-//
-//class DLLIMPEXP_EWC_BASE DataSizeParam
-//{
-//public:
-//
-//	enum
-//	{
-//		ACTION_CALC_MINSIZE,
-//		ACTION_SET_REALSIZE,
-//	};
-//
-//	DataSizeParam()
-//	{
-//
-//	}
-//
-//	int action;
-//
-//	box3d b3bbox;
-//	box3d b3axis;
-//
-//	mat4d m4;
-//
-//};
-
 
 class DLLIMPEXP_EWC_BASE GLDC;
 class DLLIMPEXP_EWC_BASE GLTool;
@@ -145,7 +120,7 @@ public:
 
 	virtual void OnChanged(DataChangedParam&);
 
-	virtual void DoRender(GLDC& dc);
+	virtual void DoRender(GLDC& dc);	
 
 	virtual DataPtrT<GLToolData> GetToolData()
 	{
@@ -175,9 +150,8 @@ public:
 
 	const String& GetObjectName() const;
 
-protected:
+	void TouchNode(unsigned depth=0);
 
-	void _TouchNode(unsigned depth=0);
 };
 
 

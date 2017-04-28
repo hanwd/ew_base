@@ -4,13 +4,28 @@
 EW_ENTER
 
 
-bool DExprItem::FromVariant(const Variant& v)
+void DExprItem::SerializeVariant(Variant& v, int dir)
 {
-	try
+
+	if (dir == +1)
+	{
+		arr_xt<Variant>& value(v.ref<arr_xt<Variant> >());
+
+		value.resize(3);
+		value(0).reset(name);
+		value(1).reset(value);
+		value(2).reset(desc);
+
+	}
+	else if (dir == -1)
 	{
 		const arr_xt<Variant>& value(v.get<arr_xt<Variant> >());
 		DExprItem item;
-		if (value.size() < 2) return false;
+		if (value.size() < 2)
+		{
+			Exception::Exception("invalid value");
+		}
+
 		item.name = variant_cast<String>(value[0]);
 		item.value = variant_cast<String>(value[1]);
 		if (value.size()>2)
@@ -18,15 +33,39 @@ bool DExprItem::FromVariant(const Variant& v)
 			item.desc = variant_cast<String>(value[2]);
 		}
 		*this = item;
-		return true;
+
 	}
-	catch (...)
+	else
 	{
 
 	}
+	
 
-	return false;
 }
+
+//bool DExprItem::FromVariant(const Variant& v)
+//{
+//	try
+//	{
+//		const arr_xt<Variant>& value(v.get<arr_xt<Variant> >());
+//		DExprItem item;
+//		if (value.size() < 2) return false;
+//		item.name = variant_cast<String>(value[0]);
+//		item.value = variant_cast<String>(value[1]);
+//		if (value.size()>2)
+//		{
+//			item.desc = variant_cast<String>(value[2]);
+//		}
+//		*this = item;
+//		return true;
+//	}
+//	catch (...)
+//	{
+//
+//	}
+//
+//	return false;
+//}
 
 
 void DExprItem::Serialize(SerializerHelper sh)
@@ -35,9 +74,58 @@ void DExprItem::Serialize(SerializerHelper sh)
 	ar & name & value & desc;
 }
 
+
+
+
 SymbolItem::SymbolItem(const String& n) 
 :name(n)
 {
+
+}
+
+
+void SymbolItem::SerializeVariant(Variant& v, int dir)
+{
+
+	if (dir == +1)
+	{
+		if (prop.empty())
+		{
+			v.reset(name);
+		}
+		else
+		{
+			arr_xt<Variant>& value(v.ref<arr_xt<Variant> >());
+			value.resize(prop.size()+1);
+			value(0).reset(name);
+			std::copy(prop.begin(), prop.end(), value.begin() + 1);
+		}
+	}
+	else if (dir == -1)
+	{
+		if (v.get(name))
+		{
+			prop.clear();
+		}
+		else
+		{
+			const arr_xt<Variant>& value(v.get<arr_xt<Variant> >());
+			SymbolItem item;
+			if (value.size() < 1)
+			{
+				Exception::XError("invalid value");
+			}
+
+			item.name = variant_cast<String>(value[0]);
+			item.prop.assign(value.begin() + 1, value.end());
+
+			*this = item;
+
+		}
+
+	}
+
+
 
 }
 

@@ -44,22 +44,22 @@ public:
 		return true;
 	}
 
-	bool test_x(T v)
+	bool test_x(T v) const 
 	{
 		return v>=lo[0] && v<=hi[0];
 	}
 
-	bool test_y(T v)
+	bool test_y(T v) const
 	{
 		return v>=lo[1] && v<=hi[1];
 	}
 
-	bool test_z(T v)
+	bool test_z(T v) const
 	{
 		return v>=lo[2] && v<=hi[2];
 	}
 
-	bool test(const tiny_vec<T,N>& v)
+	bool test(const tiny_vec<T, N>& v) const
 	{
 		for(int i=0;i<N;i++)
 		{
@@ -70,12 +70,15 @@ public:
 	}
 
 	template<int X>
-	typename tl::enable_if<X<N,bool>::type test_n(const tiny_vec<T, N>& v)
+	bool test_n(const tiny_vec<T, N>& v) const
 	{
 		return v[X]>=lo[X] && v[X]<=hi[X];
 	}
 
-
+	//typename tl::enable_if<N==3,bool>::type test(T x,T y,T z) const
+	//{
+	//	return test_x(x) && test_y(y) && test_z(z);
+	//}
 
 	void add_x(T v)
 	{
@@ -170,7 +173,7 @@ public:
 		return 0;
 	}
 
-	tiny_vec<T, N> width()
+	tiny_vec<T, N> width() const
 	{
 		return hi - lo;
 	}
@@ -187,6 +190,50 @@ public:
 	}
 
 };
+
+template<int N>
+class tiny_box < String, N >
+{
+public :
+	tiny_storage<String, N> lo, hi;
+
+	void add_x(String v)
+	{
+		if (N>0 && lo[0]>v) lo[0] = v;
+		if (N>0 && hi[0]<v) hi[0] = v;
+	}
+
+	void add_y(String v)
+	{
+		if (N>1 && lo[1]>v) lo[1] = v;
+		if (N>1 && hi[1]<v) hi[1] = v;
+	}
+
+	void add_z(String v)
+	{
+		if (N>2 && lo[2]>v) lo[2] = v;
+		if (N>2 && hi[2]<v) hi[2] = v;
+	}
+
+
+	void set_x(String v1, String v2)
+	{
+		if (N>0) lo[0] = v1; hi[0] = v2;
+	}
+
+	void set_y(String v1, String v2)
+	{
+		if (N>1) lo[1] = v1; hi[1] = v2;
+	}
+
+	void set_z(String v1, String v2)
+	{
+		if (N>2) lo[2] = v1; hi[2] = v2;
+	}
+
+};
+
+
 
 EW_LEAVE
 

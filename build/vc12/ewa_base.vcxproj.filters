@@ -582,6 +582,12 @@
     <ClInclude Include="..\..\inc\ewa_base\figure\figaxis_d.h">
       <Filter>include\figure</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\inc\ewa_base\util\dcontext.h">
+      <Filter>include\util</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewa_base\util\dunit.h">
+      <Filter>include\util</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\ewa_base\basic\atomic.cpp">
@@ -967,6 +973,12 @@
     </ClCompile>
     <ClCompile Include="..\..\src\ewa_base\figure\figtext.cpp">
       <Filter>source\figure</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewa_base\util\dcontext.cpp">
+      <Filter>source\util</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewa_base\util\dunit.cpp">
+      <Filter>source\util</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

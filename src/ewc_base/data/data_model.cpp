@@ -2,9 +2,24 @@
 
 EW_ENTER
 
+class DisableKillFoucsHandler : public wxEvtHandler
+{
+public:
+	DisableKillFoucsHandler()
+	{
+		Connect(wxEVT_KILL_FOCUS, wxFocusEventHandler(DisableKillFoucsHandler::OnKillFocus));
+	}
+	void OnKillFocus(wxFocusEvent&){}	
+};
+
+
+
 class DataCanvas : public wxDataViewCtrl
 {
 public:
+
+	DisableKillFoucsHandler handler;
+
 	DataModel& Target;
 	DataCanvas(wxWindow* w,DataModel& t)
 		:wxDataViewCtrl(w,wxID_ANY,wxDefaultPosition,wxDefaultSize,wxDV_HORIZ_RULES|wxDV_VERT_RULES)
@@ -17,10 +32,23 @@ public:
 		}
 
 		Target.m_aView.insert(this);
+
+		// disable kill_focus_event
+		if (m_targetWindow)
+		{
+			m_targetWindow->PushEventHandler(&handler);
+		}		
+
 	}
+
 
 	~DataCanvas()
 	{
+		if (m_targetWindow && m_targetWindow != m_targetWindow->GetEventHandler())
+		{
+			m_targetWindow->PopEventHandler();
+		}
+
 		Target.m_aView.erase(this);
 	}
 

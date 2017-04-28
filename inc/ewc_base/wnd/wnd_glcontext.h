@@ -111,6 +111,18 @@ public:
 		box3d b3bbox;
 		box3d b3axis;
 		mat4d m4data;
+	};
+
+	class BBoxInfoEx : public BBoxInfo
+	{
+	public:
+		BBoxInfoEx(){ b_clip = false; }
+		BBoxInfoEx& operator = (const BBoxInfo& o)
+		{
+			static_cast<BBoxInfo&>(*this) = o;
+			return *this;
+		}
+		bool b_clip;
 	}bi;
 
 
@@ -129,7 +141,7 @@ public:
 
 	void PopMatrix();
 
-
+	void MultMatrix(const mat4d& m4);
 
 	void Mode(int mode);
 
@@ -154,6 +166,29 @@ public:
 	void PrintText(const String& text, const vec3d& pos=vec3d(),const vec3d& shf=vec3d(), const vec3d& pxl=vec3d());
 
 	void SetFont(const DFontStyle& font);
+
+
+	void EnterGroup();
+	void LeaveGroup();
+
+
+
+	class MatrixLocker
+	{
+	public:
+		GLDC& dc;
+		MatrixLocker(GLDC& dc_) :dc(dc_){ dc.PushMatrix(); }
+		MatrixLocker(GLDC& dc_, const mat4d& m4_) :dc(dc_){ dc.PushMatrix(); dc.MultMatrix(m4_); }
+		~MatrixLocker(){ dc.PopMatrix(); }
+	};
+
+	class GroupLocker
+	{
+	public:
+		GLDC& dc;
+		GroupLocker(GLDC& dc_) :dc(dc_){ dc.EnterGroup(); }
+		~GroupLocker(){ dc.LeaveGroup(); }
+	};
 
 
 protected:

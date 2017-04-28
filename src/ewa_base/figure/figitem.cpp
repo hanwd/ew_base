@@ -43,7 +43,7 @@ DColor::DColor(uint8_t r_, uint8_t g_, uint8_t b_, uint8_t a_)
 
 DColor::DColor()
 {
-	set(0.0f, 0.0f, 0.0f, 1.0f);
+	set(0, 0, 0, 255u);
 }
 
 

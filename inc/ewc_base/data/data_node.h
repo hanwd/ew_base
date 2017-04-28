@@ -213,6 +213,12 @@ public:
 		current().hmap[&T::sm_info] = &_DoCreateDataNode<T>;
 	}
 
+	template<typename T1,typename T2>
+	static void Register2()
+	{
+		current().hmap[&T1::sm_info] = &_DoCreateDataNode<T2>;
+	}
+
 private:
 
 	template<typename T>

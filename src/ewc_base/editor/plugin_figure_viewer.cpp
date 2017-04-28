@@ -41,16 +41,8 @@ public:
 
 		for (size_t i = 0; i < subnodes.size(); i++)
 		{
-			::glPushMatrix();
-			try
-			{
-				dc.RenderNode(subnodes[i]);
-			}
-			catch (...)
-			{
-
-			}
-			::glPopMatrix();
+			GLDC::MatrixLocker locker(dc);
+			dc.RenderNode(subnodes[i]);
 		}
 	}
 };
@@ -216,6 +208,7 @@ public:
 	{
 		if (dc.Mode() == GLDC::RENDER_SET_REALSIZE)
 		{
+			bi0.b3bbox = dc.bi.b3bbox;
 
 			dc.bi.b3bbox.lo += 70;
 			dc.bi.b3bbox.hi -= 45;
@@ -242,27 +235,41 @@ public:
 				subnodes[i]->DoRender(dc);
 			}
 		}
-		
-		if (dc.Mode() == GLDC::RENDER_SOLID || dc.Mode() == GLDC::RENDER_SELECT)
+
+		for (int i = 0; i < 4; i++)
 		{
-			
-			for (int i = 0; i < 4; i++)
-			{
-				::glClipPlane(GL_CLIP_PLANE0 + i, plane[i].data());
-				::glEnable(GL_CLIP_PLANE0 + i);
-			}
+			::glClipPlane(GL_CLIP_PLANE0 + i, plane[i].data());
+		}
+
+		if (dc.Mode() == GLDC::RENDER_SELECT)
+		{
+
+			glDepthMask(false);
+			glBegin(GL_QUADS);
+			glVertex2d(bi0.b3bbox.lo[0], bi0.b3bbox.lo[1]);
+			glVertex2d(bi0.b3bbox.hi[0], bi0.b3bbox.lo[1]);
+			glVertex2d(bi0.b3bbox.hi[0], bi0.b3bbox.hi[1]);
+			glVertex2d(bi0.b3bbox.lo[0], bi0.b3bbox.hi[1]);
+			glEnd();
+			glDepthMask(true);
+
+			LockState<bool> lock(dc.bi.b_clip, true);
+			basetype::DoRender(dc);
+			return;
+
+		}
+		
+		if (dc.Mode() == GLDC::RENDER_SOLID)
+		{
 
 			dc.Color(DColor(255,0,0));
 
+			LockState<bool> lock(dc.bi.b_clip, true);
 			basetype::DoRender(dc);
 
-			for (int i = 0; i < 4; i++)
-			{
-				::glDisable(GL_CLIP_PLANE0 + i);
-			}
 		}
 		
-		if (dc.Mode() == GLDC::RENDER_TEXT || dc.Mode() == GLDC::RENDER_SELECT)
+		if (dc.Mode() == GLDC::RENDER_TEXT)
 		{
 
 			DFontStyle font;
@@ -272,7 +279,8 @@ public:
 			basetype::DoRender(dc);
 
 			dc.Color(DColor(0, 0, 255));
-			glBegin(dc.Mode() == GLDC::RENDER_SELECT ? GL_QUADS : GL_LINE_LOOP);
+
+			glBegin(GL_LINE_LOOP);
 				glVertex2d(bi1.b3bbox.lo[0], bi1.b3bbox.lo[1]);
 				glVertex2d(bi1.b3bbox.hi[0], bi1.b3bbox.lo[1]);
 				glVertex2d(bi1.b3bbox.hi[0], bi1.b3bbox.hi[1]);
@@ -463,9 +471,37 @@ public:
 			return;
 		}
 
-		dc.bi.m4data = mt1;
+		if (dc.Mode() == GLDC::RENDER_SELECT)
+		{
+	
+			glDepthMask(false);
 
-		if (dc.Mode() == GLDC::RENDER_SOLID || dc.Mode() == GLDC::RENDER_SELECT)
+			glBegin(GL_QUADS);
+			glVertex2d(bi1.b3bbox.lo[0], bi1.b3bbox.lo[1]);
+			glVertex2d(bi1.b3bbox.hi[0], bi1.b3bbox.lo[1]);
+			glVertex2d(bi1.b3bbox.hi[0], bi1.b3bbox.hi[1]);
+			glVertex2d(bi1.b3bbox.lo[0], bi1.b3bbox.hi[1]);
+			glEnd();
+			glDepthMask(true);
+
+			::glTranslated(c3[0], c3[1], 0.0);
+
+			{
+				GLDC::MatrixLocker locker(dc);
+				::glMultMatrixd(mt1.data());
+				basetype::DoRender(dc);
+			}	
+
+			::glTranslated(-c3[0], -c3[1], 0.0);
+
+			return;
+		}
+
+
+
+		//dc.bi.m4data = mt1;
+
+		if (dc.Mode() == GLDC::RENDER_SOLID)
 		{
 			if (dc.Mode() == GLDC::RENDER_SOLID)
 			{
@@ -476,7 +512,13 @@ public:
 			::glTranslated(c3[0], c3[1], 0.0);
 
 			dc.Light(light0, true);
-			basetype::DoRender(dc);
+
+			{
+				GLDC::MatrixLocker locker(dc);
+				::glMultMatrixd(mt1.data());
+				basetype::DoRender(dc);
+			}
+
 			::glTranslated(-c3[0], -c3[1], 0.0);
 
 			dc.Light(light0, false);
@@ -487,7 +529,7 @@ public:
 			}
 		}
 
-		if (dc.Mode() == GLDC::RENDER_TEXT || dc.Mode() == GLDC::RENDER_SELECT)
+		if (dc.Mode() == GLDC::RENDER_TEXT)
 		{
 
 			DFontStyle font;
@@ -495,16 +537,14 @@ public:
 			dc.SetFont(font);
 
 			::glTranslated(c3[0], c3[1], 0.0);
-			basetype::DoRender(dc);
-			::glTranslated(-c3[0], -c3[1], 0.0);
 
-			dc.Color(DColor(0, 0, 255));
-			glBegin(dc.Mode() == GLDC::RENDER_SELECT ? GL_QUADS : GL_LINE_LOOP);
-			glVertex2d(bi1.b3bbox.lo[0], bi1.b3bbox.lo[1]);
-			glVertex2d(bi1.b3bbox.hi[0], bi1.b3bbox.lo[1]);
-			glVertex2d(bi1.b3bbox.hi[0], bi1.b3bbox.hi[1]);
-			glVertex2d(bi1.b3bbox.lo[0], bi1.b3bbox.hi[1]);
-			glEnd();
+			{
+				GLDC::MatrixLocker locker(dc);
+				::glMultMatrixd(mt1.data());
+				basetype::DoRender(dc);
+			}
+
+			::glTranslated(-c3[0], -c3[1], 0.0);
 
 		}
 
@@ -518,6 +558,28 @@ public:
 	typedef DataNodeSymbol basetype;
 	DataNodeSymbolT(DataNode* n, CallableSymbol* p) :basetype(n, p)
 	{
+	}
+
+
+	void DoRender(GLDC& dc)
+	{
+		if (dc.bi.b_clip)
+		{
+			for (int i = 0; i < 4; i++)
+			{
+				::glEnable(GL_CLIP_PLANE0 + i);
+			}
+
+			DataNodeSymbol::DoRender(dc);
+			for (int i = 0; i < 4; i++)
+			{
+				::glDisable(GL_CLIP_PLANE0 + i);
+			}
+		}
+		else
+		{
+			DataNodeSymbol::DoRender(dc);
+		}
 	}
 };
 
@@ -560,7 +622,6 @@ public:
 	{
 		if(!value) return;
 
-		value->FontText.color.a = 0;
 		dc.SetFont(value->FontText);
 
 		if (dc.Mode() == GLDC::RENDER_SET_REALSIZE)
@@ -998,6 +1059,8 @@ public:
 		
 		if (dc.Mode() == GLDC::RENDER_SOLID||dc.Mode() == GLDC::RENDER_SELECT)
 		{
+			dc.LineStyle(value->LineType);
+
 			for (size_t j = 1; j < valid_index.size(); j += 2)
 			{
 				glBegin(GL_LINE_STRIP);
@@ -1047,12 +1110,11 @@ public:
 			return;
 		}
 		
-		m4 = dc.bi.m4data;
-		m4.Scale(20.0);
 
 		if (dc.Mode() == GLDC::RENDER_SOLID||dc.Mode() == GLDC::RENDER_SELECT)
 		{
 
+			GLDC::MatrixLocker locker(dc);
 
 			arr_1t<vec3d> vv;
 			vv.push_back(vec3d(-1, -1, -1));
@@ -1064,9 +1126,9 @@ public:
 			vv.push_back(vec3d(-1, +1, +1));
 			vv.push_back(vec3d(+1, +1, +1));
 
+			//::glMultMatrixd(m4.data());
 
-			::glPushMatrix();
-			::glMultMatrixd(m4.data());
+			::glScaled(50.0, 50.0, 50.0);
 			
 
 			dc.Color(DColor(255,0,0));
@@ -1127,11 +1189,7 @@ public:
 			Vertex(vv[6]);
 			Vertex(vv[7]);
 
-
 			::glEnd();
-
-			::glPopMatrix();
-
 
 		}
 
@@ -1208,15 +1266,6 @@ public:
 
 		DataModelSymbol* model = new DataModelSymbol();
 
-		DataNodeCreator::Register<FigFigure>();
-		DataNodeCreator::Register<FigCoord2D>();
-		DataNodeCreator::Register<FigData2D>();
-		DataNodeCreator::Register<FigCoord3D>();
-		DataNodeCreator::Register<FigData3D>();
-		DataNodeCreator::Register<FigDataManager>();
-		DataNodeCreator::Register<FigAxisD>();
-		DataNodeCreator::Register<AxisUnitD>();
-		DataNodeCreator::Register<FigText>();
 
 		model->AddColumn(new DataColumnName);
 		model->AddColumn(new DataColumnType);
@@ -1244,14 +1293,6 @@ public:
 
 		DataModelSymbol* model = new DataModelSymbol();
 
-		DataNodeCreator::Register<FigFigure>();
-		DataNodeCreator::Register<FigCoord2D>();
-		DataNodeCreator::Register<FigData2D>();
-		DataNodeCreator::Register<FigDataManager>();
-		DataNodeCreator::Register<FigAxisD>();
-		DataNodeCreator::Register<AxisUnitD>();
-		DataNodeCreator::Register<FigText>();
-
 		model->AddColumn(new DataColumnName);
 		model->AddColumn(new DataColumnType);
 
@@ -1261,13 +1302,15 @@ public:
 		FigCoord* c = new FigCoord2D;
 		c->m_sId = "coord";
 
-		FigData* d = new FigData2D;
+		FigData2D* d = new FigData2D;
 		d->m_sId = "data1";
-
+		d->LineType.color.set(0, 255, 0);
 		c->m_pDataManager->m_aItems.append(d);
 
 		d = new FigData2D;
 		d->m_sId = "data2";
+		d->LineType.color.set(255, 0, 0);
+
 		c->m_pDataManager->m_aItems.append(d);
 
 		FigText* t = new FigText;
@@ -1371,6 +1414,16 @@ DataPtrT<MvcModel> PluginFigureViewer::CreateSampleModel()
 
 bool PluginFigureViewer::OnAttach()
 {
+
+	DataNodeCreator::Register<FigFigure>();
+	DataNodeCreator::Register<FigCoord2D>();
+	DataNodeCreator::Register<FigData2D>();
+	DataNodeCreator::Register<FigCoord3D>();
+	DataNodeCreator::Register<FigData3D>();
+	DataNodeCreator::Register<FigDataManager>();
+	DataNodeCreator::Register<FigAxisD>();
+	DataNodeCreator::Register<AxisUnitD>();
+	DataNodeCreator::Register<FigText>();
 
 	EvtManager& ec(wm.evtmgr);
 

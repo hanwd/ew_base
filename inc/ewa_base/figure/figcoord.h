@@ -9,11 +9,11 @@
 EW_ENTER
 
 
-class DLLIMPEXP_EWA_BASE FigCoord : public FigGroupT<FigItem, FigItem>
+class DLLIMPEXP_EWA_BASE FigCoord : public FigGroupT<CallableSymbol, FigItem>
 {
 public:
 
-	typedef FigGroupT<FigItem, FigItem> basetype;
+	typedef FigGroupT<CallableSymbol, FigItem> basetype;
 
 	FigCoord();
 

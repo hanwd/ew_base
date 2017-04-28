@@ -84,6 +84,8 @@ public:
 	arr_1t<double> m_aTdata;
 	arr_1t<double> m_aValue;
 
+	DLineStyle LineType;
+
 	DECLARE_OBJECT_INFO(FigData2D, ObjectSymbolInfo);
 };
 

@@ -41,6 +41,11 @@ bool DState::link(const box3s& s,box3d& v)
 	return link(s.lo,v.lo) && link(s.hi,v.hi);
 }
 
+bool DState::link(const box2s& s, box2d& v)
+{
+	return link(s.lo, v.lo) && link(s.hi, v.hi);
+}
+
 bool DState::link(const String& s,DataPtrT<CallableSymbol>& v)
 {
 	String h(s);

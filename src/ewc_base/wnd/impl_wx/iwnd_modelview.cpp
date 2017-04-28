@@ -4,8 +4,10 @@
 EW_ENTER
 
 IWnd_modelview::IWnd_modelview(wxWindow* p, const WndPropertyEx& h)
-:wxWindow(p, h.id(), h, h)
+:wxWindow(p, h.id(), h, h, wxFULL_REPAINT_ON_RESIZE | wxWANTS_CHARS | wxBORDER_NONE)
 {
+
+	
 	this->Connect(wxEVT_PAINT, wxPaintEventHandler(IWnd_modelview::OnPaint));
 	this->Connect(wxEVT_SIZE, wxSizeEventHandler(IWnd_modelview::OnSizeEvent));
 	this->Connect(wxEVT_LEFT_DOWN, wxMouseEventHandler(IWnd_modelview::OnMouseEvent));
@@ -87,6 +89,10 @@ void IWnd_modelview::OnPaint(wxPaintEvent& evt)
 
 void IWnd_modelview::OnMouseEvent(wxMouseEvent& evt)
 {
+	if (evt.LeftDown())
+	{
+		this->SetFocus();
+	}
 	gt.OnMouseEvent(evt);
 }
 

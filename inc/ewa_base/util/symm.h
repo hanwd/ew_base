@@ -21,7 +21,7 @@ public:
 	DExprItem(const String& n,const String& v,const String& d=""):name(n),value(v),desc(d){}
 	DExprItem(){}
 
-	bool FromVariant(const Variant& v);
+	void SerializeVariant(Variant& v,int dir);
 
 	void Serialize(SerializerHelper sh);
 };
@@ -60,6 +60,7 @@ public:
 
 };
 
+class  DLLIMPEXP_EWA_BASE DContext;
 
 class DLLIMPEXP_EWA_BASE CallableSymbol : public CallableData
 {
@@ -79,7 +80,9 @@ public:
 
 	virtual bool DoUpdateValue(DState&){return true;}
 	virtual bool DoCheckParam(DState&){return true;}
-	virtual bool DoTransferData(TableSerializer&){return true;}
+	virtual bool DoTransferData(TableSerializer&){ return true; }
+	virtual void DoRender(DContext&){}
+	virtual CallableSymbol* DecorateWithM4(const mat4d&){ return this; }
 	virtual bool DoGetChildren(arr_1t<DataPtrT<CallableSymbol> >*){ return false; }
 
 };
@@ -91,6 +94,8 @@ public:
 
 	String name;
 	arr_1t<Variant> prop;
+
+	void SerializeVariant(Variant& v, int dir);
 
 	void Serialize(SerializerHelper sh);
 };
@@ -173,13 +178,14 @@ public:
 	bool UpdateValue();
 	bool DoUpdateValue(DState& dp);
 	bool DoUpdateValue(DState& dp,const String& name);
+	
 
 	void gp_add(const String& s)
 	{
 		m_aStack.back().value["#children"].ref<arr_1t<SymbolItem> >().push_back(s);
 	}
 
-
+/*
 	void gp_add(const String& s,double f)
 	{
 		SymbolItem item(s);
@@ -194,7 +200,7 @@ public:
 	{
 		m_aStack.back().value[s].ref<arr_1t<T> >().push_back(item);
 	}
-
+*/
 	void gp_set(const String& s,const String& v)
 	{
 		m_aStack.back().value[s].reset(v);
@@ -203,6 +209,11 @@ public:
 	void gp_set(const String& s,const Variant& v)
 	{
 		m_aStack.back().value[s]=v;
+	}
+
+	Variant& gp_get(const String& s)
+	{
+		return m_aStack.back().value[s];
 	}
 
 	void append(CallableSymbol* p)
@@ -282,7 +293,6 @@ public:
 	bool is_reader(){return type==READER;}
 	bool is_writer(){return type==WRITER;}
 
-	//SymbolManager& smap;
 	VariantTable& value;
 
 	const int type;
@@ -307,17 +317,83 @@ public:
 	template<typename T>
 	void link_t(const String& s,arr_1t<T>& v)
 	{
-		arr_1t<T> &a(value[s].ref<arr_1t<T> >());
+		arr_xt<Variant> &a(value[s].ref<arr_xt<Variant> >());
 		if(is_reader())
 		{
-			v=a;
+			v.resize(a.size());
 		}
 		else
 		{
-			a=v;
+			a.resize(v.size());
+		}
+
+		int dir = is_reader() ? -1 : +1;
+
+		for (size_t i = 0; i < v.size(); i++)
+		{
+			v[i].SerializeVariant(a[i],dir);
 		}
 	}
 
+
+	//void link_vec3d(const String& s, vec3d& v);
+	//void link_vec2d(const String& s, vec2d& v);
+	//void link_box3d(const String& s, box3d& v);
+	//void link_box2d(const String& s, box2d& v);
+
+	template <typename T, int N>
+	void link(const String& s, tiny_vec<T, N>& v)
+	{
+		if (N > 0) {
+			link(s + ".x", v[0]);
+		}
+		if (N > 1) {
+			link(s + ".y", v[1]);
+		}
+		if (N > 2) {
+			link(s + ".z", v[2]);
+		}
+		if (N > 3) {
+			link(s + ".val3", v[3]);
+		}
+		if (N > 4) {
+			link(s + ".val4", v[4]);
+		}
+	}
+
+	template <typename T, int N>
+	void link(const String& s, tiny_box<T, N>& v)
+	{
+		link(s + ".lo", v.lo);
+		link(s + ".hi", v.hi);
+	}
+
+	template <typename T, int N>
+	void link(const String& s, tiny_storage<T, N>& v)
+	{
+		if (N > 0) {
+			link(s + ".x", v[0]);
+		}
+		if (N > 1) {
+			link(s + ".y", v[1]);
+		}
+		if (N > 2) {
+			link(s + ".z", v[2]);
+		}
+		if (N > 3) {
+			link(s + ".val3", v[3]);
+		}
+		if (N > 4) {
+			link(s + ".val4", v[4]);
+		}
+	}
+
+	template <int N>
+	void link(const String& s, tiny_box<String, N>& v)
+	{
+		link(s + ".lo", v.lo);
+		link(s + ".hi", v.hi);
+	}
 };
 
 class DLLIMPEXP_EWA_BASE TableSerializerReader : public TableSerializer
@@ -368,7 +444,7 @@ class DLLIMPEXP_EWA_BASE DState : public Object
 {
 public:
 
-	DState(Executor& k,SymbolManager* s=NULL);
+	DState(Executor& k, SymbolManager* s = NULL);
 
 	LitePtrT<SymbolManager> psmap;
 	arr_1t<SymbolManager*> asmap;
@@ -378,28 +454,29 @@ public:
 
 	enum
 	{
-		FLAG_POST	=1<<0,
+		FLAG_POST = 1 << 0,
 	};
 
 	int phase;
 
-	indexer_map<void*,int> tested;
+	indexer_map<void*, int> tested;
 
-	bool link(const String& s,int &v);
-	bool link(const String& s,double &v);
+	bool link(const String& s, int &v);
+	bool link(const String& s, double &v);
 
-	bool link(const vec3s& s,vec3i& v);
-	bool link(const vec2s& s,vec2d& v);
-	bool link(const vec3s& s,vec3d& v);
-	bool link(const box3s& s,box3d& v);
+	bool link(const vec3s& s, vec3i& v);
+	bool link(const vec2s& s, vec2d& v);
+	bool link(const vec3s& s, vec3d& v);
+	bool link(const box3s& s, box3d& v);
+	bool link(const box2s& s, box2d& v);
 
-	bool link(const String& s,DataPtrT<CallableSymbol>& v);
+	bool link(const String& s, DataPtrT<CallableSymbol>& v);
 
 	template<typename T>
-	bool link_t(const String& s,DataPtrT<T>& v)
+	bool link_t(const String& s, DataPtrT<T>& v)
 	{
 		DataPtrT<CallableSymbol> h;
-		if(!link(s,h)) return false;
+		if (!link(s, h)) return false;
 		v.reset(dynamic_cast<T*>(h.get()));
 		return v;
 	}
@@ -407,7 +484,16 @@ public:
 	template<typename T>
 	bool link_t(NamedReferenceT<T>& p)
 	{
-		return link_t<T>(p.name,p);
+		return link_t<T>(p.name, p);
+	}
+
+	template<typename T1, typename T2>
+	bool link_t(const arr_1t<T1>& s, arr_1t<T2>& v)
+	{
+		bool flag = true;
+		for (int i = 0; i < int(s.size()); i++)
+			flag && link(s[i], v[i]);
+		return flag;
 	}
 
 	template<typename T>

@@ -22,12 +22,12 @@ DataNode::~DataNode()
 
 void DataNode::DoRender(GLDC& dc)
 {
-	//dc.EnterGroup();
+	dc.EnterGroup();
 	for (size_t i = 0; i < subnodes.size(); i++)
 	{
 		dc.RenderNode(subnodes[i]);
 	}
-	//dc.LeaveGroup();
+	dc.LeaveGroup();
 }
 
 
@@ -504,7 +504,12 @@ DataNode* GLTool::HitTest(int x, int y)
 	dc.Reshape(pview->GetClientSize());
 	dc.RenderSelect(pview->pmodel);
 
-	DataNode* p = dc.HitTest(v2pos0[0], pview->GetClientSize().y - v2pos0[1]);
+	DataNode* p = dc.HitTest(x, pview->GetClientSize().y - y);
+
+	if (p)
+	{
+		this_logger().LogMessage("node %p,%s clicked",p,p->name);
+	}
 
 	return p;
 }

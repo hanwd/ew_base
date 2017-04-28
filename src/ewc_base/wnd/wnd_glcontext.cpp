@@ -62,8 +62,8 @@ void GLContext::SetCurrent(wxWindow* w)
 			PFD_DOUBLEBUFFER,               // use double-buffering by default
 			PFD_TYPE_RGBA,                  // default pixel type
 			0,                              // preferred color depth (don't care)
-			0, 0, 0, 0, 0, 0,               // color bits and shift bits (ignored)
-			0, 0,                           // alpha bits and shift (ignored)
+			8, 0, 8, 0, 8, 0,               // color bits and shift bits (ignored)
+			8, 0,                           // alpha bits and shift (ignored)
 			0,                              // accumulation total bits
 			0, 0, 0, 0,                     // accumulator RGBA bits (not used)
 			16,                             // depth buffer
@@ -77,7 +77,7 @@ void GLContext::SetCurrent(wxWindow* w)
 		m_hWnd = w->GetHWND();
 		m_hDC = ::GetDC((HWND)m_hWnd);
 
-		int pixelFormat = ChoosePixelFormat((HDC)m_hDC, &pfd);
+		int pixelFormat = ::ChoosePixelFormat((HDC)m_hDC, &pfd);
 		if (!pixelFormat)
 		{
 			return;
@@ -287,6 +287,11 @@ void GLDC::PopMatrix()
 	::glPopMatrix();
 }
 
+void GLDC::MultMatrix(const mat4d& m4)
+{
+	::glMultMatrixd(m4.data());
+}
+
 
 void GLDC::SaveBuffer(const String& id)
 {
@@ -313,7 +318,12 @@ void GLDC::RenderNode(DataNode* node)
 	if (m_nMode == RENDER_SELECT)
 	{
 		int val = m_aNodes.find2(node);
-		_Color1(*(DColor*)&val);
+		DColor& color(*(DColor*)&val);
+
+		//val = (val+31113) * 1314111;
+		//color.a = 255;
+
+		_Color1(color);
 	}
 
 	node->DoRender(*this);
@@ -339,7 +349,11 @@ void GLDC::LineStyle(const DLineStyle& style)
 	}
 	else
 	{
-		Color(style.color);
+		if (style.color.a != 0)
+		{
+			Color(style.color);
+		}
+
 		LineWidth(style.nsize);
 		switch (style.ntype)
 		{
@@ -423,18 +437,19 @@ void GLDC::RenderModel(DataModel* model)
 	{
 		Mode(GLDC::RENDER_SET_REALSIZE);
 		node->DoRender(*this);
+
+		//Mode(GLDC::RENDER_SELECT);
+		//node->DoRender(*this);
+
 		Mode(GLDC::RENDER_SOLID);
 		node->DoRender(*this);
 		Mode(GLDC::RENDER_ALPHA);
 		node->DoRender(*this);
 		Mode(GLDC::RENDER_TEXT);
 		node->DoRender(*this);
-
 	}
 	
 }
-
-
 
 void GLDC::RenderSelect(DataModel* model)
 {
@@ -450,13 +465,30 @@ void GLDC::RenderSelect(DataModel* model)
 
 DataNode* GLDC::HitTest(unsigned x, unsigned y)
 {
-	unsigned v(0);
-	glReadPixels(x, y, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, &v);
-	if (v < 1 || v >= m_aNodes.size())
+	
+	unsigned v[9];
+
+	glReadPixels(x-1, y-1, 3, 3, GL_RGBA, GL_UNSIGNED_BYTE, v);
+
+	DataNode* pnode = NULL;
+	int depth = 0;
+
+	for (size_t i = 0; i < 9; i++)
 	{
-		return NULL;
+		if (v[i] < 1 || v[i] >= m_aNodes.size())
+		{
+			continue;
+		}
+		DataNode* p=m_aNodes.get(v[i]);
+		if (p->depth >= depth)
+		{
+			depth = p->depth;
+			pnode = p;
+		}
 	}
-	return m_aNodes.get(v);
+
+	return pnode;
+
 }
 
 
@@ -758,12 +790,27 @@ void GLDC::DoPrintText(const TextData& data,const vec3d& pos,const vec3d& shf, c
 
 }
 
-void GLDC::SetFont(const DFontStyle& font)
+void GLDC::EnterGroup()
 {
-	if(font.color.a!=0) Color(font.color);
-	m_pFontData.reset(new GLFontDataImpl(font));
+	glPushMatrix();
+	glPushAttrib(GL_COLOR_BUFFER_BIT);
 }
 
+void GLDC::LeaveGroup()
+{
+	glPopAttrib();
+	glPopMatrix();
+}
+
+void GLDC::SetFont(const DFontStyle& font)
+{
+	if (font.color.a != 0 && m_nMode!=RENDER_SELECT)
+	{
+		Color(font.color);
+	}
+
+	m_pFontData.reset(new GLFontDataImpl(font));
+}
 
 
 

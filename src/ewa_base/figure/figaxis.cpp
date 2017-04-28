@@ -33,6 +33,7 @@ AxisUnit::AxisUnit(const String& name):basetype(name)
 AxisUnitD::AxisUnitD(const String& name,int d):basetype(name)
 {
 	m_nDirection=d;
+	FontText.color.set(127, 127, 127);
 }
 
 AxisUnitR::AxisUnitR(const String& name) :AxisUnit(name)

@@ -2,6 +2,7 @@
 #define __H_EW_UI_DATA_NODE__
 
 #include "ewc_base/data/data_array.h"
+#include "ewa_base/domdata/dobject.h"
 
 EW_ENTER
 
@@ -140,9 +141,9 @@ public:
 class DLLIMPEXP_EWC_BASE DataNodeSymbol : public DataNode
 {
 public:
-	DataNodeSymbol(DataNode* n, CallableSymbol* p);
+	DataNodeSymbol(DataNode* n, DObject* p);
 
-	DataPtrT<CallableSymbol> value;
+	DataPtrT<DObject> value;
 
 	bool UpdateLabel();
 
@@ -177,7 +178,7 @@ public:
 
 	static DataNodeCreator& current();
 
-	static DataNodeSymbol* Create(DataNode* n, CallableSymbol* p);
+	static DataNodeSymbol* Create(DataNode* n, DObject* p);
 
 	static DataNodeVariant* Create(DataNode* p, const std::pair<String, Variant>& v);
 
@@ -196,12 +197,12 @@ public:
 private:
 
 	template<typename T>
-	static DataNodeSymbol* _DoCreateDataNode(DataNode* n, CallableSymbol* p)
+	static DataNodeSymbol* _DoCreateDataNode(DataNode* n, DObject* p)
 	{
 		return new DataNodeSymbolT<T>(n, p);
 	}
 
-	typedef DataNodeSymbol* (*data_node_ctor)(DataNode*, CallableSymbol*);
+	typedef DataNodeSymbol* (*data_node_ctor)(DataNode*, DObject*);
 	indexer_map<ObjectInfo*, data_node_ctor> hmap;
 };
 

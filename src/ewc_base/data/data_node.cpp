@@ -148,7 +148,7 @@ void DataNodeVariant::OnChanged(DataChangedParam& dpm)
 
 
 
-DataNodeSymbol::DataNodeSymbol(DataNode* n, CallableSymbol* p) :DataNode(n, p->m_sId), value(p)
+DataNodeSymbol::DataNodeSymbol(DataNode* n, DObject* p) :DataNode(n, p->m_sId), value(p)
 {
 	flags.set(FLAG_IS_GROUP, value->DoGetChildren(NULL));
 }
@@ -180,7 +180,7 @@ void DataNodeSymbol::TouchNode(unsigned depth)
 
 	flags.add(DataNode::FLAG_TOUCHED);
 
-	arr_1t<DataPtrT<CallableSymbol> > arr;
+	arr_1t<DataPtrT<DObject> > arr;
 	value->DoGetChildren(&arr);
 
 	EW_ASSERT(subnodes.empty());
@@ -221,11 +221,11 @@ void DataNodeSymbol::OnChanged(DataChangedParam& dpm)
 		return;
 	}
 
-	arr_1t<DataPtrT<CallableSymbol> > table;
+	arr_1t<DataPtrT<DObject> > table;
 	value->DoGetChildren(&table);
 
-	typedef std::pair<CallableSymbol*, DataNodeSymbol*> nodeinfo;
-	indexer_map<CallableSymbol*, nodeinfo> hmap;
+	typedef std::pair<DObject*, DataNodeSymbol*> nodeinfo;
+	indexer_map<DObject*, nodeinfo> hmap;
 
 	DataNode* parent = this;
 
@@ -306,7 +306,7 @@ DataNodeCreator& DataNodeCreator::current()
 	return gInstance;
 }
 
-DataNodeSymbol* DataNodeCreator::Create(DataNode* n, CallableSymbol* p)
+DataNodeSymbol* DataNodeCreator::Create(DataNode* n, DObject* p)
 {
 	if (!p) return NULL;
 	indexer_map<ObjectInfo*, data_node_ctor>& hmap(current().hmap);

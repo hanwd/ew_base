@@ -1,18 +1,18 @@
 
-#ifndef __FIGURE_FIGAXIS_H__
-#define __FIGURE_FIGAXIS_H__
+#ifndef __H_EW_DOMDATA_DAXISUNIT__
+#define __H_EW_DOMDATA_DAXISUNIT__
 
-#include "ewa_base/figure/figitem.h"
+#include "ewa_base/domdata/dobject.h"
 
 
 EW_ENTER
 
 
-class DLLIMPEXP_EWA_BASE AxisUnit : public FigItem
+class DLLIMPEXP_EWA_BASE DAxisUnit : public DObject
 {
 public:
 
-	typedef FigItem basetype;
+	typedef DObject basetype;
 
 	enum
 	{
@@ -22,7 +22,7 @@ public:
 		FLAG_MAX = FLAG_MIN << 2,
 	};
 
-	AxisUnit(const String& name="");
+	DAxisUnit(const String& name="");
 
 	class Tick
 	{
@@ -53,10 +53,10 @@ public:
 	DFontStyle FontText;
 };
 
-class DLLIMPEXP_EWA_BASE FigAxis : public FigItem
+class DLLIMPEXP_EWA_BASE FigAxis : public DObject
 {
 public:
-	typedef FigItem basetype;
+	typedef DObject basetype;
 
 	FigAxis(const String& name="");
 
@@ -66,12 +66,12 @@ public:
 
 
 
-class DLLIMPEXP_EWA_BASE AxisUnitD : public AxisUnit
+class DLLIMPEXP_EWA_BASE DAxisUnitD : public DAxisUnit
 {
 public:
-	typedef AxisUnit basetype;
+	typedef DAxisUnit basetype;
 
-	AxisUnitD(const String& name="",int d=0);
+	DAxisUnitD(const String& name="",int d=0);
 	int m_nDirection;
 
 	enum
@@ -81,19 +81,19 @@ public:
 		FLAG_MAX = FLAG_MIN << 1,
 	};
 
-	DECLARE_OBJECT_INFO(AxisUnitD, ObjectSymbolInfo);
+	DECLARE_OBJECT_INFO(DAxisUnitD, DObjectInfo);
 };
 
-class DLLIMPEXP_EWA_BASE AxisUnitP : public AxisUnit
+class DLLIMPEXP_EWA_BASE AxisUnitP : public DAxisUnit
 {
 public:
 
-	AxisUnitP(const String& name = "") :AxisUnit(name){}
+	AxisUnitP(const String& name = "") :DAxisUnit(name){}
 
-	DECLARE_OBJECT_INFO(AxisUnitP, ObjectSymbolInfo);
+	DECLARE_OBJECT_INFO(AxisUnitP, DObjectInfo);
 };
 
-class DLLIMPEXP_EWA_BASE AxisUnitR : public AxisUnit
+class DLLIMPEXP_EWA_BASE AxisUnitR : public DAxisUnit
 {
 public:
 
@@ -101,7 +101,7 @@ public:
 
 	double m_nRadiusTextAngle; //deg
 
-	DECLARE_OBJECT_INFO(AxisUnitR, ObjectSymbolInfo);
+	DECLARE_OBJECT_INFO(AxisUnitR, DObjectInfo);
 };
 
 

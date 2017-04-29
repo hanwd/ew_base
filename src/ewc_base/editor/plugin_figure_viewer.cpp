@@ -14,7 +14,7 @@
 #include "ewc_base/data/data_node.h"
 #include "ewc_base/data/data_model.h"
 
-#include "ewa_base/figure.h"
+#include "ewa_base/domdata.h"
 
 
 #include "gl/gl.h"
@@ -22,11 +22,11 @@
 EW_ENTER
 
 template<>
-class DataNodeSymbolT<FigFigure> : public DataNodeSymbol
+class DataNodeSymbolT<DFigure> : public DataNodeSymbol
 {
 public:
 
-	DataNodeSymbolT(DataNode* n, CallableSymbol* p) :DataNodeSymbol(n, p)
+	DataNodeSymbolT(DataNode* n, DObject* p) :DataNodeSymbol(n, p)
 	{
 
 	}
@@ -47,25 +47,38 @@ public:
 	}
 };
 
+
 template<>
-class DataNodeSymbolT<FigCoord> : public DataNodeSymbol
+class DataNodeSymbolT<DObjectBox> : public DataNodeSymbol
 {
 public:
 public:
 	typedef DataNodeSymbol basetype;
-	DataNodeSymbolT(DataNode* n, CallableSymbol* p) :basetype(n, p)
+	DataNodeSymbolT(DataNode* n, DObject* p) :basetype(n, p)
 	{
 	}
 };
 
 
 template<>
-class DataNodeSymbolT<FigTable> : public DataNodeSymbol
+class DataNodeSymbolT<DCoord> : public DataNodeSymbolT<DObjectBox>
+{
+public:
+public:
+	typedef DataNodeSymbolT<DObjectBox> basetype;
+	DataNodeSymbolT(DataNode* n, DObject* p) :basetype(n, p)
+	{
+	}
+};
+
+
+template<>
+class DataNodeSymbolT<DTable> : public DataNodeSymbol
 {
 public:
 public:
 	typedef DataNodeSymbol basetype;
-	DataNodeSymbolT(DataNode* n, CallableSymbol* p) :basetype(n, p)
+	DataNodeSymbolT(DataNode* n, DObject* p) :basetype(n, p)
 	{
 
 	}
@@ -97,12 +110,12 @@ public:
 };
 
 template<>
-class DataNodeSymbolT<FigTableRow> : public DataNodeSymbol
+class DataNodeSymbolT<DTableRow> : public DataNodeSymbol
 {
 public:
 public:
 	typedef DataNodeSymbol basetype;
-	DataNodeSymbolT(DataNode* n, CallableSymbol* p) :basetype(n, p)
+	DataNodeSymbolT(DataNode* n, DObject* p) :basetype(n, p)
 	{
 
 	}
@@ -137,12 +150,12 @@ public:
 };
 
 template<>
-class DataNodeSymbolT<FigTableCell> : public DataNodeSymbol
+class DataNodeSymbolT<DTableCell> : public DataNodeSymbol
 {
 public:
 public:
 	typedef DataNodeSymbol basetype;
-	DataNodeSymbolT(DataNode* n, CallableSymbol* p) :basetype(n, p)
+	DataNodeSymbolT(DataNode* n, DObject* p) :basetype(n, p)
 	{
 
 	}
@@ -268,13 +281,13 @@ public:
 };
 
 template<>
-class DataNodeSymbolT<FigCoord2D> : public DataNodeSymbolT<FigCoord>
+class DataNodeSymbolT<DCoord2D> : public DataNodeSymbolT<DCoord>
 {
 public:
 
-	typedef DataNodeSymbolT<FigCoord> basetype;
+	typedef DataNodeSymbolT<DCoord> basetype;
 
-	DataNodeSymbolT(DataNode* n, CallableSymbol* p) :basetype(n, p)
+	DataNodeSymbolT(DataNode* n, DObject* p) :basetype(n, p)
 	{
 		bi0.b3axis.set_x(-100.0, +100.0);
 		bi0.b3axis.set_y(-100.0, +100.0);
@@ -516,13 +529,13 @@ public:
 };
 
 template<>
-class DataNodeSymbolT<FigCoord3D> : public DataNodeSymbolT<FigCoord>
+class DataNodeSymbolT<DCoord3D> : public DataNodeSymbolT<DCoord>
 {
 public:
 
-	typedef DataNodeSymbolT<FigCoord> basetype;
+	typedef DataNodeSymbolT<DCoord> basetype;
 
-	DataNodeSymbolT(DataNode* n, CallableSymbol* p) :basetype(n, p)
+	DataNodeSymbolT(DataNode* n, DObject* p) :basetype(n, p)
 	{
 		bi0.b3axis.set_x(-100.0, +100.0);
 		bi0.b3axis.set_y(-100.0, +100.0);
@@ -643,11 +656,11 @@ public:
 };
 
 template<>
-class DataNodeSymbolT<FigDataManager> : public DataNodeSymbol
+class DataNodeSymbolT<DFigDataManager> : public DataNodeSymbol
 {
 public:
 	typedef DataNodeSymbol basetype;
-	DataNodeSymbolT(DataNode* n, CallableSymbol* p) :basetype(n, p)
+	DataNodeSymbolT(DataNode* n, DObject* p) :basetype(n, p)
 	{
 	}
 };
@@ -655,19 +668,19 @@ public:
 
 
 template<>
-class DataNodeSymbolT<AxisUnitD> : public DataNodeSymbol
+class DataNodeSymbolT<DAxisUnitD> : public DataNodeSymbol
 {
 public:
 	typedef DataNodeSymbol basetype;
 
-	DataPtrT<AxisUnitD> value;
+	DataPtrT<DAxisUnitD> value;
 
-	DataNodeSymbolT(DataNode* n, CallableSymbol* p) :basetype(n, p)
+	DataNodeSymbolT(DataNode* n, DObject* p) :basetype(n, p)
 	{
 		value.cast_and_set(p);
 		wwdir=value?value->m_nDirection:0;
 		v3lbdir[wwdir]=1.0;		
-		lbmax = value &&  value->flags.get(AxisUnitD::FLAG_LABEL_DIR_MAX);
+		lbmax = value &&  value->flags.get(DAxisUnitD::FLAG_LABEL_DIR_MAX);
 		lbmin = true;
 	}
 
@@ -679,7 +692,7 @@ public:
 
 	int wwdir;
 	box1d range;
-	arr_1t<AxisUnitD::Tick> ticks;
+	arr_1t<DAxisUnitD::Tick> ticks;
 	vec3d v3lbdir;
 
 	bool lbmax;
@@ -715,7 +728,7 @@ public:
 			::glVertex2d(b3bbox.hi[0],b3bbox.lo[1]);
 		::glEnd();		
 
-		arr_1t<AxisUnitD::Tick>& _aTicks(ticks);
+		arr_1t<DAxisUnitD::Tick>& _aTicks(ticks);
 
 		int udir=wwdir;
 		int vdir=udir==0?1:0;
@@ -733,7 +746,7 @@ public:
 		::glBegin(GL_LINES);
 		for(int j=0;j<(int)_aTicks.size();j++)
 		{
-			AxisUnitD::Tick &tick(_aTicks[j]);
+			DAxisUnitD::Tick &tick(_aTicks[j]);
 			double pos=(tick.m_nValue-b3axis.lo[udir])*(b3bbox.hi[udir]-b3bbox.lo[udir])/(b3axis.hi[udir]-b3axis.lo[udir])+b3bbox.lo[udir];
 			v3pos2[udir]=v3pos1[udir]=pos;
 
@@ -741,7 +754,7 @@ public:
 			if (lbmin)
 			{
 				::glVertex2dv(v3pos1.data());
-				if(tick.flags.get(AxisUnitD::Tick::TICK_MAIN))
+				if(tick.flags.get(DAxisUnitD::Tick::TICK_MAIN))
 				{
 					::glVertex2dv((v3pos1+v3lbpxl).data());
 				}
@@ -753,7 +766,7 @@ public:
 			if (lbmax)
 			{
 				::glVertex2dv(v3pos2.data());
-				if(tick.flags.get(AxisUnitD::Tick::TICK_MAIN))
+				if(tick.flags.get(DAxisUnitD::Tick::TICK_MAIN))
 				{
 					::glVertex2dv((v3pos2-v3lbpxl).data());
 				}
@@ -768,17 +781,17 @@ public:
 
 
 
-		if(value->flags.get(AxisUnitD::FLAG_SHOW_MESH_MAIN))
+		if(value->flags.get(DAxisUnitD::FLAG_SHOW_MESH_MAIN))
 		{
 
 			//dc.LineStyle(value->LineMain);
 			::glBegin(GL_LINES);
 			for(int j=0;j<(int)_aTicks.size();j++)
 			{
-				AxisUnitD::Tick &tick(_aTicks[j]);
+				DAxisUnitD::Tick &tick(_aTicks[j]);
 				double pos=(tick.m_nValue-b3axis.lo[udir])*(b3bbox.hi[udir]-b3bbox.lo[udir])/(b3axis.hi[udir]-b3axis.lo[udir])+b3bbox.lo[udir];
 
-				if( tick.flags.get(AxisUnitD::Tick::TICK_MAIN))
+				if( tick.flags.get(DAxisUnitD::Tick::TICK_MAIN))
 				{
 					v3pos1[udir]=v3pos2[udir]=pos;
 					::glVertex2dv(v3pos1.data());
@@ -791,8 +804,8 @@ public:
 
 		for(size_t j=0;j<_aTicks.size();j++)
 		{
-			AxisUnitD::Tick &tick(_aTicks[j]);
-			if(!tick.flags.get(AxisUnitD::Tick::TICK_MAIN)) continue;
+			DAxisUnitD::Tick &tick(_aTicks[j]);
+			if(!tick.flags.get(DAxisUnitD::Tick::TICK_MAIN)) continue;
 
 			v3pos1[udir]=(tick.m_nValue-b3axis.lo[udir])*(b3bbox.hi[udir]-b3bbox.lo[udir])/(b3axis.hi[udir]-b3axis.lo[udir])+b3bbox.lo[udir];
 			dc.PrintText(tick.m_sLabel,v3pos1,v3lbshf,v3lbpxl);
@@ -801,7 +814,7 @@ public:
 
 	}
 
-	AxisUnitD::Tick tk;
+	DAxisUnitD::Tick tk;
 
 	void GenerateTick(double v)
 	{
@@ -936,7 +949,7 @@ public:
 			y2 = y2 + 1;
 		}
 
-		tk.flags.add(AxisUnitD::Tick::TICK_MAIN);
+		tk.flags.add(DAxisUnitD::Tick::TICK_MAIN);
 		for(int64_t y=y1; y<=y2; y++)
 		{
 			double d=br*double(y);
@@ -946,7 +959,7 @@ public:
 			}
 		}
 
-		tk.flags.del(AxisUnitD::Tick::TICK_MAIN);
+		tk.flags.del(DAxisUnitD::Tick::TICK_MAIN);
 
 		double mm=15.0;
 
@@ -1020,11 +1033,11 @@ public:
 };
 
 template<>
-class DataNodeSymbolT<FigAxisD> : public DataNodeSymbol
+class DataNodeSymbolT<DAxisD> : public DataNodeSymbol
 {
 public:
 	typedef DataNodeSymbol basetype;
-	DataNodeSymbolT(DataNode* n, CallableSymbol* p) :basetype(n, p)
+	DataNodeSymbolT(DataNode* n, DObject* p) :basetype(n, p)
 	{
 	}
 };
@@ -1034,7 +1047,7 @@ class DataNodeSymbolT<FigData> : public DataNodeSymbol
 {
 public:
 	typedef DataNodeSymbol basetype;
-	DataNodeSymbolT(DataNode* n, CallableSymbol* p) :basetype(n, p)
+	DataNodeSymbolT(DataNode* n, DObject* p) :basetype(n, p)
 	{
 	}
 };
@@ -1042,7 +1055,7 @@ public:
 
 
 template<>
-class DataNodeSymbolT<FigData2D> : public DataNodeSymbolT<FigData>
+class DataNodeSymbolT<DFigData2D> : public DataNodeSymbolT<FigData>
 {
 public:
 
@@ -1050,11 +1063,11 @@ public:
 
 	arr_1t<unsigned> valid_index;
 
-	DataPtrT<FigData2D> value;
+	DataPtrT<DFigData2D> value;
 
 
 
-	DataNodeSymbolT(DataNode* n, CallableSymbol* p) :basetype(n, p)
+	DataNodeSymbolT(DataNode* n, DObject* p) :basetype(n, p)
 	{
 		if (!value.cast_and_set(p)) return;
 	}
@@ -1086,7 +1099,7 @@ public:
 					cached_data[i] = m4data*vec3d(i, bdata[i], 0);
 				}
 			}
-			else if (value->m_nDataType == FigData2D::TYPE_POLAR)
+			else if (value->m_nDataType == DFigData2D::TYPE_POLAR)
 			{
 				for (size_t i = 0; i < n; i++)
 				{
@@ -1148,17 +1161,17 @@ public:
 
 
 template<>
-class DataNodeSymbolT<FigData3D> : public DataNodeSymbolT<FigData>
+class DataNodeSymbolT<DFigData3D> : public DataNodeSymbolT<FigData>
 {
 public:
 
 	typedef DataNodeSymbolT<FigData> basetype;
 
 
-	DataPtrT<FigData3D> value;
+	DataPtrT<DFigData3D> value;
 
 
-	DataNodeSymbolT(DataNode* n, CallableSymbol* p) :basetype(n, p)
+	DataNodeSymbolT(DataNode* n, DObject* p) :basetype(n, p)
 	{
 		if (!value.cast_and_set(p)) return;
 	}
@@ -1269,11 +1282,12 @@ public:
 
 
 template<>
-class DataNodeSymbolT<FigText> : public DataNodeSymbol
+class DataNodeSymbolT<DText> : public DataNodeSymbolT<DObjectBox>
 {
 public:
-	typedef DataNodeSymbol basetype;
-	DataNodeSymbolT(DataNode* n, CallableSymbol* p) :basetype(n, p)
+	typedef DataNodeSymbolT<DObjectBox> basetype;
+
+	DataNodeSymbolT(DataNode* n, DObject* p) :basetype(n, p)
 	{
 
 	}
@@ -1283,7 +1297,7 @@ public:
 	void DoRender(GLDC& dc)
 	{
 		if (!value) return;
-		FigText* p = static_cast<FigText*>(value.get());
+		DText* p = static_cast<DText*>(value.get());
 
 		if (dc.Mode() == GLDC::RENDER_SET_REALSIZE)
 		{
@@ -1329,27 +1343,27 @@ public:
 		return true;
 	}
 
-	static FigItem* CreateFigure1()
+	static DObject* CreateFigure1()
 	{
 
-		//FigFigure *p = new FigFigure;
+		//DFigure *p = new DFigure;
 		//p->m_sId = "figure";
 
-		FigCoord* c = new FigCoord2D;
+		DCoord* c = new DCoord2D;
 		c->m_sId = "coord2d";
 
-		FigData2D* d = new FigData2D;
+		DFigData2D* d = new DFigData2D;
 		d->m_sId = "data1";
 		d->LineType.color.set(0, 255, 0);
 		c->m_pDataManager->m_aItems.append(d);
 
-		d = new FigData2D;
+		d = new DFigData2D;
 		d->m_sId = "data2";
 		d->LineType.color.set(255, 0, 0);
 
 		c->m_pDataManager->m_aItems.append(d);
 
-		FigText* t = new FigText;
+		DText* t = new DText;
 		t->m_sText = "title";
 		t->m_sId = "title";
 		t->m_v3Pos[1] = 1.0;
@@ -1357,7 +1371,7 @@ public:
 		t->m_v3Pxl[1] = 3.0;
 		c->m_aItems.append(t);
 
-		t = new FigText;
+		t = new DText;
 		t->m_sText = "xlabel";
 		t->m_sId = "xlabel";
 		t->m_v3Pos[1] = -1.0;
@@ -1366,7 +1380,7 @@ public:
 		c->m_aItems.append(t);
 
 
-		t = new FigText;
+		t = new DText;
 		t->m_sText = "ylabel";
 		t->m_sId = "ylabel";
 		t->m_v3Pos[0] = -1.0;
@@ -1381,16 +1395,16 @@ public:
 		//return p;
 	}
 
-	static FigItem* CreateFigure2()
+	static DObject* CreateFigure2()
 	{
 
-		//FigFigure *p = new FigFigure;
+		//DFigure *p = new DFigure;
 		//p->m_sId = "figure";
 
-		FigCoord* c = new FigCoord3D;
+		DCoord* c = new DCoord3D;
 		c->m_sId = "coord3d";
 
-		FigData* d = new FigData3D;
+		FigData* d = new DFigData3D;
 		d->m_sId = "data1";
 
 		c->m_pDataManager->m_aItems.append(d);		
@@ -1410,7 +1424,7 @@ public:
 		model->AddColumn(new DataColumnName);
 		model->AddColumn(new DataColumnType);
 
-		FigItem* p=CreateFigure2();
+		DObject* p=CreateFigure2();
 		model->Update(p);
 
 		return model;
@@ -1426,12 +1440,12 @@ public:
 		model->AddColumn(new DataColumnType);
 
 
-		FigItem* p1 = CreateFigure1();
-		FigItem* p2 = CreateFigure2();
+		DObject* p1 = CreateFigure1();
+		DObject* p2 = CreateFigure2();
 
-		FigTableRow* p3=new FigTableRow("row");
-		FigTableCell* c1=new FigTableCell("cell");
-		FigTableCell* c2=new FigTableCell("cell");
+		DTableRow* p3=new DTableRow("row");
+		DTableCell* c1=new DTableCell("cell");
+		DTableCell* c2=new DTableCell("cell");
 
 		c1->m_aItems.append(p1);
 		c2->m_aItems.append(p2);
@@ -1513,19 +1527,19 @@ DataPtrT<MvcModel> PluginFigureViewer::CreateSampleModel()
 bool PluginFigureViewer::OnAttach()
 {
 
-	DataNodeCreator::Register<FigFigure>();
-	DataNodeCreator::Register<FigCoord2D>();
-	DataNodeCreator::Register<FigData2D>();
-	DataNodeCreator::Register<FigCoord3D>();
-	DataNodeCreator::Register<FigData3D>();
-	DataNodeCreator::Register<FigDataManager>();
-	DataNodeCreator::Register<FigAxisD>();
-	DataNodeCreator::Register<AxisUnitD>();
-	DataNodeCreator::Register<FigText>();
+	DataNodeCreator::Register<DFigure>();
+	DataNodeCreator::Register<DCoord2D>();
+	DataNodeCreator::Register<DFigData2D>();
+	DataNodeCreator::Register<DCoord3D>();
+	DataNodeCreator::Register<DFigData3D>();
+	DataNodeCreator::Register<DFigDataManager>();
+	DataNodeCreator::Register<DAxisD>();
+	DataNodeCreator::Register<DAxisUnitD>();
+	DataNodeCreator::Register<DText>();
 
-	DataNodeCreator::Register<FigTable>();
-	DataNodeCreator::Register<FigTableRow>();
-	DataNodeCreator::Register<FigTableCell>();
+	DataNodeCreator::Register<DTable>();
+	DataNodeCreator::Register<DTableRow>();
+	DataNodeCreator::Register<DTableCell>();
 
 	EvtManager& ec(wm.evtmgr);
 

@@ -49,7 +49,7 @@ protected:
 class DataModelSymbol : public DataModel
 {
 public:
-	void Update(CallableSymbol* p);
+	void Update(DObject* p);
 };
 
 

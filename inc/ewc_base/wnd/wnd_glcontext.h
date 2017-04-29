@@ -2,7 +2,7 @@
 #define __H_EW_WND_GLCONTEXT__
 
 #include "ewc_base/config.h"
-#include "ewa_base/figure/figitem.h"
+#include "ewa_base/domdata/dobject.h"
 
 EW_ENTER
 

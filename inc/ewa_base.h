@@ -13,6 +13,7 @@
 #include "ewa_base/xml.h"
 #include "ewa_base/util.h"
 #include "ewa_base/scripting.h"
+#include "ewa_base/domdata.h"
 
 #include "ewa_base/testing/test.h"
 

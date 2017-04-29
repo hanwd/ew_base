@@ -84,14 +84,20 @@
     <ClInclude Include="..\..\inc\ewa_base\collection\ring_buffer.h" />
     <ClInclude Include="..\..\inc\ewa_base\collection\tmp_xt.h" />
     <ClInclude Include="..\..\inc\ewa_base\config.h" />
-    <ClInclude Include="..\..\inc\ewa_base\figure\figaxis.h" />
-    <ClInclude Include="..\..\inc\ewa_base\figure\figaxis_d.h" />
-    <ClInclude Include="..\..\inc\ewa_base\figure\fig.h" />
-    <ClInclude Include="..\..\inc\ewa_base\figure\figcoord.h" />
-    <ClInclude Include="..\..\inc\ewa_base\figure\figdata.h" />
-    <ClInclude Include="..\..\inc\ewa_base\figure\figitem.h" />
-    <ClInclude Include="..\..\inc\ewa_base\figure\figtable.h" />
-    <ClInclude Include="..\..\inc\ewa_base\figure\figtext.h" />
+    <ClInclude Include="..\..\inc\ewa_base\domdata.h" />
+    <ClInclude Include="..\..\inc\ewa_base\domdata\daxisunit.h" />
+    <ClInclude Include="..\..\inc\ewa_base\domdata\daxis_d.h" />
+    <ClInclude Include="..\..\inc\ewa_base\domdata\dcontext.h" />
+    <ClInclude Include="..\..\inc\ewa_base\domdata\dcoord.h" />
+    <ClInclude Include="..\..\inc\ewa_base\domdata\dfigdata.h" />
+    <ClInclude Include="..\..\inc\ewa_base\domdata\dfigure.h" />
+    <ClInclude Include="..\..\inc\ewa_base\domdata\dobject.h" />
+    <ClInclude Include="..\..\inc\ewa_base\domdata\dstate.h" />
+    <ClInclude Include="..\..\inc\ewa_base\domdata\dtable.h" />
+    <ClInclude Include="..\..\inc\ewa_base\domdata\dtext.h" />
+    <ClInclude Include="..\..\inc\ewa_base\domdata\dunit.h" />
+    <ClInclude Include="..\..\inc\ewa_base\domdata\symm.h" />
+    <ClInclude Include="..\..\inc\ewa_base\domdata\table_serializer.h" />
     <ClInclude Include="..\..\inc\ewa_base\ipc.h" />
     <ClInclude Include="..\..\inc\ewa_base\ipc\pipe.h" />
     <ClInclude Include="..\..\inc\ewa_base\ipc\shm.h" />
@@ -167,12 +173,9 @@
     <ClInclude Include="..\..\inc\ewa_base\threading\thread_sem.h" />
     <ClInclude Include="..\..\inc\ewa_base\threading\thread_spin.h" />
     <ClInclude Include="..\..\inc\ewa_base\threading\timer_queue.h" />
-    <ClInclude Include="..\..\inc\ewa_base\util\dcontext.h" />
     <ClInclude Include="..\..\inc\ewa_base\util\json.h" />
     <ClInclude Include="..\..\inc\ewa_base\util\regex.h" />
     <ClInclude Include="..\..\inc\ewa_base\util\strlib.h" />
-    <ClInclude Include="..\..\inc\ewa_base\util\symm.h" />
-    <ClInclude Include="..\..\inc\ewa_base\util\dunit.h" />
     <ClInclude Include="..\..\inc\ewa_base\xml.h" />
     <ClInclude Include="..\..\inc\ewa_base\xml\xml_attribute.h" />
     <ClInclude Include="..\..\inc\ewa_base\xml\xml_base.h" />
@@ -222,6 +225,19 @@
     <ClCompile Include="..\..\src\ewa_base\basic\system.cpp" />
     <ClCompile Include="..\..\src\ewa_base\basic\system_data.cpp" />
     <ClCompile Include="..\..\src\ewa_base\collection\collection.cpp" />
+    <ClCompile Include="..\..\src\ewa_base\domdata\daxisunit.cpp" />
+    <ClCompile Include="..\..\src\ewa_base\domdata\daxis_d.cpp" />
+    <ClCompile Include="..\..\src\ewa_base\domdata\dcontext.cpp" />
+    <ClCompile Include="..\..\src\ewa_base\domdata\dcoord.cpp" />
+    <ClCompile Include="..\..\src\ewa_base\domdata\dfigdata.cpp" />
+    <ClCompile Include="..\..\src\ewa_base\domdata\dfigure.cpp" />
+    <ClCompile Include="..\..\src\ewa_base\domdata\dobject.cpp" />
+    <ClCompile Include="..\..\src\ewa_base\domdata\dstate.cpp" />
+    <ClCompile Include="..\..\src\ewa_base\domdata\dtable.cpp" />
+    <ClCompile Include="..\..\src\ewa_base\domdata\dtext.cpp" />
+    <ClCompile Include="..\..\src\ewa_base\domdata\dunit.cpp" />
+    <ClCompile Include="..\..\src\ewa_base\domdata\symm.cpp" />
+    <ClCompile Include="..\..\src\ewa_base\domdata\table_serializer.cpp" />
     <ClCompile Include="..\..\src\ewa_base\ewa_base.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
@@ -230,14 +246,6 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='DLLRelease|x64'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="..\..\src\ewa_base\figure\figaxis.cpp" />
-    <ClCompile Include="..\..\src\ewa_base\figure\figaxis_d.cpp" />
-    <ClCompile Include="..\..\src\ewa_base\figure\fig.cpp" />
-    <ClCompile Include="..\..\src\ewa_base\figure\figcoord.cpp" />
-    <ClCompile Include="..\..\src\ewa_base\figure\figdata.cpp" />
-    <ClCompile Include="..\..\src\ewa_base\figure\figitem.cpp" />
-    <ClCompile Include="..\..\src\ewa_base\figure\figtable.cpp" />
-    <ClCompile Include="..\..\src\ewa_base\figure\figtext.cpp" />
     <ClCompile Include="..\..\src\ewa_base\ipc\pipe.cpp" />
     <ClCompile Include="..\..\src\ewa_base\ipc\shm.cpp" />
     <ClCompile Include="..\..\src\ewa_base\logging\logger.cpp" />
@@ -315,16 +323,11 @@
     <ClCompile Include="..\..\src\ewa_base\threading\thread_mutex.cpp" />
     <ClCompile Include="..\..\src\ewa_base\threading\thread_pool.cpp" />
     <ClCompile Include="..\..\src\ewa_base\threading\timer_queue.cpp" />
-    <ClCompile Include="..\..\src\ewa_base\util\dcontext.cpp" />
-    <ClCompile Include="..\..\src\ewa_base\util\dstate.cpp" />
     <ClCompile Include="..\..\src\ewa_base\util\json.cpp" />
     <ClCompile Include="..\..\src\ewa_base\util\regex.cpp" />
     <ClCompile Include="..\..\src\ewa_base\util\regex_impl.cpp" />
     <ClCompile Include="..\..\src\ewa_base\util\regex_parser.cpp" />
     <ClCompile Include="..\..\src\ewa_base\util\strlib.cpp" />
-    <ClCompile Include="..\..\src\ewa_base\util\symm.cpp" />
-    <ClCompile Include="..\..\src\ewa_base\util\table_serializer.cpp" />
-    <ClCompile Include="..\..\src\ewa_base\util\dunit.cpp" />
     <ClCompile Include="..\..\src\ewa_base\xml\xml_attribute.cpp" />
     <ClCompile Include="..\..\src\ewa_base\xml\xml_document.cpp" />
     <ClCompile Include="..\..\src\ewa_base\xml\xml_node.cpp" />

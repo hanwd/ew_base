@@ -1,8 +1,8 @@
 
-#ifndef __FIGURE_FIGDATA_H__
-#define __FIGURE_FIGDATA_H__
+#ifndef __H_EW_DOMDATA_DFIGDATA__
+#define __H_EW_DOMDATA_DFIGDATA__
 
-#include "ewa_base/figure/figitem.h"
+#include "ewa_base/domdata/dobject.h"
 
 EW_ENTER
 
@@ -52,23 +52,23 @@ public:
 
 };
 
-class DLLIMPEXP_EWA_BASE FigData : public FigItem
+class DLLIMPEXP_EWA_BASE FigData : public DObject
 {
 public:
-	DECLARE_OBJECT_INFO(FigData, ObjectSymbolInfo);
+	DECLARE_OBJECT_INFO(FigData, DObjectInfo);
 };
 
-class DLLIMPEXP_EWA_BASE FigDataManager : public FigGroupT<FigData,FigItem>
+class DLLIMPEXP_EWA_BASE DFigDataManager : public FigGroupT<FigData,DObject>
 {
 public:
-	typedef FigGroupT<FigData, FigItem> basetype;
+	typedef FigGroupT<FigData, DObject> basetype;
 
-	FigDataManager(const String& name = "datamgr") :basetype(name){}
+	DFigDataManager(const String& name = "datamgr") :basetype(name){}
 
-	DECLARE_OBJECT_INFO(FigData, ObjectSymbolInfo);
+	DECLARE_OBJECT_INFO(FigData, DObjectInfo);
 };
 
-class DLLIMPEXP_EWA_BASE FigData2D : public FigData
+class DLLIMPEXP_EWA_BASE DFigData2D : public FigData
 {
 public:
 
@@ -78,7 +78,7 @@ public:
 		TYPE_POLAR,
 	};
 
-	FigData2D();
+	DFigData2D();
 
 	int m_nDataType;
 	arr_1t<double> m_aTdata;
@@ -86,14 +86,14 @@ public:
 
 	DLineStyle LineType;
 
-	DECLARE_OBJECT_INFO(FigData2D, ObjectSymbolInfo);
+	DECLARE_OBJECT_INFO(DFigData2D, DObjectInfo);
 };
 
-class DLLIMPEXP_EWA_BASE FigData3D : public FigData
+class DLLIMPEXP_EWA_BASE DFigData3D : public FigData
 {
 public:
 
-	DECLARE_OBJECT_INFO(FigData3D, ObjectSymbolInfo);
+	DECLARE_OBJECT_INFO(DFigData3D, DObjectInfo);
 };
 
 EW_LEAVE

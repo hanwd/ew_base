@@ -174,20 +174,20 @@ wxString DataModel::GetColumnType( unsigned int col ) const
 	return str2wx(m_aColumnInfo[col]->name);
 }
 
-class CallableSymbolArray : public CallableSymbol
+class CallableSymbolArray : public DObject
 {
 public:
-	arr_1t<DataPtrT<CallableSymbol> > value;
-	void set(CallableSymbol* p){ value.assign(1,p); }
+	arr_1t<DataPtrT<DObject> > value;
+	void set(DObject* p){ value.assign(1,p); }
 
-	virtual bool DoGetChildren(arr_1t<DataPtrT<CallableSymbol> >* p)
+	virtual bool DoGetChildren(arr_1t<DataPtrT<DObject> >* p)
 	{ 
 		if (p) *p = value;
 		return false;
 	}
 };
 
-void DataModelSymbol::Update(CallableSymbol* pitem)
+void DataModelSymbol::Update(DObject* pitem)
 {
 	if (!m_pRoot)
 	{

@@ -1,12 +1,12 @@
 
-#include "ewa_base/figure/fig.h"
-#include "ewa_base/figure/figdata.h"
-#include "ewa_base/figure/figcoord.h"
+#include "ewa_base/domdata/dfigure.h"
+#include "ewa_base/domdata/dfigdata.h"
+#include "ewa_base/domdata/dcoord.h"
 
 EW_ENTER
 
 
-FigData2D::FigData2D()
+DFigData2D::DFigData2D()
 {
 	m_nDataType = TYPE_PLOT;
 
@@ -26,10 +26,10 @@ FigData2D::FigData2D()
 
 }
 
-IMPLEMENT_OBJECT_INFO(FigData, ObjectSymbolInfo);
-IMPLEMENT_OBJECT_INFO(FigData2D, ObjectSymbolInfo);
-IMPLEMENT_OBJECT_INFO(FigData3D, ObjectSymbolInfo);
+IMPLEMENT_OBJECT_INFO(FigData, DObjectInfo);
+IMPLEMENT_OBJECT_INFO(DFigData2D, DObjectInfo);
+IMPLEMENT_OBJECT_INFO(DFigData3D, DObjectInfo);
 
-IMPLEMENT_OBJECT_INFO(FigDataManager, ObjectSymbolInfo);
+IMPLEMENT_OBJECT_INFO(DFigDataManager, DObjectInfo);
 
 EW_LEAVE

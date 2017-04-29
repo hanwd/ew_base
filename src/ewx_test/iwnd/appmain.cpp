@@ -4,13 +4,14 @@
 #include "ewc_base/plugin/plugin.h"
 #include "ewc_base/plugin/plugin_manager.h"
 
+#include "ewc_base/wnd/impl_wx/iwnd_flash.h"
+
 #pragma comment(lib,"ewa_base.lib")
 #pragma comment(lib,"ewc_base.lib")
 
 
 int ew_main()
 {
-	
 	using namespace ew;
 
 	mp_check_leak(1);
@@ -20,9 +21,8 @@ int ew_main()
 
 	ObjectInfo::Invoke(InvokeParam::TYPE_INIT);	
 
-
 	WndManager& wm(WndManager::current());
-	
+
 
 // ×¢²á²å¼þ
 	wm.RegisterT<PluginMainWindow>();
@@ -41,7 +41,7 @@ int ew_main()
 	wm.RegisterT<PluginTextEditor>();
 	wm.RegisterT<PluginEwslEditor>();
 	wm.RegisterT<PluginWebView>();
-	wm.RegisterT<PluginFigureViewer>();
+	wm.RegisterT<PluginDomViewer>();
 
 	wm.SetName(_kT("ew_ui_framework"));
 

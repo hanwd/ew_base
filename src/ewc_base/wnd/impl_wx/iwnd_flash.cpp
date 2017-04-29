@@ -35,7 +35,7 @@ enum FlashState
 } // anonymous namespace
 
 
-EW6_ENTER
+EW_ENTER
 
 class FlashCanvasData
 {
@@ -44,7 +44,6 @@ public:
 	FlashCanvasData()
 	{
 		m_nState=FlashState_Unknown;
-	
 
 		IShockwaveFlash* flash=NULL;
 
@@ -57,8 +56,6 @@ public:
 					(void **)&flash
 					);
 
-		new char[1024];
-
 		if ( FAILED(hr) )
 		{
 			System::LogError("CoCreateInstance flash failed!");
@@ -67,6 +64,7 @@ public:
 
 		m_pFlash=flash;
 		m_pFlash->PutAllowScriptAccess(L"always");
+
 	}
 
 
@@ -74,28 +72,26 @@ public:
 	{
 		if(!m_pFlash) return;
 
-		wxFileName fn(movie.c_str());
+		wxFileName fn(IConv::to_wide(movie).c_str());
 		fn.MakeAbsolute();
-		const wxString swf = fn.GetFullPath();
+		String swf = fn.GetFullPath().wx_str();
 
-		if(swf==m_sUri.c_str())
+		if(swf==m_sUri)
 		{
 			m_pFlash->PutMovie(L"");
 		}
 		else
 		{
-			m_sUri=swf.c_str().AsChar();
-			m_pFlash->PutMovie(swf.wc_str());
+			m_sUri=swf;
+			m_pFlash->PutMovie(IConv::to_wide(m_sUri).c_str());
 		}
 	}
 
 	void LoadURL(const String& url,int layer)
 	{
 		if(!m_pFlash) return;
-
 		m_sUri=url;
-		StringBuffer<wchar_t> wurl(url);
-		m_pFlash->LoadMovie(layer,wurl.c_str());
+		m_pFlash->LoadMovie(layer,IConv::to_wide(m_sUri).c_str());
 	}
 
 	bool CheckFlashCall(HRESULT hr, const char *func)
@@ -275,6 +271,7 @@ protected:
 IWnd_flash::~IWnd_flash()
 {
 	delete m_pData;
+	delete win;
 }
 
 IWnd_flash::IWnd_flash(wxWindow* w)
@@ -282,7 +279,9 @@ IWnd_flash::IWnd_flash(wxWindow* w)
 {
 	this->SetWindowStyle(wxBORDER_NONE);
 	m_pData=new FlashCanvasData;
+
 	SelPage(m_pData->CreateCanvas(this));
+
 }
 
 void IWnd_flash::LoadFile(const String& movie)
@@ -378,4 +377,4 @@ BEGIN_EVENT_TABLE(IWnd_flash,basetype)
     EVT_ACTIVEX(wxID_ANY, IWnd_flash::OnActiveXEvent)
 END_EVENT_TABLE()
 
-EW6_LEAVE
+EW_LEAVE

@@ -1,5 +1,5 @@
 #include "ewc_base/plugin/plugin_plugineditor.h"
-#include "ewc_base/editor/plugin_figure_viewer.h"
+#include "ewc_base/editor/plugin_dom_viewer.h"
 #include "ewc_base/plugin/plugin_manager.h"
 
 #include "ewc_base/mvc/mvc_book.h"
@@ -1517,14 +1517,14 @@ public:
 };
 
 
-DataPtrT<MvcModel> PluginFigureViewer::CreateSampleModel()
+DataPtrT<MvcModel> PluginDomViewer::CreateSampleModel()
 {
 	return new MvcModelT<MvcViewFigure>;
 }
 
 
 
-bool PluginFigureViewer::OnAttach()
+bool PluginDomViewer::OnAttach()
 {
 
 	DataNodeCreator::Register<DFigure>();
@@ -1572,19 +1572,19 @@ bool PluginFigureViewer::OnAttach()
 }
 
 
-bool PluginFigureViewer::OnCfgEvent(int lv)
+bool PluginDomViewer::OnCfgEvent(int lv)
 {
 
 
 	return true;
 }
 
-PluginFigureViewer::PluginFigureViewer(WndManager& w):basetype(w,"Plugin.FigViewer")
+PluginDomViewer::PluginDomViewer(WndManager& w):basetype(w,"Plugin.FigViewer")
 {
 	m_aExtension.insert(".ewd");
 
 }
 
-IMPLEMENT_IPLUGIN(PluginFigureViewer)
+IMPLEMENT_IPLUGIN(PluginDomViewer)
 
 EW_LEAVE

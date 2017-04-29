@@ -70,7 +70,7 @@ public:
 
 	}
 
-	GLDC::BBoxInfo bi0;
+	GLBBoxInfo bi0;
 
 	void DoRender(GLDC& dc)
 	{
@@ -108,7 +108,7 @@ public:
 	}
 
 
-	GLDC::BBoxInfo bi0;
+	GLBBoxInfo bi0;
 
 	void DoRender(GLDC& dc)
 	{
@@ -123,7 +123,7 @@ public:
 			return;
 		}
 
-		GLDC::BBoxInfo bi1=dc.bi;
+		GLBBoxInfo bi1=dc.bi;
 		size_t n=subnodes.size();			
 		for (size_t i = 0; i < subnodes.size(); i++)
 		{
@@ -153,14 +153,14 @@ class DLLIMPEXP_EWC_BASE GLToolDataCoord2d : public GLToolData
 {
 public:
 
-	GLToolDataCoord2d(GLDC::BBoxInfo& bi0_, GLDC::BBoxInfo& bi1_) :bi0(bi0_), bi1(bi1_)
+	GLToolDataCoord2d(GLBBoxInfo& bi0_, GLBBoxInfo& bi1_) :bi0(bi0_), bi1(bi1_)
 	{
 
 	}
 
-	GLDC::BBoxInfo& bi0;
-	GLDC::BBoxInfo& bi1;
-	GLDC::BBoxInfo bi2;
+	GLBBoxInfo& bi0;
+	GLBBoxInfo& bi1;
+	GLBBoxInfo bi2;
 
 	virtual int OnDraging(GLTool& gt)
 	{
@@ -290,9 +290,8 @@ public:
 
 
 
-	GLDC::BBoxInfo bi0,bi1;
-
-	vec4d plane[6];
+	GLBBoxInfo bi0,bi1;
+	GLClipInfo ci;
 
 	void DoRender(GLDC& dc)
 	{
@@ -306,10 +305,12 @@ public:
 			bi1.b3bbox = dc.bi.b3bbox;
 			dc.bi.b3axis = bi1.b3axis;
 
-			plane[0].set3(+1, 0, 0); plane[0][3] = -dc.bi.b3bbox.lo[0];
-			plane[1].set3(-1, 0, 0); plane[1][3] = +dc.bi.b3bbox.hi[0];
-			plane[2].set3(0, +1, 0); plane[2][3] = -dc.bi.b3bbox.lo[1];
-			plane[3].set3(0, -1, 0); plane[3][3] = +dc.bi.b3bbox.hi[1];
+			ci.set(dc.bi.b3bbox);
+
+			//plane[0].set3(+1, 0, 0); plane[0][3] = -dc.bi.b3bbox.lo[0];
+			//plane[1].set3(-1, 0, 0); plane[1][3] = +dc.bi.b3bbox.hi[0];
+			//plane[2].set3(0, +1, 0); plane[2][3] = -dc.bi.b3bbox.lo[1];
+			//plane[3].set3(0, -1, 0); plane[3][3] = +dc.bi.b3bbox.hi[1];
 
 			vec3d v3p(dc.bi.b3bbox.lo);
 			vec3d v3w(dc.bi.b3bbox.width());
@@ -326,10 +327,10 @@ public:
 			}
 		}
 
-		for (int i = 0; i < 4; i++)
-		{
-			::glClipPlane(GL_CLIP_PLANE0 + i, plane[i].data());
-		}
+		//for (int i = 0; i < 4; i++)
+		//{
+		//	::glClipPlane(GL_CLIP_PLANE0 + i, ci.plane[i].data());
+		//}
 
 		if (dc.Mode() == GLDC::RENDER_SELECT)
 		{
@@ -343,7 +344,7 @@ public:
 			glEnd();
 			glDepthMask(true);
 
-			LockState<bool> lock(dc.bi.b_clip, true);
+			GLClipLocker lock(dc, ci);
 			basetype::DoRender(dc);
 			return;
 
@@ -354,7 +355,7 @@ public:
 
 			dc.Color(DColor(255,0,0));
 
-			LockState<bool> lock(dc.bi.b_clip, true);
+			GLClipLocker lock(dc, ci);
 			basetype::DoRender(dc);
 
 		}
@@ -398,7 +399,7 @@ public:
 	mat4d& mt1;
 	mat4d mt2;
 
-	GLDC::BBoxInfo bi2;
+	GLBBoxInfo bi2;
 
 	virtual int OnDraging(GLTool& gt)
 	{
@@ -543,7 +544,7 @@ public:
 
 
 
-	GLDC::BBoxInfo bi0, bi1;
+	GLBBoxInfo bi0, bi1;
 
 	mat4d mt0, mt1;
 
@@ -649,28 +650,6 @@ public:
 	DataNodeSymbolT(DataNode* n, CallableSymbol* p) :basetype(n, p)
 	{
 	}
-
-
-	void DoRender(GLDC& dc)
-	{
-		if (dc.bi.b_clip)
-		{
-			for (int i = 0; i < 4; i++)
-			{
-				::glEnable(GL_CLIP_PLANE0 + i);
-			}
-
-			DataNodeSymbol::DoRender(dc);
-			for (int i = 0; i < 4; i++)
-			{
-				::glDisable(GL_CLIP_PLANE0 + i);
-			}
-		}
-		else
-		{
-			DataNodeSymbol::DoRender(dc);
-		}
-	}
 };
 
 
@@ -706,7 +685,7 @@ public:
 	bool lbmax;
 	bool lbmin;
 
-	GLDC::BBoxInfo bi;
+	GLBBoxInfo bi;
 
 	void DoRender(GLDC& dc)
 	{
@@ -1350,48 +1329,14 @@ public:
 		return true;
 	}
 
-	static FigFigure* CreateFigure2()
+	static FigItem* CreateFigure1()
 	{
 
-		FigFigure *p = new FigFigure;
-		p->m_sId = "figure";
-
-		FigCoord* c = new FigCoord3D;
-		c->m_sId = "coord";
-
-		FigData* d = new FigData3D;
-		d->m_sId = "data1";
-
-		c->m_pDataManager->m_aItems.append(d);		
-
-		p->m_pItem.reset(c);
-
-		return p;
-	}
-
-	static DataModelSymbol* CreateDataModel2()
-	{
-
-		DataModelSymbol* model = new DataModelSymbol();
-
-
-		model->AddColumn(new DataColumnName);
-		model->AddColumn(new DataColumnType);
-
-		FigFigure* p=CreateFigure2();
-		model->Update(p);
-
-		return model;
-	}
-
-	static FigFigure* CreateFigure()
-	{
-
-		FigFigure *p = new FigFigure;
-		p->m_sId = "figure";
+		//FigFigure *p = new FigFigure;
+		//p->m_sId = "figure";
 
 		FigCoord* c = new FigCoord2D;
-		c->m_sId = "coord";
+		c->m_sId = "coord2d";
 
 		FigData2D* d = new FigData2D;
 		d->m_sId = "data1";
@@ -1430,9 +1375,47 @@ public:
 		t->m_tFont.flags.add(DFontStyle::STYLE_VERTICAL);
 		c->m_aItems.append(t);
 
-		p->m_pItem.reset(c);
-		return p;
+		return c;
+
+		//p->m_pItem.reset(c);
+		//return p;
 	}
+
+	static FigItem* CreateFigure2()
+	{
+
+		//FigFigure *p = new FigFigure;
+		//p->m_sId = "figure";
+
+		FigCoord* c = new FigCoord3D;
+		c->m_sId = "coord3d";
+
+		FigData* d = new FigData3D;
+		d->m_sId = "data1";
+
+		c->m_pDataManager->m_aItems.append(d);		
+
+		return c;
+
+		//p->m_pItem.reset(c);
+		//return p;
+	}
+
+	static DataModelSymbol* CreateDataModel2()
+	{
+
+		DataModelSymbol* model = new DataModelSymbol();
+
+
+		model->AddColumn(new DataColumnName);
+		model->AddColumn(new DataColumnType);
+
+		FigItem* p=CreateFigure2();
+		model->Update(p);
+
+		return model;
+	}
+
 
 	static DataModelSymbol* CreateDataModel1()
 	{
@@ -1443,8 +1426,8 @@ public:
 		model->AddColumn(new DataColumnType);
 
 
-		FigFigure* p1=CreateFigure();
-		FigFigure* p2=CreateFigure2();
+		FigItem* p1 = CreateFigure1();
+		FigItem* p2 = CreateFigure2();
 
 		FigTableRow* p3=new FigTableRow("row");
 		FigTableCell* c1=new FigTableCell("cell");

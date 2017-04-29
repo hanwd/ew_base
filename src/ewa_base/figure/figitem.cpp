@@ -87,5 +87,6 @@ void DFontStyle::_init()
 
 
 IMPLEMENT_OBJECT_INFO(FigItem, ObjectSymbolInfo);
+IMPLEMENT_OBJECT_INFO(FigBBox, ObjectSymbolInfo);
 
 EW_LEAVE

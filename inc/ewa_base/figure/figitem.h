@@ -100,6 +100,17 @@ public:
 	DECLARE_OBJECT_INFO(FigItem, ObjectSymbolInfo);
 };
 
+class DLLIMPEXP_EWA_BASE FigBBox : public FigItem
+{
+public:
+	typedef CallableSymbol basetype;
+	FigBBox(const String& name = "") :FigItem(name){}
+
+
+	DECLARE_OBJECT_INFO(FigBBox, ObjectSymbolInfo);
+};
+
+
 
 template<typename T, typename B>
 class FigGroupT : public B

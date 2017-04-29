@@ -341,10 +341,13 @@ void GLDC::LineStyle(const DLineStyle& style)
 		if (style.ntype == DLineStyle::LINE_NONE)
 		{
 			LineWidth(0.0);
+			::glLineStipple(1, 0x0000);
+			::glEnable(GL_LINE_STIPPLE);
 		}
 		else
 		{
 			LineWidth(style.nsize + 1.5);
+			::glDisable(GL_LINE_STIPPLE);
 		}
 	}
 	else
@@ -814,6 +817,39 @@ void GLDC::SetFont(const DFontStyle& font)
 }
 
 
+void GLDC::Enable(int id, bool f)
+{
+	if (f)
+	{
+		::glEnable(id);
+	}
+	else
+	{
+		::glDisable(id);
+	}
+}
+
+GLClipLocker::GLClipLocker(GLDC& dc_, const GLClipInfo& ci_) :dc(dc_), ci0(ci_)
+{
+	ci0 = dc.ClipPlane(ci0);
+}
+GLClipLocker::~GLClipLocker()
+{
+	ci0 = dc.ClipPlane(ci0);
+}
+
+GLClipInfo GLDC::ClipPlane(const GLClipInfo& ci_)
+{
+	GLClipInfo ci0(ci);ci = ci_;
+
+	for (int i = 0; i < 4; i++)
+	{
+		::glClipPlane(GL_CLIP_PLANE0 + i, ci.plane[i].data());
+		Enable(GL_CLIP_PLANE0 + i,ci.enable);
+	}
+
+	return ci0;
+}
 
 class gl_bitmap
 {

@@ -8,6 +8,7 @@ EW_ENTER
 
 class DLLIMPEXP_EWC_BASE DataNode;
 class DLLIMPEXP_EWC_BASE DataModel;
+class DLLIMPEXP_EWC_BASE GLDC;
 
 class DLLIMPEXP_EWC_BASE GLContext : public NonCopyable
 {
@@ -77,6 +78,40 @@ private:
 	bool status;
 };
 
+class GLBBoxInfo
+{
+public:
+	box3d b3bbox;
+	box3d b3axis;
+	mat4d m4data;
+};
+
+class GLClipInfo
+{
+public:
+	vec4d plane[4];
+	bool enable;
+
+	void set(const box3d& b3bbox)
+	{
+		enable = true;
+		plane[0].set3(+1, 0, 0); plane[0][3] = -b3bbox.lo[0];
+		plane[1].set3(-1, 0, 0); plane[1][3] = +b3bbox.hi[0];
+		plane[2].set3(0, +1, 0); plane[2][3] = -b3bbox.lo[1];
+		plane[3].set3(0, -1, 0); plane[3][3] = +b3bbox.hi[1];
+	}
+
+	GLClipInfo() :enable(false){}
+};
+
+class GLClipLocker
+{
+public:
+	GLDC &dc;
+	GLClipInfo ci0;
+	GLClipLocker(GLDC& dc_, const GLClipInfo& ci_);
+	~GLClipLocker();
+};
 
 class DVec2i : public vec2i
 {
@@ -105,25 +140,10 @@ public:
 	};
 
 
-	class BBoxInfo
-	{
-	public:
-		box3d b3bbox;
-		box3d b3axis;
-		mat4d m4data;
-	};
+	GLBBoxInfo bi;
+	GLClipInfo ci;
 
-	class BBoxInfoEx : public BBoxInfo
-	{
-	public:
-		BBoxInfoEx(){ b_clip = false; }
-		BBoxInfoEx& operator = (const BBoxInfo& o)
-		{
-			static_cast<BBoxInfo&>(*this) = o;
-			return *this;
-		}
-		bool b_clip;
-	}bi;
+	GLClipInfo ClipPlane(const GLClipInfo& ci_);
 
 
 	void Light(DLight& light, bool f);
@@ -153,6 +173,8 @@ public:
 
 	void SaveBuffer(const String& id);
 	void LoadBuffer(const String& id,wxDC& dc);
+
+	void Enable(int id, bool f = true);
 
 
 	DataNode* HitTest(unsigned x, unsigned y);

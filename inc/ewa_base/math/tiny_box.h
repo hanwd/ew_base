@@ -178,6 +178,11 @@ public:
 		return hi - lo;
 	}
 
+	tiny_vec<T,N> center() const
+	{
+		return 0.5*(lo+hi);
+	}
+
 
 	bool operator==(const tiny_box& rhs)
 	{

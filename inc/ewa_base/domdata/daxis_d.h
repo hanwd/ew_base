@@ -6,16 +6,38 @@
 EW_ENTER
 
 
-class DLLIMPEXP_EWA_BASE DAxisD : public FigGroupT<DAxisUnit, FigAxis>
+class DLLIMPEXP_EWA_BASE DAxis : public FigGroupT<DAxisUnit, DObject>
 {
 public:
 
-	typedef FigGroupT<DAxisUnit, FigAxis> basetype;
+	typedef FigGroupT<DAxisUnit, DObject> basetype;
 
-	DAxisD(const String& name="axis_d");
+	enum
+	{
+		MODE_NONE,
+		MODE_2D_BOX,
+		MODE_2D_POLAR,
+		MODE_3D_BOX,
+		MODE_CYLINDER,
+		MODE_3D_DIR,
+		MODE_SPHERE,
+	};
 
-	DECLARE_OBJECT_INFO(DAxisD, DObjectInfo);
+	DAxis(const String& name="axis_d");
+
+	virtual bool DoGetChildren(arr_1t<DataPtrT<DObject> >* p)
+	{
+		if(m_aItems.empty()) return false;
+		return basetype::DoGetChildren(p);
+	}
+
+	int m_nMode;
+
+	void SetMode(int mode);
+
+	DECLARE_OBJECT_INFO(DAxis, DObjectInfo);
 };
+
 
 
 EW_LEAVE

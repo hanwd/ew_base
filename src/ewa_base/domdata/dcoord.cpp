@@ -13,7 +13,8 @@ DCoord::DCoord()
 
 DCoord2D::DCoord2D()
 {
-	m_pAxis.reset(new DAxisD);
+	m_pAxis.reset(new DAxis);
+	m_pAxis->SetMode(DAxis::MODE_2D_BOX);
 
 	m_aItems.append(m_pAxis.get());
 	m_aItems.append(m_pDataManager.get());
@@ -22,9 +23,11 @@ DCoord2D::DCoord2D()
 
 DCoord3D::DCoord3D()
 {
-	//m_pAxis.reset(new DAxisD);
-	m_aItems.append(m_pDataManager.get());
+	m_pAxis.reset(new DAxis);
+	m_pAxis->SetMode(DAxis::MODE_3D_DIR);
 
+	m_aItems.append(m_pAxis.get());
+	m_aItems.append(m_pDataManager.get());
 }
 
 IMPLEMENT_OBJECT_INFO(DCoord, DObjectInfo);

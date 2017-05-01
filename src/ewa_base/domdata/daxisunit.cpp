@@ -36,20 +36,16 @@ DAxisUnitD::DAxisUnitD(const String& name,int d):basetype(name)
 	FontText.color.set(127, 127, 127);
 }
 
-AxisUnitR::AxisUnitR(const String& name) :DAxisUnit(name)
+DAxisUnitR::DAxisUnitR(const String& name) :DAxisUnit(name)
 {
 	m_nRadiusTextAngle = 0.5*(30.0 + 45.0);
 }
 
-FigAxis::FigAxis(const String& name)
-:basetype(name)
-{
-	rmin=-30.0;
-}
+
 
 IMPLEMENT_OBJECT_INFO(DAxisUnitD, DObjectInfo);
-IMPLEMENT_OBJECT_INFO(AxisUnitP, DObjectInfo);
-IMPLEMENT_OBJECT_INFO(AxisUnitR, DObjectInfo);
+IMPLEMENT_OBJECT_INFO(DAxisUnitP, DObjectInfo);
+IMPLEMENT_OBJECT_INFO(DAxisUnitR, DObjectInfo);
 
 EW_LEAVE
 

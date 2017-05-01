@@ -121,6 +121,10 @@ public:
 	DVec2i(const vec2i& o);
 };
 
+
+
+typedef void (*GLDC_Color_Function)(const DColor& c);
+
 class GLDC : public GLContext
 {
 public:
@@ -143,6 +147,7 @@ public:
 	GLBBoxInfo bi;
 	GLClipInfo ci;
 
+
 	GLClipInfo ClipPlane(const GLClipInfo& ci_);
 
 
@@ -155,7 +160,8 @@ public:
 
 	void LoadIdentity();
 
-	void (*Color)(const DColor& c);
+
+	GLDC_Color_Function Color;
 
 	void PushMatrix();
 
@@ -183,7 +189,7 @@ public:
 	void LineStyle(const DLineStyle& style);
 
 
-	vec2i GetTextExtend(const String& text);	
+	vec2i GetExtend(const String& text);	
 
 	void PrintText(const String& text, const vec3d& pos=vec3d(),const vec3d& shf=vec3d(), const vec3d& pxl=vec3d());
 
@@ -192,8 +198,6 @@ public:
 
 	void EnterGroup();
 	void LeaveGroup();
-
-
 
 	class MatrixLocker
 	{
@@ -217,8 +221,14 @@ protected:
 
 	class TextData;
 
-	vec2i DoGetTextExtend(const TextData& text);	
+	vec2i DoGetExtend(const TextData& text);	
 	void DoPrintText(const TextData& text, const vec3d& pos,const vec3d& shf, const vec3d& pxl);
+
+	arr_1t<uint8_t> m_aBitmapCachedData;
+	DataPtrT<ObjectData> m_pFontData;
+	DFontStyle m_tFontStyle;
+
+
 	static void _Color1(const DColor& color);
 	static void _Color2(const DColor& color);
 
@@ -226,12 +236,12 @@ protected:
 	int m_nMode;
 	box3d m_b3BBox;
 	DColor m_v4BgColor;
-
+	GLClipInfo m_tClipInfo;
 	arr_1t<int> m_aLights;
 
 	indexer_set<DataNode*> m_aNodes;
-	DataPtrT<ObjectData> m_pFontData;
-	arr_1t<uint8_t> m_aBitmapCachedData;
+	//DataPtrT<ObjectData> m_pFontData;
+	
 
 	bst_map<String, GLBuffer> m_mapBuffers;
 };

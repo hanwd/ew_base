@@ -42,6 +42,16 @@ public:
 	DColor color;
 	BitFlags flags;
 
+	bool operator==(const DFontStyle& rhs)
+	{
+		return nsize==rhs.nsize && sname==rhs.sname && color==rhs.color && flags==rhs.flags;
+	}
+
+	bool operator!=(const DFontStyle& rhs)
+	{
+		return !operator==(rhs);
+	}
+
 	enum
 	{
 		STYLE_VERTICAL = 1 << 0,

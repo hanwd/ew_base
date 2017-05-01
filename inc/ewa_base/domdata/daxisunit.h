@@ -53,18 +53,6 @@ public:
 	DFontStyle FontText;
 };
 
-class DLLIMPEXP_EWA_BASE FigAxis : public DObject
-{
-public:
-	typedef DObject basetype;
-
-	FigAxis(const String& name="");
-
-	double rmin;
-	double rmax;
-};
-
-
 
 class DLLIMPEXP_EWA_BASE DAxisUnitD : public DAxisUnit
 {
@@ -84,25 +72,26 @@ public:
 	DECLARE_OBJECT_INFO(DAxisUnitD, DObjectInfo);
 };
 
-class DLLIMPEXP_EWA_BASE AxisUnitP : public DAxisUnit
+class DLLIMPEXP_EWA_BASE DAxisUnitP : public DAxisUnit
 {
 public:
 
-	AxisUnitP(const String& name = "") :DAxisUnit(name){}
+	DAxisUnitP(const String& name = "") :DAxisUnit(name){}
 
-	DECLARE_OBJECT_INFO(AxisUnitP, DObjectInfo);
+	DECLARE_OBJECT_INFO(DAxisUnitP, DObjectInfo);
 };
 
-class DLLIMPEXP_EWA_BASE AxisUnitR : public DAxisUnit
+class DLLIMPEXP_EWA_BASE DAxisUnitR : public DAxisUnit
 {
 public:
 
-	AxisUnitR(const String& name = "");
+	DAxisUnitR(const String& name = "");
 
 	double m_nRadiusTextAngle; //deg
 
-	DECLARE_OBJECT_INFO(AxisUnitR, DObjectInfo);
+	DECLARE_OBJECT_INFO(DAxisUnitR, DObjectInfo);
 };
+
 
 
 EW_LEAVE

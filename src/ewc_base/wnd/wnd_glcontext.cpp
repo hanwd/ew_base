@@ -1,6 +1,8 @@
 #include "ewc_base/wnd/wnd_glcontext.h"
 #include "ewc_base/data/data_node.h"
 #include "ewc_base/data/data_model.h"
+
+
 #include "gl/gl.h"
 
 EW_ENTER
@@ -233,6 +235,7 @@ void GLDC::Reshape(const DVec2i& s_, const DVec2i& p_)
 	::glEnable(GL_NORMALIZE);
 	::glDisable(GL_BLEND);
 	::glEnable(GL_DEPTH_TEST);
+	::glDepthFunc(GL_LEQUAL);
 
 	m_b3BBox = bi.b3bbox;
 
@@ -310,24 +313,6 @@ void GLDC::LoadBuffer(const String& id, wxDC& dc)
 	(*it).second.Blit(dc);
 }
 
-
-
-void GLDC::RenderNode(DataNode* node)
-{
-	if (!node) return;
-	if (m_nMode == RENDER_SELECT)
-	{
-		int val = m_aNodes.find2(node);
-		DColor& color(*(DColor*)&val);
-
-		//val = (val+31113) * 1314111;
-		//color.a = 255;
-
-		_Color1(color);
-	}
-
-	node->DoRender(*this);
-}
 
 void GLDC::LineWidth(double d)
 {
@@ -431,6 +416,25 @@ int GLDC::Mode()
 }
 
 
+
+void GLDC::RenderNode(DataNode* node)
+{
+	if (!node) return;
+	if (m_nMode == RENDER_SELECT)
+	{
+		int val = m_aNodes.find2(node);
+		DColor& color(*(DColor*)&val);
+
+		//val = (val+31113) * 1314111;
+		//color.a = 255;
+
+		_Color1(color);
+	}
+
+	node->DoRender(*this);
+}
+
+
 void GLDC::RenderModel(DataModel* model)
 {
 	Clear();	
@@ -500,6 +504,7 @@ class GLFontDataImpl : public ObjectData
 {
 public:
 
+
 	GLFontDataImpl()
 	{
 		hFont = NULL;
@@ -520,11 +525,11 @@ public:
 		binf->bmiHeader.biClrImportant = 0;
 	}
 
-	GLFontDataImpl(const DFontStyle& font) :tFont(font)
+	GLFontDataImpl(const DFontStyle& font)
 	{
 		hFont = NULL;
 		hDC = NULL;
-		update();
+		update(font);
 	}
 
 	~GLFontDataImpl()
@@ -547,7 +552,7 @@ public:
 		}
 	}
 
-	void update()
+	void update(const DFontStyle& font)
 	{
 
 		//WINGDIAPI HFONT   WINAPI CreateFontA( __in int cHeight, 
@@ -567,23 +572,23 @@ public:
 
 		reset();
 
-		const DFontStyle& font(tFont);
+		bVertical=font.flags.get(DFontStyle::STYLE_VERTICAL);
 
 		hFont = ::CreateFontW(
 			font.nsize,
-			0,										 //字体宽度 
-			font.flags.get(DFontStyle::STYLE_VERTICAL) ? 900 : 0,	//字体的旋转角度  
-			0,										//字体底线的旋转角度  
+			0,											//字体宽度 
+			bVertical ? 900 : 0,						//字体的旋转角度  
+			0,											//字体底线的旋转角度  
 			90,//font.nsize,							//字体的重量 
-			font.flags.get(DFontStyle::STYLE_ITALIC),				//是否使用斜体
-			font.flags.get(DFontStyle::STYLE_UNDERLINE),			//是否使用下划线
-			font.flags.get(DFontStyle::STYLE_STRIDE),				//是否使用删除线
-			GB2312_CHARSET,				//设置字符集 
-			OUT_TT_PRECIS,					//输出精度  
-			CLIP_DEFAULT_PRECIS,			//裁剪精度 
-			ANTIALIASED_QUALITY,			//输出质量 
-			FF_DONTCARE | DEFAULT_PITCH,		//Family And Pitch 
-			IConv::to_wide(font.sname).c_str());					//字体名称
+			font.flags.get(DFontStyle::STYLE_ITALIC),	//是否使用斜体
+			font.flags.get(DFontStyle::STYLE_UNDERLINE),//是否使用下划线
+			font.flags.get(DFontStyle::STYLE_STRIDE),	//是否使用删除线
+			GB2312_CHARSET,								//设置字符集 
+			OUT_TT_PRECIS,								//输出精度  
+			CLIP_DEFAULT_PRECIS,						//裁剪精度 
+			ANTIALIASED_QUALITY,						//输出质量 
+			FF_DONTCARE | DEFAULT_PITCH,				//Family And Pitch 
+			IConv::to_wide(font.sname).c_str());		//字体名称
 
 		if (!hFont) return;
 		hDC = ::CreateCompatibleDC(NULL);
@@ -592,9 +597,9 @@ public:
 	}
 
 
-	DFontStyle tFont;
 	HFONT hFont;
 	HDC hDC;
+	bool bVertical;
 
 	struct
 	{
@@ -631,7 +636,7 @@ public:
 		if (pdata)
 		{
 			dc =pdata->hDC;
-			bv = pdata->tFont.flags.get(DFontStyle::STYLE_VERTICAL);
+			bv = pdata->bVertical;
 			bi = (BITMAPINFO *)&pdata->hBitmapHeader;
 
 			bi->bmiHeader.biSize = sizeof(bi->bmiHeader);	/**< 修改结构信息 */
@@ -686,13 +691,13 @@ public:
 	BITMAPINFO *bi;
 };
 
-vec2i GLDC::GetTextExtend(const String& text)
+vec2i GLDC::GetExtend(const String& text)
 {
 	TextData tdata(text, (GLFontDataImpl*)m_pFontData.get());
-	return DoGetTextExtend(tdata);
+	return DoGetExtend(tdata);
 }
 
-vec2i GLDC::DoGetTextExtend(const TextData& data)
+vec2i GLDC::DoGetExtend(const TextData& data)
 {
 
 	vec2i size;
@@ -730,13 +735,19 @@ void GLDC::PrintText(const String& text, const vec3d& pos,const vec3d& shf, cons
 	return DoPrintText(tdata,pos,shf,pxl);
 }
 
-void GLDC::DoPrintText(const TextData& data,const vec3d& pos,const vec3d& shf, const vec3d& pxl)
+
+ void GLDC::DoPrintText(const TextData& data,const vec3d& pos,const vec3d& shf, const vec3d& pxl)
 {
 
 	if (!data.dc) return;
 
+
+	if(m_tFontStyle.color.a!=0)
+	{
+		GLDC::Color(m_tFontStyle.color);
+	}
 	
-	vec2i size = DoGetTextExtend(data);
+	vec2i size = DoGetExtend(data);
 
 	HBITMAP hBitmap = ::CreateBitmap(size[0], size[1], 1, 1, NULL);
 	HBITMAP hOldBmp = (HBITMAP)SelectObject(data.dc, hBitmap);
@@ -787,6 +798,9 @@ void GLDC::DoPrintText(const TextData& data,const vec3d& pos,const vec3d& shf, c
 
 	int xorg = ::wxRound((0.5 - 0.5*shf[0])*size[0] - pxl[0]);
 	int yorg = ::wxRound((0.5 - 0.5*shf[1])*size[1] - pxl[1]);
+
+
+
 	glBitmap(sz.cx, sz.cy, xorg, yorg, 0.0, 0.0, pBmpBits);
 
 	::SelectObject(data.dc, hOldBmp);
@@ -808,11 +822,13 @@ void GLDC::LeaveGroup()
 
 void GLDC::SetFont(const DFontStyle& font)
 {
-	if (font.color.a != 0 && m_nMode!=RENDER_SELECT)
+
+	if(m_tFontStyle==font && m_pFontData)
 	{
-		Color(font.color);
+		return;
 	}
 
+	m_tFontStyle=font;
 	m_pFontData.reset(new GLFontDataImpl(font));
 }
 
@@ -833,6 +849,7 @@ GLClipLocker::GLClipLocker(GLDC& dc_, const GLClipInfo& ci_) :dc(dc_), ci0(ci_)
 {
 	ci0 = dc.ClipPlane(ci0);
 }
+
 GLClipLocker::~GLClipLocker()
 {
 	ci0 = dc.ClipPlane(ci0);
@@ -840,12 +857,12 @@ GLClipLocker::~GLClipLocker()
 
 GLClipInfo GLDC::ClipPlane(const GLClipInfo& ci_)
 {
-	GLClipInfo ci0(ci);ci = ci_;
+	GLClipInfo ci0(m_tClipInfo);m_tClipInfo = ci_;
 
 	for (int i = 0; i < 4; i++)
 	{
-		::glClipPlane(GL_CLIP_PLANE0 + i, ci.plane[i].data());
-		Enable(GL_CLIP_PLANE0 + i,ci.enable);
+		::glClipPlane(GL_CLIP_PLANE0 + i, m_tClipInfo.plane[i].data());
+		Enable(GL_CLIP_PLANE0 + i,m_tClipInfo.enable);
 	}
 
 	return ci0;

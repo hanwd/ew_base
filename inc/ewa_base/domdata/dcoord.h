@@ -18,7 +18,7 @@ public:
 	DCoord();
 
 	DataPtrT<DFigDataManager> m_pDataManager;
-	DataPtrT<FigAxis> m_pAxis;
+	
 
 	DECLARE_OBJECT_INFO(DCoord, DObjectInfo);
 };
@@ -28,6 +28,7 @@ class DLLIMPEXP_EWA_BASE DCoord2D : public DCoord
 public:
 
 	DCoord2D();
+	DataPtrT<DAxis> m_pAxis;
 
 	DECLARE_OBJECT_INFO(DCoord2D, DObjectInfo);
 };
@@ -37,6 +38,7 @@ class DLLIMPEXP_EWA_BASE DCoord3D : public DCoord
 public:
 
 	DCoord3D();
+	DataPtrT<DAxis> m_pAxis;
 
 	DECLARE_OBJECT_INFO(DCoord3D, DObjectInfo);
 };

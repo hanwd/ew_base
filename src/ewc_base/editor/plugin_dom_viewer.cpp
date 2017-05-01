@@ -56,9 +56,132 @@ public:
 	typedef DataNodeSymbol basetype;
 	DataNodeSymbolT(DataNode* n, DObject* p) :basetype(n, p)
 	{
+		line1.color.set(200,200,200);
 	}
+
+	box3d b3bbox0;
+	box3d b3bbox1;
+	box3d b3margin;
+	GLClipInfo clinfo;
+
+	DLineStyle line1;
+
+	vec3d v3pos,v3shf,v3size;
+
+	void DoSetRealSize(const box3d& b3bbox)
+	{
+		b3bbox0=b3bbox1=b3bbox;
+		b3bbox1.lo+=b3margin.lo;
+		b3bbox1.hi-=b3margin.hi;
+	}
+
+	void DoSetRealSize(const vec3d& v3pos,const vec3d& v3shf,const vec3d& v3size)
+	{
+		b3bbox1.lo=b3bbox1.hi=v3pos;
+		b3bbox1.lo-=0.5*v3size;
+		b3bbox1.hi+=0.5*v3size;
+
+		b3bbox1.lo[0]+=0.5*v3shf[0]*v3size[0];
+		b3bbox1.hi[0]+=0.5*v3shf[0]*v3size[0];
+		b3bbox1.lo[1]+=0.5*v3shf[1]*v3size[1];
+		b3bbox1.hi[1]+=0.5*v3shf[1]*v3size[1];
+
+		b3bbox0=b3bbox1;
+		b3bbox0.lo-=b3margin.lo;
+		b3bbox0.hi+=b3margin.hi;		
+	}
+/*
+	void DoRender(GLDC& dc) = 0;
+
+	void DoRender(GLDC& dc)
+	{
+
+		if (dc.Mode() == GLDC::RENDER_SET_REALSIZE)
+		{
+			DoSetRealSize(dc.bi.b3bbox);
+			return;
+		}
+
+		if (dc.Mode() == GLDC::RENDER_SELECT)
+		{
+			glBegin(GL_QUADS);
+			glVertex2d(b3bbox0.lo[0], b3bbox0.lo[1]);
+			glVertex2d(b3bbox0.hi[0], b3bbox0.lo[1]);
+			glVertex2d(b3bbox0.hi[0], b3bbox0.hi[1]);
+			glVertex2d(b3bbox0.lo[0], b3bbox0.hi[1]);
+			glEnd();
+			basetype::DoRender(dc);
+			return;
+		}
+		else
+		{
+			basetype::DoRender(dc);		
+		}
+
+		//if (dc.Mode() == GLDC::RENDER_SOLID)
+		//{
+		//	dc.Color(DColor(124,124,124));
+
+		//	glBegin(GL_QUADS);
+		//	glVertex2d(b3bbox0.lo[0], b3bbox0.lo[1]);
+		//	glVertex2d(b3bbox0.hi[0], b3bbox0.lo[1]);
+		//	glVertex2d(b3bbox0.hi[0], b3bbox0.hi[1]);
+		//	glVertex2d(b3bbox0.lo[0], b3bbox0.hi[1]);
+		//	glEnd();
+
+		//	return;
+		//}		
+
+	}
+*/
+
 };
 
+
+template<>
+class DataNodeSymbolT<DText> : public DataNodeSymbolT<DObjectBox>
+{
+public:
+	typedef DataNodeSymbolT<DObjectBox> basetype;
+
+	DataNodeSymbolT(DataNode* n, DObject* p) :basetype(n, p)
+	{
+		b3margin.lo.set2(5,5);
+		b3margin.hi.set2(5,5);
+	}
+
+	void DoRender(GLDC& dc)
+	{
+		if (!value) return;
+		DText* p = static_cast<DText*>(value.get());
+
+		if (dc.Mode() == GLDC::RENDER_SET_REALSIZE)
+		{
+			vec3d v3shf=p->m_v3Shf;
+			vec3d v3pos;
+			vec3d v3size;
+
+			v3pos[0] =0.5*((p->m_v3Pos[0]+1.0) * dc.bi.b3bbox.hi[0] + (1.0 - p->m_v3Pos[0])*dc.bi.b3bbox.lo[0]) + p->m_v3Pxl[0];
+			v3pos[1] =0.5*((p->m_v3Pos[1]+1.0) * dc.bi.b3bbox.hi[1] + (1.0 - p->m_v3Pos[1])*dc.bi.b3bbox.lo[1]) + p->m_v3Pxl[1];
+
+			dc.SetFont(p->m_tFont);
+			vec2i v2size=dc.GetExtend(p->m_sText);
+			v3size.set2(v2size[0],v2size[1]);
+
+			DoSetRealSize(v3pos,v3shf,v3size);
+
+			return;
+		}
+
+
+		if (dc.Mode() == GLDC::RENDER_TEXT||dc.Mode() == GLDC::RENDER_SELECT)
+		{
+			dc.SetFont(p->m_tFont);
+			dc.PrintText(p->m_sText,b3bbox1.center());
+		}
+	}
+
+};
 
 template<>
 class DataNodeSymbolT<DCoord> : public DataNodeSymbolT<DObjectBox>
@@ -66,9 +189,13 @@ class DataNodeSymbolT<DCoord> : public DataNodeSymbolT<DObjectBox>
 public:
 public:
 	typedef DataNodeSymbolT<DObjectBox> basetype;
+
 	DataNodeSymbolT(DataNode* n, DObject* p) :basetype(n, p)
 	{
+
 	}
+
+	box3d b3axis0,b3axis1;
 };
 
 
@@ -83,13 +210,13 @@ public:
 
 	}
 
-	GLBBoxInfo bi0;
+	box3d b3bbox0;
 
 	void DoRender(GLDC& dc)
 	{
 		if (dc.Mode() == GLDC::RENDER_SET_REALSIZE)
 		{
-			bi0.b3bbox = dc.bi.b3bbox;
+			b3bbox0 = dc.bi.b3bbox;
 		}
 
 		if(subnodes.size()<1)
@@ -101,9 +228,9 @@ public:
 		size_t n=subnodes.size()-1;			
 		for (size_t i = 0; i < subnodes.size(); i++)
 		{
-			dc.bi.b3axis.lo[1]=(double(i)*bi0.b3bbox.hi[1]+double(n-i)*bi0.b3bbox.lo[1])/double(n);
-			dc.bi.b3axis.hi[1]=(double(i+1)*bi0.b3bbox.hi[1]+double(n-i-1)*bi0.b3bbox.lo[1])/double(n);
-			subnodes[i]->DoRender(dc);
+			dc.bi.b3axis.lo[1]=(double(i)*b3bbox0.hi[1]+double(n-i)*b3bbox0.lo[1])/double(n);
+			dc.bi.b3axis.hi[1]=(double(i+1)*b3bbox0.hi[1]+double(n-i-1)*b3bbox0.lo[1])/double(n);
+			dc.RenderNode(subnodes[i]);
 		}
 
 	}
@@ -137,13 +264,14 @@ public:
 		}
 
 		GLBBoxInfo bi1=dc.bi;
+
 		size_t n=subnodes.size();			
 		for (size_t i = 0; i < subnodes.size(); i++)
 		{
 			dc.bi=bi1;
 			dc.bi.b3bbox.lo[0]=(double(i)*bi0.b3bbox.hi[0]+double(n-i)*bi0.b3bbox.lo[0])/double(n);
 			dc.bi.b3bbox.hi[0]=(double(i+1)*bi0.b3bbox.hi[0]+double(n-i-1)*bi0.b3bbox.lo[0])/double(n);
-			subnodes[i]->DoRender(dc);
+			dc.RenderNode(subnodes[i]);
 		}
 
 	}
@@ -162,18 +290,121 @@ public:
 };
 
 
+template<>
+class DataNodeSymbolT<DCoord2D> : public DataNodeSymbolT<DCoord>
+{
+public:
+
+	typedef DataNodeSymbolT<DCoord> basetype;
+
+	DataNodeSymbolT(DataNode* n, DObject* p) :basetype(n, p)
+	{
+		b3axis1.set_x(-100.0, +100.0);
+		b3axis1.set_y(-100.0, +100.0);
+		b3axis1.set_z(-1.0, +1.0);
+
+		b3axis0 = b3axis1;
+
+		b3margin.lo=70;
+		b3margin.hi=45;
+	}
+
+	virtual DataPtrT<GLToolData> GetToolData();
+
+	void DoRender(GLDC& dc)
+	{
+		if (dc.Mode() == GLDC::RENDER_SET_REALSIZE)
+		{
+
+			DoSetRealSize(dc.bi.b3bbox);
+			
+			dc.bi.b3axis = b3axis1;
+			dc.bi.b3bbox = b3bbox1;
+
+			clinfo.set(dc.bi.b3bbox);
+
+			vec3d v3p(dc.bi.b3bbox.lo);
+			vec3d v3w(dc.bi.b3bbox.width());
+
+			dc.bi.m4data.LoadIdentity();
+			dc.bi.m4data.Translate(v3p);
+			dc.bi.m4data.Scale(v3w);
+			dc.bi.m4data.Scale(1.0 / dc.bi.b3axis.width());
+			dc.bi.m4data.Translate(-dc.bi.b3axis.lo);
+
+			for (size_t i = 0; i < subnodes.size(); i++)
+			{
+				subnodes[i]->DoRender(dc);
+			}
+
+			return;
+		}
+
+
+		LockState<GLClipInfo> lock_ci(dc.ci,clinfo);
+
+		if (dc.Mode() == GLDC::RENDER_SELECT)
+		{
+
+			glDepthMask(false);
+			glBegin(GL_QUADS);
+			glVertex2d(b3bbox0.lo[0], b3bbox0.lo[1]);
+			glVertex2d(b3bbox0.hi[0], b3bbox0.lo[1]);
+			glVertex2d(b3bbox0.hi[0], b3bbox0.hi[1]);
+			glVertex2d(b3bbox0.lo[0], b3bbox0.hi[1]);
+			glEnd();
+			glDepthMask(true);
+
+			basetype::DoRender(dc);
+			return;
+
+		}
+		
+		if (dc.Mode() == GLDC::RENDER_SOLID)
+		{
+			dc.Color(DColor(255,0,0));			
+			basetype::DoRender(dc);
+		}
+		
+		if (dc.Mode() == GLDC::RENDER_TEXT)
+		{
+
+			//DFontStyle font;
+			//font.color.set(200,200,200);
+			//dc.SetFont(font);
+		
+			basetype::DoRender(dc);
+
+			dc.LineStyle(line1);
+			glBegin(GL_LINE_LOOP);
+				glVertex2d(b3bbox1.lo[0], b3bbox1.lo[1]);
+				glVertex2d(b3bbox1.hi[0], b3bbox1.lo[1]);
+				glVertex2d(b3bbox1.hi[0], b3bbox1.hi[1]);
+				glVertex2d(b3bbox1.lo[0], b3bbox1.hi[1]);
+			glEnd();
+
+		}
+
+	}
+};
+
+
 class DLLIMPEXP_EWC_BASE GLToolDataCoord2d : public GLToolData
 {
 public:
 
-	GLToolDataCoord2d(GLBBoxInfo& bi0_, GLBBoxInfo& bi1_) :bi0(bi0_), bi1(bi1_)
+	DataNodeSymbolT<DCoord2D>* pnode;
+
+	GLToolDataCoord2d(DataNodeSymbolT<DCoord2D>* pnode_) :pnode(pnode_)
 	{
 
 	}
 
-	GLBBoxInfo& bi0;
-	GLBBoxInfo& bi1;
-	GLBBoxInfo bi2;
+	//GLBBoxInfo& bi0;
+	//GLBBoxInfo& bi1;
+	//GLBBoxInfo bi2;
+
+	box3d b3bbox2,b3axis2;
 
 	virtual int OnDraging(GLTool& gt)
 	{
@@ -184,13 +415,13 @@ public:
 			vec2i dvec = gt.v2pos2 - gt.v2pos1;
 			dvec[1] *= -1;
 
-			double d1 = double(dvec[0])*bi2.b3axis.x_width() / double(bi2.b3bbox.x_width());
-			double d2 = double(dvec[1])*bi2.b3axis.y_width() / double(bi2.b3bbox.y_width());
+			double d1 = double(dvec[0])*b3axis2.x_width() / double(b3bbox2.x_width());
+			double d2 = double(dvec[1])*b3axis2.y_width() / double(b3bbox2.y_width());
 
-			bi1.b3axis.lo[0] = bi2.b3axis.lo[0] - d1;
-			bi1.b3axis.hi[0] = bi2.b3axis.hi[0] - d1;
-			bi1.b3axis.lo[1] = bi2.b3axis.lo[1] - d2;
-			bi1.b3axis.hi[1] = bi2.b3axis.hi[1] - d2;
+			pnode->b3axis1.lo[0] = b3axis2.lo[0] - d1;
+			pnode->b3axis1.hi[0] = b3axis2.hi[0] - d1;
+			pnode->b3axis1.lo[1] = b3axis2.lo[1] - d2;
+			pnode->b3axis1.hi[1] = b3axis2.hi[1] - d2;
 
 			return GLParam::FLAG_REFRESH;
 		}
@@ -212,14 +443,14 @@ public:
 
 				vec2d p1, p2;
 
-				p1[0] = bi1.b3axis.lo[0] + double(gt.v2pos1[0] - bi1.b3bbox.lo[0])*bi1.b3axis.x_width() / double(bi1.b3bbox.x_width());
-				p1[1] = bi1.b3axis.lo[1] + double(gt.v2pos1[1] - bi1.b3bbox.lo[1])*bi1.b3axis.y_width() / double(bi1.b3bbox.y_width());
-				p2[0] = bi1.b3axis.lo[0] + double(gt.v2pos2[0] - bi1.b3bbox.lo[0])*bi1.b3axis.x_width() / double(bi1.b3bbox.x_width());
-				p2[1] = bi1.b3axis.lo[1] + double(gt.v2pos2[1] - bi1.b3bbox.lo[1])*bi1.b3axis.y_width() / double(bi1.b3bbox.y_width());
+				p1[0] = pnode->b3axis1.lo[0] + double(gt.v2pos1[0] - pnode->b3bbox1.lo[0])*pnode->b3axis1.x_width() / double(pnode->b3bbox1.x_width());
+				p1[1] = pnode->b3axis1.lo[1] + double(gt.v2pos1[1] - pnode->b3bbox1.lo[1])*pnode->b3axis1.y_width() / double(pnode->b3bbox1.y_width());
+				p2[0] = pnode->b3axis1.lo[0] + double(gt.v2pos2[0] - pnode->b3bbox1.lo[0])*pnode->b3axis1.x_width() / double(pnode->b3bbox1.x_width());
+				p2[1] = pnode->b3axis1.lo[1] + double(gt.v2pos2[1] - pnode->b3bbox1.lo[1])*pnode->b3axis1.y_width() / double(pnode->b3bbox1.y_width());
 
 
-				bi1.b3axis.set_x(std::min(p1[0], p2[0]), std::max(p1[0],p2[0]));
-				bi1.b3axis.set_y(std::min(p1[1], p2[1]), std::max(p1[1],p2[1]));
+				pnode->b3axis1.set_x(std::min(p1[0], p2[0]), std::max(p1[0],p2[0]));
+				pnode->b3axis1.set_y(std::min(p1[1], p2[1]), std::max(p1[1],p2[1]));
 
 			}
 			return GLParam::FLAG_RELEASE | GLParam::FLAG_REFRESH;
@@ -229,20 +460,24 @@ public:
 
 	int OnBtnCancel(GLTool& gt)
 	{
-		bi1 = bi2;
+		pnode->b3bbox1=b3bbox2;
+		pnode->b3axis1=b3axis2;
 		return GLToolData::OnBtnCancel(gt);
 	}
 
 	virtual int OnBtnDown(GLTool& gt)
 	{
-		bi2 = bi1;
+		b3bbox2=pnode->b3bbox1;
+		b3axis2=pnode->b3axis1;
+
 		if (gt.btn_id == 1||gt.btn_id==2)
 		{
 			return GLParam::FLAG_CAPTURE;
 		}
 		else if (gt.btn_id == 3)
 		{
-			bi1 = bi0;
+			pnode->b3bbox1=pnode->b3bbox0;
+			pnode->b3axis1=pnode->b3axis0;
 			return GLParam::FLAG_REFRESH;
 		}
 		else
@@ -258,17 +493,17 @@ public:
 			return 0;
 		}
 
-		vec3d wd = bi1.b3axis.width();
+		vec3d wd = pnode->b3axis1.width();
 		double dd = 0.5* gt.wheel*3.0 / (100.0 + ::fabs(3.0*gt.wheel));
 		if (dd < 0.0)
 		{
 			dd = dd / (1.0 - dd);
 		}
 
-		bi1.b3axis.lo[0] += wd[0] * dd;
-		bi1.b3axis.hi[0] -= wd[0] * dd;
-		bi1.b3axis.lo[1] += wd[1] * dd;
-		bi1.b3axis.hi[1] -= wd[1] * dd;
+		pnode->b3axis1.lo[0] += wd[0] * dd;
+		pnode->b3axis1.hi[0] -= wd[0] * dd;
+		pnode->b3axis1.lo[1] += wd[1] * dd;
+		pnode->b3axis1.hi[1] -= wd[1] * dd;
 
 		return GLParam::FLAG_REFRESH;
 	}
@@ -280,123 +515,27 @@ public:
 	}
 };
 
+
+DataPtrT<GLToolData> DataNodeSymbolT<DCoord2D>::GetToolData()
+{
+	return new GLToolDataCoord2d(this);
+}
+
 template<>
-class DataNodeSymbolT<DCoord2D> : public DataNodeSymbolT<DCoord>
+class DataNodeSymbolT<DFigDataManager> : public DataNodeSymbol
 {
 public:
-
-	typedef DataNodeSymbolT<DCoord> basetype;
-
+	typedef DataNodeSymbol basetype;
 	DataNodeSymbolT(DataNode* n, DObject* p) :basetype(n, p)
 	{
-		bi0.b3axis.set_x(-100.0, +100.0);
-		bi0.b3axis.set_y(-100.0, +100.0);
-		bi0.b3axis.set_z(-1.0, +1.0);
-
-		bi1 = bi0;
 	}
-
-	virtual DataPtrT<GLToolData> GetToolData()
-	{
-		return new GLToolDataCoord2d(bi0,bi1);
-	}
-
-
-
-	GLBBoxInfo bi0,bi1;
-	GLClipInfo ci;
 
 	void DoRender(GLDC& dc)
 	{
-		if (dc.Mode() == GLDC::RENDER_SET_REALSIZE)
-		{
-			bi0.b3bbox = dc.bi.b3bbox;
-
-			dc.bi.b3bbox.lo += 70;
-			dc.bi.b3bbox.hi -= 45;
-
-			bi1.b3bbox = dc.bi.b3bbox;
-			dc.bi.b3axis = bi1.b3axis;
-
-			ci.set(dc.bi.b3bbox);
-
-			//plane[0].set3(+1, 0, 0); plane[0][3] = -dc.bi.b3bbox.lo[0];
-			//plane[1].set3(-1, 0, 0); plane[1][3] = +dc.bi.b3bbox.hi[0];
-			//plane[2].set3(0, +1, 0); plane[2][3] = -dc.bi.b3bbox.lo[1];
-			//plane[3].set3(0, -1, 0); plane[3][3] = +dc.bi.b3bbox.hi[1];
-
-			vec3d v3p(dc.bi.b3bbox.lo);
-			vec3d v3w(dc.bi.b3bbox.width());
-
-			dc.bi.m4data.LoadIdentity();
-			dc.bi.m4data.Translate(v3p);
-			dc.bi.m4data.Scale(v3w);
-			dc.bi.m4data.Scale(1.0 / dc.bi.b3axis.width());
-			dc.bi.m4data.Translate(-dc.bi.b3axis.lo);
-
-			for (size_t i = 0; i < subnodes.size(); i++)
-			{
-				subnodes[i]->DoRender(dc);
-			}
-		}
-
-		//for (int i = 0; i < 4; i++)
-		//{
-		//	::glClipPlane(GL_CLIP_PLANE0 + i, ci.plane[i].data());
-		//}
-
-		if (dc.Mode() == GLDC::RENDER_SELECT)
-		{
-
-			glDepthMask(false);
-			glBegin(GL_QUADS);
-			glVertex2d(bi0.b3bbox.lo[0], bi0.b3bbox.lo[1]);
-			glVertex2d(bi0.b3bbox.hi[0], bi0.b3bbox.lo[1]);
-			glVertex2d(bi0.b3bbox.hi[0], bi0.b3bbox.hi[1]);
-			glVertex2d(bi0.b3bbox.lo[0], bi0.b3bbox.hi[1]);
-			glEnd();
-			glDepthMask(true);
-
-			GLClipLocker lock(dc, ci);
-			basetype::DoRender(dc);
-			return;
-
-		}
-		
-		if (dc.Mode() == GLDC::RENDER_SOLID)
-		{
-
-			dc.Color(DColor(255,0,0));
-
-			GLClipLocker lock(dc, ci);
-			basetype::DoRender(dc);
-
-		}
-		
-		if (dc.Mode() == GLDC::RENDER_TEXT)
-		{
-
-			DFontStyle font;
-			font.color.set(200,200,200);
-			dc.SetFont(font);
-		
-			basetype::DoRender(dc);
-
-			dc.Color(DColor(0, 0, 255));
-
-			glBegin(GL_LINE_LOOP);
-				glVertex2d(bi1.b3bbox.lo[0], bi1.b3bbox.lo[1]);
-				glVertex2d(bi1.b3bbox.hi[0], bi1.b3bbox.lo[1]);
-				glVertex2d(bi1.b3bbox.hi[0], bi1.b3bbox.hi[1]);
-				glVertex2d(bi1.b3bbox.lo[0], bi1.b3bbox.hi[1]);
-			glEnd();
-
-		}
-
+		GLClipLocker lock(dc, dc.ci);
+		DataNodeSymbol::DoRender(dc);
 	}
 };
-
-
 
 class DLLIMPEXP_EWC_BASE GLToolDataCoord3d : public GLToolData
 {
@@ -412,7 +551,7 @@ public:
 	mat4d& mt1;
 	mat4d mt2;
 
-	GLBBoxInfo bi2;
+	//GLBBoxInfo bi2;
 
 	virtual int OnDraging(GLTool& gt)
 	{
@@ -537,11 +676,11 @@ public:
 
 	DataNodeSymbolT(DataNode* n, DObject* p) :basetype(n, p)
 	{
-		bi0.b3axis.set_x(-100.0, +100.0);
-		bi0.b3axis.set_y(-100.0, +100.0);
-		bi0.b3axis.set_z(-100.0, +100.0);
+		b3axis0.set_x(-100.0, +100.0);
+		b3axis0.set_y(-100.0, +100.0);
+		b3axis0.set_z(-100.0, +100.0);
 
-		bi1 = bi0;
+		b3axis1 = b3axis0;
 
 		light0.v4position.set4(0.0f, 0.0f, 200.0f, 0.0f);
 		light0.v4ambient.set4(0.2f, 0.2f, 0.2f, 1.0f);
@@ -555,9 +694,9 @@ public:
 		return new GLToolDataCoord3d(mt0,mt1);
 	}
 
+	
 
-
-	GLBBoxInfo bi0, bi1;
+	//GLBBoxInfo bi0, bi1;
 
 	mat4d mt0, mt1;
 
@@ -568,12 +707,19 @@ public:
 	void DoRender(GLDC& dc)
 	{
 		vec3d c3 = 0.5*(dc.bi.b3bbox.lo + dc.bi.b3bbox.hi);
+		dc.bi.m4data.LoadIdentity();
+		dc.bi.m4data.Translate(vec3d(c3[0], c3[1], 0.0));
+		dc.bi.m4data=dc.bi.m4data*mt1;
 
 		if (dc.Mode() == GLDC::RENDER_SET_REALSIZE)
 		{
-			bi1 = dc.bi;
+			DoSetRealSize(dc.bi.b3bbox);
+			dc.bi.b3bbox=b3bbox1;
+			clinfo.set(b3bbox1);
 			return;
 		}
+
+		LockState<GLClipInfo> lock_ci(dc.ci,clinfo);
 
 		if (dc.Mode() == GLDC::RENDER_SELECT)
 		{
@@ -581,29 +727,18 @@ public:
 			glDepthMask(false);
 
 			glBegin(GL_QUADS);
-			glVertex2d(bi1.b3bbox.lo[0], bi1.b3bbox.lo[1]);
-			glVertex2d(bi1.b3bbox.hi[0], bi1.b3bbox.lo[1]);
-			glVertex2d(bi1.b3bbox.hi[0], bi1.b3bbox.hi[1]);
-			glVertex2d(bi1.b3bbox.lo[0], bi1.b3bbox.hi[1]);
+			glVertex2d(b3bbox1.lo[0], b3bbox1.lo[1]);
+			glVertex2d(b3bbox1.hi[0], b3bbox1.lo[1]);
+			glVertex2d(b3bbox1.hi[0], b3bbox1.hi[1]);
+			glVertex2d(b3bbox1.lo[0], b3bbox1.hi[1]);
 			glEnd();
 			glDepthMask(true);
 
-			::glTranslated(c3[0], c3[1], 0.0);
-
-			{
-				GLDC::MatrixLocker locker(dc);
-				::glMultMatrixd(mt1.data());
-				basetype::DoRender(dc);
-			}	
-
-			::glTranslated(-c3[0], -c3[1], 0.0);
+			basetype::DoRender(dc);
 
 			return;
 		}
 
-
-
-		//dc.bi.m4data = mt1;
 
 		if (dc.Mode() == GLDC::RENDER_SOLID)
 		{
@@ -614,16 +749,10 @@ public:
 
 			dc.Color(DColor(255, 0, 0));
 			::glTranslated(c3[0], c3[1], 0.0);
-
 			dc.Light(light0, true);
-
-			{
-				GLDC::MatrixLocker locker(dc);
-				::glMultMatrixd(mt1.data());
-				basetype::DoRender(dc);
-			}
-
 			::glTranslated(-c3[0], -c3[1], 0.0);
+
+			basetype::DoRender(dc);
 
 			dc.Light(light0, false);
 
@@ -639,31 +768,13 @@ public:
 			DFontStyle font;
 			font.color.set(200, 200, 200);
 			dc.SetFont(font);
-
-			::glTranslated(c3[0], c3[1], 0.0);
-
-			{
-				GLDC::MatrixLocker locker(dc);
-				::glMultMatrixd(mt1.data());
-				basetype::DoRender(dc);
-			}
-
-			::glTranslated(-c3[0], -c3[1], 0.0);
-
+			basetype::DoRender(dc);
 		}
 
 	}
 };
 
-template<>
-class DataNodeSymbolT<DFigDataManager> : public DataNodeSymbol
-{
-public:
-	typedef DataNodeSymbol basetype;
-	DataNodeSymbolT(DataNode* n, DObject* p) :basetype(n, p)
-	{
-	}
-};
+
 
 
 
@@ -682,11 +793,16 @@ public:
 		v3lbdir[wwdir]=1.0;		
 		lbmax = value &&  value->flags.get(DAxisUnitD::FLAG_LABEL_DIR_MAX);
 		lbmin = true;
+
+		line0.set(DLineStyle::LINE_SOLID);
+		line0.color.set(220,220,220);
+		line1.set(DLineStyle::LINE_DASH1);
+		line1.color.set(120,120,120);
 	}
 
-	double DoGetTextExtend(GLDC& dc,const String& text)
+	double DoGetExtend(GLDC& dc,const String& text)
 	{
-		vec2i v2s=dc.GetTextExtend(text);
+		vec2i v2s=dc.GetExtend(text);
 		return (v3lbdir[0]*v2s[0]+v3lbdir[1]*v2s[1])+4.0;
 	}
 
@@ -697,6 +813,8 @@ public:
 
 	bool lbmax;
 	bool lbmin;
+
+	DLineStyle line0,line1;
 
 	GLBBoxInfo bi;
 
@@ -742,6 +860,7 @@ public:
 		vec3d v3lbshf=wwdir==0?vec3d(0,-shfdir,0):vec3d(-shfdir,0.0);
 		vec3d v3lbpxl=wwdir==0?vec3d(0,-shfdir*5,0):vec3d(-shfdir*5,0.0);
 
+		dc.LineStyle(line0);
 
 		::glBegin(GL_LINES);
 		for(int j=0;j<(int)_aTicks.size();j++)
@@ -780,6 +899,7 @@ public:
 		::glEnd();
 
 
+		dc.LineStyle(line1);
 
 		if(value->flags.get(DAxisUnitD::FLAG_SHOW_MESH_MAIN))
 		{
@@ -870,7 +990,7 @@ public:
 		{
 			long k=vectk[i];
 			tk.set(br*double(k));
-			double v1ts = DoGetTextExtend(dc, tk.m_sLabel);
+			double v1ts = DoGetExtend(dc, tk.m_sLabel);
 			if(v1ts>v1ws) v1ws=v1ts;
 		}
 
@@ -892,7 +1012,7 @@ public:
 			{
 				long k=vectk[i];
 				tk.set(brx*double(k));
-				double v1ts = DoGetTextExtend(dc, tk.m_sLabel);
+				double v1ts = DoGetExtend(dc, tk.m_sLabel);
 				if(v1ts>v1ws) v1ws=v1ts;
 			}
 		}
@@ -1033,12 +1153,88 @@ public:
 };
 
 template<>
-class DataNodeSymbolT<DAxisD> : public DataNodeSymbol
+class DataNodeSymbolT<DAxis> : public DataNodeSymbol
 {
 public:
 	typedef DataNodeSymbol basetype;
+
+	DataPtrT<DAxis> value;
+
 	DataNodeSymbolT(DataNode* n, DObject* p) :basetype(n, p)
 	{
+		value.cast_and_set(p);
+	
+	}
+
+	DLineStyle line1;
+
+	box3d b3bbox0;
+
+	void DoRender_SPHERE(GLDC& dc)
+	{
+
+	}
+
+	void DoRender_3D_BOX(GLDC& dc)
+	{
+
+	}
+
+	void DoRender_3D_DIR(GLDC& dc)
+	{
+		dc.LineStyle(line1);
+
+		if (dc.Mode() == GLDC::RENDER_TEXT || dc.Mode() == GLDC::RENDER_SELECT)
+		{
+			GLClipLocker locker1(dc, dc.ci);
+			GLDC::MatrixLocker locker2(dc,dc.bi.m4data);
+			dc.LineStyle(line1);
+
+			::glBegin(GL_LINES);
+			dc.Color(DColor(255,0,0));
+			::glVertex3d(-1.0e6,0.0,0.0);
+			::glVertex3d(+1.0e6,0.0,0.0);
+			dc.Color(DColor(0,255,0));
+			::glVertex3d(0.0,-1.0e6,0.0);
+			::glVertex3d(0.0,+1.0e6,0.0);
+			dc.Color(DColor(0,0,255));
+			::glVertex3d(0.0,0.0,-1.0e6);
+			::glVertex3d(0.0,0.0,+1.0e6);
+			::glEnd();
+		}		
+	}
+
+	void DoRender(GLDC& dc)
+	{
+		if(!value||value->m_nMode==DAxis::MODE_NONE)
+		{
+			return;
+		}
+
+		if (dc.Mode() == GLDC::RENDER_SET_REALSIZE)
+		{			
+			b3bbox0=dc.bi.b3bbox;
+		}
+
+		if(value->m_nMode==DAxis::MODE_3D_DIR)
+		{
+			DoRender_3D_DIR(dc);
+		}
+		else if(value->m_nMode==DAxis::MODE_SPHERE)
+		{
+			DoRender_SPHERE(dc);
+		}
+		else if(value->m_nMode==DAxis::MODE_3D_BOX)
+		{
+			DoRender_3D_BOX(dc);
+		}
+		else
+		{
+			basetype::DoRender(dc);
+		}
+
+
+
 	}
 };
 
@@ -1169,7 +1365,7 @@ public:
 
 
 	DataPtrT<DFigData3D> value;
-
+	mat4d m4data;
 
 	DataNodeSymbolT(DataNode* n, DObject* p) :basetype(n, p)
 	{
@@ -1192,11 +1388,10 @@ public:
 			return;
 		}
 		
+		GLDC::MatrixLocker lock(dc,dc.bi.m4data);
 
 		if (dc.Mode() == GLDC::RENDER_SOLID||dc.Mode() == GLDC::RENDER_SELECT)
 		{
-
-			GLDC::MatrixLocker locker(dc);
 
 			arr_1t<vec3d> vv;
 			vv.push_back(vec3d(-1, -1, -1));
@@ -1207,9 +1402,7 @@ public:
 			vv.push_back(vec3d(+1, -1, +1));
 			vv.push_back(vec3d(-1, +1, +1));
 			vv.push_back(vec3d(+1, +1, +1));
-
-			//::glMultMatrixd(m4.data());
-
+			
 			::glScaled(50.0, 50.0, 50.0);
 			
 
@@ -1281,41 +1474,6 @@ public:
 };
 
 
-template<>
-class DataNodeSymbolT<DText> : public DataNodeSymbolT<DObjectBox>
-{
-public:
-	typedef DataNodeSymbolT<DObjectBox> basetype;
-
-	DataNodeSymbolT(DataNode* n, DObject* p) :basetype(n, p)
-	{
-
-	}
-
-	vec3d m_v3Position;
-
-	void DoRender(GLDC& dc)
-	{
-		if (!value) return;
-		DText* p = static_cast<DText*>(value.get());
-
-		if (dc.Mode() == GLDC::RENDER_SET_REALSIZE)
-		{
-			m_v3Position[0] =0.5*((p->m_v3Pos[0]+1.0) * dc.bi.b3bbox.hi[0] + (1.0 - p->m_v3Pos[0])*dc.bi.b3bbox.lo[0]) + p->m_v3Pxl[0];
-			m_v3Position[1] =0.5*((p->m_v3Pos[1]+1.0) * dc.bi.b3bbox.hi[1] + (1.0 - p->m_v3Pos[1])*dc.bi.b3bbox.lo[1]) + p->m_v3Pxl[1];			
-		}
-
-		if (dc.Mode() == GLDC::RENDER_TEXT||dc.Mode() == GLDC::RENDER_SELECT)
-		{
-			dc.SetFont(p->m_tFont);
-			dc.PrintText(p->m_sText, m_v3Position, p->m_v3Shf);
-		}
-
-
-	}
-
-
-};
 
 class MvcViewFigure : public MvcViewEx
 {
@@ -1368,7 +1526,7 @@ public:
 		t->m_sId = "title";
 		t->m_v3Pos[1] = 1.0;
 		t->m_v3Shf[1] = 1.0;
-		t->m_v3Pxl[1] = 3.0;
+		t->m_v3Pxl[1] = 8.0;
 		c->m_aItems.append(t);
 
 		t = new DText;
@@ -1533,7 +1691,8 @@ bool PluginDomViewer::OnAttach()
 	DataNodeCreator::Register<DCoord3D>();
 	DataNodeCreator::Register<DFigData3D>();
 	DataNodeCreator::Register<DFigDataManager>();
-	DataNodeCreator::Register<DAxisD>();
+	DataNodeCreator::Register<DAxis>();
+
 	DataNodeCreator::Register<DAxisUnitD>();
 	DataNodeCreator::Register<DText>();
 

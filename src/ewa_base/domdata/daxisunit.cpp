@@ -25,15 +25,15 @@ DAxisUnit::DAxisUnit(const String& name):basetype(name)
 	flags.add(FLAG_SHOW_MESH_MAIN);
 
 	m_sId=name;
-	LineUser.nsize=0.5;
-	LineMain.ntype=DLineStyle::LINE_DASH3;
-	LineUser.ntype=DLineStyle::LINE_DASH4;
+	//LineUser.nsize=0.5;
+	//LineMain.ntype=DLineStyle::LINE_DASH3;
+	//LineUser.ntype=DLineStyle::LINE_DASH4;
 }
 
 DAxisUnitD::DAxisUnitD(const String& name,int d):basetype(name)
 {
 	m_nDirection=d;
-	FontText.color.set(127, 127, 127);
+	//FontText.color.set(127, 127, 127);
 }
 
 DAxisUnitR::DAxisUnitR(const String& name) :DAxisUnit(name)

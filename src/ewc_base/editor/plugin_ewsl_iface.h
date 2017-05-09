@@ -1,5 +1,5 @@
 #include "ewc_base/wnd/impl_wx/iwnd_stc.h"
-#include "plugin_ewsl_vartable.h"
+#include "ewc_base/data/data_model.h"
 
 EW_ENTER
 
@@ -23,7 +23,7 @@ public:
 
 	bool busy;
 
-	LitePtrT<DataModelTable> model;
+	LitePtrT<DataModel> model;
 
 protected:
 

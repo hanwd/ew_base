@@ -161,6 +161,23 @@ tiny_mat<T,4,4> m4_inverse(const tiny_mat<T,4,4>& m4)
 	return res;
 }
 
+template <typename T>
+T det(const tiny_mat<T, 2, 2>& m2)
+{
+	return m2(0, 0) * m2(1, 1) - m2(0, 1) * m2(1, 0);
+}
+
+template <typename T>
+T det(const tiny_mat<T, 3, 3>& m3)
+{
+	return m3(0, 0) * m3(1, 1) * m3(2, 2)
+		+ m3(0, 1) * m3(1, 2) * m3(2, 0)
+		+ m3(0, 2) * m3(1, 0) * m3(2, 1)
+		- m3(0, 0) * m3(1, 2) * m3(2, 1)
+		- m3(0, 1) * m2(1, 0) * m3(2, 2)
+		- m3(0, 2) * m2(1, 1) * m3(2, 0);
+}
+
 template<typename X,typename Y,int R,int C,int L>
 typename mat_promote<X,Y,R,C>::promoted operator*(const tiny_mat<X,R,L>& lhs,const tiny_mat<Y,L,C>& rhs)
 {
@@ -291,6 +308,7 @@ class type_mat : public tiny_mat<T,R,C>
 {
 public:
 	typedef tiny_mat<T,R,C> basetype;
+	type_mat(){}
 	type_mat(const basetype& o):basetype(o){}
 };
 

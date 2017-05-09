@@ -39,8 +39,8 @@ typedef tiny_box<int32_t, 2> box2i;
 typedef tiny_box<double, 2> box2d;
 typedef tiny_box<float, 2> box2f;
 
-
-typedef type_mat<double,4,4> mat4d;
+typedef type_mat<double, 3, 3> mat3d;
+typedef type_mat<double, 4, 4> mat4d;
 
 
 typedef tiny_storage<String,3> vec3s;

@@ -37,6 +37,16 @@ class DLLIMPEXP_EWA_BASE DCoord3D : public DCoord
 {
 public:
 
+	typedef DCoord basetype;
+
+	enum
+	{
+		FLAG_MIN = basetype::FLAG_MAX,
+		FLAG_SHOW_BOX = FLAG_MIN << 0,
+		FLAG_MAX = FLAG_MIN << 1,
+	};
+
+
 	DCoord3D();
 	DataPtrT<DAxis> m_pAxis;
 

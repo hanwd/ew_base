@@ -22,7 +22,7 @@ void DAxis::SetMode(int mode)
 		m_aItems.append(new DAxisUnitD("Axis X", 0));
 		m_aItems.append(new DAxisUnitD("Axis Y", 0));
 		m_aItems.append(new DAxisUnitD("Axis Z", 0));
-		m_aItems[1]->font.flags.del(DFontStyle::STYLE_VERTICAL);
+		//m_aItems[1]->font.flags.del(DFontStyle::STYLE_VERTICAL);
 	}
 	else if(mode==MODE_2D_POLAR)
 	{
@@ -40,7 +40,7 @@ void DAxis::SetMode(int mode)
 		mode=MODE_2D_BOX;
 		m_aItems.append(new DAxisUnitD("Axis X", 0));
 		m_aItems.append(new DAxisUnitD("Axis Y", 1));
-		m_aItems[1]->font.flags.add(DFontStyle::STYLE_VERTICAL);
+		//m_aItems[1]->font.flags.add(DFontStyle::STYLE_VERTICAL);
 	}
 
 }

@@ -82,6 +82,12 @@ public:
 	static const unsigned value = N == ' ' || N == '\t' || N == '\r' || N == '\n';
 };
 
+template<unsigned N>
+class lkt_tabspace
+{
+public:
+	static const unsigned value = N == ' ' || N == '\t';
+};
 
 
 

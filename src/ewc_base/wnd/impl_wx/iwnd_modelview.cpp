@@ -1,5 +1,5 @@
 #include "ewc_base/wnd/impl_wx/iwnd_modelview.h"
-
+#include "ewc_base/data/data_model.h"
 
 EW_ENTER
 
@@ -93,6 +93,7 @@ void IWnd_modelview::OnMouseEvent(wxMouseEvent& evt)
 	{
 		this->SetFocus();
 	}
+
 	gt.OnMouseEvent(evt);
 }
 

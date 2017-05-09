@@ -1,4 +1,3 @@
-
 #include "ewa_base/testing/test.h"
 #include "ewa_base/basic.h"
 #include "ewa_base/threading.h"

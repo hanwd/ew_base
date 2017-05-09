@@ -6,12 +6,11 @@ EW_ENTER
 
 
 
-class DataModelTable : public DataModel
-{
-public:
-	DataModelTable();
-	void Update(VariantTable& table);
-};
+//class DataModelTable : public DataModel
+//{
+//public:
+//	DataModelTable();
+//};
 
 
 

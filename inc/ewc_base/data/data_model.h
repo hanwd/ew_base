@@ -37,6 +37,12 @@ public:
 	virtual void SetRootNode(DataNode* p);
 	DataNode* GetRootNode(){ return m_pRoot.get(); }
 
+	DataPtrT<DAttributeManager> m_pAttributeManager;
+
+	mutable DataChangedParam dpm;
+
+	void Update(DObject* p);
+	void Update(VariantTable& table);
 
 protected:
 
@@ -46,11 +52,7 @@ protected:
 
 };
 
-class DataModelSymbol : public DataModel
-{
-public:
-	void Update(DObject* p);
-};
+
 
 
 EW_LEAVE

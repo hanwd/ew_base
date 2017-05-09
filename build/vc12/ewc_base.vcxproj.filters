@@ -294,9 +294,6 @@
     <ClInclude Include="..\..\src\ewc_base\editor\plugin_ewsl_iface.h">
       <Filter>source\editor</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\ewc_base\editor\plugin_ewsl_vartable.h">
-      <Filter>source\editor</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\inc\ewc_base\plugin\plugin.h">
       <Filter>include\plugin</Filter>
     </ClInclude>
@@ -546,9 +543,6 @@
       <Filter>source\editor</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\ewc_base\editor\plugin_ewsl_iface.cpp">
-      <Filter>source\editor</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\ewc_base\editor\plugin_ewsl_vartable.cpp">
       <Filter>source\editor</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\ewc_base\editor\plugin_text_editor.cpp">

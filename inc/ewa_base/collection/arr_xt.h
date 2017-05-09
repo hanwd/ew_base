@@ -31,6 +31,11 @@ public:
 	inline arr_xt(const arr_xt& o):basetype(o),dims(o.dims){}
 	inline explicit arr_xt(const A& al):basetype(al){}
 
+	inline arr_xt(size_type k0, size_type k1 = 1, size_type k2 = 1, size_type k3 = 1, size_type k4 = 1, size_type k5 = 1)
+	{
+		resize(k0, k1, k2, k3, k4, k5);
+	}
+
 	inline arr_xt& operator=(const arr_xt& o)
 	{
 		impl=o.impl;

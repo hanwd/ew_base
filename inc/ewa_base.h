@@ -1,7 +1,9 @@
-#ifndef __H_EW6_EW6__
-#define __H_EW6_EW6__
+#ifndef __H_EW_EWA_BASE__
+#define __H_EW_EWA_BASE__
 
 #include "ewa_base/config.h"
+#include "ewa_base/collection.h"
+#include "ewa_base/math.h"
 #include "ewa_base/basic.h"
 #include "ewa_base/logging.h"
 #include "ewa_base/memory.h"
@@ -9,7 +11,6 @@
 #include "ewa_base/ipc.h"
 #include "ewa_base/net.h"
 #include "ewa_base/serialization.h"
-#include "ewa_base/collection.h"
 #include "ewa_base/xml.h"
 #include "ewa_base/util.h"
 #include "ewa_base/scripting.h"

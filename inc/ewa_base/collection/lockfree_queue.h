@@ -718,12 +718,12 @@ void LockFreeQueue<T,P>::clear()
 	if(pHeader->flags.get(QUEUE_FREE_BUFFER))
 	{
 		P::destroy(pBuffer,pHeader->mask+1);
-		::free(pBuffer);
+		mp_free(pBuffer);
 	}
 
 	if(pHeader->flags.get(QUEUE_FREE_HEADER))
 	{
-		::free(pHeader);
+		mp_free(pHeader);
 	}
 
 	pBuffer=NULL;
@@ -735,16 +735,16 @@ void LockFreeQueue<T,P>::reset(size_type v)
 {
 	v=sz_helper::n2p(v);
 
-	lf_queue_header* p1=(lf_queue_header*)::malloc(sizeof(lf_queue_header));
+	lf_queue_header* p1=(lf_queue_header*)mp_alloc(sizeof(lf_queue_header));
 	if(!p1)
 	{
 		Exception::XBadAlloc();
 	}
-	T* p2=(T*)::malloc(sizeof(T)*v);
+	T* p2=(T*)mp_alloc(sizeof(T)*v);
 
 	if(p2==NULL)
 	{
-		::free(p2);
+		mp_free(p1);
 		Exception::XBadAlloc();
 	}
 
@@ -756,7 +756,7 @@ void LockFreeQueue<T,P>::reset(size_type v)
 template<typename T,typename P>
 bool LockFreeQueue<T,P>::init(lf_queue_header* addr_,T* buff_,bool forceinit_)
 {
-	//size_type _nElem=addr_->mask+1;
+
 	clear();
 
 	pHeader=addr_;

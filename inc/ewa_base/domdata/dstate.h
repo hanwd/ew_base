@@ -54,6 +54,8 @@ public:
 	bool link(const box3s& s, box3d& v);
 	bool link(const box2s& s, box2d& v);
 
+	bool link(const String& s, arr_xt<double>& v);
+
 	bool link(const String& s, DataPtrT<DObject>& v);
 
 	template<typename T>

@@ -61,9 +61,9 @@ wxDataViewCtrl* DataModel::CreateDataView(wxWindow* p)
 	return new DataCanvas(p,*this);
 }
 
-DataModel::DataModel()
+DataModel::DataModel() :dpm(*this)
 {
-	
+	m_pAttributeManager.reset(new DAttributeManager);
 }
 
 DataModel::~DataModel()
@@ -104,13 +104,6 @@ wxDataViewItem DataModel::GetParent( const wxDataViewItem &item ) const
 	return wxDataViewItem(node->parent);
 }
 
-bool DataModel::IsContainer( const wxDataViewItem &item ) const
-{
-	DataNode* node=(DataNode*)item.GetID();
-	if(!node) return true;
-	return node->flags.get(DataNode::FLAG_IS_GROUP);
-}
-
 void DataModel::GetValue( wxVariant &variant,const wxDataViewItem &item, unsigned int col ) const
 {
 	DataNode* node=(DataNode*)item.GetID();
@@ -118,9 +111,21 @@ void DataModel::GetValue( wxVariant &variant,const wxDataViewItem &item, unsigne
 	return m_aColumnInfo[col]->GetValue(variant,node);
 }
 
+bool DataModel::IsContainer( const wxDataViewItem &item ) const
+{
+	DataNode* node=(DataNode*)item.GetID();
+	if(!node) return true;
+
+	if (!node->flags.get(DataNode::FLAG_TOUCHED))
+	{
+		node->TouchNode(dpm,0);
+	}
+	
+	return node->flags.get(DataNode::FLAG_IS_GROUP);
+}
+
 unsigned int DataModel::GetChildren(const wxDataViewItem &item, wxDataViewItemArray &children) const
 {
-	DataChangedParam dpm(*this);
 
 	DataNode* node=(DataNode*)item.GetID();
 	if(node)
@@ -145,17 +150,13 @@ unsigned int DataModel::GetChildren(const wxDataViewItem &item, wxDataViewItemAr
 
 void DataModel::SetRootNode(DataNode* p)
 {
-	DataChangedParam dpm(*this);
 	Cleared();
-
 	m_pRoot.reset(p);
 	if (m_pRoot)
 	{
 		m_pRoot->OnChanged(dpm);
 	}
 }
-
-
 
 
 wxDataViewColumn* DataModel::CreateColumn(unsigned col)
@@ -174,24 +175,47 @@ wxString DataModel::GetColumnType( unsigned int col ) const
 	return str2wx(m_aColumnInfo[col]->name);
 }
 
-class CallableSymbolArray : public DObject
+class DObjectRoot : public DObject
 {
 public:
 	arr_1t<DataPtrT<DObject> > value;
 	void set(DObject* p){ value.assign(1,p); }
 
-	virtual bool DoGetChildren(arr_1t<DataPtrT<DObject> >* p)
+	virtual bool DoGetChildren(DChildrenState& cs)
 	{ 
-		if (p) *p = value;
-		return false;
+		cs.set_array(value);
+		return true;
 	}
 };
 
-void DataModelSymbol::Update(DObject* pitem)
+class DataNodeSymbolRoot : public DataNodeSymbol
 {
+public:
+
+	DataNodeSymbolRoot(DataModel& t) :DataNodeSymbol(NULL, new DObjectRoot), model(t)
+	{
+
+	}
+
+	virtual DataModel* DoGetModel()
+	{
+		return &model; 
+	}
+
+	DataModel& model;
+};
+
+void DataModel::Update(DObject* pitem)
+{
+	if (m_pRoot && dynamic_cast<DataNodeSymbolRoot*>(m_pRoot.get()) == NULL)
+	{
+		Cleared();
+		m_pRoot.reset(NULL);
+	}
+
 	if (!m_pRoot)
 	{
-		m_pRoot.reset(new DataNodeSymbol(NULL, new CallableSymbolArray));
+		m_pRoot.reset(new DataNodeSymbolRoot(*this));
 		m_pRoot->flags.add(DataNode::FLAG_IS_GROUP);
 	}
 	else
@@ -201,10 +225,48 @@ void DataModelSymbol::Update(DObject* pitem)
 
 	
 	DataNodeSymbol* pnode=static_cast<DataNodeSymbol*>(m_pRoot.get());
-	((CallableSymbolArray*)(pnode)->value.get())->set(pitem);
+	((DObjectRoot*)(pnode)->value.get())->set(pitem);
 
-	pnode->TouchNode(-1);
+	pnode->TouchNode(dpm,-1);
 
+	m_pRoot->OnChanged(dpm);
+
+}
+
+
+class DataNodeVariantRoot : public DataNodeVariant
+{
+public:
+
+	DataNodeVariantRoot(DataModel& t) :DataNodeVariant(NULL, std::make_pair(String(), Variant())), model(t)
+	{
+
+	}
+
+	virtual DataModel* DoGetModel()
+	{
+		return &model;
+	}
+
+	DataModel& model;
+};
+
+void DataModel::Update(VariantTable& table)
+{
+
+	if (m_pRoot && dynamic_cast<DataNodeVariantRoot*>(m_pRoot.get()) == NULL)
+	{
+		Cleared();
+		m_pRoot.reset(NULL);
+	}
+
+	if (!m_pRoot)
+	{
+		m_pRoot.reset(new DataNodeVariantRoot(*this));
+		m_pRoot->flags.add(DataNode::FLAG_IS_GROUP | DataNode::FLAG_TOUCHED);
+	}
+
+	((DataNodeVariant*)m_pRoot.get())->value.ref<VariantTable>() = table;
 	DataChangedParam dpm(*this);
 	m_pRoot->OnChanged(dpm);
 

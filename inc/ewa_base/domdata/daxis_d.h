@@ -25,10 +25,10 @@ public:
 
 	DAxis(const String& name="axis_d");
 
-	virtual bool DoGetChildren(arr_1t<DataPtrT<DObject> >* p)
+	virtual bool DoGetChildren(DChildrenState& cs)
 	{
 		if(m_aItems.empty()) return false;
-		return basetype::DoGetChildren(p);
+		return basetype::DoGetChildren(cs);
 	}
 
 	int m_nMode;

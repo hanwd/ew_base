@@ -40,7 +40,6 @@ class DLLIMPEXP_EWA_BASE tokInfo
 {
 public:
 	tokInfo():line(-1),cpos(-1){}
-
 	int32_t line;
 	int32_t cpos;
 };
@@ -50,11 +49,9 @@ class DLLIMPEXP_EWA_BASE tokItem : public tokInfo
 public:	
 	tokItem():type(TOK_ID),tags(0){}
 	tokItem(const String& s):type(TOK_ID),tags(0),word(s){}
-
-	tokType type;
-	int tags;
+	uint32_t type;
+	uint32_t tags;
 	String word;
-
 };
 
 

@@ -17,7 +17,7 @@ public:
 	}
 
 	DataModel& model;
-
+	DChildrenState state;
 };
 
 class DLLIMPEXP_EWC_BASE GLDC;
@@ -110,7 +110,9 @@ public:
 	enum
 	{
 		FLAG_TOUCHED	=1<<0,
-		FLAG_IS_GROUP	=1<<1,
+		FLAG_ATTRIBUTED	=1<<1,
+		FLAG_IS_GROUP	=1<<2,
+		FLAG_MAX		=1<<3,
 	};
 
 	DataNode(DataNode* p = NULL, const String& n = "");
@@ -121,12 +123,19 @@ public:
 
 	virtual void OnChanged(DataChangedParam&);
 
-	virtual void DoRender(GLDC& dc);	
+	virtual void TouchNode(DataChangedParam&, unsigned);
 
-	virtual DataPtrT<GLToolData> GetToolData()
-	{
-		return NULL; 
-	}
+	virtual void DoRender(GLDC& dc);
+
+	virtual void DoUpdateAttribute(GLDC& dc);
+
+	DataModel* GetModel();
+	DataNode* GetRoot();
+
+	virtual DObject* GetItem(){ return NULL; }
+
+
+	virtual DataPtrT<GLToolData> GetToolData();
 
 	DataNode* parent;
 	String name;
@@ -136,6 +145,9 @@ public:
 	int depth;
 
 	DECLARE_OBJECT_INFO(DataNode, ObjectInfo);
+
+protected:
+	virtual DataModel* DoGetModel(){ return NULL; }
 };
 
 class DLLIMPEXP_EWC_BASE DataNodeSymbol : public DataNode
@@ -151,7 +163,13 @@ public:
 
 	const String& GetObjectName() const;
 
-	void TouchNode(unsigned depth=0);
+	void TouchNode(DataChangedParam&,unsigned);
+
+
+	virtual DObject* GetItem()
+	{
+		return value.get();
+	}
 
 };
 
@@ -166,6 +184,8 @@ public:
 
 	bool UpdateLabel();
 	void OnChanged(DataChangedParam&);
+
+	void TouchNode(DataChangedParam&, unsigned);
 
 };
 

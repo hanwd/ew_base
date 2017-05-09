@@ -58,15 +58,16 @@ public:
 	DECLARE_OBJECT_INFO(FigData, DObjectInfo);
 };
 
-class DLLIMPEXP_EWA_BASE DFigDataManager : public FigGroupT<FigData,DObject>
+class DLLIMPEXP_EWA_BASE DFigDataManager : public FigGroupT<DObject, DObject>
 {
 public:
-	typedef FigGroupT<FigData, DObject> basetype;
+	typedef FigGroupT<DObject, DObject> basetype;
 
 	DFigDataManager(const String& name = "datamgr") :basetype(name){}
 
-	DECLARE_OBJECT_INFO(FigData, DObjectInfo);
+	DECLARE_OBJECT_INFO(DFigDataManager, DObjectInfo);
 };
+
 
 class DLLIMPEXP_EWA_BASE DFigData2D : public FigData
 {
@@ -84,7 +85,6 @@ public:
 	arr_1t<double> m_aTdata;
 	arr_1t<double> m_aValue;
 
-	DLineStyle LineType;
 
 	DECLARE_OBJECT_INFO(DFigData2D, DObjectInfo);
 };
@@ -94,6 +94,23 @@ class DLLIMPEXP_EWA_BASE DFigData3D : public FigData
 public:
 
 	DECLARE_OBJECT_INFO(DFigData3D, DObjectInfo);
+};
+
+class DLLIMPEXP_EWA_BASE DFigDataModel : public DFigData3D
+{
+public:
+
+	DFigDataModel();
+
+	DataPtrT<DObject> m_pRealObject;
+
+	bool DoGetChildren(DChildrenState& cs)
+	{
+		if (!m_pRealObject) return false;
+		return m_pRealObject->DoGetChildren(cs);
+	}
+
+	DECLARE_OBJECT_INFO(DFigDataModel, DObjectInfo);
 };
 
 EW_LEAVE

@@ -466,6 +466,9 @@ void System::CheckError(const String& msg)
 
 extern AtomicSpin g_tSpinConsole;
 
+class SystemLoggerData;
+
+SystemLoggerData* g_pSystemLoggerData;
 
 class SystemLoggerData
 {
@@ -473,12 +476,32 @@ public:
 
 	char buffer[1024*4];
 	LinearBuffer<char> lbuf;
+	AtomicSpin spin;
+
+	RefCounter counter;
+	File fp;
+
+	bool bEnabled;
+
+
+	static SystemLoggerData& current()
+	{
+		if (!g_pSystemLoggerData)
+		{
+			static char data[sizeof(SystemLoggerData)];
+			g_pSystemLoggerData=new(data) SystemLoggerData();
+		}
+		return *g_pSystemLoggerData;
+
+	}
+
+
 
 	SystemLoggerData()
 	{
 		bEnabled=true;
-		hLogfile = NULL;
 		lbuf.assign(buffer,sizeof(buffer)-1);
+		counter.IncUseCount();
 	}
 
 	~SystemLoggerData()
@@ -523,10 +546,10 @@ public:
 		lbuf.send("\r\n",2);
 	
 
-		if(hLogfile)
+		if(fp.ok())
 		{
-			::fwrite(lbuf.gbeg(),lbuf.rd_free(),1,hLogfile);
-			::fflush(hLogfile);
+			fp.write(lbuf.gbeg(),lbuf.rd_free());
+			fp.flush();
 		}
 		else
 		{
@@ -541,31 +564,12 @@ public:
 
 	bool SetLogFile(const char* fn,bool app)
 	{
-		if(hLogfile)
+		if (!fp.open(fn, FLAG_FILE_WC | (app ? FLAG_FILE_APPEND : 0)))
 		{
-			::fclose(hLogfile);
-			hLogfile=NULL;
+			return false;
 		}
-
-		if(fn[0]==0)
-		{
-			return true;
-		}
-
-		hLogfile=::fopen(IConv::to_ansi(fn).c_str(),app?"ab":"wb");
-		return hLogfile!=NULL;
-	}
-
-
-	AtomicSpin spin;
-
-	FILE* hLogfile;
-	bool bEnabled;
-
-	static SystemLoggerData& current()
-	{
-		static SystemLoggerData gInstance;
-		return gInstance;
+		((KO_Handle<KO_Policy_handle>&)fp).reset(&counter);
+		return true;
 	}
 
 

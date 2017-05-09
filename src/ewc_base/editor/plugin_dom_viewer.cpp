@@ -33,15 +33,9 @@ public:
 
 	void DoRender(GLDC& dc)
 	{
-		if (!flags.get(FLAG_TOUCHED))
-		{
-			// ensure subnodes are generated
-			TouchNode(-1);
-		}
-
 		for (size_t i = 0; i < subnodes.size(); i++)
 		{
-			GLDC::MatrixLocker locker(dc);
+			GLMatrixLocker locker(dc);
 			dc.RenderNode(subnodes[i]);
 		}
 	}
@@ -56,7 +50,7 @@ public:
 	typedef DataNodeSymbol basetype;
 	DataNodeSymbolT(DataNode* n, DObject* p) :basetype(n, p)
 	{
-		line1.color.set(200,200,200);
+		line_main.color.set(200,200,200);
 	}
 
 	box3d b3bbox0;
@@ -64,7 +58,7 @@ public:
 	box3d b3margin;
 	GLClipInfo clinfo;
 
-	DLineStyle line1;
+	DLineStyle line_main;
 
 	vec3d v3pos,v3shf,v3size;
 
@@ -88,52 +82,9 @@ public:
 
 		b3bbox0=b3bbox1;
 		b3bbox0.lo-=b3margin.lo;
-		b3bbox0.hi+=b3margin.hi;		
+		b3bbox0.hi+=b3margin.hi;
 	}
-/*
-	void DoRender(GLDC& dc) = 0;
 
-	void DoRender(GLDC& dc)
-	{
-
-		if (dc.Mode() == GLDC::RENDER_SET_REALSIZE)
-		{
-			DoSetRealSize(dc.bi.b3bbox);
-			return;
-		}
-
-		if (dc.Mode() == GLDC::RENDER_SELECT)
-		{
-			glBegin(GL_QUADS);
-			glVertex2d(b3bbox0.lo[0], b3bbox0.lo[1]);
-			glVertex2d(b3bbox0.hi[0], b3bbox0.lo[1]);
-			glVertex2d(b3bbox0.hi[0], b3bbox0.hi[1]);
-			glVertex2d(b3bbox0.lo[0], b3bbox0.hi[1]);
-			glEnd();
-			basetype::DoRender(dc);
-			return;
-		}
-		else
-		{
-			basetype::DoRender(dc);		
-		}
-
-		//if (dc.Mode() == GLDC::RENDER_SOLID)
-		//{
-		//	dc.Color(DColor(124,124,124));
-
-		//	glBegin(GL_QUADS);
-		//	glVertex2d(b3bbox0.lo[0], b3bbox0.lo[1]);
-		//	glVertex2d(b3bbox0.hi[0], b3bbox0.lo[1]);
-		//	glVertex2d(b3bbox0.hi[0], b3bbox0.hi[1]);
-		//	glVertex2d(b3bbox0.lo[0], b3bbox0.hi[1]);
-		//	glEnd();
-
-		//	return;
-		//}		
-
-	}
-*/
 
 };
 
@@ -144,28 +95,43 @@ class DataNodeSymbolT<DText> : public DataNodeSymbolT<DObjectBox>
 public:
 	typedef DataNodeSymbolT<DObjectBox> basetype;
 
+	DataPtrT<DText> value;
+
 	DataNodeSymbolT(DataNode* n, DObject* p) :basetype(n, p)
 	{
 		b3margin.lo.set2(5,5);
 		b3margin.hi.set2(5,5);
+		value.cast_and_set(p);
+	}
+
+	DFontStyle font1;
+	DColor color;
+
+	void DoUpdateAttribute(GLDC& dc)
+	{
+		basetype::DoUpdateAttribute(dc);
+		dc.attrupdator.Update("text", font1);
 	}
 
 	void DoRender(GLDC& dc)
 	{
 		if (!value) return;
-		DText* p = static_cast<DText*>(value.get());
+
+		dc.UpdateAttribute(this);
 
 		if (dc.Mode() == GLDC::RENDER_SET_REALSIZE)
 		{
-			vec3d v3shf=p->m_v3Shf;
+			dc.attrupdator.SetObject(value.get());
+
+			vec3d v3shf=value->m_v3Shf;
 			vec3d v3pos;
 			vec3d v3size;
 
-			v3pos[0] =0.5*((p->m_v3Pos[0]+1.0) * dc.bi.b3bbox.hi[0] + (1.0 - p->m_v3Pos[0])*dc.bi.b3bbox.lo[0]) + p->m_v3Pxl[0];
-			v3pos[1] =0.5*((p->m_v3Pos[1]+1.0) * dc.bi.b3bbox.hi[1] + (1.0 - p->m_v3Pos[1])*dc.bi.b3bbox.lo[1]) + p->m_v3Pxl[1];
+			v3pos[0] =0.5*((value->m_v3Pos[0]+1.0) * dc.bi.b3bbox.hi[0] + (1.0 - value->m_v3Pos[0])*dc.bi.b3bbox.lo[0]) + value->m_v3Pxl[0];
+			v3pos[1] =0.5*((value->m_v3Pos[1]+1.0) * dc.bi.b3bbox.hi[1] + (1.0 - value->m_v3Pos[1])*dc.bi.b3bbox.lo[1]) + value->m_v3Pxl[1];
 
-			dc.SetFont(p->m_tFont);
-			vec2i v2size=dc.GetExtend(p->m_sText);
+			dc.SetFont(font1);
+			vec2i v2size=dc.GetExtend(value->m_sText);
 			v3size.set2(v2size[0],v2size[1]);
 
 			DoSetRealSize(v3pos,v3shf,v3size);
@@ -176,8 +142,8 @@ public:
 
 		if (dc.Mode() == GLDC::RENDER_TEXT||dc.Mode() == GLDC::RENDER_SELECT)
 		{
-			dc.SetFont(p->m_tFont);
-			dc.PrintText(p->m_sText,b3bbox1.center());
+			dc.SetFont(font1);
+			dc.PrintText(value->m_sText,b3bbox1.center());
 		}
 	}
 
@@ -225,7 +191,7 @@ public:
 			return;
 		}
 
-		size_t n=subnodes.size()-1;			
+		size_t n=subnodes.size()-1;
 		for (size_t i = 0; i < subnodes.size(); i++)
 		{
 			dc.bi.b3axis.lo[1]=(double(i)*b3bbox0.hi[1]+double(n-i)*b3bbox0.lo[1])/double(n);
@@ -265,8 +231,8 @@ public:
 
 		GLBBoxInfo bi1=dc.bi;
 
-		size_t n=subnodes.size();			
-		for (size_t i = 0; i < subnodes.size(); i++)
+		size_t n=subnodes.size();
+		for (size_t i = 0; i < n; i++)
 		{
 			dc.bi=bi1;
 			dc.bi.b3bbox.lo[0]=(double(i)*bi0.b3bbox.hi[0]+double(n-i)*bi0.b3bbox.lo[0])/double(n);
@@ -311,8 +277,17 @@ public:
 
 	virtual DataPtrT<GLToolData> GetToolData();
 
+	void DoUpdateAttribute(GLDC& dc)
+	{
+		basetype::DoUpdateAttribute(dc);
+		dc.attrupdator.Update("line.bbox.coord", line_main);
+	}
+
 	void DoRender(GLDC& dc)
 	{
+		
+		dc.UpdateAttribute(this);
+
 		if (dc.Mode() == GLDC::RENDER_SET_REALSIZE)
 		{
 
@@ -354,28 +329,25 @@ public:
 			glVertex2d(b3bbox0.lo[0], b3bbox0.hi[1]);
 			glEnd();
 			glDepthMask(true);
+		}
 
-			basetype::DoRender(dc);
+		if (!b3bbox1.is_valid())
+		{
 			return;
-
 		}
 		
-		if (dc.Mode() == GLDC::RENDER_SOLID)
+		if (dc.Mode() == GLDC::RENDER_SOLID || dc.Mode() == GLDC::RENDER_SELECT)
 		{
-			dc.Color(DColor(255,0,0));			
+			//dc.Color(DColor(255,0,0));	
 			basetype::DoRender(dc);
 		}
 		
 		if (dc.Mode() == GLDC::RENDER_TEXT)
 		{
 
-			//DFontStyle font;
-			//font.color.set(200,200,200);
-			//dc.SetFont(font);
-		
 			basetype::DoRender(dc);
 
-			dc.LineStyle(line1);
+			dc.LineStyle(line_main);
 			glBegin(GL_LINE_LOOP);
 				glVertex2d(b3bbox1.lo[0], b3bbox1.lo[1]);
 				glVertex2d(b3bbox1.hi[0], b3bbox1.lo[1]);
@@ -400,9 +372,6 @@ public:
 
 	}
 
-	//GLBBoxInfo& bi0;
-	//GLBBoxInfo& bi1;
-	//GLBBoxInfo bi2;
 
 	box3d b3bbox2,b3axis2;
 
@@ -532,10 +501,31 @@ public:
 
 	void DoRender(GLDC& dc)
 	{
-		GLClipLocker lock(dc, dc.ci);
+		GLClipLocker lock1(dc, dc.ci);
 		DataNodeSymbol::DoRender(dc);
 	}
 };
+
+
+template<>
+class DataNodeSymbolT<DFigDataModel> : public DataNodeSymbol
+{
+public:
+	typedef DataNodeSymbol basetype;
+	DataNodeSymbolT(DataNode* n, DObject* p) :basetype(n, p)
+	{
+	}
+
+	void DoRender(GLDC& dc)
+	{
+		GLClipLocker lock1(dc, dc.ci);
+		GLMatrixLocker lock2(dc, dc.bi.m4data);
+		dc.bi.m4data.LoadIdentity();
+
+		DataNodeSymbol::DoRender(dc);
+	}
+};
+
 
 class DLLIMPEXP_EWC_BASE GLToolDataCoord3d : public GLToolData
 {
@@ -550,8 +540,6 @@ public:
 	mat4d& mt0;
 	mat4d& mt1;
 	mat4d mt2;
-
-	//GLBBoxInfo bi2;
 
 	virtual int OnDraging(GLTool& gt)
 	{
@@ -687,6 +675,8 @@ public:
 		light0.v4diffuse.set4(0.8f,0.8f,0.8f,1.0f);
 		light0.v4specular.set4(0.1f, 0.1f, 0.1f, 1.0f);
 
+		nscale = 1.0;
+
 	}
 
 	virtual DataPtrT<GLToolData> GetToolData()
@@ -695,29 +685,54 @@ public:
 	}
 
 	
-
-	//GLBBoxInfo bi0, bi1;
-
 	mat4d mt0, mt1;
 
 	DLight light0;
 
 	vec4d plane[6];
 
+	double nscale;
+
+	DFontStyle font;
+
+	DLineStyle line_bbox;
+
+	void DoUpdateAttribute(GLDC& dc)
+	{
+		basetype::DoUpdateAttribute(dc);
+		dc.attrupdator.Update("line.bbox", line_bbox);
+	}
+
+
 	void DoRender(GLDC& dc)
 	{
-		vec3d c3 = 0.5*(dc.bi.b3bbox.lo + dc.bi.b3bbox.hi);
-		dc.bi.m4data.LoadIdentity();
-		dc.bi.m4data.Translate(vec3d(c3[0], c3[1], 0.0));
-		dc.bi.m4data=dc.bi.m4data*mt1;
+
+		dc.UpdateAttribute(this);
 
 		if (dc.Mode() == GLDC::RENDER_SET_REALSIZE)
 		{
 			DoSetRealSize(dc.bi.b3bbox);
 			dc.bi.b3bbox=b3bbox1;
 			clinfo.set(b3bbox1);
+
+			if (dc.bi.b3axis.is_valid() && dc.bi.b3axis!=b3axis0)
+			{
+				b3axis1=b3axis0 = dc.bi.b3axis;
+			}
+
+			double _nLength = b3axis0.width().length();
+			double _nXWidth = b3bbox1.x_width();
+			double _nYWidth=b3bbox1.y_width();
+			nscale = 0.9*::sqrt(_nXWidth*_nXWidth+_nYWidth*_nYWidth)/_nLength;
+
+			basetype::DoRender(dc);
 			return;
 		}
+
+		vec3d c3 = 0.5*(dc.bi.b3bbox.lo + dc.bi.b3bbox.hi);
+		dc.bi.m4data.LoadIdentity();
+		dc.bi.m4data.Translate(vec3d(c3[0], c3[1], 0.0));
+		dc.bi.m4data=dc.bi.m4data*mt1;		dc.bi.m4data.Scale(nscale);
 
 		LockState<GLClipInfo> lock_ci(dc.ci,clinfo);
 
@@ -742,10 +757,8 @@ public:
 
 		if (dc.Mode() == GLDC::RENDER_SOLID)
 		{
-			if (dc.Mode() == GLDC::RENDER_SOLID)
-			{
-				::glEnable(GL_LIGHTING);
-			}
+
+			ew::GLStatusLocker lock(GL_LIGHTING, true);
 
 			dc.Color(DColor(255, 0, 0));
 			::glTranslated(c3[0], c3[1], 0.0);
@@ -755,20 +768,49 @@ public:
 			basetype::DoRender(dc);
 
 			dc.Light(light0, false);
-
-			if (dc.Mode() == GLDC::RENDER_SOLID)
-			{
-				::glDisable(GL_LIGHTING);
-			}
 		}
 
 		if (dc.Mode() == GLDC::RENDER_TEXT)
 		{
 
-			DFontStyle font;
-			font.color.set(200, 200, 200);
-			dc.SetFont(font);
+			if (value->flags.get(DCoord3D::FLAG_SHOW_BOX))
+			{
+				GLMatrixLocker lock(dc, dc.bi.m4data);
+
+				dc.LineStyle(line_bbox);
+
+				::glBegin(GL_LINES);
+				::glVertex3d(b3axis0.lo[0],b3axis0.lo[1],b3axis0.lo[2]);
+				::glVertex3d(b3axis0.hi[0],b3axis0.lo[1],b3axis0.lo[2]);
+				::glVertex3d(b3axis0.lo[0],b3axis0.hi[1],b3axis0.lo[2]);
+				::glVertex3d(b3axis0.hi[0],b3axis0.hi[1],b3axis0.lo[2]);
+				::glVertex3d(b3axis0.lo[0],b3axis0.lo[1],b3axis0.lo[2]);
+				::glVertex3d(b3axis0.lo[0],b3axis0.hi[1],b3axis0.lo[2]);
+				::glVertex3d(b3axis0.hi[0],b3axis0.lo[1],b3axis0.lo[2]);
+				::glVertex3d(b3axis0.hi[0],b3axis0.hi[1],b3axis0.lo[2]);
+				::glVertex3d(b3axis0.lo[0],b3axis0.lo[1],b3axis0.hi[2]);
+				::glVertex3d(b3axis0.hi[0],b3axis0.lo[1],b3axis0.hi[2]);
+				::glVertex3d(b3axis0.lo[0],b3axis0.hi[1],b3axis0.hi[2]);
+				::glVertex3d(b3axis0.hi[0],b3axis0.hi[1],b3axis0.hi[2]);
+				::glVertex3d(b3axis0.lo[0],b3axis0.lo[1],b3axis0.hi[2]);
+				::glVertex3d(b3axis0.lo[0],b3axis0.hi[1],b3axis0.hi[2]);
+				::glVertex3d(b3axis0.hi[0],b3axis0.lo[1],b3axis0.hi[2]);
+				::glVertex3d(b3axis0.hi[0],b3axis0.hi[1],b3axis0.hi[2]);
+
+				::glVertex3d(b3axis0.lo[0],b3axis0.lo[1],b3axis0.lo[2]);
+				::glVertex3d(b3axis0.lo[0],b3axis0.lo[1],b3axis0.hi[2]);
+				::glVertex3d(b3axis0.hi[0],b3axis0.lo[1],b3axis0.lo[2]);
+				::glVertex3d(b3axis0.hi[0],b3axis0.lo[1],b3axis0.hi[2]);
+				::glVertex3d(b3axis0.lo[0],b3axis0.hi[1],b3axis0.lo[2]);
+				::glVertex3d(b3axis0.lo[0],b3axis0.hi[1],b3axis0.hi[2]);
+				::glVertex3d(b3axis0.hi[0],b3axis0.hi[1],b3axis0.lo[2]);
+				::glVertex3d(b3axis0.hi[0],b3axis0.hi[1],b3axis0.hi[2]);
+
+				::glEnd();
+			}
+
 			basetype::DoRender(dc);
+
 		}
 
 	}
@@ -794,10 +836,6 @@ public:
 		lbmax = value &&  value->flags.get(DAxisUnitD::FLAG_LABEL_DIR_MAX);
 		lbmin = true;
 
-		line0.set(DLineStyle::LINE_SOLID);
-		line0.color.set(220,220,220);
-		line1.set(DLineStyle::LINE_DASH1);
-		line1.color.set(120,120,120);
 	}
 
 	double DoGetExtend(GLDC& dc,const String& text)
@@ -814,18 +852,30 @@ public:
 	bool lbmax;
 	bool lbmin;
 
-	DLineStyle line0,line1;
+	DLineStyle line_tick,line_main;
+
+	DFontStyle font_text;
 
 	GLBBoxInfo bi;
+
+	void DoUpdateAttribute(GLDC& dc)
+	{
+		basetype::DoUpdateAttribute(dc);
+		dc.attrupdator.Update("line.axis.tick", line_tick);
+		dc.attrupdator.Update("line.axis.main", line_main);	
+		dc.attrupdator.Update("text.tick", font_text);
+	}
 
 	void DoRender(GLDC& dc)
 	{
 		if(!value) return;
 
-		dc.SetFont(value->FontText);
+		dc.UpdateAttribute(this);
+
+		dc.SetFont(font_text);
 
 		if (dc.Mode() == GLDC::RENDER_SET_REALSIZE)
-		{			
+		{
 			DoGenerate(dc);
 		}
 		else if (dc.Mode() == GLDC::RENDER_TEXT || dc.Mode() == GLDC::RENDER_SELECT)
@@ -860,7 +910,7 @@ public:
 		vec3d v3lbshf=wwdir==0?vec3d(0,-shfdir,0):vec3d(-shfdir,0.0);
 		vec3d v3lbpxl=wwdir==0?vec3d(0,-shfdir*5,0):vec3d(-shfdir*5,0.0);
 
-		dc.LineStyle(line0);
+		dc.LineStyle(line_tick);
 
 		::glBegin(GL_LINES);
 		for(int j=0;j<(int)_aTicks.size();j++)
@@ -899,12 +949,11 @@ public:
 		::glEnd();
 
 
-		dc.LineStyle(line1);
+		dc.LineStyle(line_main);
 
 		if(value->flags.get(DAxisUnitD::FLAG_SHOW_MESH_MAIN))
 		{
 
-			//dc.LineStyle(value->LineMain);
 			::glBegin(GL_LINES);
 			for(int j=0;j<(int)_aTicks.size();j++)
 			{
@@ -1162,11 +1211,13 @@ public:
 
 	DataNodeSymbolT(DataNode* n, DObject* p) :basetype(n, p)
 	{
-		value.cast_and_set(p);
-	
+		value.cast_and_set(p);	
 	}
 
-	DLineStyle line1;
+	DLineStyle line_main;
+	DLineStyle line_axis_x;
+	DLineStyle line_axis_y;
+	DLineStyle line_axis_z;
 
 	box3d b3bbox0;
 
@@ -1182,26 +1233,32 @@ public:
 
 	void DoRender_3D_DIR(GLDC& dc)
 	{
-		dc.LineStyle(line1);
 
 		if (dc.Mode() == GLDC::RENDER_TEXT || dc.Mode() == GLDC::RENDER_SELECT)
 		{
 			GLClipLocker locker1(dc, dc.ci);
-			GLDC::MatrixLocker locker2(dc,dc.bi.m4data);
-			dc.LineStyle(line1);
+			GLMatrixLocker locker2(dc,dc.bi.m4data);
 
 			::glBegin(GL_LINES);
-			dc.Color(DColor(255,0,0));
+			dc.LineStyle(line_axis_x);
 			::glVertex3d(-1.0e6,0.0,0.0);
 			::glVertex3d(+1.0e6,0.0,0.0);
-			dc.Color(DColor(0,255,0));
+			dc.LineStyle(line_axis_y);
 			::glVertex3d(0.0,-1.0e6,0.0);
 			::glVertex3d(0.0,+1.0e6,0.0);
-			dc.Color(DColor(0,0,255));
+			dc.LineStyle(line_axis_z);
 			::glVertex3d(0.0,0.0,-1.0e6);
 			::glVertex3d(0.0,0.0,+1.0e6);
 			::glEnd();
 		}		
+	}
+
+	void DoUpdateAttribute(GLDC& dc)
+	{
+		basetype::DoUpdateAttribute(dc);
+		dc.attrupdator.Update("line.axis_dir.x", line_axis_x);
+		dc.attrupdator.Update("line.axis_dir.y", line_axis_y);	
+		dc.attrupdator.Update("line.axis_dir.z", line_axis_z);
 	}
 
 	void DoRender(GLDC& dc)
@@ -1211,8 +1268,10 @@ public:
 			return;
 		}
 
+		dc.UpdateAttribute(this);
+
 		if (dc.Mode() == GLDC::RENDER_SET_REALSIZE)
-		{			
+		{
 			b3bbox0=dc.bi.b3bbox;
 		}
 
@@ -1324,11 +1383,19 @@ public:
 		}
 	}
 
+	DLineStyle line_main;
 
+
+	void DoUpdateAttribute(GLDC& dc)
+	{
+		basetype::DoUpdateAttribute(dc);
+		dc.attrupdator.Update2("line.data", line_main);
+	}
 
 	void DoRender(GLDC& dc)
 	{
 		if (!value) return;
+		dc.UpdateAttribute(this);
 
 		if (dc.Mode() == GLDC::RENDER_SET_REALSIZE)
 		{
@@ -1337,7 +1404,7 @@ public:
 		
 		if (dc.Mode() == GLDC::RENDER_SOLID||dc.Mode() == GLDC::RENDER_SELECT)
 		{
-			dc.LineStyle(value->LineType);
+			dc.LineStyle(line_main);
 
 			for (size_t j = 1; j < valid_index.size(); j += 2)
 			{
@@ -1387,8 +1454,8 @@ public:
 		{
 			return;
 		}
-		
-		GLDC::MatrixLocker lock(dc,dc.bi.m4data);
+
+		GLMatrixLocker lock2(dc, dc.bi.m4data);
 
 		if (dc.Mode() == GLDC::RENDER_SOLID||dc.Mode() == GLDC::RENDER_SELECT)
 		{
@@ -1504,20 +1571,15 @@ public:
 	static DObject* CreateFigure1()
 	{
 
-		//DFigure *p = new DFigure;
-		//p->m_sId = "figure";
-
 		DCoord* c = new DCoord2D;
 		c->m_sId = "coord2d";
 
 		DFigData2D* d = new DFigData2D;
 		d->m_sId = "data1";
-		d->LineType.color.set(0, 255, 0);
 		c->m_pDataManager->m_aItems.append(d);
 
 		d = new DFigData2D;
 		d->m_sId = "data2";
-		d->LineType.color.set(255, 0, 0);
 
 		c->m_pDataManager->m_aItems.append(d);
 
@@ -1544,20 +1606,17 @@ public:
 		t->m_v3Pos[0] = -1.0;
 		t->m_v3Shf[0] = -1.0;
 		t->m_v3Pxl[0] = -23.0;
-		t->m_tFont.flags.add(DFontStyle::STYLE_VERTICAL);
+
+		t->m_pAttribute.reset(new DAttribute);
+		t->m_pAttribute->SetValue("font_flags.text", (int)DFontStyle::STYLE_VERTICAL);
+
 		c->m_aItems.append(t);
 
 		return c;
-
-		//p->m_pItem.reset(c);
-		//return p;
 	}
 
 	static DObject* CreateFigure2()
 	{
-
-		//DFigure *p = new DFigure;
-		//p->m_sId = "figure";
 
 		DCoord* c = new DCoord3D;
 		c->m_sId = "coord3d";
@@ -1569,16 +1628,12 @@ public:
 
 		return c;
 
-		//p->m_pItem.reset(c);
-		//return p;
 	}
 
-	static DataModelSymbol* CreateDataModel2()
+	static DataModel* CreateDataModel2()
 	{
 
-		DataModelSymbol* model = new DataModelSymbol();
-
-
+		DataModel* model = new DataModel();
 		model->AddColumn(new DataColumnName);
 		model->AddColumn(new DataColumnType);
 
@@ -1589,10 +1644,10 @@ public:
 	}
 
 
-	static DataModelSymbol* CreateDataModel1()
+	static DataModel* CreateDataModel1()
 	{
 
-		DataModelSymbol* model = new DataModelSymbol();
+		DataModel* model = new DataModel();
 
 		model->AddColumn(new DataColumnName);
 		model->AddColumn(new DataColumnType);
@@ -1613,6 +1668,8 @@ public:
 
 		model->Update(p3);
 
+		model->m_pAttributeManager.reset(new DAttributeManager);
+
 		return model;
 	}
 
@@ -1625,7 +1682,7 @@ public:
 
 	}
 
-	DataModelSymbol* pmodel;
+	DataModel* pmodel;
 	AtomicSpin spin;
 
 
@@ -1668,7 +1725,6 @@ public:
 		fn.SetExts(_hT("Text Files")+"(*.txt) | *.txt");
 		m_pCanvas.reset(new IWnd_modelview(w, WndProperty()));
 		m_pCanvas->pmodel = pmodel;
-		//m_pCanvas->SetBackgroundStyle(wxBG_STYLE_CUSTOM);
 		return m_pCanvas;
 	}
 
@@ -1691,6 +1747,8 @@ bool PluginDomViewer::OnAttach()
 	DataNodeCreator::Register<DCoord3D>();
 	DataNodeCreator::Register<DFigData3D>();
 	DataNodeCreator::Register<DFigDataManager>();
+	DataNodeCreator::Register<DFigDataModel>();
+
 	DataNodeCreator::Register<DAxis>();
 
 	DataNodeCreator::Register<DAxisUnitD>();

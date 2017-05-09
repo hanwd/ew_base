@@ -11,6 +11,7 @@ EW_ENTER
 
 class DLLIMPEXP_EWA_BASE DState;
 class DLLIMPEXP_EWA_BASE DContext;
+class DLLIMPEXP_EWA_BASE DChildrenState;
 class DLLIMPEXP_EWA_BASE TableSerializer;
 
 
@@ -26,6 +27,9 @@ public:
 	void set(uint8_t r_, uint8_t g_, uint8_t b_);
 	void set(uint8_t r_, uint8_t g_, uint8_t b_, uint8_t a_);
 
+	bool set_by_string(const String& c);
+	String cast_to_string() const;
+
 	uint8_t r, g, b, a;
 };
 
@@ -37,20 +41,13 @@ public:
 	DFontStyle();
 	DFontStyle(float size);
 
-	float nsize;
 	String sname;
-	DColor color;
+	float nsize;
 	BitFlags flags;
+	DColor color;
 
-	bool operator==(const DFontStyle& rhs)
-	{
-		return nsize==rhs.nsize && sname==rhs.sname && color==rhs.color && flags==rhs.flags;
-	}
-
-	bool operator!=(const DFontStyle& rhs)
-	{
-		return !operator==(rhs);
-	}
+	bool operator==(const DFontStyle& rhs) const;
+	bool operator!=(const DFontStyle& rhs) const;
 
 	enum
 	{
@@ -95,14 +92,12 @@ public:
 class DLLIMPEXP_EWA_BASE DLight
 {
 public:
-
 	DLight();
-
-	int light_index;
 	vec4f v4ambient;
 	vec4f v4diffuse;
 	vec4f v4specular;
 	vec4f v4position;
+	int light_index;
 };
 
 
@@ -115,18 +110,11 @@ public:
 	DExprItem(){}
 
 	void SerializeVariant(Variant& v,int dir);
-
 	void Serialize(SerializerHelper sh);
-};
 
-inline bool operator==(const DExprItem& lhs,const DExprItem& rhs)
-{
-	return lhs.name==rhs.name && lhs.value==rhs.value && lhs.desc==rhs.desc;
-}
-inline bool operator!=(const DExprItem& lhs,const DExprItem& rhs)
-{
-	return !(lhs==rhs);
-}
+	bool operator==(const DExprItem& rhs) const;
+	bool operator!=(const DExprItem& rhs) const;
+};
 
 
 
@@ -152,11 +140,7 @@ public:
 
 	int t_begin,t_end,t_step;
 
-	DWhen()
-	{
-		t_begin=t_end=0;
-		t_step=-1;
-	}
+	DWhen();
 };
 
 
@@ -164,16 +148,8 @@ class DLLIMPEXP_EWA_BASE DMatrixBox
 {
 public:
 
-	DMatrixBox()
-	{
-		m4.LoadIdentity();
-		b3.load_min();
-	}
-
-	DMatrixBox(const mat4d& m):m4(m)
-	{
-		b3.load_min();
-	}
+	DMatrixBox();
+	DMatrixBox(const mat4d& m);
 
 
 	mat4d m4;
@@ -193,6 +169,9 @@ public:
 	void SerializeVariant(Variant& v, int dir);
 
 	void Serialize(SerializerHelper sh);
+
+	bool operator==(const SymbolItem& rhs) const;
+	bool operator!=(const SymbolItem& rhs) const;
 };
 
 
@@ -205,14 +184,7 @@ public:
 
 DEFINE_OBJECT_NAME(SymbolItem,"SymbolItem")
 
-inline bool operator==(const SymbolItem& lhs,const SymbolItem& rhs)
-{
-	return lhs.name==rhs.name && lhs.prop==rhs.prop;
-}
-inline bool operator!=(const SymbolItem& lhs,const SymbolItem& rhs)
-{
-	return !(lhs==rhs);
-}
+
 
 template<>
 class DLLIMPEXP_EWA_BASE CallableWrapT<arr_1t<SymbolItem> > : public CallableDataBaseT<arr_1t<SymbolItem> >
@@ -226,24 +198,51 @@ public:
 	virtual CallableData* DoClone(ObjectCloneState&){return new CallableWrapT(value);}
 };
 
+class DLLIMPEXP_EWA_BASE DAttribute : public ObjectData
+{
+public:
+
+	class Item
+	{
+	public:
+		String type;
+		String value;
+	};
+
+	indexer_map<String, Item> values;
+
+	static String MakeName(const String& name, const String& sub);
+
+	void SetValue(const String& name, int value);
+	void SetValue(const String& name, float value);
+	void SetValue(const String& name, double value);
+	void SetValue(const String& name, const String& value);
+	void SetValue(const String& name, const DColor& value);
+	void SetValue(const String& name, const DLineStyle& value);
+	void SetValue(const String& name, const DFontStyle& value);
+
+	void SetValue(const String& name, const vec3d& value);
+	void SetValue(const String& name, const box3d& value);
+
+};
 
 
 class DLLIMPEXP_EWA_BASE DObjectInfo : public ObjectInfo
 {
 public:
 
-	DObjectInfo(const String& s = "") :ObjectInfo(s)
-	{
-
-	}
+	DObjectInfo(const String& s = "");
 
 };
+
+
+
 
 
 class DLLIMPEXP_EWA_BASE DObject : public CallableData
 {
 public:
-	DObject(const String& s=""):m_sId(s){}
+	DObject(const String& s = "");
 
 	enum
 	{
@@ -254,17 +253,138 @@ public:
 	};
 
 	String m_sId;
+	DataPtrT<DAttribute> m_pAttribute;
 	BitFlags flags;
 
 	virtual bool DoUpdateValue(DState&){return true;}
 	virtual bool DoCheckParam(DState&){return true;}
 	virtual bool DoTransferData(TableSerializer&){ return true; }
 	virtual void DoRender(DContext&){}
-	virtual bool DoGetChildren(arr_1t<DataPtrT<DObject> >*){ return false; }
+	virtual bool DoGetChildren(DChildrenState&){ return false; }
 
 	virtual DObject* DecorateWithM4(const mat4d&){ return this; }
 
 	DECLARE_OBJECT_INFO(DObject,DObjectInfo);
+};
+
+
+class DLLIMPEXP_EWA_BASE AtrributeUpdator;
+
+class DLLIMPEXP_EWA_BASE DAttributeManager : public DObject
+{
+public:
+
+	DAttributeManager();
+	indexer_map<String, DataPtrT<DAttribute> > m_mapAttributes;
+
+
+	static DataPtrT<DAttribute> MakeWhiteBackgroundStyle();
+	static DataPtrT<DAttribute> MakeBlackBackgroundStyle();
+
+	DECLARE_OBJECT_INFO(DAttributeManager, DObjectInfo);
+};
+
+
+
+
+class DLLIMPEXP_EWA_BASE AtrributeUpdator
+{
+public:
+
+	void SetManager(DAttributeManager* pmgr);
+	void SetObject(DObject* pobj);
+
+
+	void Update(const String& name, String& value);
+	void Update(const String& name, int& value);
+	void Update(const String& name, double& value);
+	void Update(const String& name, float& value);
+	void Update(const String& name, DColor& value);
+	void Update(const String& name, DLineStyle& value);
+	void Update2(const String& name, DLineStyle& value);
+
+	void Update(const String& name, DFontStyle& value);
+	void Update(const String& name, vec3d& value);
+	void Update(const String& name, box3d& value);
+
+	void ResetIndex();
+
+protected:
+
+	int nIndex;
+
+	void DoAppend(DAttribute* p);
+	DataPtrT<DAttributeManager> m_pAttributeManager;
+
+	void DoUpdateInternal(const String& name);
+	arr_1t<indexer_map<String, DAttribute::Item>*> aLinks;
+
+
+	template<typename T>
+	void DoUpdateType(const String& name, T& value);
+
+
+};
+
+
+class DLLIMPEXP_EWA_BASE DChildrenState
+{
+public:
+
+	DChildrenState()
+	{
+		m_parray = &m_internal;
+	}
+
+	typedef arr_1t<DataPtrT<DObject> > grp_type;
+	
+	void assign(grp_type::iterator t1, grp_type::iterator t2)
+	{
+		m_parray->assign(t1, t2);
+	}
+
+	void append(DObject* p)
+	{
+		m_parray->append(p);
+	}
+
+	template<typename T>
+	void append(const DataPtrT<T>& p)
+	{
+		m_parray->append((T*)p.get());
+	}
+
+	size_t size() const
+	{
+		return m_parray->size();
+	}
+
+	DataPtrT<DObject>& operator[](size_t i)
+	{
+		return (*m_parray)[i];
+	}
+
+	void clear()
+	{
+		m_internal.clear();
+		m_parray = &m_internal;
+	}
+
+	void set_array(grp_type& p)
+	{
+		m_parray = &p;
+	}
+
+	void set_item(DObject* p)
+	{
+		clear();
+		m_internal.append(p);
+	}
+
+private:
+	grp_type* m_parray;
+	grp_type m_internal;
+
 };
 
 class DLLIMPEXP_EWA_BASE DObjectBox : public DObject
@@ -284,12 +404,9 @@ public:
 
 	ObjectGroupT<T> m_aItems;
 
-	virtual bool DoGetChildren(arr_1t<DataPtrT<DObject> >* p)
+	virtual bool DoGetChildren(DChildrenState& cs)
 	{
-		if (p)
-		{
-			p->assign(m_aItems.begin(), m_aItems.end());
-		}
+		cs.set_array((DChildrenState::grp_type&)m_aItems.proxy());
 		return true;
 	}
 };

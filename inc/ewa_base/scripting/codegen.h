@@ -85,12 +85,6 @@ public:
 		return aLLVar.size() - 1;
 	}
 
-//	void get(arr_1t<Variant>& a)
-//	{
-//		m_aVariables.swap(a);
-//	}
-//
-//private:
 	arr_1t<Variant> aLLVar;
 };
 
@@ -98,14 +92,6 @@ public:
 class DLLIMPEXP_EWA_BASE CG_Insts
 {
 public:
-
-	//void get(arr_1t<XopInst>& o,arr_1t<tokInfo>& i)
-	//{
-	//	EW_ASSERT(aInsts.size() == aInfos.size());
-
-	//	o.swap(aInsts);
-	//	i.swap(aInfos);
-	//}
 
 	void emit(int op,int pm=0)
 	{
@@ -129,11 +115,6 @@ public:
 		aInsts[n].p1=d-n-1;
 	}
 
-	//void emit(int op,int pmc,int kep)
-	//{
-	//	aInsts.push_back(XopInst(op,pmc,kep));
-	//	aInfos.push_back(tokInfo());
-	//}
 
 	void emit(int op,tokInfo& tk,int pmc,int kep)
 	{
@@ -146,8 +127,6 @@ public:
 		return (int)aInsts.size();
 	}
 
-
-//private:
 	arr_1t<XopInst> aInsts;
 	arr_1t<tokInfo> aInfos;
 };

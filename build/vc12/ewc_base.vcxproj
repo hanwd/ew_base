@@ -114,7 +114,6 @@
     <ClInclude Include="..\..\inc\ewc_base\wnd\wnd_updator.h" />
     <ClInclude Include="..\..\src\ewc_base\editor\plugin_ewsl_iface.h" />
     <ClInclude Include="..\..\src\ewc_base\editor\plugin_ewsl_caret.h" />
-    <ClInclude Include="..\..\src\ewc_base\editor\plugin_ewsl_vartable.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\ewc_base\app\app.cpp" />
@@ -132,7 +131,6 @@
     <ClCompile Include="..\..\src\ewc_base\editor\plugin_ewsl_editor.cpp" />
     <ClCompile Include="..\..\src\ewc_base\editor\plugin_ewsl_caret.cpp" />
     <ClCompile Include="..\..\src\ewc_base\editor\plugin_ewsl_iface.cpp" />
-    <ClCompile Include="..\..\src\ewc_base\editor\plugin_ewsl_vartable.cpp" />
     <ClCompile Include="..\..\src\ewc_base\editor\plugin_dom_viewer.cpp" />
     <ClCompile Include="..\..\src\ewc_base\editor\plugin_text_editor.cpp" />
     <ClCompile Include="..\..\src\ewc_base\editor\plugin_webview.cpp" />
@@ -341,8 +339,9 @@
       <WarningLevel>Level3</WarningLevel>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <MinimalRebuild>true</MinimalRebuild>
+      <MinimalRebuild>false</MinimalRebuild>
       <ForcedIncludeFiles>$(ProjectName).h</ForcedIncludeFiles>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -385,6 +384,7 @@
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <ForcedIncludeFiles>$(ProjectName).h</ForcedIncludeFiles>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -426,6 +426,7 @@
       <ForcedIncludeFiles>$(ProjectName).h</ForcedIncludeFiles>
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -468,6 +469,7 @@
       <ForcedIncludeFiles>$(ProjectName).h</ForcedIncludeFiles>
       <FavorSizeOrSpeed>Neither</FavorSizeOrSpeed>
       <Optimization>Disabled</Optimization>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -516,6 +518,7 @@
       <WarningLevel>Level3</WarningLevel>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <ForcedIncludeFiles>$(ProjectName).h</ForcedIncludeFiles>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -557,6 +560,7 @@
       <WarningLevel>Level3</WarningLevel>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <ForcedIncludeFiles>$(ProjectName).h</ForcedIncludeFiles>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>

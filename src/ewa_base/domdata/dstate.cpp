@@ -47,6 +47,11 @@ bool DState::link(const box2s& s, box2d& v)
 	return link(s.lo, v.lo) && link(s.hi, v.hi);
 }
 
+bool DState::link(const String& s, arr_xt<double>& v)
+{
+	return lexer.eval(s, v);
+}
+
 bool DState::link(const String& s,DataPtrT<DObject>& v)
 {
 	String h(s);

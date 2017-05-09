@@ -253,14 +253,22 @@ void GLDC::Reshape(const DVec2i& s_, const DVec2i& p_)
 
 void GLDC::Clear()
 {
+	if (m_nMode == RENDER_SELECT)
+	{
+		glClearColor(0, 0, 0, 0);
+	}
+	else
+	{
+		glClearColor(m_v4BgColor.r, m_v4BgColor.g, m_v4BgColor.b, m_v4BgColor.a);
+	}
+
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
 void GLDC::Clear(const DColor& c)
 {
 	m_v4BgColor = c;
-	glClearColor(c.r, c.g, c.b, c.a);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	Clear();
 }
 
 void GLDC::LoadIdentity()
@@ -387,10 +395,15 @@ void GLDC::Mode(int mode)
 	m_nMode = mode;
 
 	bi.b3bbox = m_b3BBox;
+	bi.b3axis.load_min();
 
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();	
 
+	if (mode == RENDER_SET_REALSIZE)
+	{
+		attrupdator.ResetIndex();
+	}
 
 	if (mode == RENDER_SELECT)
 	{
@@ -437,7 +450,21 @@ void GLDC::RenderNode(DataNode* node)
 
 void GLDC::RenderModel(DataModel* model)
 {
-	Clear();	
+	
+
+
+	if (!model)
+	{
+		return;
+	}
+
+	attrupdator.SetManager(model->m_pAttributeManager.get());
+	attrupdator.SetObject(NULL);
+	attrupdator.Update("color.background", m_v4BgColor);
+
+	Mode(GLDC::RENDER_CALC_MINSIZE);
+
+	Clear();
 
 	DataNode* node = model ? model->GetRootNode() : NULL;
 	if (node)
@@ -445,10 +472,6 @@ void GLDC::RenderModel(DataModel* model)
 
 		Mode(GLDC::RENDER_SET_REALSIZE);
 		node->DoRender(*this);
-
-		//Mode(GLDC::RENDER_SELECT);
-		//node->DoRender(*this);
-
 		Mode(GLDC::RENDER_SOLID);
 		node->DoRender(*this);
 		Mode(GLDC::RENDER_ALPHA);
@@ -461,12 +484,20 @@ void GLDC::RenderModel(DataModel* model)
 
 void GLDC::RenderSelect(DataModel* model)
 {
-	Clear();	
-	Mode(GLDC::RENDER_SELECT);
+	Clear();
 
+	if (!model)
+	{
+		return;
+	}
+
+	attrupdator.SetManager(model->m_pAttributeManager.get());
+
+	Mode(GLDC::RENDER_SELECT);
 	DataNode* node = model ? model->GetRootNode() : NULL;
 	if (node)
 	{
+	
 		node->DoRender(*this);
 	}
 }
@@ -612,6 +643,13 @@ public:
 GLStatusLocker::GLStatusLocker(int cap_) : cap(cap_)
 {
 	status = GL_TRUE == glIsEnabled(cap);
+}
+
+GLStatusLocker::GLStatusLocker(int cap_, bool enable_) : cap(cap_)
+{
+	status = GL_TRUE == glIsEnabled(cap);
+	if (enable_) glEnable(cap);
+	else glDisable(cap);
 }
 
 GLStatusLocker::~GLStatusLocker()
@@ -820,6 +858,16 @@ void GLDC::LeaveGroup()
 	glPopMatrix();
 }
 
+void GLDC::UpdateAttribute(DataNodeSymbol* node)
+{
+	if (!node->flags.get(DataNode::FLAG_ATTRIBUTED))
+	{
+		attrupdator.SetObject(node->value.get());
+		node->DoUpdateAttribute(*this);
+		node->flags.add(DataNode::FLAG_ATTRIBUTED);
+	}
+}
+
 void GLDC::SetFont(const DFontStyle& font)
 {
 
@@ -867,6 +915,13 @@ GLClipInfo GLDC::ClipPlane(const GLClipInfo& ci_)
 
 	return ci0;
 }
+
+GLMatrixLocker::GLMatrixLocker(GLDC& dc_) :dc(dc_){ dc.PushMatrix(); }
+GLMatrixLocker::GLMatrixLocker(GLDC& dc_, const mat4d& m4_) :dc(dc_){ dc.PushMatrix(); dc.MultMatrix(m4_); }
+GLMatrixLocker::~GLMatrixLocker(){ dc.PopMatrix(); }
+
+GLGroupLocker::GLGroupLocker(GLDC& dc_) :dc(dc_){ dc.EnterGroup(); }
+GLGroupLocker::~GLGroupLocker(){ dc.LeaveGroup(); }
 
 class gl_bitmap
 {

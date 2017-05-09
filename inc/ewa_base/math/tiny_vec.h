@@ -614,13 +614,29 @@ inline typename vec_promote<X,Y,N>::promoted operator / (const tiny_vec<X,N> &lh
 }
 
 template<typename X,typename Y>
-inline typename vec_promote<X,Y,3>::promoted cross (const tiny_vec<X,3> &lhs,const tiny_vec<Y,3> rhs)
+inline typename vec_promote<X,Y,3>::promoted cross (const tiny_vec<X,3> &lhs,const tiny_vec<Y,3>& rhs)
 {
 	typename vec_promote<X,Y,3>::promoted::storage_type res;
 	res[0]=lhs[1]*rhs[2]-lhs[2]*rhs[1];
 	res[1]=lhs[2]*rhs[0]-lhs[0]*rhs[2];
 	res[2]=lhs[0]*rhs[1]-lhs[1]*rhs[0];
 	return res;
+}
+
+//template <typename X, typename Y>
+//inline typename vec_promote<X, Y, 3>::promoted cross(const tiny_vec<X, 2>& lhs, const tiny_vec<Y, 2>& rhs)
+//{
+//	typename vec_promote<X, Y, 3>::promoted::storage_type res;
+//	res[0] = 0;
+//	res[1] = 0;
+//	res[2] = lhs[0] * rhs[1] - lhs[1] * rhs[0];
+//	return res;
+//}
+
+template <typename X, typename Y>
+inline typename cpx_promote<X, Y>::type cross(const tiny_vec<X, 2>& lhs, const tiny_vec<Y, 2>& rhs)
+{
+	return lhs[0] * rhs[1] - lhs[1] * rhs[0];
 }
 
 template<typename X,typename Y,int N>

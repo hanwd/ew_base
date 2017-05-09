@@ -44,13 +44,15 @@ public:
 		int m_nType;
 	};
 
-	DFontStyle font;
+
 	arr_1t<Tick> ticks;
 
-	DLineStyle LineMain;
-	DLineStyle LineUser;
-	DLineStyle LineTick;
-	DFontStyle FontText;
+	//DFontStyle font;
+	//DLineStyle LineMain;
+	//DLineStyle LineUser;
+	//DLineStyle LineTick;
+	//DFontStyle FontText;
+
 };
 
 

@@ -158,7 +158,12 @@ int page_access(void* p,size_t n,int f)
 		flag_new=flag_new<<4;
 	}
 
-	VirtualProtect(p,n,flag_new,&flag_old);
+	if (!VirtualProtect(p, n, flag_new, &flag_old))
+	{
+		System::LogTrace("page_access error");
+		return -1;
+	}
+
 	f=0;
 	if(flag_old&0xF0)
 	{

@@ -8,6 +8,15 @@
 
 EW_ENTER
 
+template<typename T>
+struct VariantSerializable
+{
+	static void serialize(Variant& v, T& value)
+	{
+		v[i].SerializeVariant(v, value);
+	}
+};
+
 
 class DLLIMPEXP_EWA_BASE TableSerializer : public Object
 {
@@ -45,8 +54,49 @@ public:
 	}
 
 	template<typename T>
+	struct linker
+	{
+		static void g(Variant& var, T& value, int dir)
+		{
+			value.SerializeVariant(var, dir);
+		}
+	};
+
+
+
+	template<typename T, int N>
+	struct linker < tiny_storage<T, N> >
+	{
+		static void g(Variant& var, tiny_storage<T, N>& value, int dir)
+		{
+			arr_xt<Variant>& a(var.ref<arr_xt<Variant> >());
+
+			if (dir == 1)
+			{
+				a.resize(N);
+				for (int i = 0; i < N; ++i)
+				{
+					a[i].reset(value[i]);
+				}
+			}
+			else
+			{
+				int d = std::min(N, (int)a.size());
+				for (int i = 0; i < d; ++i)
+				{
+					value[i] = variant_cast<T>(a[i]);
+				}
+			}
+
+
+		}
+	};
+
+	template<typename T>
 	void link_t(const String& s,arr_1t<T>& v)
 	{
+		// read:  var a   --> value v
+		// write: value v --> var a
 		arr_xt<Variant> &a(value[s].ref<arr_xt<Variant> >());
 		if(is_reader())
 		{
@@ -61,15 +111,11 @@ public:
 
 		for (size_t i = 0; i < v.size(); i++)
 		{
-			v[i].SerializeVariant(a[i],dir);
+			// v[i].SerializeVariant(a[i],dir);
+			linker<T>::g(a[i], v[i], dir);
 		}
 	}
 
-
-	//void link_vec3d(const String& s, vec3d& v);
-	//void link_vec2d(const String& s, vec2d& v);
-	//void link_box3d(const String& s, box3d& v);
-	//void link_box2d(const String& s, box2d& v);
 
 	template <typename T, int N>
 	void link(const String& s, tiny_vec<T, N>& v)

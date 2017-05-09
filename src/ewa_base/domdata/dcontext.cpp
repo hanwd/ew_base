@@ -229,6 +229,50 @@ DataPtrT<DStlDomainStl> DStlModel::GetUnitObject(const String& s, int d)
 	{
 		return NULL;
 	}
+	else if (s == "rect")
+	{
+		static DataPtrT<DStlDomainStl> pStl;
+		if (!pStl)
+		{
+			pStl.reset(new DStlDomainStl);
+			arr_1t<vec3d>& vertexs(pStl->vertexs);
+			arr_1t<vec3i>& triangles(pStl->triangles);
+			vertexs.push_back(vec3d(-0.5, -0.5, 0));
+			vertexs.push_back(vec3d(+0.5, -0.5, 0));
+			vertexs.push_back(vec3d(+0.5, +0.5, 0));
+			vertexs.push_back(vec3d(-0.5, +0.5, 0));
+			triangles.push_back(vec3i(0, 1, 2));
+			triangles.push_back(vec3i(0, 2, 3));
+		}
+		return pStl;
+	}
+	else if (s == "circular")
+	{
+		static DataPtrT<DStlDomainStl> pStl;
+		if (!pStl)
+		{
+			pStl.reset(new DStlDomainStl);
+			arr_1t<vec3d>& vertexs(pStl->vertexs);
+			arr_1t<vec3i>& triangles(pStl->triangles);
+
+			for (int a = 0; a < 360; a += 3)
+			{
+				double g = 2.0 * M_PI * double(a) / 360.0;
+				vertexs.push_back(vec3d(0.5*::cos(g), 0.5*::sin(g), 0));
+			}
+
+			vec3d cent(0, 0, 0);
+			int sz = vertexs.size();
+
+			for (int i = 0; i < int(vertexs.size()); i++)
+			{
+				triangles.push_back(vec3i(sz, i, (i+1)%sz));
+			}
+
+			vertexs.push_back(cent);
+		}
+		return pStl;
+	}
 	else
 	{
 		return NULL;
@@ -239,7 +283,7 @@ DCtxLocker2::DCtxLocker2(DContext& c, const mat4d& m, DUnit* p) :dc(c)
 {
 	dc.cu.push(p);
 
-	mat4d m4 = dc.cx.val;
+	mat4d m4;
 
 	double s = dc.cu.val.ul / dc.cu.stk.back().ul;
 	if (s != 1.0)

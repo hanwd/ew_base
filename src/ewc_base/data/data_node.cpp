@@ -20,6 +20,18 @@ DataNode::~DataNode()
 	subnodes.clear_and_destroy();
 }
 
+DataNode* DataNode::GetRoot()
+{
+	DataNode* p = this;
+	for (; p->parent; p = p->parent);
+	return p;
+}
+
+DataModel* DataNode::GetModel()
+{
+	return GetRoot()->DoGetModel();
+}
+
 void DataNode::DoRender(GLDC& dc)
 {
 	dc.EnterGroup();
@@ -30,15 +42,24 @@ void DataNode::DoRender(GLDC& dc)
 	dc.LeaveGroup();
 }
 
-
-void DataNode::OnChanged(DataChangedParam&)
+void DataNode::DoUpdateAttribute(GLDC& dc)
 {
-	if (!flags.get(DataNode::FLAG_IS_GROUP))
-	{
-		return;
-	}
 
-	flags.add(DataNode::FLAG_TOUCHED);
+}
+
+
+
+DataPtrT<GLToolData> DataNode::GetToolData()
+{
+	return NULL;
+}
+
+void DataNode::OnChanged(DataChangedParam& dpm)
+{
+	if (!flags.get(DataNode::FLAG_TOUCHED))
+	{
+		TouchNode(dpm, 0);
+	}
 }
 
 
@@ -61,13 +82,8 @@ bool DataNodeVariant::UpdateLabel()
 	return true;
 }
 
-void DataNodeVariant::OnChanged(DataChangedParam& dpm)
+void DataNodeVariant::TouchNode(DataChangedParam&, unsigned)
 {
-	if (!flags.get(DataNode::FLAG_IS_GROUP))
-	{
-		return;
-	}
-
 	if (!flags.get(DataNode::FLAG_TOUCHED))
 	{
 		flags.add(DataNode::FLAG_TOUCHED);
@@ -81,17 +97,26 @@ void DataNodeVariant::OnChanged(DataChangedParam& dpm)
 			DataNodeVariant* pv = DataNodeCreator::Create(this, table.get(i));
 			subnodes.push_back(pv);
 		}
+	}
+}
 
+void DataNodeVariant::OnChanged(DataChangedParam& dpm)
+{
+	if (!flags.get(DataNode::FLAG_IS_GROUP))
+	{
+		return;
+	}
+
+	if (!flags.get(DataNode::FLAG_TOUCHED))
+	{
+		TouchNode(dpm, 0);
 		return;
 	}
 
 
 	VariantTable& table(value.ref<VariantTable>());
 
-	DataNodeVariant* node = this;
-
-	DataNodeArray& oldnodes(node->subnodes);
-	DataNode* parent = node == dpm.model.GetRootNode() ? NULL : node;
+	DataNodeArray& oldnodes(this->subnodes);
 
 	wxDataViewItemArray items_add;
 	wxDataViewItemArray items_del;
@@ -130,15 +155,30 @@ void DataNodeVariant::OnChanged(DataChangedParam& dpm)
 		}
 		else
 		{
-			newnodes[i] = new DataNodeVariant(parent, table.get(i));
+			newnodes[i] = new DataNodeVariant(this, table.get(i));
 			items_add.Add(wxDataViewItem(newnodes[i]));
 		}
 	}
 
+	DataNode* parent = (this == dpm.model.GetRootNode()) ? NULL : this;
 
-	dpm.model.ItemsDeleted(wxDataViewItem(parent), items_del);
+	if (!items_del.empty())
+	{
+		if (!dpm.model.ItemsDeleted(wxDataViewItem(parent), items_del))
+		{
+			System::DebugBreak();
+		}
+	}
+
 	oldnodes.swap(newnodes);
-	dpm.model.ItemsAdded(wxDataViewItem(parent), items_add);
+
+	if (!items_add.empty())
+	{
+		if (!dpm.model.ItemsAdded(wxDataViewItem(parent), items_add))
+		{
+			System::DebugBreak();
+		}
+	}
 
 	for (auto it = items_del.begin(); it != items_del.end(); ++it)
 	{
@@ -147,10 +187,9 @@ void DataNodeVariant::OnChanged(DataChangedParam& dpm)
 }
 
 
-
 DataNodeSymbol::DataNodeSymbol(DataNode* n, DObject* p) :DataNode(n, p->m_sId), value(p)
 {
-	flags.set(FLAG_IS_GROUP, value->DoGetChildren(NULL));
+
 }
 
 const String& DataNodeSymbol::GetObjectName() const
@@ -171,7 +210,13 @@ bool DataNodeSymbol::UpdateLabel()
 	}
 }
 
-void DataNodeSymbol::TouchNode(unsigned depth)
+void DataNode::TouchNode(DataChangedParam&,unsigned)
+{
+
+}
+
+
+void DataNodeSymbol::TouchNode(DataChangedParam& dpm,unsigned depth)
 {
 	if (flags.get(DataNode::FLAG_TOUCHED))
 	{
@@ -180,18 +225,25 @@ void DataNodeSymbol::TouchNode(unsigned depth)
 
 	flags.add(DataNode::FLAG_TOUCHED);
 
-	arr_1t<DataPtrT<DObject> > arr;
-	value->DoGetChildren(&arr);
-
 	EW_ASSERT(subnodes.empty());
 
-	for (size_t i = 0; i<arr.size(); i++)
+	if (value->DoGetChildren(dpm.state))
 	{
-		DataNode* pv = DataNodeCreator::Create(this, arr[i].get());
-		if (!pv) continue;
-		subnodes.push_back(pv);
+		flags.add(DataNode::FLAG_IS_GROUP);
+
+		for (size_t i = 0; i<dpm.state.size(); i++)
+		{
+			DataNode* pv = DataNodeCreator::Create(this, dpm.state[i].get());
+			if (!pv) continue;
+			subnodes.push_back(pv);
+		}
+	}
+	else
+	{
+		flags.del(DataNode::FLAG_IS_GROUP);
 	}
 
+	
 	if (depth==0)
 	{
 		return;
@@ -199,86 +251,123 @@ void DataNodeSymbol::TouchNode(unsigned depth)
 
 	for (size_t i = 0; i < subnodes.size(); i++)
 	{
-		DataNodeSymbol* pv = dynamic_cast <DataNodeSymbol*>(subnodes[i]);
-		if (pv)
-		{
-			pv->TouchNode(depth - 1);
-		}
+		subnodes[i]->TouchNode(dpm,depth - 1);
 	}
 
 }
 
 void DataNodeSymbol::OnChanged(DataChangedParam& dpm)
 {
+
+	if (!flags.get(DataNode::FLAG_TOUCHED))
+	{		
+		TouchNode(dpm,0);
+		return;
+	}
+
 	if (!flags.get(DataNode::FLAG_IS_GROUP))
 	{
 		return;
 	}
 
-	if (!flags.get(DataNode::FLAG_TOUCHED))
-	{		
-		TouchNode();
-		return;
+	if (!value->DoGetChildren(dpm.state))
+	{
+		flags.del(DataNode::FLAG_IS_GROUP);
 	}
 
-	arr_1t<DataPtrT<DObject> > table;
-	value->DoGetChildren(&table);
 
-	typedef std::pair<DObject*, DataNodeSymbol*> nodeinfo;
-	indexer_map<DObject*, nodeinfo> hmap;
-
-	DataNode* parent = this;
-
-
-	size_t n_new = table.size();
+	size_t n_new = dpm.state.size();
 	size_t n_old = subnodes.size();
+
+	if (n_new == n_old)
+	{
+		for (size_t i = n_new;;)
+		{
+			if (i-- == 0)
+			{
+				return;
+			}
+
+			if (subnodes[i]->GetItem() != dpm.state[i].get()) break;
+		}
+	}
+
+	class nodeinfo
+	{
+	public:
+		nodeinfo() :item(NULL), node(NULL), next(NULL){}
+
+		DObject* item;
+		DataNode* node;
+		nodeinfo* next;
+	};
+
 
 	wxDataViewItemArray items_add;
 	wxDataViewItemArray items_del;
 
+	arr_1t<nodeinfo> nodeinfos(n_new);
+	indexer_map<DObject*, nodeinfo*> hmap;	
+
 	for (size_t i = 0; i<n_new; i++)
 	{
-		hmap[table[i].get()].first = table[i].get();
+		auto& ni(nodeinfos[i]);
+		ni.item = dpm.state[i].get();
+		auto& pinfo(hmap[ni.item]);
+		ni.next = pinfo;
+		pinfo = &ni;
 	}
+
 	for (size_t i = 0; i<n_old; i++)
 	{
-		DataNodeSymbol* node = (DataNodeSymbol*)subnodes[i];
+		DataNode* node = subnodes[i];
+		DObject* item = node->GetItem();
+
 		bool g1 = node->flags.get(FLAG_IS_GROUP);
 
-		int idx = hmap.find1(node->value.get());
-		if (idx < 0 || g1 != node->value->DoGetChildren(NULL))
+		int idx = hmap.find1(item);
+		if (idx < 0 || g1 != item->DoGetChildren(DChildrenState()))
 		{
 			items_del.Add(wxDataViewItem(node));
 		}
 		else
 		{
-			hmap[node->value.get()].second = node;
+			auto& pinfo(hmap.get(idx).second);
+			if (pinfo)
+			{
+				pinfo->node = node;
+				pinfo = pinfo->next;
+			}
+			else
+			{
+				items_del.Add(wxDataViewItem(node));
+			}
 		}
 	}
 
 	for (size_t i = 0; i<n_new; i++)
 	{
 
-		nodeinfo& it(hmap.get(i).second);
+		auto& ni(nodeinfos[i]);
 
-		if (!it.second)
+		if (!ni.node)
 		{
-			if (it.second = DataNodeCreator::Create(parent, table[i].get()))
+			if (ni.node = DataNodeCreator::Create(this, ni.item))
 			{
-				items_add.push_back(wxDataViewItem(it.second));
+				items_add.push_back(wxDataViewItem(ni.node));
 			}
 		}
 		else
 		{
-			if (it.second->UpdateLabel())
+			if (ni.node->UpdateLabel())
 			{
-				dpm.model.ItemChanged(wxDataViewItem(it.second));
+				dpm.model.ItemChanged(wxDataViewItem(ni.node));
 			}
 
-			if (it.second->flags.get(FLAG_IS_GROUP) && it.second->flags.get(DataNode::FLAG_TOUCHED))
-			{
-				it.second->OnChanged(dpm);
-			}
+			//if (ni.node->flags.get(FLAG_IS_GROUP) && ni.node->flags.get(DataNode::FLAG_TOUCHED))
+			//{
+			//	ni.node->OnChanged(dpm);
+			//}
 		}
 	}
 
@@ -288,7 +377,7 @@ void DataNodeSymbol::OnChanged(DataChangedParam& dpm)
 	subnodes.resize(n_new);
 	for (size_t i = 0; i<n_new; i++)
 	{
-		subnodes[i] = hmap.get(i).second.second;
+		subnodes[i] = nodeinfos[i].node;
 	}
 	dpm.model.ItemsAdded(wxDataViewItem(parent), items_add);
 

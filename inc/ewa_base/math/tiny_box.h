@@ -202,25 +202,6 @@ class tiny_box < String, N >
 public :
 	tiny_storage<String, N> lo, hi;
 
-	void add_x(String v)
-	{
-		if (N>0 && lo[0]>v) lo[0] = v;
-		if (N>0 && hi[0]<v) hi[0] = v;
-	}
-
-	void add_y(String v)
-	{
-		if (N>1 && lo[1]>v) lo[1] = v;
-		if (N>1 && hi[1]<v) hi[1] = v;
-	}
-
-	void add_z(String v)
-	{
-		if (N>2 && lo[2]>v) lo[2] = v;
-		if (N>2 && hi[2]<v) hi[2] = v;
-	}
-
-
 	void set_x(String v1, String v2)
 	{
 		if (N>0) lo[0] = v1; hi[0] = v2;

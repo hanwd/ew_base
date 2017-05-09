@@ -26,10 +26,18 @@ DFigData2D::DFigData2D()
 
 }
 
+DFigDataModel::DFigDataModel()
+{
+	m_sId = "model";
+}
+
 IMPLEMENT_OBJECT_INFO(FigData, DObjectInfo);
 IMPLEMENT_OBJECT_INFO(DFigData2D, DObjectInfo);
 IMPLEMENT_OBJECT_INFO(DFigData3D, DObjectInfo);
+IMPLEMENT_OBJECT_INFO(DFigDataModel, DObjectInfo);
 
 IMPLEMENT_OBJECT_INFO(DFigDataManager, DObjectInfo);
 
+
 EW_LEAVE
+

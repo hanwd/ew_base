@@ -4,8 +4,6 @@
 EW_ENTER
 
 
-
-
 template<unsigned N>
 class lkt_is_namestart
 {
@@ -25,6 +23,13 @@ class lkt_is_string
 {
 public:
 	static const int value=N!='\0'&&N!='\"'&&N!='\\'&&N!='\'';
+};
+
+template<unsigned N>
+class lkt_is_string_no_crln
+{
+public:
+	static const int value = N != '\0'&&N != '\"'&&N != '\\'&&N != '\'' && N != '\r' && N != '\n';
 };
 
 template<unsigned N>
@@ -259,18 +264,17 @@ void Scanner::read_string(char br)
 		for(;;)
 		{
 			mychar_ptr p1=stok.pcur;
-			skip<lkt_is_string>(stok);
+			skip<lkt_is_string_no_crln>(stok);
 			sb.append(p1,stok.pcur);
 
 			if(stok.pcur[0]==br)
 			{
 				++stok;
+				if (lookup_table<lkt_is_name>::test(stok.pcur[0]))
+				{
+					kerror("syntax error");
+				}
 				break;
-			}
-			if(stok.pcur[0]=='\0')
-			{
-				kerror("unexpected end of string");
-				return;
 			}
 
 			if(stok.pcur[0]=='\\')
@@ -343,6 +347,11 @@ void Scanner::read_string(char br)
 
 				++stok;
 				++stok;
+			}
+			else if (stok.pcur[0] == '\0' || stok.pcur[0] == '\r' || stok.pcur[0] == '\n')
+			{
+				kerror("unexpected end of string");
+				return;
 			}
 			else
 			{
@@ -753,6 +762,7 @@ bool Scanner::parse(const String& s_)
 void Scanner::add_item()
 {
 	aTokens.push_back(tokitem);
+	tokitem.tags = 0;
 }
 
 void Scanner::gen_item(tokType t,mychar_ptr p1,mychar_ptr p2)

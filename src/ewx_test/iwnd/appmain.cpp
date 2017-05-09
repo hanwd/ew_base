@@ -4,7 +4,6 @@
 #include "ewc_base/plugin/plugin.h"
 #include "ewc_base/plugin/plugin_manager.h"
 
-#include "ewc_base/wnd/impl_wx/iwnd_flash.h"
 
 #pragma comment(lib,"ewa_base.lib")
 #pragma comment(lib,"ewc_base.lib")

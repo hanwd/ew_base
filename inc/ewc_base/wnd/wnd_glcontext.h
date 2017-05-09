@@ -7,6 +7,7 @@
 EW_ENTER
 
 class DLLIMPEXP_EWC_BASE DataNode;
+class DLLIMPEXP_EWC_BASE DataNodeSymbol;
 class DLLIMPEXP_EWC_BASE DataModel;
 class DLLIMPEXP_EWC_BASE GLDC;
 
@@ -68,17 +69,18 @@ protected:
 };
 
 
-class GLStatusLocker
+class DLLIMPEXP_EWC_BASE GLStatusLocker
 {
 public:
 	GLStatusLocker(int cap_);
+	GLStatusLocker(int cap_,bool enable_);
 	~GLStatusLocker();
 private:
 	int cap;
 	bool status;
 };
 
-class GLBBoxInfo
+class DLLIMPEXP_EWC_BASE GLBBoxInfo
 {
 public:
 	box3d b3bbox;
@@ -86,7 +88,7 @@ public:
 	mat4d m4data;
 };
 
-class GLClipInfo
+class DLLIMPEXP_EWC_BASE GLClipInfo
 {
 public:
 	vec4d plane[4];
@@ -104,7 +106,7 @@ public:
 	GLClipInfo() :enable(false){}
 };
 
-class GLClipLocker
+class DLLIMPEXP_EWC_BASE GLClipLocker
 {
 public:
 	GLDC &dc;
@@ -113,7 +115,24 @@ public:
 	~GLClipLocker();
 };
 
-class DVec2i : public vec2i
+class DLLIMPEXP_EWC_BASE GLMatrixLocker
+{
+public:
+	GLDC& dc;
+	GLMatrixLocker(GLDC& dc_);
+	GLMatrixLocker(GLDC& dc_, const mat4d& m4_);
+	~GLMatrixLocker();
+};
+
+class DLLIMPEXP_EWC_BASE GLGroupLocker
+{
+public:
+	GLDC& dc;
+	GLGroupLocker(GLDC& dc_);
+	~GLGroupLocker();
+};
+
+class DLLIMPEXP_EWC_BASE DVec2i : public vec2i
 {
 public:
 	DVec2i(const wxSize& sz);
@@ -125,7 +144,7 @@ public:
 
 typedef void (*GLDC_Color_Function)(const DColor& c);
 
-class GLDC : public GLContext
+class DLLIMPEXP_EWC_BASE GLDC : public GLContext
 {
 public:
 
@@ -133,6 +152,7 @@ public:
 
 	enum
 	{
+
 		RENDER_CALC_MINSIZE,
 		RENDER_SET_REALSIZE,
 		RENDER_SOLID,
@@ -199,23 +219,11 @@ public:
 	void EnterGroup();
 	void LeaveGroup();
 
-	class MatrixLocker
-	{
-	public:
-		GLDC& dc;
-		MatrixLocker(GLDC& dc_) :dc(dc_){ dc.PushMatrix(); }
-		MatrixLocker(GLDC& dc_, const mat4d& m4_) :dc(dc_){ dc.PushMatrix(); dc.MultMatrix(m4_); }
-		~MatrixLocker(){ dc.PopMatrix(); }
-	};
 
-	class GroupLocker
-	{
-	public:
-		GLDC& dc;
-		GroupLocker(GLDC& dc_) :dc(dc_){ dc.EnterGroup(); }
-		~GroupLocker(){ dc.LeaveGroup(); }
-	};
+	AtrributeUpdator attrupdator;
 
+
+	void UpdateAttribute(DataNodeSymbol* node);
 
 protected:
 

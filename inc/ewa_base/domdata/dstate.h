@@ -48,11 +48,15 @@ public:
 	bool link(const String& s, int &v);
 	bool link(const String& s, double &v);
 
+
+	bool link(const vec3s& s, vec3d& v);
 	bool link(const vec3s& s, vec3i& v);
 	bool link(const vec2s& s, vec2d& v);
-	bool link(const vec3s& s, vec3d& v);
+	bool link(const vec2s& s, vec2i& v);
 	bool link(const box3s& s, box3d& v);
+	bool link(const box3s& s, box3i& v);
 	bool link(const box2s& s, box2d& v);
+	bool link(const box2s& s, box2i& v);
 
 	bool link(const String& s, arr_xt<double>& v);
 

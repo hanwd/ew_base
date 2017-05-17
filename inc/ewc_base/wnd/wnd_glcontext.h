@@ -18,8 +18,8 @@ public:
 	GLContext();
 	~GLContext();
 
-	void SetCurrent(wxWindow* w);
-	void SwapBuffers();
+	virtual void SetCurrent(wxWindow* w);
+	virtual void SwapBuffers();
 
 	static void CheckError();
 
@@ -28,6 +28,8 @@ protected:
 	void* m_hWnd;
 	void* m_hDC;
 	void* m_hGL;
+
+	virtual void OnInitGL();
 
 };
 
@@ -174,6 +176,8 @@ public:
 	void Light(DLight& light, bool f);
 
 	void Reshape(const DVec2i& s_, const DVec2i& p_ = vec2i(0, 0));
+
+	void SetCurrent(wxWindow* w);
 
 	void Clear(const DColor& c);
 	void Clear();

@@ -4,8 +4,13 @@
 EW_ENTER
 
 IWnd_modelview::IWnd_modelview(wxWindow* p, const WndPropertyEx& h)
-:wxWindow(p, h.id(), h, h, wxFULL_REPAINT_ON_RESIZE | wxWANTS_CHARS | wxBORDER_NONE)
+//:wxWindow(p, h.id(), h, h, wxFULL_REPAINT_ON_RESIZE | wxWANTS_CHARS | wxBORDER_NONE)
 {
+
+	if (!Create(p, h.id(), h, h, wxFULL_REPAINT_ON_RESIZE | wxWANTS_CHARS | wxBORDER_NONE))
+	{
+		
+	}
 
 	
 	this->Connect(wxEVT_PAINT, wxPaintEventHandler(IWnd_modelview::OnPaint));
@@ -53,6 +58,51 @@ void IWnd_modelview::OnSizeEvent(wxSizeEvent& evt)
 	Refresh();
 }
 
+
+bool IWnd_modelview::Create(wxWindow *parent,
+	wxWindowID id,
+	const wxPoint& pos,
+	const wxSize& size,
+	long style
+	)
+{
+	if (!CreateWindow(parent, id, pos, size, style, "GLCanvas"))
+	{
+		System::LogMessage(__FUNCTION__ " error");
+		return false;
+	}
+
+	return true;
+}
+
+
+bool IWnd_modelview::CreateWindow(wxWindow *parent,
+	wxWindowID id,
+	const wxPoint& pos,
+	const wxSize& size,
+	long style,
+	const wxString& name)
+{
+	EW_ASSERT(parent!=NULL);
+
+	if (!CreateBase(parent, id, pos, size, style, wxDefaultValidator, name))
+		return false;
+
+	parent->AddChild(this);
+
+	WXDWORD exStyle = 0;
+	DWORD msflags = WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN;
+	msflags |= MSWGetStyle(style, &exStyle);
+
+	if (!MSWCreate(wxApp::GetRegisteredClassName(wxT("IWnd_modelview"), -1, CS_OWNDC),
+		NULL, pos, size, msflags, exStyle))
+	{
+		return false;
+	}
+
+	return true;
+}
+
 void IWnd_modelview::OnPaint(wxPaintEvent& evt)
 {
 	wxPaintDC wxdc(this);
@@ -79,7 +129,6 @@ void IWnd_modelview::OnPaint(wxPaintEvent& evt)
 		wxSize sz = GetClientSize();
 		dc.SetCurrent(this);
 		dc.Reshape(sz);
-		dc.Color(DColor(255, 0, 0));
 		dc.RenderModel(pmodel);
 		dc.SwapBuffers();
 	}

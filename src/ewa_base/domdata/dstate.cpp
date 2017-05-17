@@ -17,11 +17,6 @@ bool DState::link(const String& s,int &v)
 	return lexer.eval(s,v);
 }
 
-bool DState::link(const vec3s& s,vec3i& v)
-{
-	return link(s[0],v[0]) && link(s[1],v[1]) && link(s[2],v[2]);
-}
-
 bool DState::link(const String& s,double &v)
 {
 	return lexer.eval(s,v);
@@ -32,17 +27,38 @@ bool DState::link(const vec3s& s,vec3d& v)
 	return link(s[0],v[0]) && link(s[1],v[1]) && link(s[2],v[2]);
 }
 
-bool DState::link(const vec2s& s,vec2d& v)
+bool DState::link(const vec3s& s,vec3i& v)
+{
+	return link(s[0],v[0]) && link(s[1],v[1]) && link(s[2],v[2]);
+}
+
+bool DState::link(const vec2s& s, vec2d& v)
 {
 	return link(s[0],v[0]) && link(s[1],v[1]);
 }
 
-bool DState::link(const box3s& s,box3d& v)
+bool DState::link(const vec2s& s, vec2i& v)
+{
+	return link(s[0],v[0]) && link(s[1],v[1]);
+}
+
+bool DState::link(const box3s& s, box3d& v)
 {
 	return link(s.lo,v.lo) && link(s.hi,v.hi);
 }
 
+bool DState::link(const box3s& s, box3i& v)
+{
+	return link(s.lo, v.lo) && link(s.hi, v.hi);
+}
+
+
 bool DState::link(const box2s& s, box2d& v)
+{
+	return link(s.lo, v.lo) && link(s.hi, v.hi);
+}
+
+bool DState::link(const box2s& s, box2i& v)
 {
 	return link(s.lo, v.lo) && link(s.hi, v.hi);
 }

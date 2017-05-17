@@ -29,6 +29,16 @@ enum
 	COLUMNFLAG_SORTDESC =1<<4,
 };
 
+class DLLIMPEXP_EWC_BASE ICellInfo
+{
+public:
+	ICellInfo(wxVariant& v, size_t r, size_t c) :variant(v), row(r), col(c){}
+
+	wxVariant &variant;
+	size_t row;
+	size_t col;
+};
+
 class DLLIMPEXP_EWC_BASE IValueColumn : public ObjectData
 {
 public:
@@ -61,6 +71,10 @@ public:
 	virtual void val2var(wxVariant& variant,bool v) const;
 	virtual void val2var(wxVariant& variant, Variant& v) const;
 
+	virtual bool var_test_null(const wxVariant& variant) const;
+	virtual void var_make_null(wxVariant& variant) const;
+
+
 	bool val_cmp(double r1, double r2)
 	{
 		if (std::isnan(r1) && std::isnan(r2)) return false;
@@ -85,26 +99,30 @@ public:
 
 };
 
-class DLLIMPEXP_EWC_BASE ICellInfo
-{
-public:
-	ICellInfo(wxVariant& v,size_t r,size_t c):variant(v),row(r),col(c){}
 
-	 wxVariant &variant;
-	 size_t row;
-	 size_t col;
-};
 
 template<typename T>
 class DLLIMPEXP_EWC_BASE IValueColumnT : public IValueColumn
 {
 public:
 	typedef T itemtype;
+
+	virtual bool SetValueNewItem(itemtype& val, const ICellInfo& cell)
+	{
+		if (this->var_test_null(cell.variant)) return false;
+		return SetValue(val, cell);
+	}
+
 	virtual bool SetValue(itemtype& val, const ICellInfo& cell)
 	{
 		EW_UNUSED(val);
 		EW_UNUSED(cell);
 		return false;
+	}
+
+	virtual void GetValueNewItem(const itemtype&, ICellInfo& cell) const
+	{
+		this->var_make_null(cell.variant);
 	}
 
 	virtual void GetValue(const itemtype& val,ICellInfo& cell) const =0;
@@ -205,10 +223,10 @@ public:
 	{
 		if(flags.get(FLAG_READONLY)) return false;
 
-		if(def_data==tmp_data)
-		{
-			return false;
-		}
+		//if(def_data==tmp_data)
+		//{
+		//	return false;
+		//}
 		tmp_value.push_back(tmp_data);
 		tmp_data=def_data;
 		return true;
@@ -273,7 +291,7 @@ public:
 		}
 		else if(cell.row==tmp_value.size())
 		{
-			mvccol->GetValue(tmp_data,cell);
+			mvccol->GetValueNewItem(tmp_data,cell);
 		}
 		
 	}
@@ -285,6 +303,11 @@ public:
 			return false;
 		}
 
+		if (flags.get(FLAG_READONLY))
+		{
+			return false;
+		}
+
 		IValueColumnT<itemtype>* mvccol=static_cast<IValueColumnT<itemtype>*>(aColumnInfo[cell.col].get());
 		if(cell.row< tmp_value.size())
 		{
@@ -292,8 +315,10 @@ public:
 		}
 		else if(cell.row==tmp_value.size())
 		{
-			mvccol->SetValue(tmp_data,cell);
-			TestNewRow();
+			if (mvccol->SetValueNewItem(tmp_data, cell))
+			{
+				TestNewRow();
+			}
 		}
 		else
 		{
@@ -305,7 +330,10 @@ public:
 
 	virtual bool MoveItem(size_t row1,size_t row2)
 	{
-		if(flags.get(FLAG_READONLY)) return false;
+		if (flags.get(FLAG_READONLY))
+		{
+			return false;
+		}
 
 		size_t rows=tmp_value.size();
 		if(row1>=rows||row2>=rows)

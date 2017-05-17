@@ -5,6 +5,120 @@
 EW_ENTER
 
 
+
+bool IValueColumn::var_test_null(const wxVariant& variant) const
+{
+	return variant.IsNull() || variant.GetString().empty();
+}
+
+void IValueColumn::var_make_null(wxVariant& variant) const
+{
+	variant.MakeNull();
+}
+
+
+
+void IValueColumn::var2val(wxVariant& variant, String& v) const
+{
+	v = WxImpl<String>::get(variant);
+}
+
+void IValueColumn::var2val(wxVariant& variant, float& v) const
+{
+	double d;
+	var2val(variant, d);
+	v = d;
+}
+
+void IValueColumn::var2val(wxVariant& variant, double& v) const
+{
+	String s = WxImpl<String>::get(variant);
+	char ch = s.c_str()[0];
+	if ((ch >= '0'&&ch <= '9') || ch == '.' || ch == '-' || ch == '+')
+	{
+		v = variant.GetDouble();
+	}
+	else if (s == "NAN")
+	{
+		v = _Nan._Double;
+	}
+	else if (s == "INF")
+	{
+		v = _Inf._Double;
+	}
+	else
+	{
+		v = 0.0;
+	}
+
+}
+
+void IValueColumn::var2val(wxVariant& variant, int64_t& v) const
+{
+	v = variant.GetLong();
+}
+
+void IValueColumn::var2val(wxVariant& variant, int32_t& v) const
+{
+	v = variant.GetLong();
+}
+
+void IValueColumn::var2val(wxVariant& variant, bool& v) const
+{
+	v = variant.GetBool();
+}
+
+void IValueColumn::var2val(wxVariant& variant, Variant& v) const
+{
+	v.reset<String>(wx2str(variant.GetString()));
+}
+
+void IValueColumn::val2var(wxVariant& variant, const String& v) const
+{
+	variant = str2wx(v);
+}
+
+void IValueColumn::val2var(wxVariant& variant, float v) const
+{
+	val2var(variant, double(v));
+}
+
+void IValueColumn::val2var(wxVariant& variant, double v) const
+{
+	if (std::isnan(v))
+	{
+		variant = "NAN";
+	}
+	else if (ndot < 0)
+	{
+		val2var(variant, String::Format("%f", v));
+	}
+	else
+	{
+		val2var(variant, String::Format("%.*f", ndot, v));
+	}
+}
+
+void IValueColumn::val2var(wxVariant& variant, int64_t v) const
+{
+	variant = (long)v;
+}
+
+void IValueColumn::val2var(wxVariant& variant, int32_t v) const
+{
+	variant = (long)v;
+}
+
+void IValueColumn::val2var(wxVariant& variant, bool v) const
+{
+	variant = (bool)v;
+}
+
+void IValueColumn::val2var(wxVariant& variant, Variant& v) const
+{
+	variant = str2wx(variant_cast<String>(v));
+}
+
 IValueColumn::IValueColumn()
 {
 	name="No.";
@@ -133,19 +247,21 @@ EvtProxyArraySimpleT<int>::EvtProxyArraySimpleT(arr_1t<int>& v):EvtProxyArrayRef
 
 EvtProxyArraySimpleT<double>::EvtProxyArraySimpleT(arr_1t<double>& v):EvtProxyArrayRefT<double>(v)
 {
-	class IValueColumnSimple : public IValueColumnT<int>
+	class IValueColumnSimple : public IValueColumnT<double>
 	{
 	public:
 		IValueColumnSimple()
 		{
 			name="Value";
 			width=120;
-			type=1;
+			type = COLUMNTYPE_DOUBLE;
 			flags.clr(COLUMNFLAG_EDITABLE|COLUMNFLAG_CRITICAL|COLUMNFLAG_NEW_ITEM);
 		}
+
 		virtual bool SetValue(itemtype& val,const ICellInfo& cell)
 		{
-			val=cell.variant.GetDouble();return true;
+			val=cell.variant.GetDouble();
+			return true;
 		}
 
 		virtual void GetValue(const itemtype& val,ICellInfo& cell) const

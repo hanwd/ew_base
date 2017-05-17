@@ -49,6 +49,15 @@ GLContext::~GLContext()
 	wglDeleteContext((HGLRC)m_hGL);
 }
 
+void GLContext::OnInitGL()
+{
+	::glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
+	::glEnable(GL_COLOR_MATERIAL);
+	::glEnable(GL_NORMALIZE);
+	::glDisable(GL_BLEND);
+	::glEnable(GL_DEPTH_TEST);
+	::glDepthFunc(GL_LEQUAL);
+}
 
 void GLContext::SetCurrent(wxWindow* w)
 {
@@ -91,7 +100,18 @@ void GLContext::SetCurrent(wxWindow* w)
 		}
 
 		m_hGL = ::wglCreateContext((HDC)m_hDC);
-		if (!m_hGL) CheckError();
+		if (!m_hGL)
+		{
+			CheckError();
+			System::LogMessage("cannot create glcontext");
+		}
+		else
+		{
+			::wglMakeCurrent((HDC)m_hDC, (HGLRC)m_hGL);
+			OnInitGL();
+			::glDrawBuffer(GL_BACK);
+			return;
+		}
 	}
 
 	::wglMakeCurrent((HDC)m_hDC, (HGLRC)m_hGL);
@@ -215,6 +235,12 @@ void GLDC::Light(DLight& light, bool f)
 	}
 }
 
+void GLDC::SetCurrent(wxWindow* w)
+{
+	GLContext::SetCurrent(w);
+	Reshape(w->GetClientSize());
+}
+
 void GLDC::Reshape(const DVec2i& s_, const DVec2i& p_)
 {
 
@@ -230,12 +256,6 @@ void GLDC::Reshape(const DVec2i& s_, const DVec2i& p_)
 
 	if (m_b3BBox == bi.b3bbox) return;
 
-	::glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
-	::glEnable(GL_COLOR_MATERIAL);
-	::glEnable(GL_NORMALIZE);
-	::glDisable(GL_BLEND);
-	::glEnable(GL_DEPTH_TEST);
-	::glDepthFunc(GL_LEQUAL);
 
 	m_b3BBox = bi.b3bbox;
 

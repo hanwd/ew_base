@@ -4,113 +4,14 @@
 EW_ENTER
 
 
-void IValueColumn::var2val(wxVariant& variant,String& v) const
-{
-	v = WxImpl<String>::get(variant);
-}
-
-void IValueColumn::var2val(wxVariant& variant,float& v) const
-{
-	double d;
-	var2val(variant, d);
-	v = d;
-}
-
-void IValueColumn::var2val(wxVariant& variant,double& v) const
-{
-	String s = WxImpl<String>::get(variant);
-	char ch = s.c_str()[0];
-	if ((ch >= '0'&&ch <= '9') || ch=='.'||ch=='-'||ch=='+')
-	{
-		v = variant.GetDouble();
-	}
-	else if (s == "NAN")
-	{
-		v = _Nan._Double;
-	}
-	else if (s == "INF")
-	{
-		v = _Inf._Double;
-	}
-	else
-	{
-		v = 0.0;
-	}
-	
-}
-
-void IValueColumn::var2val(wxVariant& variant,int64_t& v) const
-{
-	v=variant.GetLong();
-}
-
-void IValueColumn::var2val(wxVariant& variant,int32_t& v) const
-{
-	v=variant.GetLong();
-}
-
-void IValueColumn::var2val(wxVariant& variant,bool& v) const
-{
-	v=variant.GetBool();
-}
-
-void IValueColumn::var2val(wxVariant& variant, Variant& v) const
-{
-	v.reset<String>(wx2str(variant.GetString()));
-}
-
-void IValueColumn::val2var(wxVariant& variant,const String& v) const
-{
-	variant=str2wx(v);
-}
-
-void IValueColumn::val2var(wxVariant& variant,float v) const
-{
-	val2var(variant, double(v));
-}
-
-void IValueColumn::val2var(wxVariant& variant,double v) const
-{
-	if (std::isnan(v))
-	{
-		variant = "NAN";
-	}
-	else if (ndot < 0)
-	{
-		val2var(variant, String::Format("%f", v));
-	}
-	else
-	{
-		val2var(variant, String::Format("%.*f", ndot, v));
-	}
-}
-
-void IValueColumn::val2var(wxVariant& variant,int64_t v) const
-{
-	variant=(long)v;
-}
-
-void IValueColumn::val2var(wxVariant& variant,int32_t v) const
-{
-	variant=(long)v;
-}
-
-void IValueColumn::val2var(wxVariant& variant,bool v) const
-{
-	variant=(bool)v;
-}	
-
-void IValueColumn::val2var(wxVariant& variant, Variant& v) const
-{
-	variant = str2wx(variant_cast<String>(v));
-}
 
 
 
-class mvcListRender : public wxDataViewTextRenderer
+
+class mvcRenderList : public wxDataViewTextRenderer
 {
 public:
-	mvcListRender(const wxString &varianttype = wxT("string"),
+	mvcRenderList(const wxString &varianttype = wxT("string"),
 		wxDataViewCellMode mode = wxDATAVIEW_CELL_EDITABLE,
 		int align = wxDVR_DEFAULT_ALIGNMENT,
 		bool selectall=false
@@ -129,16 +30,16 @@ protected:
 
 };
 
-class mvcExprRender : public mvcListRender
+class mvcRenderExpr : public mvcRenderList
 {
 public:
-	typedef mvcListRender basetype;
+	typedef mvcRenderList basetype;
 
-	mvcExprRender(const wxString &varianttype = wxT("string"),
+	mvcRenderExpr(const wxString &varianttype = wxT("string"),
 		wxDataViewCellMode mode = wxDATAVIEW_CELL_EDITABLE,
 		int align = wxDVR_DEFAULT_ALIGNMENT,
 		bool selectall=false
-		):mvcListRender(varianttype,mode,align,selectall){}
+		):mvcRenderList(varianttype,mode,align,selectall){}
 
 
 	virtual bool WXActivateCell(const wxRect& cell,
@@ -153,7 +54,7 @@ public:
 
 
 
-mvcListRender::mvcListRender(const wxString &varianttype,
+mvcRenderList::mvcRenderList(const wxString &varianttype,
 	wxDataViewCellMode mode,
 	int align,
 	bool selectall
@@ -163,7 +64,7 @@ mvcListRender::mvcListRender(const wxString &varianttype,
 	bSelectAll=selectall;
 }
 
-bool mvcListRender::WXActivateCell(const wxRect& cell,
+bool mvcRenderList::WXActivateCell(const wxRect& cell,
                               wxDataViewModel *model,
                               const wxDataViewItem & item,
                               unsigned int col,
@@ -197,7 +98,7 @@ bool mvcListRender::WXActivateCell(const wxRect& cell,
 
 
 
-bool mvcExprRender::WXActivateCell(const wxRect& ,
+bool mvcRenderExpr::WXActivateCell(const wxRect& ,
                               wxDataViewModel *,
                               const wxDataViewItem &,
                               unsigned int ,
@@ -210,11 +111,11 @@ bool mvcExprRender::WXActivateCell(const wxRect& ,
 }
 
 
-class dmCheckboxRender : public wxDataViewCustomRenderer
+class mvcRenderCheckBox : public wxDataViewCustomRenderer
 {
 public:
 
-	dmCheckboxRender(const wxString &varianttype = wxT("long"),
+	mvcRenderCheckBox(const wxString &varianttype = wxT("long"),
 		wxDataViewCellMode mode = wxDATAVIEW_CELL_INERT,
 		int align = wxDVR_DEFAULT_ALIGNMENT)
 		:wxDataViewCustomRenderer(varianttype,mode,align)
@@ -302,12 +203,12 @@ wxDataViewColumn* IValueColumn::CreateDataViewColumn(IValueColumn& info,size_t n
 	int _nAlign=wxALIGN_LEFT;//wxDVR_DEFAULT_ALIGNMENT;
 	if(info.type==0)
 	{
-		render=new mvcListRender("string",wxDATAVIEW_CELL_INERT,_nAlign);
+		render=new mvcRenderList("string",wxDATAVIEW_CELL_INERT,_nAlign);
 	}		
 	else if(info.type==COLUMNTYPE_CHECKBOX)
 	{
 		wxDataViewCellMode flag=info.IsReadonly()?wxDATAVIEW_CELL_INERT:wxDATAVIEW_CELL_ACTIVATABLE;
-		render=new dmCheckboxRender ( "bool", flag );
+		render=new mvcRenderCheckBox ( "bool", flag );
 	}
 	else if(info.type==COLUMNTYPE_ICON)
 	{
@@ -316,7 +217,7 @@ wxDataViewColumn* IValueColumn::CreateDataViewColumn(IValueColumn& info,size_t n
 	else
 	{
 		wxDataViewCellMode flag=info.IsReadonly()?wxDATAVIEW_CELL_INERT:wxDATAVIEW_CELL_EDITABLE;
-		render=new mvcListRender("string",flag,_nAlign);
+		render=new mvcRenderList("string",flag,_nAlign);
 	}	
 
 	wxDataViewColumn *column = new wxDataViewColumn(str2wx(info.name),render,n,info.width);
@@ -356,7 +257,7 @@ END_EVENT_TABLE()
 
 bool IWnd_dataview::FinishByReturnKey;
 
-class tdEnterDetector : public wxWindow
+class dataviewEnterDetector : public wxWindow
 {
 public:
 
@@ -381,7 +282,7 @@ public:
 
 	}
 
-	~tdEnterDetector()
+	~dataviewEnterDetector()
 	{
 
 	}
@@ -394,11 +295,9 @@ IWnd_dataview::IWnd_dataview(wxWindow* p,const WndPropertyEx& h)
 :wxDataViewCtrl(p,h.id(),h,h,wxDV_MULTIPLE|wxDV_ROW_LINES|(h.flags().get(IDefs::IWND_NOHEADER)?wxDV_NO_HEADER:0))
 {
 	model=new IValueDataModel;
-
 	AssociateModel(model);
-	//GetMainWindow()->PushEventHandler(new tdEnterDetector);
 
-	GetMainWindow()->Connect(wxEVT_CHAR_HOOK, wxCharEventHandler(tdEnterDetector::OnChar));
+	GetMainWindow()->Connect(wxEVT_CHAR_HOOK, wxCharEventHandler(dataviewEnterDetector::OnChar));
 }
 
 void IWnd_dataview::ReCreateColumns()

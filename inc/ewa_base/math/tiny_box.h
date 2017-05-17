@@ -69,6 +69,11 @@ public:
 		return true;
 	}
 
+	bool test(const tiny_box<T, N>& v) const
+	{
+		return test(v.lo) && test(v.hi);
+	}
+
 	template<int X>
 	bool test_n(const tiny_vec<T, N>& v) const
 	{

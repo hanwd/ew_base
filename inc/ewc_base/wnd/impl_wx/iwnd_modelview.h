@@ -19,12 +19,25 @@ public:
 
 	void ImageUpdate();
 
-
 	GLTool gt;
 	GLDC dc;
 	LitePtrT<DataModel> pmodel;
 
+protected:
 
+	bool Create(wxWindow *parent,
+		wxWindowID id,
+		const wxPoint& pos,
+		const wxSize& size,
+		long style
+		);
+
+	bool CreateWindow(wxWindow *parent,
+		wxWindowID id,
+		const wxPoint& pos,
+		const wxSize& size,
+		long style,
+		const wxString& name);
 };
 
 EW_LEAVE

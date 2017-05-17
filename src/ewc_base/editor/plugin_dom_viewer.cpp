@@ -16,7 +16,6 @@
 
 #include "ewa_base/domdata.h"
 
-
 #include "gl/gl.h"
 
 EW_ENTER
@@ -1722,8 +1721,10 @@ public:
 
 	wxWindow* CreateCanvas(wxWindow* w)
 	{
+
 		fn.SetExts(_hT("Text Files")+"(*.txt) | *.txt");
 		m_pCanvas.reset(new IWnd_modelview(w, WndProperty()));
+
 		m_pCanvas->pmodel = pmodel;
 		return m_pCanvas;
 	}

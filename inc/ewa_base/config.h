@@ -229,6 +229,9 @@ void operator delete[](void*,int,const char*,int);
 
 EW_ENTER
 
+DLLIMPEXP_EWA_BASE void* mp_alloc(size_t n);
+DLLIMPEXP_EWA_BASE void mp_free(void* p);
+
 // Prevent form copy
 class DLLIMPEXP_EWA_BASE NonCopyable
 {

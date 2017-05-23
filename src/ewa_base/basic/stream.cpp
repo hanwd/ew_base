@@ -244,7 +244,7 @@ bool Stream::write_to_file(const String& fp,int flag)
 		return false;
 	}
 
-	char buffer[1024*32];
+	char buffer[1024*8];
 	while(1)
 	{
 		int rc=hReader.get()->recv(buffer,sizeof(buffer));
@@ -276,7 +276,7 @@ bool Stream::write_to_writer(DataPtrT<IStreamData> wr)
 		return false;
 	}
 
-	char buffer[1024*32];
+	char buffer[1024*8];
 	while(1)
 	{
 		int rc=hReader.get()->recv(buffer,sizeof(buffer));
@@ -312,7 +312,8 @@ bool Stream::write_to_buffer(StringBuffer<char>& sb,int type)
 	{
 		try
 		{
-			char buffer[1024*32];
+			char buffer[1024*8];
+
 			while(1)
 			{
 				int rc=hReader.get()->recv(buffer,sizeof(buffer));
@@ -488,7 +489,7 @@ bool Stream::read_from_file(const String& fp)
 		return false;
 	}
 
-	char buffer[1024*32];
+	char buffer[1024*8];
 	while(1)
 	{
 		int rc=file.read(buffer,sizeof(buffer));
@@ -521,7 +522,7 @@ bool Stream::read_from_reader(DataPtrT<IStreamData> rd)
 		return false;
 	}
 
-	char buffer[1024*32];
+	char buffer[1024*8];
 	while(1)
 	{
 		int rc=rd->recv(buffer,sizeof(buffer));

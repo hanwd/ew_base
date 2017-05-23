@@ -50,12 +50,11 @@ bool ObjectNode::OnTreeEvent(enumTreeEventType t,ITreeEventData& d)
 		return true;
 	case TREE_CONTEXT_MENU:
 		{
-			EvtManager::current()[GetContextMenuName()].PopupMenu(d.window);
-			//EvtGroup* g=EvtManager::current()[GetContextMenuName()].cast_group();
-			//if(!g) break;
-			//wxMenu* menu=g->CreateMenu();
-			//d.window->PopupMenu(menu);
-			//delete menu;
+			String ctx_menu = GetContextMenuName();
+			if (!ctx_menu.empty())
+			{
+				EvtManager::current()[ctx_menu].PopupMenu(d.window);
+			}
 		}
 		return true;
 	case TREE_DRAG_END:

@@ -93,35 +93,37 @@ bool PluginExpression::OnAttach()
 		}
 	};
 
-	class expr_ok : public EvtCommand
-	{
-	public:
-		expr_ok():EvtCommand("expr.ok")
-		{				
-		}
-		bool DoCmdExecute(ICmdParam&)
-		{
-			WndManager::current().evtmgr["Model.Expr"].StdExecuteEx(0,IDefs::BTN_OK);
-			return true;
-		}
-	};
-	class expr_cancel : public EvtCommand
-	{
-	public:
-		expr_cancel() :EvtCommand("expr.cancel")
-		{
-
-		}
-		bool DoCmdExecute(ICmdParam&)
-		{
-			WndManager::current().evtmgr["Model.Expr"].StdExecuteEx(0,IDefs::BTN_CANCEL);
-			return true;
-		}
-	};
-
 	wm.evtmgr.append(new expr_timer);
-	wm.evtmgr.append(new expr_cancel);
-	wm.evtmgr.append(new expr_ok);
+
+	//class expr_ok : public EvtCommand
+	//{
+	//public:
+	//	expr_ok():EvtCommand("expr.ok")
+	//	{				
+	//	}
+	//	bool DoCmdExecute(ICmdParam&)
+	//	{
+	//		WndManager::current().evtmgr["Model.Expr"].StdExecuteEx(0,IDefs::BTN_OK);
+	//		return true;
+	//	}
+	//};
+	//class expr_cancel : public EvtCommand
+	//{
+	//public:
+	//	expr_cancel() :EvtCommand("expr.cancel")
+	//	{
+
+	//	}
+	//	bool DoCmdExecute(ICmdParam&)
+	//	{
+	//		WndManager::current().evtmgr["Model.Expr"].StdExecuteEx(0,IDefs::BTN_CANCEL);
+	//		return true;
+	//	}
+	//};
+
+
+	//wm.evtmgr.append(new expr_cancel);
+	//wm.evtmgr.append(new expr_ok);
 	return true;
 }
 

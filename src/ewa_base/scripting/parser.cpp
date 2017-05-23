@@ -86,7 +86,7 @@ public:
 
 	static bool is_stmt_end(tokItem* pcur)
 	{
-		tokType tk=pcur[0].type;
+		tokType tk=(tokType)pcur[0].type;
 		if(tk==TOK_KEY && pcur[0].word=="case") return true;
 		if(tk==TOK_KEY && pcur[0].word=="cond") return true;
 		if(tk==TOK_KEY && pcur[0].word=="default") return true;
@@ -100,7 +100,7 @@ public:
 
 	static bool is_expr_end(tokItem* pcur)
 	{
-		tokType tk=pcur[0].type;
+		tokType tk = (tokType)pcur[0].type;
 		return 
 			tk == TOK_END || 
 			tk == TOK_KET1 || 
@@ -113,7 +113,7 @@ public:
 
 	static bool is_ket3_end(tokItem* pcur)
 	{
-		tokType tk=pcur[0].type;
+		tokType tk = (tokType)pcur[0].type;
 		return tk==TOK_END||tk==TOK_KET3;
 	}
 };

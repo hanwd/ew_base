@@ -7,6 +7,7 @@
 EW_ENTER
 
 class MvcViewProxy;
+
 class DLLIMPEXP_EWC_BASE MvcView : public wxEvtHandler
 {
 public:

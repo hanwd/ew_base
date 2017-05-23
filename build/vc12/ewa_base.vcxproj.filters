@@ -91,6 +91,12 @@
     <Filter Include="source\util">
       <UniqueIdentifier>{7960ec57-bf19-48d2-83a1-405a00c881ae}</UniqueIdentifier>
     </Filter>
+    <Filter Include="include\domdata">
+      <UniqueIdentifier>{4204c6e4-4764-482b-9e80-63f68d1f9b7e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="source\domdata">
+      <UniqueIdentifier>{e3dca7e0-ce5f-48bc-8b22-68a46a106203}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\inc\ewa_base\basic\atomic.h">
@@ -438,9 +444,6 @@
     <ClInclude Include="..\..\inc\ewa_base\util\strlib.h">
       <Filter>include\util</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\inc\ewa_base\util\symm.h">
-      <Filter>include\util</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\inc\ewa_base\threading\timer_queue.h">
       <Filter>include\threading</Filter>
     </ClInclude>
@@ -551,6 +554,48 @@
     </ClInclude>
     <ClInclude Include="..\..\inc\ewa_base\basic\misc.h">
       <Filter>include\basic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewa_base\domdata\daxisunit.h">
+      <Filter>include\domdata</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewa_base\domdata\dcontext.h">
+      <Filter>include\domdata</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewa_base\domdata\dcoord.h">
+      <Filter>include\domdata</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewa_base\domdata\dfigdata.h">
+      <Filter>include\domdata</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewa_base\domdata\dfigure.h">
+      <Filter>include\domdata</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewa_base\domdata\dobject.h">
+      <Filter>include\domdata</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewa_base\domdata\dstate.h">
+      <Filter>include\domdata</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewa_base\domdata\dtable.h">
+      <Filter>include\domdata</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewa_base\domdata\dtext.h">
+      <Filter>include\domdata</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewa_base\domdata\dunit.h">
+      <Filter>include\domdata</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewa_base\domdata\symm.h">
+      <Filter>include\domdata</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewa_base\domdata\table_serializer.h">
+      <Filter>include\domdata</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewa_base\domdata\daxis_d.h">
+      <Filter>include\domdata</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewa_base\domdata.h">
+      <Filter>include</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -800,15 +845,6 @@
     <ClCompile Include="..\..\src\ewa_base\net\http.cpp">
       <Filter>source\net</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\ewa_base\util\dstate.cpp">
-      <Filter>source\util</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\ewa_base\util\symm.cpp">
-      <Filter>source\util</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\ewa_base\util\table_serializer.cpp">
-      <Filter>source\util</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\src\ewa_base\util\strlib.cpp">
       <Filter>source\util</Filter>
     </ClCompile>
@@ -913,6 +949,45 @@
     </ClCompile>
     <ClCompile Include="..\..\src\ewa_base\basic\stream_buffer.cpp">
       <Filter>source\basic</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewa_base\domdata\daxis_d.cpp">
+      <Filter>source\domdata</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewa_base\domdata\daxisunit.cpp">
+      <Filter>source\domdata</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewa_base\domdata\dcontext.cpp">
+      <Filter>source\domdata</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewa_base\domdata\dcoord.cpp">
+      <Filter>source\domdata</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewa_base\domdata\dfigdata.cpp">
+      <Filter>source\domdata</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewa_base\domdata\dfigure.cpp">
+      <Filter>source\domdata</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewa_base\domdata\dobject.cpp">
+      <Filter>source\domdata</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewa_base\domdata\dstate.cpp">
+      <Filter>source\domdata</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewa_base\domdata\dtable.cpp">
+      <Filter>source\domdata</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewa_base\domdata\dtext.cpp">
+      <Filter>source\domdata</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewa_base\domdata\dunit.cpp">
+      <Filter>source\domdata</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewa_base\domdata\symm.cpp">
+      <Filter>source\domdata</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewa_base\domdata\table_serializer.cpp">
+      <Filter>source\domdata</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

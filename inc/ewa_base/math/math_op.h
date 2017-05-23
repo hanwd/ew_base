@@ -5,8 +5,6 @@
 #include "ewa_base/math/tiny_cpx.h"
 #include "ewa_base/collection.h"
 
-//#include "ewa_base/scripting/callable_data.h"
-//#include "ewa_base/scripting/callable_class.h"
 
 EW_ENTER
 

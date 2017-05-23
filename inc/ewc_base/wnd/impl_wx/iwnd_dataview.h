@@ -155,8 +155,7 @@ public:
 	}
 
 
-	virtual void GetValueByRow( wxVariant &variant,
-		unsigned int row, unsigned int col ) const
+	virtual void GetValueByRow( wxVariant &variant,unsigned int row, unsigned int col ) const
 	{
 		if(!m_pData) return;
 

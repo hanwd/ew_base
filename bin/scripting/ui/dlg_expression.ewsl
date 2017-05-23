@@ -14,8 +14,8 @@ km.win("dialog"		,km.label(_hT("expr")).flags(km.IWND_NO_RESIZABLE|km.IWND_NO_CL
 			km.add("textctrl"	,km.ld(1).name("expr.result").flags(km.IWND_READONLY).hint(_hT("result")));
 		km.end();
 		km.win("row");
-			km.add("button"		,km.ld(2).name("expr.ok"));
-			km.add("button"		,km.ld(2).name("expr.cancel"));
+			km.add("button"		,km.ld(2).name(_kT("Btn.Ok")));
+			km.add("button"		,km.ld(2).name(_kT("Btn.Cancel")));
 		km.end();
 	km.end();
 km.end();

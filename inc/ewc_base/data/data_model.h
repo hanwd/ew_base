@@ -16,29 +16,44 @@ public:
 
 	DataModel();
 	~DataModel();
-	
+
 	void EnsuerVisible(wxDataViewItem item);
 	void ExpandItem(wxDataViewItem item);
 
 	virtual unsigned int GetColumnCount() const;
 	wxDataViewColumn* CreateColumn(unsigned col);
 
-    virtual wxString GetColumnType(unsigned int col) const;
+	virtual wxString GetColumnType(unsigned int col) const;
 
-    virtual void GetValue( wxVariant &variant,const wxDataViewItem &item, unsigned int col ) const;
-    virtual bool SetValue(const wxVariant &variant,const wxDataViewItem &item,unsigned int col);
+	virtual void GetValue(wxVariant &variant, const wxDataViewItem &item, unsigned int col) const;
+	virtual bool SetValue(const wxVariant &variant, const wxDataViewItem &item, unsigned int col);
 
-    virtual bool IsContainer( const wxDataViewItem &item ) const;
-    virtual unsigned int GetChildren( const wxDataViewItem &item, wxDataViewItemArray &children ) const;
-    virtual wxDataViewItem GetParent( const wxDataViewItem &item ) const;
+	virtual bool IsContainer(const wxDataViewItem &item) const;
+	virtual unsigned int GetChildren(const wxDataViewItem &item, wxDataViewItemArray &children) const;
+	virtual wxDataViewItem GetParent(const wxDataViewItem &item) const;
+
+	virtual void AddColumn(DataColumn* p) {if(p) m_aColumnInfo.push_back(p);}
+
+	virtual void SetRootNode(DataNode* p);
+	DataNode* GetRootNode(){ return m_pRoot.get(); }
+
+	DataPtrT<DAttributeManager> m_pAttributeManager;
+
+	mutable DataChangedParam dpm;
+
+	void Update(DObject* p);
+	void Update(VariantTable& table);
 
 protected:
 
 	arr_1t<DataPtrT<DataColumn> > m_aColumnInfo;
 	bst_set<wxDataViewCtrl*> m_aView;
-	DataNode m_tRoot;
+	AutoPtrT<DataNode> m_pRoot;
 
 };
+
+
+
 
 EW_LEAVE
 #endif

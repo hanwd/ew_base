@@ -135,6 +135,15 @@ public:
 		{
 			m_pCounter->IncUseCount();
 		}
+	}
+
+	void reset(RefCounter* p)
+	{
+		EW_ASSERT(m_pCounter != p&&m_pCounter!=NULL&&p!=NULL);
+
+		if(m_pCounter) m_pCounter->DecUseCount();
+		m_pCounter=p;
+		if(m_pCounter) m_pCounter->IncUseCount();
 
 	}
 

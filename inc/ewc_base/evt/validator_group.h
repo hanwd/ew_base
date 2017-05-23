@@ -4,7 +4,7 @@
 
 #include "ewc_base/config.h"
 #include "ewc_base/evt/validator.h"
-
+#include "ewa_base/math/math_def.h"
 
 EW_ENTER
 

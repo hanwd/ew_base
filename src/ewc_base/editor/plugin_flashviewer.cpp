@@ -6,7 +6,7 @@
 #include "ewc_base/wnd/impl_wx/iwnd_flash.h"
 #include "ewc_base/wnd/wnd_updator.h"
 
-EW6_ENTER
+EW_ENTER
 
 class ICmdProcTextFlash : public CmdProc
 {
@@ -27,6 +27,7 @@ public:
 	}
 
 };
+
 
 class MvcViewFlash : public MvcViewEx
 {
@@ -72,4 +73,4 @@ DataPtrT<MvcModel> PluginFlashViewer::CreateSampleModel()
 
 IMPLEMENT_IPLUGIN(PluginFlashViewer)
 
-EW6_LEAVE
+EW_LEAVE

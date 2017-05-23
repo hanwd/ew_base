@@ -1,5 +1,5 @@
-
-#include "ewa_base/util/symm.h"
+#include "ewa_base/domdata/table_serializer.h"
+#include "ewa_base/domdata/symm.h"
 
 EW_ENTER
 
@@ -86,4 +86,27 @@ void TableSerializer::link(const String& s,String& v,const String& d)
 		}
 	}
 }
+
+//void TableSerializer::link_vec3d(const String& s, vec3d& v)
+//{
+//	link(s+".x", v[0]);
+//	link(s+".y", v[1]);
+//	link(s+".z", v[2]);
+//}
+//
+//void TableSerializer::link_vec2d(const String& s, vec2d& v)
+//{
+//	link(s + ".x", v[0]);
+//	link(s + ".y", v[1]);
+//}
+//
+//void TableSerializer::link_box3d(const String& s, box3d& v)
+//{
+//	link_vec3d(s + ".DL", v.hi);
+//	link_vec3d(s + ".DH", v.lo);
+//}
+
+
+
 EW_LEAVE
+

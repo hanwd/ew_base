@@ -12,7 +12,7 @@ class tiny_mat
 public:
 
 	static const int N=R*C;
-	typedef tiny_storage<T,N> storage_type;
+	typedef tiny_storage2<T, R,C> storage_type;
 
 	tiny_mat(const storage_type& o):storage(o){}
 	tiny_mat(){tiny_opx<T,T,N>::eq_set(storage.data(),T());}
@@ -51,9 +51,6 @@ public:
 
 	T* data(){return storage.data();}
 	const T* data() const {return storage.data();}
-
-	//tl::enable_if_c<R==1||C==1,tiny_vec<T,R*C>&>::type as_vec(){return *(tiny_vec<T,R*C>*)this;}
-	//tl::enable_if_c<R==1||C==1,const tiny_vec<T,R*C>&>::type as_vec() const {return *(tiny_vec<T,R*C>*)this;}
 
 private:
 	storage_type storage;
@@ -162,6 +159,23 @@ tiny_mat<T,4,4> m4_inverse(const tiny_mat<T,4,4>& m4)
 	pd[15]= ( c3*a1*b2-c3*b1*a2-c1*a3*b2-c2*a1*b3+c2*b1*a3+c1*a2*b3)*ki;
 
 	return res;
+}
+
+template <typename T>
+T det(const tiny_mat<T, 2, 2>& m2)
+{
+	return m2(0, 0) * m2(1, 1) - m2(0, 1) * m2(1, 0);
+}
+
+template <typename T>
+T det(const tiny_mat<T, 3, 3>& m3)
+{
+	return m3(0, 0) * m3(1, 1) * m3(2, 2)
+		+ m3(0, 1) * m3(1, 2) * m3(2, 0)
+		+ m3(0, 2) * m3(1, 0) * m3(2, 1)
+		- m3(0, 0) * m3(1, 2) * m3(2, 1)
+		- m3(0, 1) * m2(1, 0) * m3(2, 2)
+		- m3(0, 2) * m2(1, 1) * m3(2, 0);
 }
 
 template<typename X,typename Y,int R,int C,int L>
@@ -294,6 +308,7 @@ class type_mat : public tiny_mat<T,R,C>
 {
 public:
 	typedef tiny_mat<T,R,C> basetype;
+	type_mat(){}
 	type_mat(const basetype& o):basetype(o){}
 };
 

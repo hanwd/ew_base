@@ -40,12 +40,11 @@
     <ClInclude Include="..\..\inc\ewc_base\data\data_column.h" />
     <ClInclude Include="..\..\inc\ewc_base\data\data_model.h" />
     <ClInclude Include="..\..\inc\ewc_base\data\data_node.h" />
-    <ClInclude Include="..\..\inc\ewc_base\editor\plugin_flashviewer.h" />
+    <ClInclude Include="..\..\inc\ewc_base\editor\plugin_dom_viewer.h" />
     <ClInclude Include="..\..\inc\ewc_base\editor\plugin_ewsl_editor.h" />
     <ClInclude Include="..\..\inc\ewc_base\editor\plugin_text_editor.h" />
     <ClInclude Include="..\..\inc\ewc_base\config.h" />
     <ClInclude Include="..\..\inc\ewc_base\editor\plugin_webview.h" />
-    <ClInclude Include="..\..\inc\ewc_base\editor\plugin_wndeditor.h" />
     <ClInclude Include="..\..\inc\ewc_base\evt\evt_cmdproc.h" />
     <ClInclude Include="..\..\inc\ewc_base\evt\evt_manager.h" />
     <ClInclude Include="..\..\inc\ewc_base\evt\evt_group.h" />
@@ -94,6 +93,7 @@
     <ClInclude Include="..\..\inc\ewc_base\wnd\impl_wx\iwnd_hyperlink.h" />
     <ClInclude Include="..\..\inc\ewc_base\wnd\impl_wx\iwnd_info.h" />
     <ClInclude Include="..\..\inc\ewc_base\wnd\impl_wx\iwnd_label.h" />
+    <ClInclude Include="..\..\inc\ewc_base\wnd\impl_wx\iwnd_modelview.h" />
     <ClInclude Include="..\..\inc\ewc_base\wnd\impl_wx\iwnd_notebook.h" />
     <ClInclude Include="..\..\inc\ewc_base\wnd\impl_wx\iwnd_slider.h" />
     <ClInclude Include="..\..\inc\ewc_base\wnd\impl_wx\iwnd_spinctrl.h" />
@@ -114,7 +114,6 @@
     <ClInclude Include="..\..\inc\ewc_base\wnd\wnd_updator.h" />
     <ClInclude Include="..\..\src\ewc_base\editor\plugin_ewsl_iface.h" />
     <ClInclude Include="..\..\src\ewc_base\editor\plugin_ewsl_caret.h" />
-    <ClInclude Include="..\..\src\ewc_base\editor\plugin_ewsl_vartable.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\ewc_base\app\app.cpp" />
@@ -132,7 +131,7 @@
     <ClCompile Include="..\..\src\ewc_base\editor\plugin_ewsl_editor.cpp" />
     <ClCompile Include="..\..\src\ewc_base\editor\plugin_ewsl_caret.cpp" />
     <ClCompile Include="..\..\src\ewc_base\editor\plugin_ewsl_iface.cpp" />
-    <ClCompile Include="..\..\src\ewc_base\editor\plugin_ewsl_vartable.cpp" />
+    <ClCompile Include="..\..\src\ewc_base\editor\plugin_dom_viewer.cpp" />
     <ClCompile Include="..\..\src\ewc_base\editor\plugin_text_editor.cpp" />
     <ClCompile Include="..\..\src\ewc_base\editor\plugin_webview.cpp" />
     <ClCompile Include="..\..\src\ewc_base\evt\evt_cmdproc.cpp" />
@@ -196,6 +195,7 @@
     <ClCompile Include="..\..\src\ewc_base\wnd\impl_wx\iwnd_glcanvas.cpp" />
     <ClCompile Include="..\..\src\ewc_base\wnd\impl_wx\iwnd_hyperlink.cpp" />
     <ClCompile Include="..\..\src\ewc_base\wnd\impl_wx\iwnd_label.cpp" />
+    <ClCompile Include="..\..\src\ewc_base\wnd\impl_wx\iwnd_modelview.cpp" />
     <ClCompile Include="..\..\src\ewc_base\wnd\impl_wx\iwnd_notebook.cpp" />
     <ClCompile Include="..\..\src\ewc_base\wnd\impl_wx\iwnd_slider.cpp" />
     <ClCompile Include="..\..\src\ewc_base\wnd\impl_wx\iwnd_spinctrl.cpp" />
@@ -339,8 +339,9 @@
       <WarningLevel>Level3</WarningLevel>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <MinimalRebuild>true</MinimalRebuild>
+      <MinimalRebuild>false</MinimalRebuild>
       <ForcedIncludeFiles>$(ProjectName).h</ForcedIncludeFiles>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -383,6 +384,7 @@
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <ForcedIncludeFiles>$(ProjectName).h</ForcedIncludeFiles>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -424,6 +426,7 @@
       <ForcedIncludeFiles>$(ProjectName).h</ForcedIncludeFiles>
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -466,6 +469,7 @@
       <ForcedIncludeFiles>$(ProjectName).h</ForcedIncludeFiles>
       <FavorSizeOrSpeed>Neither</FavorSizeOrSpeed>
       <Optimization>Disabled</Optimization>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -514,6 +518,7 @@
       <WarningLevel>Level3</WarningLevel>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <ForcedIncludeFiles>$(ProjectName).h</ForcedIncludeFiles>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -555,6 +560,7 @@
       <WarningLevel>Level3</WarningLevel>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <ForcedIncludeFiles>$(ProjectName).h</ForcedIncludeFiles>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>

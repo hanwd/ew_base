@@ -55,7 +55,7 @@ inline double cosdeg(double deg)
 	}
 	else
 	{
-		return ::sin(np*M_PI_2);
+		return ::cos(np*M_PI_2);
 	}
 }
 

@@ -29,6 +29,28 @@ public:
 
 };
 
+template<typename T,int M,int N>
+class tiny_storage2
+{
+public:
+	T val[M][N];
+
+	T& operator[](size_t n)
+	{
+		EW_ASSERT(n<M*N);
+		return ((T*)val)[n];
+	}
+
+	const T& operator[](size_t n) const
+	{
+		EW_ASSERT(n<M*N);
+		return ((T*)val)[n];
+	}
+
+	T* data(){return (T*)this;}
+	const T* data() const {return (const T*)this;}
+
+};
 template<typename T1,typename T2,int N>
 struct tiny_opx
 {
@@ -367,6 +389,8 @@ public:
 	{
 		(*this)[0]=v1;
 		(*this)[1]=v2;
+		if (N > 2) (*this)[2] = T();
+		if (N > 3) (*this)[3] = T();
 	}
 
 	tiny_vec(const T& v1,const T& v2,const T& v3)
@@ -455,32 +479,17 @@ public:
 		if(N>2) (*this)[2]=k;
 	}
 
+	void set4(T i,T j,T k,T w)
+	{
+		(*this)[0]=i;
+		(*this)[1]=j;
+		if(N>2) (*this)[2]=k;
+		if(N>3) (*this)[3]=w;
+	}
 
 protected:
 	storage_type storage;
 };
-
-//
-//template<template<typename,int> class G,int N,typename T>
-//struct opx_scalar_vec : public tl::value_type<false>
-//{
-//	typedef T type;
-//};
-//
-//template<template<typename,int> class G,int N,typename T>
-//struct opx_scalar_vec<G,N,G<T,N> > : public tl::value_type<true>
-//{
-//	typedef T type;
-//};
-
-//template<template<typename,int> class G,typename X,typename Y,int N>
-//struct opx_helper_vec
-//{
-//	static const bool value=opx_scalar_vec<G,N,X>::value||opx_scalar_vec<G,N,Y>::value;
-//	typedef typename opx_scalar_vec<G,N,X>::type type1;
-//	typedef typename opx_scalar_vec<G,N,Y>::type type2;
-//	template<typename T> struct rebind{typedef G<T,N> type;};
-//};
 
 template<typename T,int N>
 struct opx_scalar_vec_n : public tl::value_type<false>
@@ -605,13 +614,29 @@ inline typename vec_promote<X,Y,N>::promoted operator / (const tiny_vec<X,N> &lh
 }
 
 template<typename X,typename Y>
-inline typename vec_promote<X,Y,3>::promoted cross (const tiny_vec<X,3> &lhs,const tiny_vec<Y,3> rhs)
+inline typename vec_promote<X,Y,3>::promoted cross (const tiny_vec<X,3> &lhs,const tiny_vec<Y,3>& rhs)
 {
 	typename vec_promote<X,Y,3>::promoted::storage_type res;
 	res[0]=lhs[1]*rhs[2]-lhs[2]*rhs[1];
 	res[1]=lhs[2]*rhs[0]-lhs[0]*rhs[2];
 	res[2]=lhs[0]*rhs[1]-lhs[1]*rhs[0];
 	return res;
+}
+
+//template <typename X, typename Y>
+//inline typename vec_promote<X, Y, 3>::promoted cross(const tiny_vec<X, 2>& lhs, const tiny_vec<Y, 2>& rhs)
+//{
+//	typename vec_promote<X, Y, 3>::promoted::storage_type res;
+//	res[0] = 0;
+//	res[1] = 0;
+//	res[2] = lhs[0] * rhs[1] - lhs[1] * rhs[0];
+//	return res;
+//}
+
+template <typename X, typename Y>
+inline typename cpx_promote<X, Y>::type cross(const tiny_vec<X, 2>& lhs, const tiny_vec<Y, 2>& rhs)
+{
+	return lhs[0] * rhs[1] - lhs[1] * rhs[0];
 }
 
 template<typename X,typename Y,int N>

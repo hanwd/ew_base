@@ -5,8 +5,8 @@
 #include "ewa_base/util/strlib.h"
 EW_ENTER
 
-template<typename T1>
-typename CallableWrapT<arr_xt<T1> >::infotype CallableWrapT<arr_xt<T1> >::sm_info(ObjectNameT<arr_xt<T1> >::MakeName("CallableWrap"));
+template<typename T>
+typename CallableWrapT<arr_xt<T> >::infotype CallableWrapT<arr_xt<T> >::sm_info(ObjectNameT<arr_xt<T> >::MakeName("CallableWrap"));
 
 
 void idx_1t::_update_colon(double s1,double ds)
@@ -287,6 +287,7 @@ void CallableWrapT<arr_xt<T> >::__arrset_xt(A& sub,const arr_xt<X>& tmp)
 	}
 }
 
+
 template<typename T>
 template<typename A,typename X>
 void CallableWrapT<arr_xt<T> >::__arrset_1t(A& sub,const X& tmp)
@@ -337,7 +338,11 @@ int CallableWrapT<arr_xt<T> >::__setarray(Executor& ewsl,int pm)
 
 		Variant& val(ewsl.ci0.nbx[0]);
 
-		switch(val.type())
+		if(tl::is_same_type<T,Variant>::value && sub.idx[0].size==1)
+		{
+			((Variant&)sub(0))=val;			
+		}
+		else switch(val.type())
 		{
 		case type_flag<int64_t>::value:
 			__arrset_1t(sub,variant_handler<int64_t>::raw(val));
@@ -368,6 +373,7 @@ int CallableWrapT<arr_xt<T> >::__setarray(Executor& ewsl,int pm)
 			}
 			ewsl.kerror("invalid param");
 		}
+	
 
 		ewsl.ci1.nsp=ewsl.ci0.nbx-1;
 		return CallableData::STACK_BALANCED;
@@ -401,15 +407,20 @@ int CallableWrapT<arr_xt<T> >::__setarray(Executor& ewsl,int pm)
 	{
 		ewsl.kerror("invalid array index");
 	}
-
+	size_t n=1;
 	for(int i=pm;i<6;i++)
 	{
+		n*=xtd[i];
 		sub.idx[i].size=xtd[i];
 	}
 
 	Variant& val(ewsl.ci0.nbx[0]);
 
-	switch(val.type())
+	if(tl::is_same_type<T,Variant>::value && n==1)
+	{
+		((Variant&)sub(0))=val;	
+	}
+	else switch(val.type())
 	{
 	case type_flag<int64_t>::value:
 		__arrset_xt(sub,variant_handler<int64_t>::raw(val));

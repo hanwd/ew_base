@@ -49,6 +49,7 @@ private:
 	impl_type impl;
 };
 
+
 template<typename T,typename B=Object>
 class ObjectGroupT : public B
 {
@@ -64,22 +65,22 @@ public:
 
 	value_proxy& operator[](size_t n)
 	{
-		return __proxy()[n];
+		return proxy()[n];
 	}
 
 	const value_proxy& operator[](size_t n) const
 	{
-		return __proxy()[n];		
+		return proxy()[n];		
 	}
 
 	value_proxy& back()
 	{
-		return __proxy().back();	
+		return proxy().back();	
 	}
 
 	const value_proxy& back() const
 	{
-		return __proxy().back();	
+		return proxy().back();	
 	}
 
 	size_t size() const
@@ -123,14 +124,14 @@ public:
 	typedef typename impl_proxy::const_iterator const_iterator;
 	typedef typename impl_proxy::const_reverse_iterator const_reverse_iterator;
 
-	iterator begin(){return __proxy().begin();}
-	iterator end(){return __proxy().end();}
-	reverse_iterator rbegin(){return __proxy().rbegin();}
-	reverse_iterator rend(){return __proxy().rend();}
-	const_iterator begin() const {return __proxy().begin();}
-	const_iterator end() const {return __proxy().end();}
-	const_reverse_iterator rbegin() const {return __proxy().rbegin();}
-	const_reverse_iterator rend() const {return __proxy().rend();}
+	iterator begin(){return proxy().begin();}
+	iterator end(){return proxy().end();}
+	reverse_iterator rbegin(){return proxy().rbegin();}
+	reverse_iterator rend(){return proxy().rend();}
+	const_iterator begin() const {return proxy().begin();}
+	const_iterator end() const {return proxy().end();}
+	const_reverse_iterator rbegin() const {return proxy().rbegin();}
+	const_reverse_iterator rend() const {return proxy().rend();}
 
 	template<typename IT>
 	void append(IT t1,IT t2){while(t1!=t2) append(*t1++);}
@@ -138,17 +139,15 @@ public:
 	void Serialize(SerializerHelper sh)
 	{
 		Serializer& ar(sh.ref(0));
-		ar & __proxy();
+		ar & proxy();
 	}
 
+	inline impl_proxy& proxy(){ return *(impl_proxy*)&impl; }
+	inline const impl_proxy& proxy() const {return *(const impl_proxy*)&impl;}
+
 protected:
-
-	impl_proxy& __proxy(){return *(impl_proxy*)&impl;}
-	const impl_proxy& __proxy() const {return *(impl_proxy*)&impl;}
-
 	ObjectGroup impl;
 };
-
 
 class DLLIMPEXP_EWA_BASE Creator : public ObjectData
 {

@@ -936,6 +936,9 @@ namespace tl
 	template<>
 	struct is_pod<bool> : public value_type<true> {};
 
+	template<typename T>
+	struct is_pod<const T> : public is_pod <T> {};
+
 }
 
 #endif

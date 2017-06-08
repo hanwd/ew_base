@@ -504,6 +504,38 @@ public:
 		return 1;
 	}
 
+	inline bool replace(const key_type& k_old, const key_type& k_new)
+	{
+		if (m_nBucketMask == 0)
+		{
+			return false;
+		}
+
+		if (find1(k_new) >= 0)
+		{
+			return false;
+		}
+
+		size_t hk1 = P::hashcode_key(k_old);
+		size_t cp1 = hk1&m_nBucketMask;
+		chunk_type& chunk1(buckets[cp1]);
+		index_type id1 = chunk_find_delete(chunk1, k_old);
+
+		if (id1 == P::invalid_pos)
+		{
+			return false;
+		}
+
+		P::key(values[id1]) = k_new;
+		
+		size_t hk2 = P::hashcode_key(k_new);
+		size_t cp2 = hk2&m_nBucketMask;
+		chunk_type& chunk2(buckets[cp2]);
+		chunk_insert(chunk2, hk2);
+
+		return true;
+	}
+
 	inline value_type& get_by_id(index_type k)
 	{
 		EW_ASSERT(size_t(k) < values.size());

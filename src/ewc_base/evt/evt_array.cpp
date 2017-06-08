@@ -16,8 +16,6 @@ void IValueColumn::var_make_null(wxVariant& variant) const
 	variant.MakeNull();
 }
 
-
-
 void IValueColumn::var2val(wxVariant& variant, String& v) const
 {
 	v = WxImpl<String>::get(variant);
@@ -117,6 +115,21 @@ void IValueColumn::val2var(wxVariant& variant, bool v) const
 void IValueColumn::val2var(wxVariant& variant, Variant& v) const
 {
 	variant = str2wx(variant_cast<String>(v));
+}
+
+
+bool IValueColumn::val_cmp(double r1, double r2)
+{
+	if (std::isnan(r1)) return false;
+	else if (std::isnan(r2)) return true;
+	return flags.get(COLUMNFLAG_SORTDESC) ? r2<r1 : r1<r2;
+}
+
+bool IValueColumn::val_cmp(float r1, float r2)
+{
+	if (std::isnan(r1)) return false;
+	else if (std::isnan(r2)) return true;
+	return flags.get(COLUMNFLAG_SORTDESC) ? r2<r1 : r1<r2;
 }
 
 IValueColumn::IValueColumn()

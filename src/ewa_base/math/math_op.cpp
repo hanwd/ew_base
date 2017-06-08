@@ -17,6 +17,20 @@ bool is_nan(float d)
 	return !(d>0.0f||d<=0.0f);
 }
 
+double round_digit(double v, unsigned n)
+{
+	if (v == 0.0) return v;
+	double s = 1.0;
+	if (v<0)
+	{
+		v = -v; 
+		s = -1.0;
+	}
+
+	double _stepping = ::pow(10.0, ::ceil(::log10(v) - n));
+	return s*_stepping*::round(v / _stepping);
+}
+
 template<typename T>
 dcomplex pl_base1_triT<tiny_cpx<T> >::asin(value_type x)
 {

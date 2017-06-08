@@ -4,7 +4,8 @@
 #include "ewc_base/wnd/wnd_updator.h"
 #include "ewc_base/wnd/wnd_manager.h"
 
-#include "ewc_base/wnd/impl_wx/window.h"
+#include "../wximpl.h"
+
 
 #ifdef EWC_BASE_DLL
 
@@ -25,6 +26,14 @@ EW_ENTER
 class IDat_internal
 {
 public:
+
+	IDat_internal()
+	{
+		nInitCount = 0;
+		bInitOk = false;
+		bDestroying = false;
+		pTopWindow = NULL;
+	}
 
 	int nInitCount;
 	bool bInitOk;
@@ -50,49 +59,10 @@ App& App::current()
 
 bool App::Init(int argc,char** argv)
 {
-	if(IDat_internal::current().nInitCount++==0)
+	if(IDat_internal::current().nInitCount++==0 && GuiImplWx::Init(argc, argv))
 	{
-		wxApp::SetInstance(new wxApp);
-
-		IDat_internal::current().bInitOk=wxEntryStart(argc,argv);
-
-		if(!IDat_internal::current().bInitOk)
-		{
-			return false;
-		}
-
-		wxInitAllImageHandlers();
-
-		class WxLogRedirector : public wxLog
-		{
-		public:
-
-			int lv;
-
-			WxLogRedirector()
-			{
-				lv=LogSource::current().get("Wxmsgs");
-			}
-
-			virtual void DoLogRecord(wxLogLevel level,
-								const wxString& msg,
-								const wxLogRecordInfo& info)
-			{
-				if(level==LOGLEVEL_COMMAND) return;
-				ew::LogRecord rcd(wx2str(msg),lv,0,LOGLEVEL_MESSAGE);
-
-				if(level==wxLOG_Warning) rcd.m_nLevel=LOGLEVEL_WARNING;
-				if(level==wxLOG_Error) rcd.m_nLevel=LOGLEVEL_ERROR;
-				if(level==wxLOG_FatalError) rcd.m_nLevel=LOGLEVEL_FATAL;
-
-				Logger::def()->Handle(rcd);
-			}
-		};
-
-		delete ::wxLog::SetActiveTarget(new WxLogRedirector);
-
+		IDat_internal::current().bInitOk = true;
 		ResManager::current();
-
 		set_logs_dialog_function(&Wrapper::LogsDialog);
 	}
 
@@ -105,7 +75,7 @@ int App::MainLoop()
 {
 	if(!IDat_internal::current().bInitOk) return -1;
 
-	return wxApp::GetInstance()->OnRun();
+	return GuiImplWx::MainLoop();
 }
 
 
@@ -116,14 +86,14 @@ void App::Fini()
 	{
 		IDat_internal::current().bInitOk=false;
 		set_logs_dialog_function(NULL);
-		::wxEntryCleanup();
+		GuiImplWx::Fini();
 	}
 }
 
 
 void App::ExitLoop()
 {
-	wxApp::GetInstance()->ExitMainLoop();
+	GuiImplWx::ExitLoop();
 }
 
 void App::ReqExit()

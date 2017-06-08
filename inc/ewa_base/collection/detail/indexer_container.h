@@ -113,6 +113,11 @@ public:
 		return impl.erase(v);
 	}
 
+	bool replace(const key_type& k_old, const key_type& k_new)
+	{
+		return impl.replace(k_old, k_new);
+	}
+
 	inline void clear()
 	{
 		impl.clear();

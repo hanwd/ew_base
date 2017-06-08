@@ -130,7 +130,7 @@ void rand_gen::save_state()
 void rand_gen::load_state()
 {
 	if(!m_pData2) return;
-	*m_pData1=*m_pData2;
+	*(randgen_data*)m_pData1.get()=*(randgen_data*)m_pData2.get();
 }
 
 void rand_gen::load_state(uint32_t i,uint32_t j,uint32_t k)

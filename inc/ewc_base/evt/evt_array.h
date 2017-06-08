@@ -74,22 +74,8 @@ public:
 	virtual bool var_test_null(const wxVariant& variant) const;
 	virtual void var_make_null(wxVariant& variant) const;
 
-
-	bool val_cmp(double r1, double r2)
-	{
-		if (std::isnan(r1) && std::isnan(r2)) return false;
-		if (std::isnan(r1)) return false;
-		if (std::isnan(r2)) return true;
-		return flags.get(COLUMNFLAG_SORTDESC) ? r2<r1 : r1<r2;
-	}
-
-	bool val_cmp(float r1, float r2)
-	{
-		if (std::isnan(r1) && std::isnan(r2)) return false;
-		if (std::isnan(r1)) return false;
-		if (std::isnan(r2)) return true;
-		return flags.get(COLUMNFLAG_SORTDESC) ? r2<r1 : r1<r2;
-	}
+	bool val_cmp(double r1, double r2);
+	bool val_cmp(float r1, float r2);
 
 	template<typename T>
 	bool val_cmp(const T& r1, const T& r2)

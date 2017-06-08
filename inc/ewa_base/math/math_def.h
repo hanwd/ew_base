@@ -18,10 +18,13 @@ typedef tiny_vec<double,2> vec2d;
 typedef tiny_vec<double,3> vec3d;
 typedef tiny_vec<double,4> vec4d;
 
-
 typedef tiny_vec<float,2> vec2f;
 typedef tiny_vec<float,3> vec3f;
 typedef tiny_vec<float,4> vec4f;
+
+typedef tiny_vec<dcomplex, 2> vec2dc;
+typedef tiny_vec<dcomplex, 3> vec3dc;
+typedef tiny_vec<dcomplex, 4> vec4dc;
 
 typedef tiny_box<int32_t,1> box1i;
 typedef tiny_box<double,1> box1d;
@@ -51,6 +54,9 @@ typedef tiny_box<String, 2> box2s;
 
 bool is_nan(double d);
 bool is_nan(float d);
+
+double round_digit(double v, unsigned n);
+
 
 
 EW_LEAVE

@@ -32,55 +32,6 @@ public:
 
 	wxBitmap& GetBitmap(int w=-1);
 
-	//bool update(IToolItemPtr item)
-	//{
-	//	wxToolBarBase* tb=item->GetToolBar();
-	//	wxSize sz=tb->GetToolBitmapSize();
-
-	//	BitmapBundle& bundle(GetBundle(sz.y));
-	//	if(!bundle.IsOk())
-	//	{
-	//		return false;
-	//	}
-
-	//	item->SetNormalBitmap(bundle.bmp_normal);
-	//	item->SetDisabledBitmap(bundle.bmp_disabled);
-	//	return true;
-	//
-	//}
-
-	//bool update(IAuiToolItemPtr item)
-	//{
-
-	//	BitmapBundle& bundle(GetBundle(24));
-	//	if(!bundle.IsOk())
-	//	{
-	//		return false;
-	//	}
-
-	//	item->SetBitmap(bundle.bmp_normal);
-	//	item->SetDisabledBitmap(bundle.bmp_disabled);
-
-	//	return true;
-	//
-	//}
-
-	//bool update(IMenuItemPtr item)
-	//{
-	//	if(item->IsCheckable()) return true;
-
-	//	BitmapBundle& bundle(GetBundle(16));
-	//	if(!bundle.IsOk())
-	//	{
-	//		return true;
-	//	}
-
-	//	item->SetBitmap(bundle.bmp_normal);
-	//	item->SetDisabledBitmap(bundle.bmp_disabled);
-	//	return true;
-	//}
-
-
 	static const wxBitmap& null_bitmap()
 	{
 		static wxBitmap bmp;

@@ -55,6 +55,9 @@
     <Filter Include="source\data">
       <UniqueIdentifier>{67fa44db-7b49-45dc-a88d-e08b390ce422}</UniqueIdentifier>
     </Filter>
+    <Filter Include="source\wximpl">
+      <UniqueIdentifier>{bfa1936d-b590-41a3-a5fa-b1f7e2c31b8a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\inc\ewc_base\plugin\plugin_basic.h">
@@ -318,6 +321,9 @@
     <ClInclude Include="..\..\inc\ewc_base\editor\plugin_dom_viewer.h">
       <Filter>include\editor</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\src\ewc_base\wximpl.h">
+      <Filter>source</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\ewc_base\wnd\impl_wx\impl_wx.cpp">
@@ -571,6 +577,9 @@
     </ClCompile>
     <ClCompile Include="..\..\src\ewc_base\editor\plugin_dom_viewer.cpp">
       <Filter>source\editor</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewc_base\wximpl\wximpl.cpp">
+      <Filter>source\wximpl</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

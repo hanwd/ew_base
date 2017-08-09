@@ -372,6 +372,33 @@ public:
 		return nlen - left;
 	}
 
+	int peek(T* pbuf, size_t nlen)
+	{
+		size_t left = nlen;
+
+		for(auto p = rd_part;p;p=p->next)
+		{
+			size_t nd = p->rd_free();
+
+			if (nd >= left)
+			{
+				std::copy_n(rd_part->gptr, left, pbuf);
+				return nlen;
+			}
+
+			std::copy_n(rd_part->gptr, nd, pbuf);
+			left -= nd;
+			pbuf += nd;
+
+			if (p == wr_part)
+			{
+				break;
+			}	
+		}
+
+		return nlen - left;
+	}
+
 	int recv(T* pbuf, size_t nlen)
 	{
 		if (!rd_part) return 0;
@@ -397,6 +424,20 @@ public:
 			left -= n1;
 		}
 		return nlen - left;
+	}
+
+	int sizeg()
+	{
+		if (!rd_part) return 0;
+
+		int n = 0;
+		for (auto p = rd_part; ; p = p->next)
+		{
+			n += p->rd_free();
+			if (p == wr_part) break;
+
+		}
+		return n;
 	}
 
 };

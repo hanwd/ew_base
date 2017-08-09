@@ -36,7 +36,11 @@ public:
 		wm.wup.mu_set("MenuBar.default");
 		wm.wup.gp_add("Webview.Page");
 
-		if(v>0) wm.evtmgr["StatusBar"].StdExecuteEx("webview activated",0);
+		if (v > 0)
+		{
+			wm.wup.sb_set("StatusBar.default");
+			wm.evtmgr["StatusBar"].StdExecuteEx("webview activated", 0);
+		}
 
 		return true;
 	}
@@ -79,7 +83,7 @@ void PluginWebView::LoadURL(const String& url)
 	{
 		DataPtrT<MvcModel> pModel=CreateModel(url);
 		if(!pModel) return;
-		this->OpenModel(m_pSampleModel.get());
+		this->OpenModel(pModel.get());
 	}
 }
 
@@ -215,6 +219,13 @@ bool PluginWebView::OnAttach()
 		ec.gp_add("tb.WebView");
 	ec.gp_end();
 
+	return true;
+}
+
+
+bool PluginWebView::GetExts(arr_1t<String>& exts)
+{
+	exts.push_back("Html Files(*.htm;*.html)|*.htm;*.html");
 	return true;
 }
 

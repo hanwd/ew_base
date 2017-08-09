@@ -4,7 +4,7 @@
 
 
 #include "ewa_base/domdata/dunit.h"
-
+#include "ewa_base/basic/functor.h"
 
 
 EW_ENTER
@@ -50,9 +50,11 @@ public:
 };
 
 template<typename T>
-class DCtxState
+class DCtxState : public NonCopyable
 {
 public:
+
+	DCtxState() :val(), ref(){}
 
 	typedef T type;
 
@@ -64,11 +66,13 @@ public:
 	{
 		stk.push_back(val);
 	}
+
 	void push(const type& v)
 	{
 		stk.push_back(val);
 		val = v;
 	}
+
 	void pop()
 	{
 		stk.pop_back(val);
@@ -81,41 +85,58 @@ public:
 	typedef DCtxState<mat4d> basetype;
 	using basetype::push;
 
-	void push(const mat4d& v)
-	{
-		basetype::push();
-		val = val*v;
-	}
+	void push(const mat4d& v);
 };
 
-class DCtxStateMaterial
+
+
+class DCtxStateObject
 {
 public:
+	typedef DObject* type;
+
+	class StkObject : public ObjectData
+	{
+	public:
+		virtual void push(DObject*) = 0;
+		virtual void pop() = 0;
+		virtual void init(DObject*){}
+	};
+
+	void init(DObject* p);
+	void push(DObject* p);
+	void pop();
+	void reset(StkObject* p);
+
+protected:
+
+	DataPtrT<StkObject> pobj;
+};
+
+
+class DCtxStateMaterial : public DCtxState<int>
+{
+public:
+	typedef DCtxState<int> basetype;
 	typedef DObject* type;
 
 	DCtxStateMaterial(mat4d& m) :m4(m){}
 
 	mat4d& m4;
 
-
-	template<typename T>
-	void push(NamedReferenceT<T>& ref)
-	{
-		push(ref.get());
-	}
+	//template<typename T>
+	//void push(NamedReferenceT<T>& ref)
+	//{
+	//	push(ref.get());
+	//}
 
 	void init(DObject* p,DObject* b=NULL);
-
-	void pop();
-
 	void push(DObject* p);
 
-	int ref;
-	int val;
-
-	arr_1t<DObject*> stk;
 	indexer_set<DataPtrT<DObject> > arr;
 };
+
+
 
 
 class DCtxStateUnit : public DCtxState<KUnit>
@@ -145,12 +166,12 @@ public:
 class DCtxLocker2
 {
 public:
-
 	DCtxLocker2(DContext& c, const mat4d& m, DUnit* p);
 	~DCtxLocker2();
-
 	DContext& dc;
 };
+
+
 
 class DContext : public Object
 {
@@ -167,18 +188,14 @@ public:
 		NX_LINES,
 		NX_LINE_LOOP,
 
-		NX_MASK		= (1 << 8) - 1,
-
-		NX_CBOX		= 1 << 8,
-		NX_SHOW		= 1 << 9,
-		FLAG_SHP	= 1 << 0,
-		FLAG_RCD	= 1 << 1,
-		FLAG_SRC	= 1 << 2,
-		FLAG_SHOW	= 1 << 3,
-		FLAG_POST	= 1 << 4,
-		FLAG_BBOX	= 1 << 5,
-
+		NX_MASK = (1 << 8) - 1,
 	};
+
+	enum
+	{
+		FLAG_REVERSE	=1<<0,
+	};
+
 
 
 	DContext();
@@ -203,12 +220,17 @@ public:
 	void MultMatrix(const mat4d& m){ cx.val = cx.val*m; }
 	void MultMatrix(const mat4d& m, double u){ cx.val.MultMatrix(m, u); }
 
+	void Reverse(){ flags.inv(FLAG_REVERSE); }
+
 	const mat4d& GetMatrix(){ return cx.val; }
 
 	void StlDomain(DataPtrT<DStlDomain> model);
 
 
 	virtual void B3Box_Points(const box3d& b3, int t = 0);
+
+	virtual void EnterGroup(){}
+	virtual void LeaveGroup(){}
 
 	virtual void EnterDocument();
 	virtual void LeaveDocument();
@@ -223,62 +245,102 @@ public:
 	DCtxStateUnit cu;
 	DCtxStateMatrix cx;
 	DCtxStateMaterial cm;
+	DCtxStateObject co;
 
 protected:
+
 	arr_1t<vec3d> m_tmpVertexs;
 	int m_tmpType;
 };
 
-template<typename P>
-class DContextTriangle : public DContext
+template<typename P,typename B=DContext>
+class DContextTriangle : public B
 {
 public:
 
 	void End()
 	{
-
 		P dc(*this);
 
 		dc.Enter();
+		if (!flags.get(FLAG_REVERSE))
+		{
+			if (m_tmpType == NX_TRIANGLES)
+			{
+				size_t n = m_tmpVertexs.size() / 3;
+				for (size_t i = 0; i<n; i++)
+				{
+					dc.Handle(&m_tmpVertexs[i * 3 + 0]);
+				}
+			}
+			else if (m_tmpType == NX_TRIANGLE_STRIP || m_tmpType == NX_QUAD_STRIP)
+			{
+				size_t n = m_tmpVertexs.size() - 2;
+				for (size_t i = 0; i<n; i++)
+				{
+					if (i % 2 == 0)
+					{
+						dc.Handle(&m_tmpVertexs[i + 0]);
+					}
+					else
+					{
+						dc.HandleInverse(&m_tmpVertexs[i + 0]);
+					}
+				}
+			}
+			else if (m_tmpType == NX_QUADS)
+			{
+				size_t n = m_tmpVertexs.size() / 4;
+				for (size_t i = 0; i<n; i++)
+				{
+					dc.Handle(&m_tmpVertexs[i * 4 + 0]);
+					dc.HandleTriangle(m_tmpVertexs[i * 4 + 0], m_tmpVertexs[i * 4 + 3], m_tmpVertexs[i * 4 + 2]);
+				}
+			}
 
-		if (m_tmpType == NX_TRIANGLES)
-		{
-			size_t n = m_tmpVertexs.size() / 3;
-			for (size_t i = 0; i<n; i++)
-			{
-				dc.Handle(&m_tmpVertexs[i * 3 + 0]);
-			}
 		}
-		else if (m_tmpType == NX_TRIANGLE_STRIP || m_tmpType == NX_QUAD_STRIP)
+		else
 		{
-			size_t n = m_tmpVertexs.size() - 2;
-			for (size_t i = 0; i<n; i++)
+			if (m_tmpType == NX_TRIANGLES)
 			{
-				if (i % 2 == 0)
+				size_t n = m_tmpVertexs.size() / 3;
+				for (size_t i = 0; i<n; i++)
 				{
-					dc.Handle(&m_tmpVertexs[i + 0]);
-				}
-				else
-				{
-					dc.HandleInverse(&m_tmpVertexs[i + 0]);
+					dc.HandleInverse(&m_tmpVertexs[i * 3 + 0]);
 				}
 			}
-		}
-		else if (m_tmpType == NX_QUADS)
-		{
-			size_t n = m_tmpVertexs.size() / 4;
-			for (size_t i = 0; i<n; i++)
+			else if (m_tmpType == NX_TRIANGLE_STRIP || m_tmpType == NX_QUAD_STRIP)
 			{
-				dc.Handle(&m_tmpVertexs[i * 4 + 0]);
-				dc.HandleTriangle(m_tmpVertexs[i * 4 + 0], m_tmpVertexs[i * 4 + 3], m_tmpVertexs[i * 4 + 2]);
+				size_t n = m_tmpVertexs.size() - 2;
+				for (size_t i = 0; i<n; i++)
+				{
+					if (i % 2 == 0)
+					{
+						dc.HandleInverse(&m_tmpVertexs[i + 0]);
+					}
+					else
+					{
+						dc.Handle(&m_tmpVertexs[i + 0]);
+					}
+				}
 			}
+			else if (m_tmpType == NX_QUADS)
+			{
+				size_t n = m_tmpVertexs.size() / 4;
+				for (size_t i = 0; i<n; i++)
+				{
+					dc.HandleInverse(&m_tmpVertexs[i * 4 + 0]);
+					dc.HandleTriangle(m_tmpVertexs[i * 4 + 0], m_tmpVertexs[i * 4 + 2], m_tmpVertexs[i * 4 + 3]);
+				}
+			}
+
 		}
 
 		dc.Leave();
-
 		DContext::End();
 	}
 };
+
 
 EW_LEAVE
 

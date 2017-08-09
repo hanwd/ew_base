@@ -35,6 +35,9 @@ public:
 
 	virtual size_t size() const {return 0;}
 	virtual const String item(size_t) const {return "";}
+	virtual void set_selection(size_t){}
+	virtual int get_selection(int v){ return v; }
+	virtual int get_value(int v){ return v; }
 
 };
 

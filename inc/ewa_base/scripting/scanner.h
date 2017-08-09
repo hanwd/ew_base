@@ -1,7 +1,7 @@
 #ifndef __H_EW_SCRIPTING_SCANNER__
 #define __H_EW_SCRIPTING_SCANNER__
 
-#include "ewa_base/basic.h"
+#include "ewa_base/basic/object.h"
 #include "ewa_base/collection/indexer_map.h"
 #include "ewa_base/basic/scanner_helper.h"
 

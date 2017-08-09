@@ -2,8 +2,8 @@
 #define __H_EW_SCRIPTING_VARIANT__
 
 #include "ewa_base/config.h"
-#include "ewa_base/basic.h"
-#include "ewa_base/collection.h"
+#include "ewa_base/basic/object.h"
+#include "ewa_base/collection/arr_xt.h"
 #include "ewa_base/math/tiny_cpx.h"
 #include "ewa_base/scripting/detail/colondata.h"
 #include "ewa_base/scripting/detail/idx_1t.h"

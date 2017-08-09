@@ -14,7 +14,7 @@ public:
 
 	DataPtrT<DCoord> m_pItem;
 
-	bool DoGetChildren(arr_1t<DataPtrT<DObject> >* p);
+	bool DoGetChildren(DChildrenState&);
 
 	DECLARE_OBJECT_INFO(DFigure, DObjectInfo);
 };

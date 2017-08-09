@@ -29,6 +29,8 @@ template<typename T>
 class DLLIMPEXP_EWC_BASE EvtProxyT : public EvtProxyBase
 {
 public:
+	EvtProxyT() :tmp_value(){}
+
 	T tmp_value;
 	virtual Validator* CreateValidator(wxWindow*);
 };
@@ -42,7 +44,13 @@ public:
 	map_type& values;
 	String key;
 
-	EvtProxyVariantT(map_type& m,const String& k):values(m),key(k){}
+	EvtProxyVariantT(map_type& m,const String& k):values(m),key(k)
+	{
+		if (values[key].is_nil())
+		{
+			values[key].reset(tmp_value);
+		}
+	}
 
 	virtual bool InternalTransfer2Model()
 	{

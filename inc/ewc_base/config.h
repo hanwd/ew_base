@@ -138,6 +138,7 @@ public:
 		FD_DIR			=FD_MIN<<2,
 		FD_MULTI		=FD_MIN<<3,
 		FD_MUST_EXIST	=FD_MIN<<4,
+		FD_OVERWRITE_PROMPT = FD_MIN << 5,
 
 	};
 

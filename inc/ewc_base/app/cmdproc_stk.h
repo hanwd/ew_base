@@ -48,6 +48,7 @@ protected:
 	arr_1t<DataPtrT<CmdBase> > aCommands;
 };
 
+
 class DLLIMPEXP_EWC_BASE CmdProcStk : public CmdProc
 {
 public:
@@ -59,14 +60,14 @@ public:
 
 	CmdProcStk(){nLast=nIndex=0;}
 
-	bool add_cmd(CmdBase* c);
+	virtual bool add_cmd(DataPtrT<CmdBase> c);
 
 protected:
 
 	size_t nLast;
 	size_t nIndex;
 	arr_1t<DataPtrT<CmdBase> > aCommands;
-	//String m_sFilename;
+	DataPtrT<CmdGroup> pGroup;
 };
 
 

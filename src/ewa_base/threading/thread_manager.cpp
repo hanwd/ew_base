@@ -1,4 +1,5 @@
-#include "ewa_base/threading.h"
+#include "ewa_base/threading/thread_manager.h"
+
 #include "thread_impl.h"
 #include <csignal>
 #undef new

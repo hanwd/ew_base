@@ -31,9 +31,6 @@
     <Filter Include="include\collection\detail">
       <UniqueIdentifier>{3f4b507d-c030-4ae2-bed0-b617ca94012b}</UniqueIdentifier>
     </Filter>
-    <Filter Include="include\logging">
-      <UniqueIdentifier>{897ccf4f-f48d-41d9-8319-872b2b5f79a2}</UniqueIdentifier>
-    </Filter>
     <Filter Include="include\scripting\detail">
       <UniqueIdentifier>{c0fa8b41-fa50-4c33-a575-0e1f40e18ea5}</UniqueIdentifier>
     </Filter>
@@ -97,6 +94,9 @@
     <Filter Include="source\domdata">
       <UniqueIdentifier>{e3dca7e0-ce5f-48bc-8b22-68a46a106203}</UniqueIdentifier>
     </Filter>
+    <Filter Include="include\logging">
+      <UniqueIdentifier>{897ccf4f-f48d-41d9-8319-872b2b5f79a2}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\inc\ewa_base\basic\atomic.h">
@@ -115,9 +115,6 @@
       <Filter>include\basic</Filter>
     </ClInclude>
     <ClInclude Include="..\..\inc\ewa_base\basic\exception.h">
-      <Filter>include\basic</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\inc\ewa_base\basic\file.h">
       <Filter>include\basic</Filter>
     </ClInclude>
     <ClInclude Include="..\..\inc\ewa_base\basic\functor.h">
@@ -159,9 +156,6 @@
     <ClInclude Include="..\..\inc\ewa_base\basic\stringbuffer.h">
       <Filter>include\basic</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\inc\ewa_base\basic\system.h">
-      <Filter>include\basic</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\inc\ewa_base\net\iocp1.h">
       <Filter>include\net</Filter>
     </ClInclude>
@@ -198,12 +192,6 @@
     <ClInclude Include="..\..\inc\ewa_base\collection\bst_set.h">
       <Filter>include\collection</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\inc\ewa_base\collection\indexer_map.h">
-      <Filter>include\collection</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\inc\ewa_base\collection\indexer_set.h">
-      <Filter>include\collection</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\inc\ewa_base\collection\intrusive_list.h">
       <Filter>include\collection</Filter>
     </ClInclude>
@@ -235,9 +223,6 @@
       <Filter>include\collection\detail</Filter>
     </ClInclude>
     <ClInclude Include="..\..\inc\ewa_base\collection\detail\indexer_base.h">
-      <Filter>include\collection\detail</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\inc\ewa_base\collection\detail\indexer_container.h">
       <Filter>include\collection\detail</Filter>
     </ClInclude>
     <ClInclude Include="..\..\inc\ewa_base\collection\detail\kv_trait.h">
@@ -393,9 +378,6 @@
     <ClInclude Include="..\..\inc\ewa_base\basic.h">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\inc\ewa_base\collection.h">
-      <Filter>include</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\inc\ewa_base\config.h">
       <Filter>include</Filter>
     </ClInclude>
@@ -501,9 +483,6 @@
     <ClInclude Include="..\..\inc\ewa_base\scripting\callable_misc.h">
       <Filter>include\scripting</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\inc\ewa_base\basic\stream.h">
-      <Filter>include\basic</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\inc\ewa_base\basic\process.h">
       <Filter>include\basic</Filter>
     </ClInclude>
@@ -538,9 +517,6 @@
       <Filter>include\basic</Filter>
     </ClInclude>
     <ClInclude Include="..\..\inc\ewa_base\basic\scanner_helper.h">
-      <Filter>include\basic</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\inc\ewa_base\basic\object_info.h">
       <Filter>include\basic</Filter>
     </ClInclude>
     <ClInclude Include="..\..\inc\ewa_base\basic\dlink.h">
@@ -596,6 +572,48 @@
     </ClInclude>
     <ClInclude Include="..\..\inc\ewa_base\domdata.h">
       <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewa_base\math\tiny_dim.h">
+      <Filter>include\math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewa_base\math\math_axis.h">
+      <Filter>include\math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewa_base\math\fft_cfg.h">
+      <Filter>include\math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewa_base\math\sparse_lite.h">
+      <Filter>include\math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewa_base\math\pretty_print.h">
+      <Filter>include\math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewa_base\basic\stream.h">
+      <Filter>include\basic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewa_base\collection\detail\indexer_container.h">
+      <Filter>include\collection\detail</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewa_base\basic\object_info.h">
+      <Filter>include\basic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewa_base\collection\indexer_set.h">
+      <Filter>include\collection</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewa_base\collection\indexer_map.h">
+      <Filter>include\collection</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewa_base\collection.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewa_base\basic\system.h">
+      <Filter>include\basic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewa_base\basic\file.h">
+      <Filter>include\basic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\ewa_base\collection\arr_op.h">
+      <Filter>include\collection</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -988,6 +1006,9 @@
     </ClCompile>
     <ClCompile Include="..\..\src\ewa_base\domdata\table_serializer.cpp">
       <Filter>source\domdata</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewa_base\math\fft_cfg.cpp">
+      <Filter>source\math</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

@@ -23,10 +23,12 @@ public:
 
 	wxArrayString aOptions;
 
-	wxArrayString MakeOption(EvtBase* vp)
+	DataPtrT<IValueOptionData> opt_data;
+
+	wxArrayString MakeOption()
 	{
 		wxArrayString aString;
-		IValueOptionData* d=vp->GetComboArray();
+		IValueOptionData* d = opt_data.get();// vp->GetComboArray();
 		if(!d) return aString;
 		for(size_t i=0;i<d->size();i++)
 		{
@@ -35,6 +37,26 @@ public:
 		return aString;
 	}
 
+	virtual void SetOptionData(IValueOptionData* p)
+	{
+		if (!opt_data)
+		{
+			opt_data.reset(p);
+		}
+	}
+
+	bool OnWndEvent(IWndParam& cmd,int)
+	{	
+		IValueOptionData* d = opt_data.get();
+		if (cmd.action == IDefs::ACTION_VALUE_CHANGED && d)
+		{
+			d->set_selection(cmd.param1);
+		}
+		return true;
+	}
+
+
+
 	bool OnUpdateWindow(wxWindow* pwin,EvtBase* proxy)
 	{
 		if(pWindow!=pwin)
@@ -42,7 +64,12 @@ public:
 			return false;
 		}
 
-		wxArrayString opt_new=MakeOption(proxy);
+		if (IValueOptionData* p = proxy->GetComboArray())
+		{
+			opt_data.reset(p);
+		}
+
+		wxArrayString opt_new=MakeOption();
 		if(opt_new==aOptions)
 		{
 			return true;
@@ -63,15 +90,49 @@ public:
 		return true;
 	}
 	
-	virtual bool DoSetValue(int32_t v)
+	int ivalue;
+	String svalue;
+
+	bool DoSetValue(int32_t v)
 	{
-		pWindow->SetSelection(v);
+		if (!opt_data)
+		{
+			ivalue = v;
+			return true;
+		}
+
+		int n = opt_data->get_selection(v);
+		if (size_t(n) >= pWindow->GetCount())
+		{
+			ivalue = v;
+			pWindow->SetValue(str2wx(String::Format("Value(%d)",v)));
+		}
+		else
+		{
+			pWindow->SetSelection(n);
+		}
+
 		return true;
 	}
 
 	virtual bool DoGetValue(int32_t& v)
 	{
-		v=pWindow->GetSelection();
+		if (!opt_data)
+		{
+			v=ivalue;
+			return true;
+		}
+
+		int n=pWindow->GetSelection();
+		if (n < 0)
+		{
+			v = ivalue;
+		}
+		else
+		{
+			v = opt_data->get_value(n);
+		}
+
 		return true;
 	}
 
@@ -113,6 +174,15 @@ public:
 	Validator* CreateValidator(wxWindow* w)
 	{
 		return new ValidatorW<IWnd_combo>((IWnd_combo*)w);
+	}
+
+	void Update(WndMaker& wk, wxWindow* pw, EvtBase* pv)
+	{
+		if (!pv)
+		{
+			pv = new EvtProxyT<int32_t>();
+		}
+		wk.vd_set(CreateValidatorEx(pw, pv));
 	}
 
 };

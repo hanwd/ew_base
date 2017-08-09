@@ -1,5 +1,6 @@
 #include "ewc_base/evt/evt_manager.h"
 #include "ewc_base/plugin/plugin_manager.h"
+#include "ewa_base/domdata/table_serializer.h"
 #include "ewc_base/wnd/impl_wx/impl_wx.h"
 
 EW_ENTER
@@ -341,6 +342,8 @@ EvtManagerTop::EvtManagerTop()
 	 WndManager& wm(WndManager::current());
 	 return wm.model.GetWindow();
  }
+
+
 void EvtManagerTop::langup()
 {
 	WndManager& wm(WndManager::current());
@@ -359,5 +362,123 @@ void EvtManagerTop::langup()
 	}
 }
 
+
+class InvokeParamDObject : public InvokeParam
+{
+public:
+
+	VariantTable table, sample;
+	TableSerializer ar;
+
+	indexer_map<String, bst_set<String> > types;
+
+	InvokeParamDObject() :ar(TableSerializer::WRITER, table)
+	{
+		ObjectInfo::Invoke(*this);
+		types.size();
+	}
+
+	void DoHandle(const String& name, Variant& value)
+	{
+		if (value.ptr<String>())
+		{
+			types[name].insert("String");
+		}
+		else if (value.ptr<int64_t>())
+		{
+			types[name].insert("Integer");
+		}
+		else if (value.ptr<double>())
+		{
+			types[name].insert("Double");
+		}
+		else if (value.ptr<arr_xt<Variant> >())
+		{
+			types[name].insert("Array");
+		}
+		else
+		{
+			types[name].insert("Unknown");
+		}
+	}
+
+	void OnInvoke(ObjectInfo* p)
+	{
+		DObjectInfo* pinfo = dynamic_cast<DObjectInfo*>(p);
+		if (!pinfo) return;
+
+		Object* pobj = pinfo->CreateObject();
+		if (!pobj) return;
+
+		DataPtrT<DObject> pdobj;
+
+		pdobj.reset(dynamic_cast<DObject*>(pobj));
+
+		EW_ASSERT(pdobj);
+		if (!pdobj)
+		{
+			return;
+		}
+
+		pdobj->DoTransferData(ar);
+		for (auto it = table.begin(); it != table.end(); ++it)
+		{
+			DoHandle((*it).first, (*it).second);
+			sample.insert(*it);
+		}
+
+		table.clear();
+
+	}
+
+	static InvokeParamDObject& current()
+	{
+		static InvokeParamDObject gInstance;
+		return gInstance;
+	}
+};
+void EvtManager::link_dobject_table(VariantTable& table)
+{
+	bst_set<String> unkown_types;
+	link_dobject_table(table, unkown_types);
+}
+
+void EvtManager::link_dobject_table(VariantTable& table, bst_set<String>& unkown_types)
+{
+	EvtManager& ec(*this);
+
+	InvokeParamDObject& ipm(InvokeParamDObject::current());
+
+
+	for (auto it = ipm.types.begin(); it != ipm.types.end(); ++it)
+	{
+		const String& name((*it).first);
+		auto& types((*it).second);
+		if (types.size() != 1)
+		{
+			unkown_types.insert(name);
+			continue;
+		}
+		const String& type(*types.begin());
+		if (type == "String")
+		{
+			ec.link_v<String>(name, table);
+		}
+		else if (type == "Integer")
+		{
+			ec.link_v<int>(name, table);
+		}
+		else if (type == "Double")
+		{
+			ec.link_v<double>(name, table);
+		}
+		else
+		{
+			unkown_types.insert(name);
+		}
+	}
+
+	table = ipm.sample;
+}
 
 EW_LEAVE

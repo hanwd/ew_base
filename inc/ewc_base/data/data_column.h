@@ -19,7 +19,7 @@ public:
 class DLLIMPEXP_EWC_BASE DataColumnType : public DataColumn
 {
 public:
-	DataColumnType();
+	DataColumnType(int wd=80);
 	virtual void GetValue(wxVariant &variant, DataNode* node) const;
 };
 
@@ -27,7 +27,7 @@ public:
 class DLLIMPEXP_EWC_BASE DataColumnName : public DataColumn
 {
 public:
-	DataColumnName();
+	DataColumnName(int wd=80);
 	virtual void GetValue(wxVariant &variant, DataNode* node) const;
 };
 

@@ -6,15 +6,55 @@
 
 EW_ENTER
 
+void DCtxStateMatrix::push(const mat4d& v)
+{
+	basetype::push();
+	val = val*v;
+}
+
+void DCtxStateObject::init(DObject* p)
+{
+	if (pobj)
+	{
+		pobj->init(p);
+	}
+}
+
+void DCtxStateObject::push(DObject* p)
+{
+	if (pobj)
+	{
+		pobj->push(p);
+	}
+}
+
+void DCtxStateObject::pop()
+{
+	if (pobj)
+	{
+		pobj->pop();
+	}
+}
+
+void DCtxStateObject::reset(StkObject* p)
+{
+	pobj.reset(p);
+}
+
+void DCtxStateMaterial::push(DObject* p)
+{
+	stk.push_back(val);
+	if (p)
+	{
+		val = arr.find2(p->DecorateWithM4(m4));
+	}
+}
+
 void DCtxStateMaterial::init(DObject* p,DObject* b)
 {
 	arr.clear();
 	stk.clear();
-
-	stk.push_back(p);
 	ref = val = arr.find2(p);
-
-
 	arr.insert(b);
 }
 
@@ -39,18 +79,6 @@ void DCtxStateUnit::push(DUnit* p)
 	}
 }
 
-
-
-void DCtxStateMaterial::pop()
-{
-	stk.pop_back();
-}
-
-void DCtxStateMaterial::push(DObject* p)
-{
-	stk.push_back(p ? p : stk.back());
-	val = arr.find2(stk.back()->DecorateWithM4(m4));
-}
 
 bool read_vertext(const char* &ptr, vec3d &pos)
 {
@@ -360,10 +388,10 @@ void DContext::B3Box_Points(const box3d& b3, int t)
 
 void DContext::Begin(int t)
 {
-	if (m_tmpType != NX_NOOP)
-	{
-		System::LogError("DContex::Begin m_tmpType=%d", m_tmpType);
-	}
+	//if (m_tmpType != NX_NOOP)
+	//{
+	//	System::LogError("DContex::Begin m_tmpType=%d", m_tmpType);
+	//}
 
 	m_tmpVertexs.clear();
 	m_tmpType = t;
@@ -382,7 +410,7 @@ void DContext::Commit()
 
 void DContext::EnterDocument()
 {
-
+	flags.del(FLAG_REVERSE);
 }
 
 void DContext::LeaveDocument()

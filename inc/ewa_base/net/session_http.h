@@ -3,6 +3,7 @@
 
 #include "ewa_base/net/session.h"
 #include "ewa_base/scripting/callable_table.h"
+#include "ewa_base/basic/file.h"
 #include "ewa_base/net/iocp1.h"
 
 EW_ENTER

@@ -1,7 +1,6 @@
 
 #include "ewa_base/memory/gc_ptr.h"
-#include "ewa_base/basic.h"
-#include "ewa_base/logging.h"
+#include "ewa_base/logging/logger.h"
 
 EW_ENTER
 

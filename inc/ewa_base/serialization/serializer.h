@@ -6,12 +6,15 @@
 #include "ewa_base/basic/object_ex.h"
 #include "ewa_base/basic/bitflags.h"
 #include "ewa_base/basic/exception.h"
+#include "ewa_base/basic/stream.h"
 #include "ewa_base/collection/indexer_set.h"
 #include "ewa_base/collection/indexer_map.h"
 #include "ewa_base/collection/arr_1t.h"
 #include "ewa_base/collection/arr_xt.h"
 #include "ewa_base/collection/bst_set.h"
 #include "ewa_base/collection/bst_map.h"
+#include "ewa_base/scripting/variant.h"
+#include "ewa_base/scripting/callable_table.h"
 
 #include "ewa_base/serialization/cachedobjects.h"
 
@@ -40,6 +43,7 @@ EW_ENTER
 
 class DLLIMPEXP_EWA_BASE SerializerReader;
 class DLLIMPEXP_EWA_BASE SerializerWriter;
+class DLLIMPEXP_EWA_BASE VariantTable;
 
 class DLLIMPEXP_EWA_BASE Serializer : private NonCopyable
 {
@@ -48,12 +52,6 @@ protected:
 	Serializer(int t);
 
 public:
-
-	struct internal_head{void Serialize(Serializer& ar){ar.handle_head();}};
-	struct internal_tail{void Serialize(Serializer& ar){ar.handle_tail();}};
-
-	static internal_head head;
-	static internal_tail tail;
 
 	enum
 	{
@@ -102,16 +100,18 @@ public:
 	virtual void close(){}
 
 	BitFlags flags;
+	String filetype;
 
 	virtual SerializerWriter& writer();
 	virtual SerializerReader& reader();
 
-	virtual Serializer& handle_head()=0;
+	virtual Serializer& handle_head(const char* p=NULL)=0;
 	virtual Serializer& handle_tail()=0;
 
 protected:
 	const int32_t type;
 	int32_t gver;
+
 
 };
 
@@ -140,6 +140,8 @@ public:
 
 	void stream_data(DataPtrT<IStreamData> p);
 	DataPtrT<IStreamData> stream_data(){return p_stream_data;}
+
+	void flush(){ p_stream_data->flush(); }
 
 protected:
 	DataPtrT<CachedObjectManager> p_cached_objects;
@@ -175,10 +177,15 @@ public:
 
 	ObjectData* read_object(int val);
 
-	virtual SerializerReader& handle_head();
+	virtual SerializerReader& handle_head(const char* p = NULL);
 	virtual SerializerReader& handle_tail();
 
 	virtual SerializerReader& reader(){ return *this; }
+
+
+	void load(Variant& val);
+	void load(arr_1t<Variant>& val);
+	void load(VariantTable& val);
 
 };
 
@@ -206,10 +213,15 @@ public:
 
 	virtual bool good(){return !p_stream_data->flags.get(FLAG_WRITER_FAILBIT);}
 
-	virtual SerializerWriter& handle_head();
+	virtual SerializerWriter& handle_head(const char* p = NULL);
 	virtual SerializerWriter& handle_tail();
 
 	virtual SerializerWriter& writer(){ return *this; }
+
+	void save(const Variant& val);
+	void save(const arr_1t<Variant>& val);
+	void save(const VariantTable& val);
+
 
 };
 
@@ -249,13 +261,12 @@ public:
 	void update();
 	bool check();
 
-	char tags[4];
+	char tags[8];
+	int64_t offset;
 	int32_t flags;
 	int32_t gver;
 	int32_t size;
-	int64_t offset;
 	int32_t chksum;
-	int32_t padding;
 };
 
 

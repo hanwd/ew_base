@@ -4,6 +4,7 @@
 
 #include "ewa_base/collection/arr_1t.h"
 #include "ewa_base/math/tiny_cpx.h"
+#include "ewa_base/math/tiny_vec.h"
 
 EW_ENTER
 
@@ -31,15 +32,40 @@ public:
 	inline arr_xt(const arr_xt& o):basetype(o),dims(o.dims){}
 	inline explicit arr_xt(const A& al):basetype(al){}
 
-	inline arr_xt(size_type k0, size_type k1 = 1, size_type k2 = 1, size_type k3 = 1, size_type k4 = 1, size_type k5 = 1)
+	inline explicit arr_xt(size_type k0, size_type k1 = 1, size_type k2 = 1, size_type k3 = 1, size_type k4 = 1, size_type k5 = 1)
 	{
 		resize(k0, k1, k2, k3, k4, k5);
 	}
+
+	inline explicit arr_xt(const arr_xt_dims& d)
+	{
+		resize(d);
+	}
+
+	inline arr_xt(const arr_1t<value_type>& o) :basetype(o), dims(o.size()) {}
 
 	inline arr_xt& operator=(const arr_xt& o)
 	{
 		impl=o.impl;
 		dims=o.dims;
+		return *this;
+	}
+
+	inline arr_xt& operator=(const arr_1t<value_type>& o)
+	{
+		arr_xt<value_type> tmp(o);
+		swap(tmp);
+		return *this;
+	}
+
+	template<typename T1>
+	inline arr_xt<value_type>& operator=(const arr_xt<T1>& o)
+	{
+		this->resize(o.size_ptr());
+		for (size_t i = 0; i < o.size(); ++i)
+		{
+			(*this)[i] = o[i];
+		}
 		return *this;
 	}
 
@@ -87,7 +113,7 @@ public:
 		impl.append(val_);
 	}
 
-	inline void pop_back_and_reshaepe_to_row_vector(size_t n)
+	inline void pop_back_and_reshape_to_row_vector(size_t n)
 	{
 		if(impl.size()<n) Exception::XError("not enough elements for pop");
 		size_t d=impl.size()-n;
@@ -100,12 +126,22 @@ public:
 
 	void resize(size_type k0,size_type k1=1,size_type k2=1,size_type k3=1,size_type k4=1,size_type k5=1);
 	void resize(const arr_xt_dims& kn,size_t rs=0);
+	void resize(const tiny_vec<int, 3>& sz);
 
 
 	void clear()
 	{
 		impl.clear();
 		dims.resize(0);
+	}
+
+	inline T& operator()(const tiny_vec<int, 3>& sz)
+	{
+		return impl[dims(sz[0], sz[1], sz[2])];
+	}
+	inline const T& operator()(const tiny_vec<int, 3>& sz) const
+	{
+		return impl[dims(sz[0], sz[1], sz[2])];
 	}
 
 	inline T& operator()(size_type k0)
@@ -190,6 +226,12 @@ protected:
 	using basetype::impl;
 	arr_xt_dims dims;
 };
+
+template<typename T,typename A>
+void arr_xt<T, A>::resize(const tiny_vec<int, 3>& sz)
+{
+	resize(arr_xt_dims(sz[0],sz[1],sz[2]));
+}
 
 template<typename T,typename A>
 void arr_xt<T,A>::resize(const arr_xt_dims& kn,size_t rs)
@@ -281,22 +323,6 @@ public:
 	}
 };
 
-
-
-template<typename T>
-struct opx_scalar_arr : public tl::value_type<false>
-{
-	typedef T type;
-	typedef arr_xt<T> promoted;
-};
-template<typename T,typename A>
-struct opx_scalar_arr<arr_xt<T,A> > : public tl::value_type<true>
-{
-	typedef T type;
-};
-
-template<typename X,typename Y>
-struct arr_promote : public opx_helper_promote<X,Y,cpx_promote,opx_scalar_arr>{};
 
 EW_LEAVE
 

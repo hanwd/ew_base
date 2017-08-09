@@ -19,11 +19,15 @@ public:
 
 	void ImageUpdate();
 
+	void PendingRefresh();
+
 	GLTool gt;
 	GLDC dc;
 	LitePtrT<DataModel> pmodel;
 
 protected:
+
+	bool m_bPendingRefresh;
 
 	bool Create(wxWindow *parent,
 		wxWindowID id,

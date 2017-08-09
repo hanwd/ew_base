@@ -21,20 +21,20 @@ public:
 	~Exception() throw();
 
 	// Throw Exception
-	static void XError();
-	static void XError(const String& s);
-	static void XError(const char* p, bool copy_);
+	static EW_NORETURN void XError();
+	static EW_NORETURN void XError(const String& s);
+	static EW_NORETURN void XError(const char* p, bool copy_);
 
 	// Throw std::bad_alloc
-	static void XBadAlloc();
+	static EW_NORETURN void XBadAlloc();
 
-	static void XBadCast();
-	static void XInvalidArgument();
-	static void XInvalidIndex();
-	static void XNotFound();
-	static void XReadOnly();
-	static void XTypeLocked();
-	static void XBadFunctor();
+	static EW_NORETURN void XBadCast();
+	static EW_NORETURN void XInvalidArgument();
+	static EW_NORETURN void XInvalidIndex();
+	static EW_NORETURN void XNotFound();
+	static EW_NORETURN void XReadOnly();
+	static EW_NORETURN void XTypeLocked();
+	static EW_NORETURN void XBadFunctor();
 	
 
 #ifdef EW_WINDOWS

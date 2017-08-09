@@ -93,7 +93,7 @@ public:
 
 			if(w->GetName()=="Centerpane")
 			{
-				amgr.AddPane(w,wxAuiPaneInfo().CenterPane());
+				amgr.AddPane(w,wxAuiPaneInfo().Name("Centerpane").CenterPane());
 			}
 			else if(dynamic_cast<wxToolBar*>(w))
 			{

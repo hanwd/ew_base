@@ -1,5 +1,6 @@
 #include "ewa_base/scripting/scanner.h"
 #include "ewa_base/basic/lookuptable.h"
+#include "ewa_base/basic/codecvt.h"
 
 EW_ENTER
 

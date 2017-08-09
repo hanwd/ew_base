@@ -21,14 +21,31 @@ DCoord2D::DCoord2D()
 
 }
 
-DCoord3D::DCoord3D()
+DCoord3D::DCoord3D(int m)
 {
+	mode = m;
+
 	m_pAxis.reset(new DAxis);
 	m_pAxis->SetMode(DAxis::MODE_3D_DIR);
 
 	m_aItems.append(m_pAxis.get());
 	m_aItems.append(m_pDataManager.get());
 }
+
+bool DCoord3D::DoGetChildren(DChildrenState& cs)
+{
+	if (mode == 0)
+	{
+		cs.set_array((DChildrenState::grp_type&)m_aItems.proxy());
+	}
+	else
+	{
+		return m_pDataManager->DoGetChildren(cs);
+	}
+
+	return true;
+}
+
 
 IMPLEMENT_OBJECT_INFO(DCoord, DObjectInfo);
 IMPLEMENT_OBJECT_INFO(DCoord2D, DObjectInfo);

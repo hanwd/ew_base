@@ -67,7 +67,7 @@ protected:
 		IEW_WxCtrlData_menu(EvtCommand* pevt_, IMenuItemPtr item_) :ICtl_itemdata(pevt_), item(item_){ }
 		IMenuItemPtr item;
 
-		void UpdateCtrl();
+		int UpdateCtrl();
 		void UpdateBmps();
 	};
 
@@ -213,15 +213,15 @@ void ICtl_menu::IEW_WxCtrlData_menu::UpdateBmps()
 	item->SetDisabledBitmap(bundle.bmp_disabled);
 }
 
-void ICtl_menu::IEW_WxCtrlData_menu::UpdateCtrl()
+int ICtl_menu::IEW_WxCtrlData_menu::UpdateCtrl()
 {
 	ICtl_menu* mu = (ICtl_menu*)item->GetMenu();
-	if (!mu) return;
+	if (!mu) return 0;
 
 	if (pevt->flags.get(EvtBase::FLAG_HIDE_UI))
 	{
 		mu->Delete(item);
-		return;
+		return -1;
 	}
 
 	item->SetHelp(str2wx(pevt->m_sHelp));
@@ -233,6 +233,8 @@ void ICtl_menu::IEW_WxCtrlData_menu::UpdateCtrl()
 	{
 		item->Check(pevt->flags.get(EvtBase::FLAG_CHECKED));
 	}
+
+	return 0;
 }
 
 

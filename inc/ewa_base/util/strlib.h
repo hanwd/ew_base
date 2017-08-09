@@ -1,8 +1,9 @@
 #ifndef __H_EW_BASIC_UTILS__
 #define __H_EW_BASIC_UTILS__
 
-#include "ewa_base/basic.h"
-#include "ewa_base/collection.h"
+#include "ewa_base/basic/string.h"
+#include "ewa_base/basic/stringbuffer.h"
+#include "ewa_base/collection/arr_1t.h"
 
 EW_ENTER
 

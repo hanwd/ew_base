@@ -1,8 +1,14 @@
 #include "ewa_base/math/random.h"
 #include "ewa_base/basic/clock.h"
+#include "ewa_base/basic/misc.h"
 #include <limits>
+
 EW_ENTER
 
+rand_gen& rand_gen::current()
+{
+	return detail::StaticInstance<rand_gen>::current();
+}
 
 class randgen_data : public ObjectData
 {
@@ -54,6 +60,10 @@ public:
 
 	void nextp(uint32_t v1,uint32_t v2,uint32_t v3)
 	{
+		v1 = (v1 * 0x111024131) ^ (v1 >> 8) + 0x134111;
+		v2 = (v2 * 0x111024131) ^ (v2 >> 8) + 0x134111*v1+0x134123;
+		v3 = (v3 * 0x311023131) ^ (v3 >> 8) + 0x134111*v2+0x1341231;
+
 		uint32_t vp[3]={v1,v2,v3};
 
 		for(int i=0;i<N;i++)
@@ -94,6 +104,11 @@ double rand_gen::random_double()
 	int32_t r=random_int(2*k+1);
 	double v= double(r-k)/double(k);
 	return v;
+}
+
+uint32_t rand_gen::random_int()
+{
+	return ((randgen_data*)m_pData1.get())->gen();
 }
 
 uint32_t rand_gen::operator()()

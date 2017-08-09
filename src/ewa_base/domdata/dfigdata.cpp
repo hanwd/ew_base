@@ -34,6 +34,7 @@ DFigDataModel::DFigDataModel()
 IMPLEMENT_OBJECT_INFO(FigData, DObjectInfo);
 IMPLEMENT_OBJECT_INFO(DFigData2D, DObjectInfo);
 IMPLEMENT_OBJECT_INFO(DFigData3D, DObjectInfo);
+IMPLEMENT_OBJECT_INFO(DFigData3DImage, DObjectInfo);
 IMPLEMENT_OBJECT_INFO(DFigDataModel, DObjectInfo);
 
 IMPLEMENT_OBJECT_INFO(DFigDataManager, DObjectInfo);

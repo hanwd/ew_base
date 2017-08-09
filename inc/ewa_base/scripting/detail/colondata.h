@@ -2,7 +2,7 @@
 #define __H_EW_SCRIPTING_DETAIL_COLONDATA__
 
 #include "ewa_base/config.h"
-#include "ewa_base/basic.h"
+#include "ewa_base/basic/object.h"
 #include "ewa_base/collection.h"
 
 

@@ -213,7 +213,12 @@ public:
 	void LineStyle(const DLineStyle& style);
 
 
-	vec2i GetExtend(const String& text);	
+	vec2i GetExtend(const String& text);
+
+	void RenderImage(const arr_1t<double>& xpos, const arr_1t<double>& ypos, arr_xt<double>& value);
+	void RenderImage(const arr_xt<double>& xpos, const arr_xt<double>& ypos, arr_xt<double>& value);
+	void RenderImage(const arr_1t<float>& xpos, const arr_1t<float>& ypos, arr_xt<float>& value);
+	void RenderImage(const arr_xt<float>& xpos, const arr_xt<float>& ypos, arr_xt<float>& value);
 
 	void PrintText(const String& text, const vec3d& pos=vec3d(),const vec3d& shf=vec3d(), const vec3d& pxl=vec3d());
 
@@ -224,12 +229,18 @@ public:
 	void LeaveGroup();
 
 
+
 	AtrributeUpdator attrupdator;
 
 
 	void UpdateAttribute(DataNodeSymbol* node);
 
+	void Translate(const vec3d& pos);
+
 protected:
+
+	template<typename T>
+	void RenderImageReal(const T* px, const T* py, const arr_xt<T>& value);
 
 	class TextData;
 
@@ -252,9 +263,6 @@ protected:
 	arr_1t<int> m_aLights;
 
 	indexer_set<DataNode*> m_aNodes;
-	//DataPtrT<ObjectData> m_pFontData;
-	
-
 	bst_map<String, GLBuffer> m_mapBuffers;
 };
 

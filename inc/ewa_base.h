@@ -2,9 +2,9 @@
 #define __H_EW_EWA_BASE__
 
 #include "ewa_base/config.h"
-#include "ewa_base/collection.h"
 #include "ewa_base/math.h"
 #include "ewa_base/basic.h"
+#include "ewa_base/collection.h"
 #include "ewa_base/logging.h"
 #include "ewa_base/memory.h"
 #include "ewa_base/threading.h"

@@ -28,15 +28,30 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\ewx_test\test\appmain.cpp" />
-    <ClCompile Include="..\..\src\ewx_test\test\test_basic.cpp" />
-    <ClCompile Include="..\..\src\ewx_test\test\test_collection.cpp" />
-    <ClCompile Include="..\..\src\ewx_test\test\test_gc_ptr.cpp" />
-    <ClCompile Include="..\..\src\ewx_test\test\test_memory.cpp" />
-    <ClCompile Include="..\..\src\ewx_test\test\test_regex.cpp" />
-    <ClCompile Include="..\..\src\ewx_test\test\test_scripting.cpp" />
-    <ClCompile Include="..\..\src\ewx_test\test\test_serializer.cpp" />
-    <ClCompile Include="..\..\src\ewx_test\test\test_shm.cpp" />
-    <ClCompile Include="..\..\src\ewx_test\test\test_thread.cpp" />
+    <ClCompile Include="..\..\src\ewx_test\test\test_basic.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewx_test\test\test_collection.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewx_test\test\test_memory.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewx_test\test\test_regex.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewx_test\test\test_scripting.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewx_test\test\test_serializer.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewx_test\test\test_shm.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewx_test\test\test_thread.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
+    </ClCompile>
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{09542733-E7CB-407A-92D3-9F9C9D00FE7F}</ProjectGuid>

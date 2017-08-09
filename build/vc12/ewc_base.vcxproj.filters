@@ -324,6 +324,9 @@
     <ClInclude Include="..\..\src\ewc_base\wximpl.h">
       <Filter>source</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\inc\ewc_base\data\data_selection.h">
+      <Filter>include\data</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\ewc_base\wnd\impl_wx\impl_wx.cpp">
@@ -580,6 +583,9 @@
     </ClCompile>
     <ClCompile Include="..\..\src\ewc_base\wximpl\wximpl.cpp">
       <Filter>source\wximpl</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ewc_base\data\data_selection.cpp">
+      <Filter>source\data</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

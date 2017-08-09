@@ -127,7 +127,7 @@ bool ICmdProcTextEntry::DoTestId(ICmdParam& cmd)
 	case CP_SELECTALL:
 		return true;
 	case CP_FILEEXT:
-		cmd.extra1=_hT("Text Files")+"(*.txt)|*.txt";
+		cmd.extra1 = fn.GetExts();
 		return true;
 	case CP_FIND:
 		return true;

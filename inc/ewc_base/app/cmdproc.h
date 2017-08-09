@@ -6,6 +6,12 @@
 
 EW_ENTER
 	
+class DLLIMPEXP_EWC_BASE CmdProcLockerObject : public ObjectData
+{
+public:
+	virtual bool test(){ return true; }
+};
+
 class DLLIMPEXP_EWC_BASE CmdProc : public ObjectData
 {
 public:
@@ -55,6 +61,8 @@ public:
 
 	virtual bool DoLoad(const String& fp);
 	virtual bool DoSave(const String& fp);
+
+	virtual CmdProcLockerObject* CreateLockerObject(){ return NULL; }
 
 	IFileNameHolder fn;
 

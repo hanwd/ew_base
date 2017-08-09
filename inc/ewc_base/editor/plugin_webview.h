@@ -21,6 +21,8 @@ public:
 
 	void LoadURL(const String& s);
 
+	bool GetExts(arr_1t<String>& exts);
+
 protected:
 
 	static IWnd_webview* GetActiveWebView();

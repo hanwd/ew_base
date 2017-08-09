@@ -6,9 +6,23 @@
 #include "ewa_base/math/tiny_mat.h"
 #include "ewa_base/math/tiny_box.h"
 
-#define M_LIGHTSPEED 2.99792458e8
+#define M_LIGHTSPEED		(2.99792458e8)
+
+#define M_EPS0				(8.854187817e-12)
+#define M_XMU0				(M_PI*4.0e-07)
+
+#define M_HBAR				(1.0545887e-34)
+#define M_EV				(1.60217653e-19)
+
+#define M_DEG2RAD			(M_PI / 180.0)
+#define M_RAD2DEG			(180.0 / M_PI)
+
 
 EW_ENTER
+
+typedef tiny_vec<size_t, 2> vec2ui;
+typedef tiny_vec<size_t, 3> vec3ui;
+typedef tiny_vec<size_t, 4> vec4ui;
 
 typedef tiny_vec<int32_t,2> vec2i;
 typedef tiny_vec<int32_t,3> vec3i;
@@ -56,7 +70,6 @@ bool is_nan(double d);
 bool is_nan(float d);
 
 double round_digit(double v, unsigned n);
-
 
 
 EW_LEAVE

@@ -12,6 +12,7 @@ public:
 
 	rand_gen();
 
+	uint32_t random_int();
 	uint32_t random_int(uint32_t v);
 	double random_double();
 
@@ -25,6 +26,8 @@ public:
 	void save_state();
 	void load_state();
 	void load_state(uint32_t i,uint32_t j=0,uint32_t k=0);
+
+	static rand_gen& current();
 
 protected:
 	DataPtrT<ObjectData> m_pData1,m_pData2;

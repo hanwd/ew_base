@@ -1,8 +1,15 @@
 #include "ewa_base/domdata/dobject.h"
+#include "ewa_base/domdata/table_serializer.h"
+#include "ewa_base/scripting.h"
 
 
 EW_ENTER
 
+bool DObject::DoTransferData(TableSerializer& ar)
+{
+	ar.link("name", m_sId);
+	return true;
+}
 
 DLight::DLight()
 {
@@ -150,28 +157,28 @@ void DExprItem::SerializeVariant(Variant& v, int dir)
 
 	if (dir == +1)
 	{
-		arr_xt<Variant>& value(v.ref<arr_xt<Variant> >());
+		arr_xt<Variant>& arr(v.ref<arr_xt<Variant> >());
 
-		value.resize(3);
-		value(0).reset(name);
-		value(1).reset(value);
-		value(2).reset(desc);
+		arr.resize(3);
+		arr(0).reset(name);
+		arr(1).reset(value);
+		arr(2).reset(desc);
 
 	}
 	else if (dir == -1)
 	{
-		const arr_xt<Variant>& value(v.get<arr_xt<Variant> >());
+		const arr_xt<Variant>& arr(v.get<arr_xt<Variant> >());
 		DExprItem item;
-		if (value.size() < 2)
+		if (arr.size() < 2)
 		{
 			Exception::Exception("invalid value");
 		}
 
-		item.name = variant_cast<String>(value[0]);
-		item.value = variant_cast<String>(value[1]);
-		if (value.size()>2)
+		item.name = variant_cast<String>(arr[0]);
+		item.value = variant_cast<String>(arr[1]);
+		if (arr.size()>2)
 		{
-			item.desc = variant_cast<String>(value[2]);
+			item.desc = variant_cast<String>(arr[2]);
 		}
 		*this = item;
 
@@ -235,7 +242,7 @@ void SymbolItem::SerializeVariant(Variant& v, int dir)
 			item.name = variant_cast<String>(value[0]);
 			item.prop.assign(value.begin() + 1, value.end());
 
-*this = item;
+			*this = item;
 
 		}
 
@@ -276,6 +283,11 @@ DWhen::DWhen()
 	t_step = -1;
 }
 
+bool DWhen::test(int t_cur) const
+{
+	return (t_cur >= t_begin) && (t_cur <= t_end) && ((t_cur - t_begin) % t_step == 0);
+}
+
 
 DMatrixBox::DMatrixBox()
 {
@@ -294,15 +306,11 @@ DObjectInfo::DObjectInfo(const String& s) :ObjectInfo(s)
 
 }
 
+
 DObject::DObject(const String& s)
 	: m_sId(s)
 {
 }
-
-
-
-
-
 
 
 void DAttribute::SetValue(const String& name, int value)

@@ -3,10 +3,76 @@
 #define __H_EW_MATH_MATH_OP__
 
 #include "ewa_base/math/tiny_cpx.h"
-#include "ewa_base/collection.h"
-
+#include "ewa_base/collection/arr_1t.h"
+#include "ewa_base/collection/arr_xt.h"
+#include "ewa_base/basic/string.h"
 
 EW_ENTER
+
+
+template<typename H, int N>
+struct arr_promote_real_1t : public H {};
+
+template<typename H>
+struct arr_promote_real_1t<H, 1> : public H
+{
+	typedef typename H::type scalar;
+	typedef typename arr_1t<typename H::type> promoted;
+	typedef scalar type;
+};
+
+template<typename H>
+struct arr_promote_real_1t<H, 2> : public H
+{
+	typedef typename H::type scalar;
+	typedef typename arr_1t<typename H::type> promoted;
+	typedef promoted type;
+};
+
+template<typename X, typename Y>
+struct arr_promote_1t : public arr_promote_real_1t<vec_promote<X, Y>, vec_promote<X, Y>::value ? 1 : 0>{};
+
+template<typename X, typename Y>
+struct arr_promote_1t<arr_1t<X>, Y > : public arr_promote_real_1t<vec_promote<X, Y>, vec_promote<X, Y>::value ? 2 : 0>{};
+
+template<typename X, typename Y>
+struct arr_promote_1t<X, arr_1t<Y> > : public arr_promote_real_1t<vec_promote<X, Y>, vec_promote<X, Y>::value ? 2 : 0>{};
+
+template<typename X, typename Y>
+struct arr_promote_1t<arr_1t<X>, arr_1t<Y> > : public arr_promote_real_1t<vec_promote<X, Y>, vec_promote<X, Y>::value ? 2 : 0>{};
+
+
+
+template<typename H, int N>
+struct arr_promote_real_xt : public H {};
+
+template<typename H>
+struct arr_promote_real_xt<H, 1> : public H
+{
+	typedef typename H::type scalar;
+	typedef typename arr_xt<typename H::type> promoted;
+	typedef scalar type;
+};
+
+template<typename H>
+struct arr_promote_real_xt<H, 2> : public H
+{
+	typedef typename H::type scalar;
+	typedef typename arr_xt<typename H::type> promoted;
+	typedef promoted type;
+};
+
+template<typename X, typename Y>
+struct arr_promote_xt : public arr_promote_real_xt<vec_promote<X, Y>, vec_promote<X, Y>::value ? 1 : 0>{};
+
+template<typename X, typename Y>
+struct arr_promote_xt<arr_xt<X>, Y > : public arr_promote_real_xt<vec_promote<X, Y>, vec_promote<X, Y>::value ? 2 : 0>{};
+
+template<typename X, typename Y>
+struct arr_promote_xt<X, arr_xt<Y> > : public arr_promote_real_xt<vec_promote<X, Y>, vec_promote<X, Y>::value ? 2 : 0>{};
+
+template<typename X, typename Y>
+struct arr_promote_xt<arr_xt<X>, arr_xt<Y> > : public arr_promote_real_xt<vec_promote<X, Y>, vec_promote<X, Y>::value ? 2 : 0>{};
 
 
 
@@ -403,7 +469,7 @@ struct DLLIMPEXP_EWA_BASE pl_base2_mat : public pl_base2
 	static const int dispatch_type=DISPATCH_ARR;
 
 	template<typename T1,typename T2>
-	struct rebind : public arr_promote<T1,T2>{};
+	struct rebind : public arr_promote_xt<T1,T2>{};
 
 };
 

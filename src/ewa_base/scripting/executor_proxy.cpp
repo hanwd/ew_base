@@ -150,58 +150,10 @@ Variant RpcHandlerEwsl::DoHandle(const String& cmd,Variant& req)
 	{
 		return berror("invalid param");
 	}
-
-	//for(size_t i=0;i<cmds.size();i++)
-	//{
-	//	ewsl.execute(cmds[i]);
-	//}
-
+	
 	Variant var(m_pResponse);
 	return bresult(var);
 }
 
-//void ExecutorState::Serialize(SerializerHelper sh)
-//{
-//	ar & aRecords;
-//}
-//
-//void ExecutorState::Handle(const LogRecord& o)
-//{
-//	aRecords.push_back(o);
-//}
-
-//void ObjectRequestCommand::Serialize(SerializerHelper sh)
-//{
-//	ar & nRequest & aRequest;
-//}
-
-//
-//
-//DataPtrT<ObjectData> ObjectProxyHolder::handle_req(const DataPtrT<ObjectData>& req)
-//{
-//	if(!m_refData) return NULL;
-//	return m_refData->handle_req(req);
-//}
-//
-//
-//DataPtrT<ObjectData> ObjectProxyHolder::handle_req(const String& cmd)
-//{
-//	return handle_req(new ObjectRequestCommand(cmd));
-//}
-//
-//DataPtrT<ObjectData> ObjectProxyHolder::handle_req(const arr_1t<String>& cmds)
-//{
-//	return handle_req(new ObjectRequestCommand(cmds));
-//}
-//
-//
-//ExecutorProxy::ExecutorProxy()
-//{
-//	SetData(new ObjectProxyExecutor);
-//}
-
-
-//IMPLEMENT_OBJECT_INFO(ExecutorState,ObjectInfo);
-//IMPLEMENT_OBJECT_INFO(ObjectRequestCommand,ObjectInfo);
 
 EW_LEAVE

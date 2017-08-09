@@ -40,6 +40,7 @@
     <ClInclude Include="..\..\inc\ewc_base\data\data_column.h" />
     <ClInclude Include="..\..\inc\ewc_base\data\data_model.h" />
     <ClInclude Include="..\..\inc\ewc_base\data\data_node.h" />
+    <ClInclude Include="..\..\inc\ewc_base\data\data_selection.h" />
     <ClInclude Include="..\..\inc\ewc_base\editor\plugin_dom_viewer.h" />
     <ClInclude Include="..\..\inc\ewc_base\editor\plugin_ewsl_editor.h" />
     <ClInclude Include="..\..\inc\ewc_base\editor\plugin_text_editor.h" />
@@ -129,6 +130,7 @@
     <ClCompile Include="..\..\src\ewc_base\data\data_column.cpp" />
     <ClCompile Include="..\..\src\ewc_base\data\data_model.cpp" />
     <ClCompile Include="..\..\src\ewc_base\data\data_node.cpp" />
+    <ClCompile Include="..\..\src\ewc_base\data\data_selection.cpp" />
     <ClCompile Include="..\..\src\ewc_base\editor\plugin_ewsl_editor.cpp" />
     <ClCompile Include="..\..\src\ewc_base\editor\plugin_ewsl_caret.cpp" />
     <ClCompile Include="..\..\src\ewc_base\editor\plugin_ewsl_iface.cpp" />

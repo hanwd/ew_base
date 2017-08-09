@@ -191,15 +191,45 @@ public:
 	{
 		WndManager& wm(WndManager::current());
 
+		PluginEditor* _pEditor=NULL;
+		PluginManager& ipm(wm.plugin);
+
 		if(cmd.extra1=="")
 		{
-			cmd.param1=-1;
+			int index(0);
+			arr_1t<String> exts;
+
+			arr_1t<int> aEditors;
+			for (size_t i = 0; i < ipm.plugin_editor.size(); i++)
+			{
+				PluginEditor* p = ipm.plugin_editor[i].get();
+				if (!p->GetExts(exts)) continue;
+
+				if (i == cmd.param1)
+				{
+					index = aEditors.size()-1;
+				}
+				aEditors.push_back(i);
+			}
+
+			exts.push_back("All Files (*.*)|*.*");
+
 			arr_1t<String> files;
-			if(Wrapper::FileDialog(files,IDefs::FD_OPEN)!=IDefs::BTN_OK||files.size()!=1)
+			if (Wrapper::FileDialog(files, IDefs::FD_OPEN, "", string_join(exts.begin(), exts.end(), "|"), &index) != IDefs::BTN_OK || files.size() != 1)
 			{
 				return false;
 			}
-			cmd.extra1=files[0];	
+			cmd.extra1=files[0];
+
+			if (index >= 0 && index<(int)aEditors.size())
+			{
+				cmd.param1 = aEditors[index];
+			}
+		}
+		
+		if ((size_t)cmd.param1<ipm.plugin_editor.size())
+		{
+			_pEditor = ipm.plugin_editor[cmd.param1].get();
 		}
 
 		// 判断这个文件是否已经打开了。
@@ -208,17 +238,7 @@ public:
 			return true;
 		}
 
-		PluginEditor* _pEditor=NULL;
-		PluginManager& ipm(wm.plugin);
-	
-		if(cmd.param1>=0)
-		{
-			if((size_t)cmd.param1<ipm.plugin_editor.size())
-			{
-				_pEditor=ipm.plugin_editor[cmd.param1].get();
-			}
-		}
-		else
+		if(!_pEditor)
 		{
 			int _nIndex=0;
 			for(size_t i=0;i<ipm.plugin_editor.size();i++)
@@ -403,6 +423,49 @@ public:
 
 	arr_1t<tagLayoutInfo> aInfos;
 
+	bool OnCfgEvent(int lv)
+	{
+		int n = aInfos.size() - 2;
+		wm.conf.CfgUpdate(lv, "/basic/layout_count", n);
+
+		if (n < 0 || n>20)
+		{
+			return true;
+		}
+
+
+		aInfos.resize(n + 2);
+
+
+		for (int i = 0; i < n; i++)
+		{
+			String pre = String::Format("/basic/layouts/item_%d/", i);
+
+			auto& item(aInfos[i+2]);
+
+			wm.conf.CfgUpdate(lv, pre+"name", item.name);
+			wm.conf.CfgUpdate(lv, pre+"pers", item.pers);
+
+			arr_1t<String> wnds;
+			if (lv < 0)
+			{
+				wnds.assign(item.wnds.begin(), item.wnds.end());
+			}
+
+			wm.conf.CfgUpdate(lv, pre+"wnds", wnds);
+
+			if (lv > 0)
+			{
+				item.wnds.clear();
+				item.wnds.insert(wnds.begin(), wnds.end());
+			}
+
+		}
+
+		return true;
+	}
+
+
 	bool DoStdExecute(IStdParam& cmd)
 	{
 		return LoadPerspective(cmd.param1);
@@ -451,6 +514,8 @@ public:
 					arr[i].Show(false);
 				}
 			}
+
+			auimgr.GetPane("Centerpane").Show(true);
 
 			wm.wup.lock();
 			wm.wup.gp_add("ToolBars");
@@ -563,6 +628,7 @@ public:
 
 	bool DoStdExecute(IStdParam& cmd)
 	{
+
 		wxWindow* pwin=WndModel::current().GetWindow();
 		wxAuiManager* pmgr=wxAuiManager::GetManager(pwin);
 		if(!pmgr) return false;
@@ -570,9 +636,16 @@ public:
 
 		typedef bst_set<wxAuiPaneInfo*,tagAuiPaneLess> mp_row;
 
-		Target.aInfos.resize(3);
+		if (Target.aInfos.size() < 3)
+		{
+			Target.aInfos.resize(3);
+			Target.SavePerspective(2);
+		}
+
+		Target.aInfos[2].name = _kT("LastRun");
+
 		Target.SavePerspective(0,_kT("StartUp.Default"));
-		Target.SavePerspective(2,_kT("LastRun"));
+
 
 		mp_row mp_alltoolbars;
 		mp_row mp_allwindows;
@@ -696,7 +769,9 @@ EvtViewLayout::EvtViewLayout(WndManager& w):EvtGroup(_kT("Layout")),wm(w)
 		}
 	ec.gp_end();
 	m_nSelection=-1;
-};
+
+	AttachEvent("Config");
+}
 
 
 
@@ -792,7 +867,14 @@ bool PluginBasic::OnCmdEvent(ICmdParam& cmd,int phase)
 				wm.wup.gp_add("MenuBar.default");
 			}
 			wm.evtmgr["Layout.Save"].StdExecuteEx(-1);
-		}	
+
+			//wm.evtmgr["Layout.Item2"].CmdExecuteEx(-1);
+		}
+
+		if (cmd.evtptr->m_sId == "CloseFrame")
+		{
+			wm.evtmgr["Layout.Save"].CmdExecuteEx(2);
+		}
 	}
 
 	return true;
@@ -980,15 +1062,15 @@ bool PluginBasic::OnAttach()
 	ec.gp_end();
 
 	//ec.gp_add(new EvtCommandTimer("timer.idle"));
-
 	//ec["timer.idle"].StdExecuteEx(1000,1);
 
 	EvtManager::current()["StartFrame"].AttachListener(this);
+	EvtManager::current()["CloseFrame"].AttachListener(this);
 
 	wm.evtmgr.link_c<String>("/basic/language").opt_data.reset(wm.evtmgr["Languages"].GetComboArray());
 
 	wm.evtmgr.gp_beg(_kT("Option.pages"));
-		wm.evtmgr.gp_add(new EvtOptionPageScript(_kT("Option.Common"), "scripting/ui/option_common.ewsl"));
+		wm.evtmgr.gp_add(new EvtDynamicPageScript(_kT("Option.Common"), "scripting/ui/option.common.ewsl"));
 	wm.evtmgr.gp_end();
 
 

@@ -1,6 +1,8 @@
 
 #include "ewa_base/net/http.h"
 #include "ewa_base/util/strlib.h"
+#include "ewa_base/basic/system.h"
+
 EW_ENTER
 
 HttpBase::HttpBase():type(-1){}

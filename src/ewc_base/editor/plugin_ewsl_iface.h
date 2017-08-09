@@ -12,10 +12,12 @@ public:
 	MvcModel& Target;
 
 	EwslIface(MvcModel& target);
-	~EwslIface();	
+	~EwslIface();
 
 	void OnExecuteDone(int param1);
 	void PendingExecute(const String& cmd);
+
+	void Update(const VariantTable& table);
 
 	void reset(EwslCaret* face);
 
@@ -24,6 +26,7 @@ public:
 	bool busy;
 
 	LitePtrT<DataModel> model;
+	Executor ewsl;
 
 protected:
 
@@ -33,7 +36,7 @@ protected:
 	arr_1t<DataPtrT<ObjectData> > m_aPendingRes;
 
 	AtomicSpin spin;
-	Executor ewsl;
+	
 
 };
 

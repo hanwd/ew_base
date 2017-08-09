@@ -52,15 +52,14 @@ int PluginEditorEx::MatchIndex(const String& fn)
 
 DataPtrT<MvcModel> PluginEditorEx::CreateModel(const String& fn)
 {
-	if(!m_pSampleModel)	m_pSampleModel=CreateSampleModel();
-	if(m_pSampleModel) m_pSampleModel->fn.SetFilename(fn);
-
-	return m_pSampleModel;
+	DataPtrT<MvcModel> p = CreateSampleModel();
+	p->fn.SetFilename(fn);
+	return p;
 }
 
 DataPtrT<MvcModel> PluginEditorEx::CreateSampleModel()
 {
-	return NULL;
+	return new MvcModel();;
 }
 
 

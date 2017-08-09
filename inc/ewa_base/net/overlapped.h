@@ -93,6 +93,7 @@ public:
 
 	char* buffer;
 	intptr_t flags;
+	MyOverLappedEx* pnext;
 };
 
 

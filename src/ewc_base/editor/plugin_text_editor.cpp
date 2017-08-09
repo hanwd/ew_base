@@ -57,12 +57,6 @@ public:
 		}
 
 		return buff.save(fp);
-
-		//if (!Target.SaveFile(str2wx(fp)))
-		//{
-		//	return false;
-		//}
-		//return true;
 	}
 
 
@@ -90,10 +84,10 @@ public:
 	typedef MvcViewEx basetype;
 	MvcViewText(MvcModel& tar):basetype(tar)
 	{
-
+		fn.SetExts(_hT("Text Files") + "(*.txt) | *.txt");
 	}
 
-	void OnStcChanged()
+	void UpdateStatus()
 	{
 		WndManager& wm(WndManager::current());
 
@@ -137,8 +131,7 @@ public:
 	}
 
 	wxWindow* CreateCanvas(wxWindow* w)
-	{
-		fn.SetExts(_hT("Text Files")+"(*.txt) | *.txt");
+	{		
 
 		WndProperty wp;
 		m_pCanvas=new IWnd_stc(w,wp);
@@ -146,7 +139,7 @@ public:
 		m_pCanvas->tempp=IWnd_stc::ms_param;
 		m_pCanvas->UpdateStyle(Target.fn.GetFilename());
 
-		m_pCanvas->func.bind(&MvcViewText::OnStcChanged,this);
+		m_pCanvas->func.bind(&MvcViewText::UpdateStatus, this);
 		m_pCmdProc.reset(new ICmdProcTextCtrl(*m_pCanvas,*this));
 		m_pCmdProc->fn = fn;
 
@@ -267,7 +260,7 @@ public:
 
 DataPtrT<MvcModel> PluginTextEditor::CreateSampleModel()
 {
-	return new MvcModelT<MvcViewText>;
+	return new MvcModelT<MvcViewText>();
 }
 
 
@@ -336,7 +329,7 @@ bool PluginTextEditor::OnAttach()
 	wm.evtmgr.link_c<int64_t>("/texteditor/fold");
 
 	wm.evtmgr.gp_beg(_kT("Option.pages"));
-		wm.evtmgr.gp_add(new EvtOptionPageScript(_kT("Option.TextEditor"), "scripting/ui/option_text.ewsl"));
+		wm.evtmgr.gp_add(new EvtDynamicPageScript(_kT("Option.TextEditor"), "scripting/ui/option.text.ewsl"));
 	wm.evtmgr.gp_end();
 
 	AttachEvent("Config");
@@ -353,6 +346,12 @@ bool PluginTextEditor::OnCfgEvent(int lv)
 	wm.conf.CfgUpdate(lv,"/texteditor/fold",IWnd_stc::ms_param.flags,IWnd_stc::FLAG_FOLD);
 	wm.conf.CfgUpdate(lv,"/texteditor/wrap",IWnd_stc::ms_param.flags,IWnd_stc::FLAG_WRAPMODE);
 
+	return true;
+}
+
+bool PluginTextEditor::GetExts(arr_1t<String>& exts)
+{
+	exts.push_back("Text Files (*.txt;*.log;*.ewsl;*.cpp*.h)|*.txt;*.log;*.ewsl;*.cpp*.h");
 	return true;
 }
 

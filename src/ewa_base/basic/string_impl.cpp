@@ -1,5 +1,6 @@
 #include "ewa_base/config.h"
 #include "ewa_base/basic/formater.h"
+#include "ewa_base/basic/codecvt.h"
 #include "ewa_base/scripting/variant_op.h"
 
 EW_ENTER

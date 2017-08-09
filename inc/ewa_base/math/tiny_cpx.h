@@ -4,7 +4,7 @@
 
 #include "ewa_base/config.h"
 #include "ewa_base/basic/hashing.h"
-#include "ewa_base/basic/string.h"
+//#include "ewa_base/basic/string.h"
 #include "ewa_base/math/math_promote.h"
 #include <complex>
 #include <cmath>
@@ -59,6 +59,28 @@ inline double cosdeg(double deg)
 	}
 }
 
+inline double tandeg(double deg)
+{
+	double np = deg / 45.0;
+	int64_t kp = (int64_t)np;
+	if (np == double(kp))
+	{
+		switch ((kp % 8 + 8) % 8)
+		{
+		case 0: case 4: return 0;
+		case 1: case 5: return 1;
+		case 2: return std::numeric_limits<double>::max();
+		case 6: return std::numeric_limits<double>::min();
+		case 3: case 7: return -1;
+		default: return 0.0;
+		}
+	}
+	else
+	{
+		return tan(deg / 180.0 * M_PI);
+	}
+}
+
 template<typename T>
 class tiny_cpx
 {
@@ -103,6 +125,10 @@ public:
 	{
 		return (*this)[1];
 	}
+
+	scalar& real() { return (*this)[0]; }
+	scalar& imag() { return (*this)[1]; }
+
 	void real(scalar v)
 	{
 		(*this)[0]=v;
@@ -110,6 +136,21 @@ public:
 	void imag(scalar v)
 	{
 		(*this)[1]=v;
+	}
+
+	template<typename T1>
+	inline tiny_cpx<T>& operator= (const T1& _val)
+	{
+		real() = _val;
+		return *this;
+	}
+
+	template<typename T1>
+	inline tiny_cpx<T>& operator= (const tiny_cpx<T1>& _val)
+	{
+		real() = _val.real();
+		imag() = _val.imag();
+		return *this;
 	}
 
 	inline const tiny_cpx operator-() const
@@ -207,28 +248,43 @@ private:
 	T val[2];
 };
 
-
-template<typename T>
-struct opx_scalar_cpx : public tl::value_type<false>
-{
-	typedef T type;
-	typedef tiny_cpx<T> promoted;
-};
-
-template<typename T>
-struct opx_scalar_cpx<tiny_cpx<T> > : public tl::value_type<true>
-{
-	typedef T type;
-};
-
-
-template<typename X,typename Y>
-struct cpx_promote : public opx_helper_promote<X,Y,scr_promote,opx_scalar_cpx>{};
-
 template<typename T> class hash_t<tiny_cpx<T> > : public hash_pod<tiny_cpx<T> > {};
 
 typedef tiny_cpx<double> dcomplex;
 typedef tiny_cpx<float>	fcomplex;
+
+
+template<typename H, int N>
+struct cpx_promote_real : public H {};
+
+template<typename H>
+struct cpx_promote_real<H, 1> : public H
+{
+	typedef typename H::type scalar;
+	typedef typename tiny_cpx<typename H::type> promoted;
+	typedef scalar type;
+};
+
+template<typename H>
+struct cpx_promote_real<H, 2> : public H
+{
+	typedef typename H::type scalar;
+	typedef typename tiny_cpx<typename H::type> promoted;
+	typedef promoted type;
+};
+
+template<typename X, typename Y>
+struct cpx_promote : public cpx_promote_real<scr_promote<X, Y>, scr_promote<X, Y>::value ? 1 : 0>{};
+
+template<typename X, typename Y>
+struct cpx_promote<tiny_cpx<X>, Y > : public cpx_promote_real<scr_promote<X, Y>, scr_promote<X, Y>::value ? 2 : 0>{};
+
+template<typename X, typename Y>
+struct cpx_promote<X, tiny_cpx<Y> > : public cpx_promote_real<scr_promote<X, Y>, scr_promote<X, Y>::value ? 2 : 0>{};
+
+template<typename X, typename Y>
+struct cpx_promote<tiny_cpx<X>, tiny_cpx<Y> > : public cpx_promote_real<scr_promote<X, Y>, scr_promote<X, Y>::value ? 2 : 0>{};
+
 
 template<typename X,typename Y>
 inline typename cpx_promote<X,Y>::promoted operator + (const tiny_cpx<X> &lhs,const Y rhs)
@@ -321,9 +377,19 @@ inline bool operator!=(const tiny_cpx<T> &lhs,const tiny_cpx<T> &rhs)
 	return lhs[0]!=rhs[0] || lhs[1]!=rhs[1];
 }
 
-//DEFINE_OBJECT_NAME_T(tiny_cpx,"cpx");
-DEFINE_OBJECT_NAME(dcomplex, "complex");
-DEFINE_OBJECT_NAME(fcomplex, "complex32");
+template<typename T>
+inline tiny_cpx<T> conj(const tiny_cpx<T>& v)
+{
+	return tiny_cpx<T>(v.real, -v.imag);
+}
+
+template<typename T>
+inline tiny_cpx<T> cpx_rotate(const tiny_cpx<T>& v, double angle)
+{
+	return v * tiny_cpx<T>(cos(angle), sin(angle));
+}
+
+
 
 EW_LEAVE
 

@@ -3,6 +3,7 @@
 
 #include "ewa_base/config.h"
 #include "ewa_base/basic/exception.h"
+#include "ewa_base/math/tiny_cpx.h"
 #include <cstring>
 #include <cstdarg>
 
@@ -306,6 +307,29 @@ public:
 	B& operator<<(const String& v){return P::append(_fmt_container(),P::cast(v));}
 	B& operator<<(const StringBuffer<char>& v){return P::append(_fmt_container(),v.data(),v.size());}
 	B& operator<<(const std::basic_string<char>& v){return P::append(_fmt_container(),v.c_str(),v.size());}
+
+	template<typename T>
+	B& operator<<(const tiny_cpx<T>& v)
+	{
+		B& os(_fmt_container());
+
+		if (v.imag() == T(0))
+		{
+			os << v.real();
+		}
+		else if (v.real() == T(0))
+		{
+			os << v.imag()<<"i";
+		}
+		else
+		{
+			os << "(" << v.real();
+			P::format(_fmt_container(), 64, "%+g", double(v.imag()));
+			os << "i)";
+		}
+
+		return os;
+	}
 
 private:
 	B& _fmt_container(){return static_cast<B&>(*this);}

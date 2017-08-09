@@ -21,10 +21,10 @@ bool SessionTCP::AsyncSend(const char* data,size_t size,int flag)
 	while (size > 0)
 	{
 		TempOlapPtr q = lkfq_free.getq();
-		if (!q)
-		{
-			q.reset(new MyOverLappedEx);
-		}
+		//if (!q)
+		//{
+		//	q.reset(new MyOverLappedEx);
+		//}
 
 		size_t sz=std::min(size,(size_t)IPacket::MAX_PACKET_SIZE);
 
@@ -114,10 +114,7 @@ bool SessionTCP::AsyncRecv(TempOlapPtr& q)
 bool SessionTCP::AsyncRecv()
 {
 	TempPtrT<MyOverLappedEx> q=lkfq_free.getq();
-	if(!q)
-	{
-		q.reset(new MyOverLappedEx);
-	}
+
 	return AsyncRecv(q);
 }
 
@@ -126,10 +123,7 @@ bool SessionTCP::WaitForSend()
 {
 
 	TempPtrT<MyOverLappedEx> q=lkfq_free.getq();
-	if(!q)
-	{
-		q.reset(new MyOverLappedEx);
-	}
+
 	MyOverLappedEx &idat(*q);
 	idat.type=MyOverLapped::ACTION_WAIT_SEND;
 	idat.dbuf[0].buf=idat.buffer;
@@ -142,10 +136,7 @@ bool SessionTCP::WaitForRecv()
 {
 
 	TempPtrT<MyOverLappedEx> q=lkfq_free.getq();
-	if(!q)
-	{
-		q.reset(new MyOverLappedEx);
-	}
+
 	MyOverLappedEx &idat(*q);
 	idat.type=MyOverLapped::ACTION_WAIT_RECV;
 	idat.dbuf[0].buf=idat.buffer;

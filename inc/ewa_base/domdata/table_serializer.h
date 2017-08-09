@@ -2,9 +2,9 @@
 #define __H_EW_DOMDATA_TABLE_SERIALIZER__
 
 
-#include "ewa_base/basic.h"
 #include "ewa_base/domdata/dobject.h"
 #include "ewa_base/math/math_def.h"
+#include "ewa_base/scripting/variant_op.h"
 
 EW_ENTER
 
@@ -14,6 +14,62 @@ struct VariantSerializable
 	static void serialize(Variant& v, T& value)
 	{
 		v[i].SerializeVariant(v, value);
+	}
+};
+
+
+template<typename T>
+struct table_serializer_linker
+{
+	static void g(Variant& var, T& value, int dir)
+	{
+		value.SerializeVariant(var, dir);
+	}
+};
+
+
+template<typename T, int N>
+struct table_serializer_linker < tiny_storage<T, N> >
+{
+	static void g(Variant& var, tiny_storage<T, N>& value, int dir)
+	{
+		arr_xt<Variant>& a(var.ref<arr_xt<Variant> >());
+
+		if (dir == 1)
+		{
+			a.resize(N);
+			for (int i = 0; i < N; ++i)
+			{
+				a[i].reset(value[i]);
+			}
+		}
+		else
+		{
+			int d = std::min(N, (int)a.size());
+			for (int i = 0; i < d; ++i)
+			{
+				value[i] = variant_cast<T>(a[i]);
+			}
+		}
+
+
+	}
+};
+
+
+template<>
+struct table_serializer_linker<String>
+{
+	static void g(Variant& var, String& value, int dir)
+	{
+		if (dir == +1)
+		{
+			var.reset(value);
+		}
+		else
+		{
+			value = variant_cast<String>(var);
+		}
 	}
 };
 
@@ -50,47 +106,11 @@ public:
 		link(s+".t_begin",v.t_begin);
 		link(s+".t_end",v.t_end);
 		link(s+".t_step",v.t_step);
-
 	}
 
-	template<typename T>
-	struct linker
-	{
-		static void g(Variant& var, T& value, int dir)
-		{
-			value.SerializeVariant(var, dir);
-		}
-	};
 
 
 
-	template<typename T, int N>
-	struct linker < tiny_storage<T, N> >
-	{
-		static void g(Variant& var, tiny_storage<T, N>& value, int dir)
-		{
-			arr_xt<Variant>& a(var.ref<arr_xt<Variant> >());
-
-			if (dir == 1)
-			{
-				a.resize(N);
-				for (int i = 0; i < N; ++i)
-				{
-					a[i].reset(value[i]);
-				}
-			}
-			else
-			{
-				int d = std::min(N, (int)a.size());
-				for (int i = 0; i < d; ++i)
-				{
-					value[i] = variant_cast<T>(a[i]);
-				}
-			}
-
-
-		}
-	};
 
 	template<typename T>
 	void link_t(const String& s,arr_1t<T>& v)
@@ -111,8 +131,7 @@ public:
 
 		for (size_t i = 0; i < v.size(); i++)
 		{
-			// v[i].SerializeVariant(a[i],dir);
-			linker<T>::g(a[i], v[i], dir);
+			table_serializer_linker<T>::g(a[i], v[i], dir);
 		}
 	}
 

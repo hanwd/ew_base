@@ -34,6 +34,11 @@ bool DUnit::DoUpdateValue(DState& dp)
 bool DUnit::DoTransferData(TableSerializer& ar)
 {
 
+	if (!basetype::DoTransferData(ar))
+	{
+		return false;
+	}
+
 	ar.link("ul", ul);
 	ar.link("ut", ut);
 	ar.link("uf", uf);

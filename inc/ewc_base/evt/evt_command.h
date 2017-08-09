@@ -19,7 +19,9 @@ public:
 	ICtl_itemdata(EvtCommand* p);
 	~ICtl_itemdata();
 
-	virtual void UpdateCtrl(){}
+	// UpdateCtrl()  返回-1表示相应控件已经被删除
+	virtual int UpdateCtrl(){ return 0; }
+
 	virtual void UpdateBmps(){}
 
 	DataPtrT<EvtCommand> pevt;

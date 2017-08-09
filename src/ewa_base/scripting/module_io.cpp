@@ -853,7 +853,7 @@ public:
 		arr_1t<Variant> var;
 		if(ar.openuri(*p,FLAG_FILE_RD))
 		{
-			ar.reader() & var;
+			ar.reader().load(var);
 		}
 		else
 		{
@@ -891,9 +891,19 @@ public:
 		arr_1t<Variant> var;
 		var.assign(ewsl.ci0.nbx + 2, pm - 1);
 
+		for (size_t i = 0; i < var.size(); i++)
+		{
+			CallableData* p=var[i].kptr();
+			if (!p) continue;
+			if (p->GetObjectName() == "CallableTableProxyGlobal")
+			{
+				var[i].kptr(new CallableTableProxy(ewsl.tb1));
+			}
+		}
+
 		if(ar.openuri(*p,FLAG_FILE_WC))
 		{
-			ar.writer() & var;
+			ar.writer().save(var);
 		}
 		else
 		{
@@ -904,7 +914,6 @@ public:
 
 	}
 	DECLARE_OBJECT_CACHED_INFO(CallableFunctionSaveVar, ObjectInfo);
-
 };
 IMPLEMENT_OBJECT_INFO(CallableFunctionSaveVar, ObjectInfo);
 

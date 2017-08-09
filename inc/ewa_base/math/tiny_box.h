@@ -10,10 +10,18 @@ template<typename T,int N>
 class tiny_box
 {
 public:
-	tiny_vec<T,N> lo,hi;
+	tiny_vec<T, N> lo, hi;
 
-	operator T*(){return &lo[0];};
-	operator const T*() const {return &lo[0];}
+	operator T*(){ return &lo[0]; };
+	operator const T*() const { return &lo[0]; }
+
+	tiny_box(){}
+
+	tiny_box(const tiny_vec<T, N>& v)
+		: lo(v),hi(v){}
+
+	tiny_box(const tiny_vec<T, N>& l, const tiny_vec<T, N>& h)
+		: lo(l), hi(h) {}
 
 	void load_min()
 	{
@@ -26,7 +34,6 @@ public:
 		lo.seta(-std::numeric_limits<T>::max());
 		hi.seta(+std::numeric_limits<T>::max());
 	}
-
 
 	bool is_valid() const
 	{
@@ -80,11 +87,6 @@ public:
 		return v[X]>=lo[X] && v[X]<=hi[X];
 	}
 
-	//typename tl::enable_if<N==3,bool>::type test(T x,T y,T z) const
-	//{
-	//	return test_x(x) && test_y(y) && test_z(z);
-	//}
-
 	void add_x(T v)
 	{
 		if(N>0 && lo[0]>v) lo[0]=v;
@@ -122,6 +124,29 @@ public:
 				if(hi[i]<v[i]) hi[i]=v[i];
 			}
 		}
+	}
+
+	void add(const tiny_box& b)
+	{
+		add(b.lo);
+		add(b.hi);
+	}
+
+	template<typename T1>
+	void add(const tiny_mat<T1,4,4>& m4, const tiny_box& b)
+	{
+		typedef tiny_vec<T, N> vec_t;
+		const vec_t& blo(b.lo);
+		const vec_t& bhi(b.hi);
+		add(m4 * blo);
+		add(m4 * vec_t(bhi[0], blo[1], blo[2]));
+		add(m4 * vec_t(blo[0], bhi[1], blo[2]));
+		add(m4 * vec_t(bhi[0], bhi[1], blo[2]));
+
+		add(m4 * vec_t(blo[0], blo[1], bhi[2]));
+		add(m4 * vec_t(bhi[0], blo[1], bhi[2]));
+		add(m4 * vec_t(blo[0], bhi[1], bhi[2]));
+		add(m4 * bhi);
 	}
 
 	void intersect(const tiny_box& o)
@@ -188,6 +213,17 @@ public:
 		return 0.5*(lo+hi);
 	}
 
+	void Translate(const tiny_vec<T, 3>& v)
+	{
+		lo += v;
+		hi += v;
+	}
+
+	void Scale(T v)
+	{
+		lo *= v;
+		hi *= v;
+	}
 
 	bool operator==(const tiny_box& rhs)
 	{
@@ -227,5 +263,11 @@ public :
 
 
 EW_LEAVE
+
+namespace tl
+{
+	template<typename T,int N>
+	struct is_pod<ew::tiny_box<T,N> > : public value_type<true>{};
+};
 
 #endif

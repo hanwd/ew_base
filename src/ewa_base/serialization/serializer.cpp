@@ -24,9 +24,9 @@ Serializer& SerializerHelper::ref(int v)
 
 serial_header::serial_header()
 {
-	offset = 0;
-	size = 0;
+	memset(this, 0, sizeof(*this));	
 }
+
 void serial_header::update()
 { 
 	chksum = (int32_t)crc32(this, (char*)&chksum - (char*)this); 
@@ -37,8 +37,7 @@ bool serial_header::check()
 	return chksum == (int32_t)crc32(this, (char*)&chksum - (char*)this); 
 }
 
-Serializer::internal_head Serializer::head;
-Serializer::internal_tail Serializer::tail;
+
 
 int Serializer::global_version()
 {
@@ -95,12 +94,14 @@ SerializerEx::SerializerEx(int t)
 	stream_data(NULL);
 }
 
+extern IStreamData* IStreamData_invalid_stream_data;
+
 void SerializerEx::stream_data(DataPtrT<IStreamData> p)
 {
 	p_stream_data=p;
 	if(!p_stream_data)
 	{
-		p_stream_data.reset(IStreamData::invalid_stream_data);
+		p_stream_data.reset(IStreamData_invalid_stream_data);
 	}
 }
 

@@ -1,4 +1,5 @@
 #include "ewa_base/basic/dlink.h"
+#include "ewa_base/basic/exception.h"
 
 EW_ENTER
 

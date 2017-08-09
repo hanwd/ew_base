@@ -1,5 +1,6 @@
 #include "system_data.h"
 #include "ewa_base/basic/language.h"
+#include "ewa_base/util/strlib.h"
 
 #ifdef EW_MSVC
 #include "windows.h"

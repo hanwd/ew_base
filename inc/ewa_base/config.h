@@ -60,6 +60,9 @@
 #define EW_THREAD_TLS __thread
 #endif
 
+#define EW_NORETURN EW_ATTRIBUTE(noreturn) 
+
+
 #ifdef EWA_BASE_DLL
 #ifdef _MSC_VER
 #define EWA_BASE_EXPORT __declspec(dllexport)
@@ -310,6 +313,7 @@ enum
 	LOGLEVEL_COMMAND,
 	LOGLEVEL_USER,
 	LOGLEVEL_WARNING=20,
+	LOGLEVEL_LITE_ERROR,
 	LOGLEVEL_ERROR,
 	LOGLEVEL_FATAL,
 	LOGLEVEL_MAX,

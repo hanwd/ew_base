@@ -358,6 +358,34 @@ public:
 	}
 };
 
+template<typename T>
+class pl_cast_base<arr_1t<T> >
+{
+public:
+	typedef arr_1t<T> type;
+
+	template<typename O>
+	static type g(const O&){ Exception::XBadCast(); return type(); }
+
+	static type g(bool v){ type t; t.resize(1); t[0] = pl_cast_base<T>::g(v); return t; }
+	static type g(int32_t v){ type t; t.resize(1); t[0] = pl_cast_base<T>::g(v); return t; }
+	static type g(int64_t v){ type t; t.resize(1); t[0] = pl_cast_base<T>::g(v); return t; }
+	static type g(float v){ type t; t.resize(1); t[0] = pl_cast_base<T>::g(v); return t; }
+	static type g(double v){ type t; t.resize(1); t[0] = pl_cast_base<T>::g(v); return t; }
+	static type g(const String& v){ type t; t.resize(1); t[0] = pl_cast_base<T>::g(v); return t; }
+
+	static const type& g(const type& v){ return v; }
+
+	template<typename O>
+	static type g(const arr_1t<O>& v)
+	{
+		type t;
+		t.resize(v.size());
+		for (size_t i = 0; i<v.size(); i++) t[i] = vv_cast<T, pl_cast_base<T> >::g(v[i]);
+		return t;
+	}
+
+};
 
 template<typename T>
 class pl_cast_base<arr_xt<T> >

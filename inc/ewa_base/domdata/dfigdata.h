@@ -96,6 +96,25 @@ public:
 	DECLARE_OBJECT_INFO(DFigData3D, DObjectInfo);
 };
 
+
+class DLLIMPEXP_EWA_BASE DFigData3DImage : public DFigData3D
+{
+public:
+
+	arr_xt<double> m_aXvalues;
+	arr_xt<double> m_aYvalues;
+	arr_xt<double> m_aZvalues;
+
+	void Serialize(SerializerHelper sh)
+	{
+		Serializer& ar(sh.ref(0));
+		ar & m_aXvalues & m_aYvalues & m_aZvalues;
+	}
+
+	DECLARE_OBJECT_INFO(DFigData3DImage, DObjectInfo);
+};
+
+
 class DLLIMPEXP_EWA_BASE DFigDataModel : public DFigData3D
 {
 public:

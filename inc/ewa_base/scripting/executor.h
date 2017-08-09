@@ -16,6 +16,7 @@ public:
 
 	friend class CallableCode;
 
+	explicit Executor(VariantTable& t,size_t stack_size=0);
 	explicit Executor(size_t stack_size=0);
 
 	Executor(const Executor& o);

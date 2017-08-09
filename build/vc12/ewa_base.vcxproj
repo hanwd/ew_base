@@ -62,6 +62,7 @@
     <ClInclude Include="..\..\inc\ewa_base\basic\system.h" />
     <ClInclude Include="..\..\inc\ewa_base\collection.h" />
     <ClInclude Include="..\..\inc\ewa_base\collection\arr_1t.h" />
+    <ClInclude Include="..\..\inc\ewa_base\collection\arr_op.h" />
     <ClInclude Include="..\..\inc\ewa_base\collection\arr_xt.h" />
     <ClInclude Include="..\..\inc\ewa_base\collection\bst_map.h" />
     <ClInclude Include="..\..\inc\ewa_base\collection\bst_set.h" />
@@ -105,12 +106,17 @@
     <ClInclude Include="..\..\inc\ewa_base\logging\logger.h" />
     <ClInclude Include="..\..\inc\ewa_base\logging\logrecord.h" />
     <ClInclude Include="..\..\inc\ewa_base\logging\logtarget.h" />
+    <ClInclude Include="..\..\inc\ewa_base\math\fft_cfg.h" />
+    <ClInclude Include="..\..\inc\ewa_base\math\math_axis.h" />
     <ClInclude Include="..\..\inc\ewa_base\math\math_def.h" />
     <ClInclude Include="..\..\inc\ewa_base\math\math_op.h" />
     <ClInclude Include="..\..\inc\ewa_base\math\math_promote.h" />
+    <ClInclude Include="..\..\inc\ewa_base\math\pretty_print.h" />
     <ClInclude Include="..\..\inc\ewa_base\math\random.h" />
+    <ClInclude Include="..\..\inc\ewa_base\math\sparse_lite.h" />
     <ClInclude Include="..\..\inc\ewa_base\math\tiny_box.h" />
     <ClInclude Include="..\..\inc\ewa_base\math\tiny_cpx.h" />
+    <ClInclude Include="..\..\inc\ewa_base\math\tiny_dim.h" />
     <ClInclude Include="..\..\inc\ewa_base\math\tiny_mat.h" />
     <ClInclude Include="..\..\inc\ewa_base\math\tiny_vec.h" />
     <ClInclude Include="..\..\inc\ewa_base\memory.h" />
@@ -251,6 +257,7 @@
     <ClCompile Include="..\..\src\ewa_base\logging\logger.cpp" />
     <ClCompile Include="..\..\src\ewa_base\logging\log_console.cpp" />
     <ClCompile Include="..\..\src\ewa_base\logging\log_target.cpp" />
+    <ClCompile Include="..\..\src\ewa_base\math\fft_cfg.cpp" />
     <ClCompile Include="..\..\src\ewa_base\math\math_op.cpp" />
     <ClCompile Include="..\..\src\ewa_base\math\random.cpp" />
     <ClCompile Include="..\..\src\ewa_base\memory\allocator.cpp" />

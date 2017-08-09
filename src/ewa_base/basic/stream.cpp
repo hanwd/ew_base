@@ -4,6 +4,10 @@
 #include "ewa_base/basic/object_ex.h"
 #include "ewa_base/basic/misc.h"
 #include "ewa_base/net/socket.h"
+#include "ewa_base/basic/file.h"
+#include "ewa_base/basic/codecvt.h"
+#include "ewa_base/basic/fso.h"
+#include "ewa_base/serialization/serializer.h"
 
 EW_ENTER
 
@@ -14,7 +18,7 @@ IStreamData* get_invalid_stream_data()
 	return g_instance.get();
 }
 
-IStreamData* IStreamData::invalid_stream_data(get_invalid_stream_data());
+IStreamData* IStreamData_invalid_stream_data(get_invalid_stream_data());
 
 int IStreamData::send(const char* p,size_t n)
 {
@@ -22,6 +26,11 @@ int IStreamData::send(const char* p,size_t n)
 }
 
 int IStreamData::recv(char* p,size_t n)
+{
+	return -1;
+}
+
+int IStreamData::peek(char* p, size_t n)
 {
 	return -1;
 }
@@ -149,9 +158,6 @@ public:
 
 	void flush(){file.flush();}
 
-
-
-
 	int send(const char* data,size_t size)
 	{
 		return file.write(data,size);
@@ -167,30 +173,6 @@ public:
 
 
 
-class DLLIMPEXP_EWA_BASE IStreamMemory : public IStreamData
-{
-public:
-
-	IStreamMemory(){}
-
-	MemoryBuffer<char> mb;
-
-	int send(const char* data,size_t size)
-	{
-		return mb.send(data,size);
-	}
-	int recv(char* data,size_t size)
-	{
-		return mb.recv(data,size);
-	}
-
-	void close()
-	{
-		mb.clear();
-		mb.shrink();
-	}
-	
-};
 
 class DLLIMPEXP_EWA_BASE IStreamSocket : public IStreamData
 {
@@ -629,12 +611,12 @@ void Stream::assign(DataPtrT<IStreamData> p)
 
 void Stream::assign_reader(DataPtrT<IStreamData> p)
 {
-	hReader=p?p:IStreamData::invalid_stream_data;
+	hReader=p?p:IStreamData_invalid_stream_data;
 }
 
 void Stream::assign_writer(DataPtrT<IStreamData> p)
 {
-	hWriter=p?p:IStreamData::invalid_stream_data;
+	hWriter=p?p:IStreamData_invalid_stream_data;
 }
 
 

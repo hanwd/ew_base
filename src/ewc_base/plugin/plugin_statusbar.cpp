@@ -80,21 +80,25 @@ public:
 		if(!fc1) SetFieldsCount(m_pActive->aWidths.size());
 		SetStatusWidths(m_pActive->aWidths.size(),&m_pActive->aWidths[0]);
 
+		wxRect rect;
 		for(size_t i=0;i<m_pActive->aWidths.size();i++)
 		{
-			wxWindow* w=m_pActive->aWindows[i];
-			if(!w) continue;
-			w->Show(true);
-			wxRect rect;
-			if(GetFieldRect(i,rect))
+			if (wxWindow* w = m_pActive->aWindows[i])
 			{
-				w->SetSize(rect);
+				w->Show(true);
+				if(GetFieldRect(i,rect))
+				{
+					w->SetSize(rect);
+				}
 			}
 		}
 
-		if(!fc1) for(size_t i=1;i<m_pActive->aWidths.size();i++)
+		for(size_t i=1;i<m_pActive->aWidths.size();i++)
 		{
-			if(!m_pActive->aWindows[i]) SetStatusText(str2wx(m_pActive->aStatusTexts[i]),i);
+			if (!m_pActive->aWindows[i])
+			{
+				SetStatusText(str2wx(m_pActive->aStatusTexts[i]), i);
+			}
 		}
 
 	}

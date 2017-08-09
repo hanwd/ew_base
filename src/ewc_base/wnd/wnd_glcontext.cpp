@@ -787,6 +787,196 @@ vec2i GLDC::DoGetExtend(const TextData& data)
 }
 
 
+template<typename T>
+inline void linpl(T &res, T &v1, T &v2, double p1)
+{
+	res = v1*p1 + v2*(1.0 - p1);
+}
+
+
+template<>
+inline void linpl(DColor &res, DColor &v1, DColor &v2, double p1)
+{
+	double p2 = 1.0 - p1;
+	res.r = (unsigned char)(p1*v1.r + p2*v2.r);
+	res.g = (unsigned char)(p1*v1.g + p2*v2.g);
+	res.b = (unsigned char)(p1*v1.b + p2*v2.b);
+}
+
+template<typename T1, typename T2>
+class mapper_t
+{
+public:
+
+	typedef std::pair<T1, T2> nodetype;
+	typedef typename arr_1t<nodetype>::iterator iterator;
+
+	mapper_t()
+	{
+		scale = 1.0;
+		dipole = true;
+	}
+
+	inline bool get(T1 val, void *p)
+	{
+		return get(val, *(T2 *)p);
+	}
+
+	inline bool get(T1 val, T2 &color)
+	{
+		val /= scale;
+		if (!dipole) if (val<0) val = -val;
+		size_t size = keynodes.size();
+		if (size == 0) return false;
+
+
+		nodetype *p = &keynodes[0];
+
+		if (val<p->first)
+		{
+			color = p->second;
+			return true;
+		}
+
+		for (unsigned i = 1; i<size; i++)
+		{
+			p++;
+			if (val<p->first)
+			{
+
+				double r1 = ((p->first - val) / (p->first - (p - 1)->first));
+				linpl(color, (p - 1)->second, p->second, r1);
+				return true;
+			}
+		}
+		color = (p)->second;
+		return true;
+	}
+
+	void insert(T1 val, T2 color)
+	{
+		keynodes.push_back(nodetype(val, color));
+	}
+
+	iterator begin()
+	{
+		return keynodes.begin();
+	}
+
+	iterator end()
+	{
+		return keynodes.end();
+	}
+
+	void remove(iterator it)
+	{
+		keynodes.remove(it);
+	}
+
+
+	T1 scale;
+	bool dipole;
+
+protected:
+	arr_1t<nodetype> keynodes;
+
+};
+
+
+template<>
+inline mapper_t<double, DColor>::mapper_t()
+{
+
+	scale = 1.0;
+	dipole = true;
+	insert(-1.0, DColor(0, 0, 128));
+	insert(-0.6, DColor(0, 0, 255));
+	insert(-0.2, DColor(0, 255, 255));
+	insert(0.2, DColor(255, 255, 0));
+	insert(0.6, DColor(255, 0, 0));
+	insert(1.0, DColor(128, 0, 0));
+}
+
+
+
+void ValueToColor(DColor& color,double v)
+{
+	static mapper_t<double, DColor> colormap;
+	colormap.get(v, color);
+
+}
+
+template<typename T>
+void GLDC::RenderImageReal(const T* px, const T* py, const arr_xt<T>& value)
+{
+	size_t nx = value.size(0);
+	size_t ny = value.size(1);
+
+	DColor color;
+
+	GLStatusLocker lock(GL_LIGHTING, false);
+
+	for (size_t j = 1; j < ny; j++)
+	{
+		size_t j1 = j - 1;
+		size_t j2 = j;
+
+		::glBegin(GL_QUAD_STRIP);
+		for (size_t i = 0; i < nx; i++)
+		{
+
+			ValueToColor(color, value(i, j2));
+			Color(color);
+
+			glVertex3d(px[i], py[j2], 0.0);
+
+			ValueToColor(color, value(i, j1));
+			Color(color);
+
+			glVertex3d(px[i], py[j1], 0.0);
+		}
+		::glEnd();
+
+	}
+}
+
+void GLDC::RenderImage(const arr_1t<double>& xpos, const arr_1t<double>& ypos, arr_xt<double>& value)
+{
+	if (xpos.size() != value.size(0) || ypos.size() != value.size(1))
+	{
+		return;
+	}
+	RenderImageReal(xpos.data(), ypos.data(), value);
+}
+
+void GLDC::RenderImage(const arr_xt<double>& xpos, const arr_xt<double>& ypos, arr_xt<double>& value)
+{
+	if (xpos.size() != value.size(0) || ypos.size() != value.size(1))
+	{
+		return;
+	}
+	RenderImageReal(xpos.data(), ypos.data(), value);
+}
+
+
+void GLDC::RenderImage(const arr_1t<float>& xpos, const arr_1t<float>& ypos, arr_xt<float>& value)
+{
+	if (xpos.size() != value.size(0) || ypos.size() != value.size(1))
+	{
+		return;
+	}
+	RenderImageReal(xpos.data(), ypos.data(), value);
+}
+
+void GLDC::RenderImage(const arr_xt<float>& xpos, const arr_xt<float>& ypos, arr_xt<float>& value)
+{
+	if (xpos.size() != value.size(0) || ypos.size() != value.size(1))
+	{
+		return;
+	}
+	RenderImageReal(xpos.data(), ypos.data(), value);
+}
+
 void GLDC::PrintText(const String& text, const vec3d& pos,const vec3d& shf, const vec3d& pxl)
 {
 	TextData tdata(text, (GLFontDataImpl*)m_pFontData.get());
@@ -876,6 +1066,11 @@ void GLDC::LeaveGroup()
 {
 	glPopAttrib();
 	glPopMatrix();
+}
+
+void GLDC::Translate(const vec3d& pos)
+{
+	::glTranslated(pos[0],pos[1],pos[2]);
 }
 
 void GLDC::UpdateAttribute(DataNodeSymbol* node)

@@ -46,9 +46,12 @@ public:
 		FLAG_MAX = FLAG_MIN << 1,
 	};
 
+	int mode;
 
-	DCoord3D();
+	DCoord3D(int m=0);
 	DataPtrT<DAxis> m_pAxis;
+
+	virtual bool DoGetChildren(DChildrenState& cs);
 
 	DECLARE_OBJECT_INFO(DCoord3D, DObjectInfo);
 };

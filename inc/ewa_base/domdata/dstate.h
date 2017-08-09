@@ -3,7 +3,7 @@
 #define __H_EW_DOMDATA_DSTATE__
 
 
-#include "ewa_base/basic.h"
+#include "ewa_base/basic/object.h"
 #include "ewa_base/domdata/dobject.h"
 
 
@@ -48,7 +48,6 @@ public:
 	bool link(const String& s, int &v);
 	bool link(const String& s, double &v);
 
-
 	bool link(const vec3s& s, vec3d& v);
 	bool link(const vec3s& s, vec3i& v);
 	bool link(const vec2s& s, vec2d& v);
@@ -58,6 +57,7 @@ public:
 	bool link(const box2s& s, box2d& v);
 	bool link(const box2s& s, box2i& v);
 
+	bool link(const String& s, arr_1t<double>& v);
 	bool link(const String& s, arr_xt<double>& v);
 
 	bool link(const String& s, DataPtrT<DObject>& v);
@@ -87,6 +87,33 @@ public:
 	}
 
 	template<typename T>
+	bool DoUpdateValue2(NamedReferenceT<T>& p)
+	{
+		if(phase==DPHASE_VAR)
+		{
+			if (p.name.empty())
+			{
+				p.reset(NULL);
+			}
+			else if(!link_t<T>(p.name,p))
+			{
+				return false;
+			}
+		}
+
+		if(!p)
+		{
+			return true;
+		}
+
+		if(test(p.get()) && !p->DoUpdateValue(*this))
+		{
+			return false;
+		}
+		return true;
+	}
+
+	template<typename T>
 	bool DoUpdateValue(NamedReferenceT<T>& p)
 	{
 		if(phase==DPHASE_VAR)
@@ -95,10 +122,11 @@ public:
 			{
 				return false;
 			}
-			if(!p)
-			{
-				return false;
-			}
+		}
+
+		if(!p)
+		{
+			return false;
 		}
 
 		if(test(p.get()) && !p->DoUpdateValue(*this))

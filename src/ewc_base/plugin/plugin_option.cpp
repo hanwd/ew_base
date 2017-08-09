@@ -10,64 +10,6 @@
 #include "ewc_base/app/res_manager.h"
 
 EW_ENTER
-	
-class WndOptionPage : public ObjectNode
-{
-public:
-	EvtOptionPage& Target;
-
-	WndOptionPage(EvtOptionPage& t,IWnd_bookbase* b)
-		:ObjectNode(t.MakeLabel())
-		,Target(t)
-		,m_pBook(b)
-
-	{
-
-	}
-
-	typedef ObjectNode basetype;
-
-	IWnd_bookbase* m_pBook;
-	LitePtrT<wxWindow> m_pPage;
-
-	virtual bool OnTreeEvent(enumTreeEventType t,ITreeEventData& d)
-	{
-		if(!basetype::OnTreeEvent(t,d)) return false;
-		if(t==TREE_SELECTED)
-		{
-			if(!m_pPage)
-			{
-				m_pPage=Target.CreatePage(m_pBook);
-				if(Target.m_pVald)
-				{
-					Target.m_pVald->WndExecuteEx(IDefs::ACTION_TRANSFER2WINDOW);
-					Target.m_pVald->WndExecuteEx(IDefs::ACTION_UPDATECTRL);
-				}
-			}
-			m_pBook->SelPage(m_pPage);
-
-			return true;
-		}
-		return true;
-	}
-
-};
-
-
-class WndOptionFolder : public ObjectNodeGroup
-{
-public:
-
-	WndOptionFolder(const String& s):ObjectNodeGroup(s){}
-
-	typedef ObjectNodeGroup basetype;
-	virtual bool OnTreeEvent(enumTreeEventType t,ITreeEventData& d)
-	{
-		if(!basetype::OnTreeEvent(t,d)) return false;
-		return true;
-	}
-
-};
 
 
 class WndModelOption : public WndModel
@@ -75,59 +17,15 @@ class WndModelOption : public WndModel
 public:
 	typedef WndModel basetype;
 
-	DataPtrT<ValidatorGroup> m_pValdGroup;
 	WndManager& wm;
+
+	IPageSelector page_selector;
+
 	WndModelOption(WndManager& wm_):basetype("Model.Option"),wm(wm_)
 	{
 		flags.add(FLAG_NO_CLOSE);
-		m_pValdGroup.reset(new ValidatorGroup);
 	}
-
-	IWnd_bookbase* option_book;
-	IWnd_treectrl* option_tree;
-
-	void LoadPages(const String& s)
-	{
-		EvtGroup* gp=wm.evtmgr.get_group(s);
-		if(!gp) return;
-		LoadChildren(gp);
-	}
-
-	void LoadChildren(EvtGroup* gp,ObjectNodeGroup* pd=NULL)
-	{
-		gp->PrepareItems();
-		ObjectNodeGroup* nd=new WndOptionFolder(gp->MakeLabel());
-		if(pd)
-		{
-			option_tree->ExAppendNode(nd,pd);
-		}
-		else
-		{
-			nd->flags.add(ObjectNode::FLAG_EXPANDED);
-			option_tree->ExSetRoot(nd);
-		}
-
-
-		for(size_t i=0;i<gp->size();i++)
-		{
-			EvtBase* pe=(*gp)[i].get();
-			EvtGroup* sg=dynamic_cast<EvtGroup*>(pe);
-			if(sg)
-			{
-				LoadChildren(sg,nd);
-			}
-			else
-			{
-				EvtOptionPage* pg=dynamic_cast<EvtOptionPage*>(pe);
-				if(pg)
-				{
-					option_tree->ExAppendNode(new WndOptionPage(*pg,option_book),nd);
-					pg->m_pValdGroup=m_pValdGroup;
-				}
-			}
-		}
-	}
-
+	
 	bool WndExecute(IWndParam& cmd)
 	{
 		if(!basetype::WndExecute(cmd)) return false;
@@ -149,13 +47,16 @@ public:
 
 		km.win("dialog",WndProperty().label(_hT("options")).size(800,480));
 
-			option_tree=new IWnd_treectrl(km.icur.hwnd,km.ld(1).size(200,500));		
-			option_book=new IWnd_bookbase(km.icur.hwnd,km.ld(2).size(280,500));
+			page_selector.init_tree(km.icur.hwnd, "Option.pages");
+			page_selector.pevtmgr = &local_evtmgr;
+
+			page_selector.ptype->SetMinSize(wxSize(200, 500));
+			page_selector.pbook->SetMinSize(wxSize(280, 500));
 
 			km.row(km.ld(0).flags(IDefs::IWND_EXPAND));
 				km.col(km.ld(2));
-					km.add(option_tree	,km.ld(1).size(280,500).name("option.page"));
-					km.add(option_book	,km.ld(2).size(280,500).name("option.book"));
+					km.add(page_selector.ptype	,km.ld(1).size(280,500));
+					km.add(page_selector.pbook	,km.ld(2).size(280,500));
 				km.end();
 				km.add("hline",km.ld(0).flags(IDefs::IWND_EXPAND));
 				km.col(km.ld(0).flags(IDefs::IWND_EXPAND));
@@ -168,9 +69,7 @@ public:
 			km.end();
 		km.end();
 
-		vald_grp->append(m_pValdGroup.get());
-
-		LoadPages("Option.pages");
+		vald_grp->append(page_selector.pvald.get());
 
 		return true;
 	}

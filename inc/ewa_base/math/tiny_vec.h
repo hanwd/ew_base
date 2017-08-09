@@ -12,6 +12,31 @@ class tiny_storage
 public:
 	T val[N];
 
+	tiny_storage(){}
+
+	tiny_storage(const T& v1, const T& v2)
+	{
+		(*this)[0] = v1;
+		(*this)[1] = v2;
+		if (N > 2) (*this)[2] = T();
+		if (N > 3) (*this)[3] = T();
+	}
+
+	tiny_storage(const T& v1, const T& v2, const T& v3)
+	{
+		(*this)[0] = v1;
+		(*this)[1] = v2;
+		if (N>2) (*this)[2] = v3;
+	}
+
+	tiny_storage(const T& v1, const T& v2, const T& v3, const T& v4)
+	{
+		(*this)[0] = v1;
+		(*this)[1] = v2;
+		if (N>2) (*this)[2] = v3;
+		if (N>3) (*this)[3] = v4;
+	}
+
 	T& operator[](size_t n)
 	{
 		EW_ASSERT(n<N);
@@ -491,132 +516,147 @@ protected:
 	storage_type storage;
 };
 
-template<typename T,int N>
-struct opx_scalar_vec_n : public tl::value_type<false>
+
+template<typename T, int N> class hash_t<tiny_vec<T, N> > : public hash_pod<tiny_vec<T, N> >{};
+
+
+template<typename H,int N, int D>
+struct vec_promote_real : public H {};
+
+template<typename H,int D>
+struct vec_promote_real<H,1,D> : public H
 {
-	typedef T type;
-	typedef tiny_vec<T,N> promoted;
+	typedef typename H::type scalar;
+	typedef typename tiny_vec<typename H::type,D> promoted;
+	typedef scalar type;
 };
 
-template<typename T,int N>
-struct opx_scalar_vec_n<tiny_vec<T,N>,N> : public tl::value_type<true>
+template<typename H,int D>
+struct vec_promote_real<H,2,D> : public H
 {
-	typedef T type;
+	typedef typename H::type scalar;
+	typedef typename tiny_vec<typename H::type,D> promoted;
+	typedef promoted type;
 };
 
-template<int N>
-struct opx_scalar_vec
-{
-	template<typename T>
-	struct rebind : public opx_scalar_vec_n<T,N>{};
-};
+template<typename X, typename Y>
+struct vec_promote : public vec_promote_real<cpx_promote<X, Y>, cpx_promote<X, Y>::value ? 1 : 0,3>{};
+
+template<typename X, typename Y,int D>
+struct vec_promote<tiny_vec<X,D>, Y > : public vec_promote_real<cpx_promote<X, Y>, cpx_promote<X, Y>::value ? 2 : 0,D>{};
+
+template<typename X, typename Y,int D>
+struct vec_promote<X, tiny_vec<Y,D> > : public vec_promote_real<cpx_promote<X, Y>, cpx_promote<X, Y>::value ? 2 : 0,D>{};
+
+template<typename X, typename Y,int D>
+struct vec_promote<tiny_vec<X,D>, tiny_vec<Y,D> > : public vec_promote_real<cpx_promote<X, Y>, cpx_promote<X, Y>::value ? 2 : 0,D>{};
+
+
+template<typename X, typename Y,int D>
+struct vec_promote_n : public vec_promote_real<cpx_promote<X, Y>, cpx_promote<X, Y>::value?2:0, D>{};
+
+
 
 template<typename X,typename Y,int N>
-struct vec_promote : public opx_helper_promote<X,Y,cpx_promote,opx_scalar_vec<N>::template rebind>{};
-
-template<typename T,int N> class hash_t<tiny_vec<T,N> > : public hash_pod<tiny_vec<T,N> > {};
-
-
-template<typename X,typename Y,int N>
-inline typename vec_promote<X,Y,N>::promoted operator + (const tiny_vec<X,N> &lhs,const Y rhs)
+inline typename vec_promote_n<X,Y,N>::promoted operator + (const tiny_vec<X,N> &lhs,const Y rhs)
 {
-	typename vec_promote<X,Y,N>::promoted::storage_type res;
+	typename vec_promote_n<X,Y,N>::promoted::storage_type res;
 	tiny_opx<X,Y,N>::add(res.data(),lhs.data(),rhs);
 	return res;
 }
 
 template<typename X,typename Y,int N>
-inline typename vec_promote<X,Y,N>::promoted operator - (const tiny_vec<X,N> &lhs,const Y rhs)
+inline typename vec_promote_n<X,Y,N>::promoted operator - (const tiny_vec<X,N> &lhs,const Y rhs)
 {
-	typename vec_promote<X,Y,N>::promoted::storage_type res;
+	typename vec_promote_n<X,Y,N>::promoted::storage_type res;
 	tiny_opx<X,Y,N>::sub(res.data(),lhs.data(),rhs);
 	return res;
 }
 
 template<typename X,typename Y,int N>
-inline typename vec_promote<X,Y,N>::promoted operator * (const tiny_vec<X,N> &lhs,const Y rhs)
+inline typename vec_promote_n<X,Y,N>::promoted operator * (const tiny_vec<X,N> &lhs,const Y rhs)
 {
-	typename vec_promote<X,Y,N>::promoted::storage_type res;
+	typename vec_promote_n<X,Y,N>::promoted::storage_type res;
 	tiny_opx<X,Y,N>::mul(res.data(),lhs.data(),rhs);
 	return res;
 }
 
 template<typename X,typename Y,int N>
-inline typename vec_promote<X,Y,N>::promoted operator / (const tiny_vec<X,N> &lhs,const Y rhs)
+inline typename vec_promote_n<X,Y,N>::promoted operator / (const tiny_vec<X,N> &lhs,const Y rhs)
 {
-	typename vec_promote<X,Y,N>::promoted::storage_type res;
+	typename vec_promote_n<X,Y,N>::promoted::storage_type res;
 	tiny_opx<X,Y,N>::div(res.data(),lhs.data(),rhs);
 	return res;
 }
 
 template<typename X,typename Y,int N>
-inline typename vec_promote<X,Y,N>::promoted operator + (const X& lhs,const tiny_vec<Y,N>& rhs)
+inline typename vec_promote_n<X,Y,N>::promoted operator + (const X& lhs,const tiny_vec<Y,N>& rhs)
 {
-	typename vec_promote<X,Y,N>::promoted::storage_type res;
+	typename vec_promote_n<X,Y,N>::promoted::storage_type res;
 	tiny_opx<X,Y,N>::add(res.data(),lhs,rhs.data());
 	return res;
 }
 
 template<typename X,typename Y,int N>
-inline typename vec_promote<X,Y,N>::promoted operator - (const X& lhs,const tiny_vec<Y,N>& rhs)
+inline typename vec_promote_n<X,Y,N>::promoted operator - (const X& lhs,const tiny_vec<Y,N>& rhs)
 {
-	typename vec_promote<X,Y,N>::promoted::storage_type res;
+	typename vec_promote_n<X,Y,N>::promoted::storage_type res;
 	tiny_opx<X,Y,N>::sub(res.data(),lhs,rhs.data());
 	return res;
 }
 
 template<typename X,typename Y,int N>
-inline typename vec_promote<X,Y,N>::promoted operator * (const X& lhs,const tiny_vec<Y,N>& rhs)
+inline typename vec_promote_n<X,Y,N>::promoted operator * (const X& lhs,const tiny_vec<Y,N>& rhs)
 {
-	typename vec_promote<X,Y,N>::promoted::storage_type res;
+	typename vec_promote_n<X,Y,N>::promoted::storage_type res;
 	tiny_opx<X,Y,N>::mul(res.data(),lhs,rhs.data());
 	return res;
 }
 
 template<typename X,typename Y,int N>
-inline typename vec_promote<X,Y,N>::promoted operator / (const X& lhs,const tiny_vec<Y,N>& rhs)
+inline typename vec_promote_n<X,Y,N>::promoted operator / (const X& lhs,const tiny_vec<Y,N>& rhs)
 {
-	typename vec_promote<X,Y,N>::promoted::storage_type res;
+	typename vec_promote_n<X,Y,N>::promoted::storage_type res;
 	tiny_opx<X,Y,N>::div(res.data(),lhs,rhs.data());
 	return res;
 }
 
 template<typename X,typename Y,int N>
-inline typename vec_promote<X,Y,N>::promoted operator + (const tiny_vec<X,N> &lhs,const tiny_vec<Y,N>& rhs)
+inline typename vec_promote_n<X,Y,N>::promoted operator + (const tiny_vec<X,N> &lhs,const tiny_vec<Y,N>& rhs)
 {
-	typename vec_promote<X,Y,N>::promoted::storage_type res;
+	typename vec_promote_n<X,Y,N>::promoted::storage_type res;
 	tiny_opx<X,Y,N>::add(res.data(),lhs.data(),rhs.data());
 	return res;
 }
 
 template<typename X,typename Y,int N>
-inline typename vec_promote<X,Y,N>::promoted operator - (const tiny_vec<X,N> &lhs,const tiny_vec<Y,N>& rhs)
+inline typename vec_promote_n<X,Y,N>::promoted operator - (const tiny_vec<X,N> &lhs,const tiny_vec<Y,N>& rhs)
 {
-	typename vec_promote<X,Y,N>::promoted::storage_type res;
+	typename vec_promote_n<X,Y,N>::promoted::storage_type res;
 	tiny_opx<X,Y,N>::sub(res.data(),lhs.data(),rhs.data());
 	return res;
 }
 
 template<typename X,typename Y,int N>
-inline typename vec_promote<X,Y,N>::promoted operator * (const tiny_vec<X,N> &lhs,const tiny_vec<Y,N>& rhs)
+inline typename vec_promote_n<X,Y,N>::promoted operator * (const tiny_vec<X,N> &lhs,const tiny_vec<Y,N>& rhs)
 {
-	typename vec_promote<X,Y,N>::promoted::storage_type res;
+	typename vec_promote_n<X,Y,N>::promoted::storage_type res;
 	tiny_opx<X,Y,N>::mul(res.data(),lhs.data(),rhs.data());
 	return res;
 }
 
 template<typename X,typename Y,int N>
-inline typename vec_promote<X,Y,N>::promoted operator / (const tiny_vec<X,N> &lhs,const tiny_vec<Y,N>& rhs)
+inline typename vec_promote_n<X,Y,N>::promoted operator / (const tiny_vec<X,N> &lhs,const tiny_vec<Y,N>& rhs)
 {
-	typename vec_promote<X,Y,N>::promoted::storage_type res;
+	typename vec_promote_n<X,Y,N>::promoted::storage_type res;
 	tiny_opx<X,Y,N>::div(res.data(),lhs.data(),rhs.data());
 	return res;
 }
 
 template<typename X,typename Y>
-inline typename vec_promote<X,Y,3>::promoted cross (const tiny_vec<X,3> &lhs,const tiny_vec<Y,3>& rhs)
+inline typename vec_promote_n<X,Y,3>::promoted cross (const tiny_vec<X,3> &lhs,const tiny_vec<Y,3>& rhs)
 {
-	typename vec_promote<X,Y,3>::promoted::storage_type res;
+	typename vec_promote_n<X,Y,3>::promoted::storage_type res;
 	res[0]=lhs[1]*rhs[2]-lhs[2]*rhs[1];
 	res[1]=lhs[2]*rhs[0]-lhs[0]*rhs[2];
 	res[2]=lhs[0]*rhs[1]-lhs[1]*rhs[0];
@@ -624,9 +664,9 @@ inline typename vec_promote<X,Y,3>::promoted cross (const tiny_vec<X,3> &lhs,con
 }
 
 //template <typename X, typename Y>
-//inline typename vec_promote<X, Y, 3>::promoted cross(const tiny_vec<X, 2>& lhs, const tiny_vec<Y, 2>& rhs)
+//inline typename vec_promote_n<X, Y, 3>::promoted cross(const tiny_vec<X, 2>& lhs, const tiny_vec<Y, 2>& rhs)
 //{
-//	typename vec_promote<X, Y, 3>::promoted::storage_type res;
+//	typename vec_promote_n<X, Y, 3>::promoted::storage_type res;
 //	res[0] = 0;
 //	res[1] = 0;
 //	res[2] = lhs[0] * rhs[1] - lhs[1] * rhs[0];
@@ -640,9 +680,17 @@ inline typename cpx_promote<X, Y>::type cross(const tiny_vec<X, 2>& lhs, const t
 }
 
 template<typename X,typename Y,int N>
-inline typename vec_promote<X,Y,N>::scalar dot (const tiny_vec<X,N> &lhs,const tiny_vec<Y,N> rhs)
+inline typename vec_promote_n<X,Y,N>::scalar dot (const tiny_vec<X,N> &lhs,const tiny_vec<Y,N> rhs)
 {
 	return tiny_opx<X,Y,N>::dot(lhs.data(),rhs.data());
+}
+
+template<typename T, int N>
+inline tiny_vec<tiny_cpx<T>, N> conj(const tiny_vec<tiny_cpx<T>, N>& v)
+{
+	tiny_vec<tiny_cpx<T>, N> vec;
+	for (int i = 0; i < N; i++) { vec[i] = conj(v[i]); }
+	return vec;
 }
 
 template<typename T,int N>
@@ -676,6 +724,55 @@ void v3_cshift(tiny_vec<T,3>& v,int d)
 		}
 		break;
 	}
+}
+
+EW_LEAVE
+
+
+EW_ENTER
+
+// 2017.06.22 Dai.Weifeng
+// make_vector
+template<typename T>
+tiny_vec<T, 1> make_vec(T val)
+{
+	tiny_vec<T, 1> v; v[0] = val;
+	return v;
+}
+
+template<typename T>
+tiny_vec<T, 2> make_vec(T val0, T val1)
+{
+	tiny_vec<T, 2> v; v[0] = val0; v[1] = val1;
+	return v;
+}
+
+template<typename T>
+tiny_vec<T, 3> make_vec(T val0, T val1, T val2)
+{
+	tiny_vec<T, 3> v; v[0] = val0; v[1] = val1; v[2] = val2;
+	return v;
+}
+
+template<typename T>
+tiny_vec<T, 4> make_vec(T val0, T val1, T val2, T val3)
+{
+	tiny_vec<T, 4> v; v[0] = val0; v[1] = val1; v[2] = val2; v[3] = val3;
+	return v;
+}
+
+template<typename T>
+tiny_vec<T, 5> make_vec(T val0, T val1, T val2, T val3, T val4)
+{
+	tiny_vec<T, 5> v; v[0] = val0; v[1] = val1; v[2] = val2; v[3] = val3; v[4] = val4;
+	return v;
+}
+
+template<typename T>
+tiny_vec<T, 6> make_vec(T val0, T val1, T val2, T val3, T val4, T val5)
+{
+	tiny_vec<T, 6> v; v[0] = val0; v[1] = val1; v[2] = val2; v[3] = val3; v[4] = val4; v[5] = val5;
+	return v;
 }
 
 EW_LEAVE

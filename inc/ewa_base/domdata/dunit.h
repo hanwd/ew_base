@@ -27,6 +27,8 @@ class DUnit : public DObject
 {
 public:
 
+	typedef DObject basetype;
+
 	DUnit();
 
 	String ul, ut, uf;

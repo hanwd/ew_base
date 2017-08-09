@@ -68,7 +68,7 @@ int Wrapper::btn_to_wxid(int id)
 	return ret;
 }
 
-int Wrapper::FileDialog(arr_1t<String>& files,int type,const String& title,const String& exts)
+int Wrapper::FileDialog(arr_1t<String>& files,int type,const String& title,const String& exts,int *pindex)
 {
 
 	wxString wxtitle(str2wx(title));
@@ -80,24 +80,30 @@ int Wrapper::FileDialog(arr_1t<String>& files,int type,const String& title,const
 	int flag=(type&IDefs::FD_SAVE)==0?wxFD_OPEN:wxFD_SAVE;
 	if(type&IDefs::FD_MULTI) flag|=wxFD_MULTIPLE;
 	if(type&IDefs::FD_MUST_EXIST) flag|=wxFD_FILE_MUST_EXIST;
+	if (type&IDefs::FD_OVERWRITE_PROMPT) flag |= wxFD_OVERWRITE_PROMPT;
 
 	wxString wxexts;
-	if(!exts.empty())
+
+	if (!exts.empty())
 	{
-		if(exts.find('|')<0)
-		{
-			wxexts+=str2wx(exts+"|"+exts+"|"+_hT("AllFiles")+"(*.*)|*.*");
-		}
-		else
-		{
-			wxexts+=str2wx(exts+"|"+_hT("AllFiles")+"(*.*)|*.*");
-		}
+		wxexts = str2wx(exts);
 	}
+	else
+	{
+		wxexts = wxFileSelectorDefaultWildcardStr;
+	}
+
+
 
 
 	wxWindow* ptopwindow=WndModel::current().GetWindow();
 
 	::wxFileDialog dlg(ptopwindow,wxtitle,"","",wxexts,flag);
+	if (pindex)
+	{
+		dlg.SetFilterIndex(*pindex);
+	}
+
 	if(files.size()==1)
 	{
 		dlg.SetPath(str2wx(files[0]));
@@ -105,6 +111,11 @@ int Wrapper::FileDialog(arr_1t<String>& files,int type,const String& title,const
 
 	if(dlg.ShowModal()==wxID_OK)
 	{
+		if (pindex)
+		{
+			*pindex = dlg.GetFilterIndex();
+		}
+
 		files.clear();
 		wxArrayString wxfiles;
 		dlg.GetPaths(wxfiles);
@@ -130,7 +141,7 @@ int Wrapper::LogsDialog(arr_1t<LogRecord>& records,int level,const String& title
 	}
 
 	int type=IDefs::BTN_OK;
-	if(level>=LOGLEVEL_ERROR) type|=IDefs::ICON_ERROR;
+	if(level>=LOGLEVEL_LITE_ERROR) type|=IDefs::ICON_ERROR;
 	else if(level==LOGLEVEL_WARNING) type|=IDefs::ICON_WARNING;
 	else type|=IDefs::ICON_INFO;
 
@@ -140,6 +151,7 @@ int Wrapper::LogsDialog(arr_1t<LogRecord>& records,int level,const String& title
 int Wrapper::MsgsDialog(const String& cont,int type,const String& title)
 {
 	wxWindow* ptopwindow=WndModel::current().GetWindow();
+
 	int fg=wxCENTER;
 	if(type&IDefs::BTN_OK) fg|=wxOK;
 	if(type&IDefs::BTN_YES) fg|=wxYES;
@@ -160,8 +172,10 @@ int Wrapper::MsgsDialog(const String& cont,int type,const String& title)
 		dlg_title=WndManager::current().GetTitle();
 	}
 
-	::wxMessageDialog dlg(NULL,str2wx(cont),str2wx(dlg_title),fg);
-	int ret=dlg.ShowModal();
+	int ret;
+	
+	::wxMessageDialog dlg(ptopwindow, str2wx(cont), str2wx(dlg_title), fg);
+	ret=dlg.ShowModal();
 
 	return wxid_to_btn(ret);
 }

@@ -27,7 +27,7 @@ public:
 	void OnFocus(wxChildFocusEvent& evt)
 	{
 		CmdProc* p1=wm.cmdptr.GetData();
-		CmdProc* p2=m_pActiveView?&m_pActiveView->Target:NULL;
+		CmdProc* p2=m_pActiveView? &m_pActiveView->Target:NULL;
 		if(p1!=p2)
 		{
 			wm.cmdptr.SetData(p2);

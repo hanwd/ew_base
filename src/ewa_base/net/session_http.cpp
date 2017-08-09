@@ -73,17 +73,29 @@ void SessionHttp_Response_404(SessionHttp& http)
 	sb<<"</PRE></BODY></HTML>\r\n";
 
 	return;
-
 }
 
-void SessionHttp_Response_FILE(SessionHttp& http)
+void SessionHttp_Response_501(SessionHttp& http)
 {
+	http.httpstatus=501;
 
-	if(!http.chunked_stream.openfile(http.filepath,FLAG_FILE_RD))
-	{
-		http.httpstatus=404;
-		return;
-	}
+	StringBuffer<char>& sb(http.sb);
+
+	sb<<"\r\n";
+	sb<<"<HTML><HEAD>";
+	sb<<"<meta http-equiv=Content-Type content=\"text/html;charset=utf-8\">";
+	sb<<"</HEAD>";
+	sb<<"<BODY><PRE>";
+	sb<<"501 server error";
+	sb<<"\r\n";
+	sb<<"</PRE></BODY></HTML>\r\n";
+
+	return;
+}
+
+
+void SessionHttp_Response_Stream(SessionHttp& http)
+{
 
 	http.length=http.chunked_stream.sizeg();
 	if(http.length<0)
@@ -114,7 +126,17 @@ void SessionHttp_Response_FILE(SessionHttp& http)
 
 	System::LogTrace("invalid stream read");
 	http.sb.clear();
+}
 
+void SessionHttp_Response_FILE(SessionHttp& http)
+{
+	if(!http.chunked_stream.openfile(http.filepath,FLAG_FILE_RD))
+	{
+		http.httpstatus=404;
+		return;
+	}
+
+	SessionHttp_Response_Stream(http);
 }
 
 
@@ -130,37 +152,55 @@ void SessionHttp_Response_EWSL(SessionHttp& http)
 	ewsl.push(response);
 	ewsl.push(http.Target.server_objects);
 
-	bool flag=ewsl.execute_file(http.filepath,4);
+	bool flag = ewsl.execute_file(http.filepath, 4);
 
-	http.httpstatus=variant_cast<int>(response->value["status"]);
-	if(http.httpstatus==301)
+	http.httpstatus = variant_cast<int>(response->value["status"]);
+	if (http.httpstatus == 301)
 	{
-		http.props["Location"]=variant_cast<String>(response->value["location"]);
+		http.props["Location"] = variant_cast<String>(response->value["location"]);
+		return;
 	}
-	else if(flag)
+
+	if (!flag)
 	{
-		http.sb.swap(response->value["buffer"].ref<StringBuffer<char> >());
-		if(http.sb.empty())
+		http.httpstatus = 501;
+		return;
+	}
+
+	http.sb.swap(response->value["buffer"].ref<StringBuffer<char> >());
+	if (!http.sb.empty())
+	{
+		return;
+	}
+
+	http.filepath = response->value["download"].ref<String>();
+	if (!http.filepath.empty())
+	{
+		String filename = response->value["filename"].ref<String>();
+		if (!filename.empty())
 		{
-			http.filepath=response->value["download"].ref<String>();
-
-			String filename = response->value["filename"].ref<String>();
-			if (!filename.empty())
-			{
-				const char* p1 = filename.c_str();
-				const char* p2 = p1 + ::strlen(p1);
-				while (p2 > p1 && p2[-1] != '\\' && p2[-1] != '/') p2--;
-				http.extraheader << "Content-Disposition: attachment; filename=\"" << p2 << "\";\r\n";
-			}
-
-			SessionHttp_Response_FILE(http);
+			const char* p1 = filename.c_str();
+			const char* p2 = p1 + ::strlen(p1);
+			while (p2 > p1 && p2[-1] != '\\' && p2[-1] != '/') p2--;
+			http.extraheader << "Content-Disposition: attachment; filename=\"" << p2 << "\";\r\n";
 		}
+
+		SessionHttp_Response_FILE(http);
+		return;
 	}
-	else
+
+	if (!response->value["bin_data"].is_nil())
 	{
-		http.httpstatus=501;
-		http.sb<<"server_error";
-	}
+		http.chunked_stream.assign(new IStreamMemory());
+		SerializerWriter writer;
+		writer.stream_data(http.chunked_stream.get_writer().get());
+		writer & response->value["bin_data"];
+		writer.handle_tail();
+		SessionHttp_Response_Stream(http);
+		return;
+	}	
+
+	http.httpstatus = 501;
 
 }
 
@@ -170,6 +210,7 @@ SessionManager::SessionManager()
 	handler_map["HTM"].bind(&SessionHttp_Response_FILE,_1);
 	handler_map["HTML"].bind(&SessionHttp_Response_FILE,_1);
 	handler_map["JS"].bind(&SessionHttp_Response_FILE,_1);
+	handler_map["TXT"].bind(&SessionHttp_Response_FILE,_1);
 	handler_map["JSON"].bind(&SessionHttp_Response_FILE,_1);
 	handler_map["JPG"].bind(&SessionHttp_Response_FILE,_1);
 	handler_map["JPEG"].bind(&SessionHttp_Response_FILE,_1);
@@ -201,6 +242,10 @@ void SessionManager::HandleRequest(SessionHttp& http)
 	if(http.httpstatus==404)
 	{
 		SessionHttp_Response_404(http);
+	}
+	else if (http.httpstatus == 501)
+	{
+		SessionHttp_Response_501(http);
 	}
 }
 

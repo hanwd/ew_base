@@ -4,6 +4,9 @@
     <Filter Include="test">
       <UniqueIdentifier>{a2fa4194-bd69-4c1a-95e7-733f7f73099e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="data">
+      <UniqueIdentifier>{e432d190-eb3e-42d2-8f56-eaa1ff18bce9}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\ewx_test\test\appmain.cpp">
@@ -16,9 +19,6 @@
       <Filter>test</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\ewx_test\test\test_collection.cpp">
-      <Filter>test</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\ewx_test\test\test_gc_ptr.cpp">
       <Filter>test</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\ewx_test\test\test_memory.cpp">

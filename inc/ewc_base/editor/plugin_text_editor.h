@@ -17,6 +17,8 @@ public:
 
 	bool OnCfgEvent(int lv);
 
+	bool GetExts(arr_1t<String>& exts);
+
 	IWnd_stc* GetStc();
 };
 

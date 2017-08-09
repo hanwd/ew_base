@@ -1,11 +1,9 @@
 #ifndef __H_EW_DOMDATA_SYMM__
 #define __H_EW_DOMDATA_SYMM__
 
-#include "ewa_base/basic.h"
-#include "ewa_base/collection.h"
-#include "ewa_base/scripting.h"
 
 #include "ewa_base/domdata/dobject.h"
+#include "ewa_base/scripting/callable_table.h"
 
 
 EW_ENTER
@@ -98,6 +96,12 @@ public:
 		if(!p) return;
 		String s=p->m_sId;
 		m_aSymbol[s].reset(p);
+	}
+
+	void remove(DObject* p)
+	{
+		if (!p) return;
+		m_aSymbol.erase(p->m_sId);
 	}
 
 	void gp_add(DObject* p)

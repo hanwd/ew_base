@@ -7,6 +7,13 @@
 EW_ENTER
 
 class MvcViewProxy;
+class DataModel;
+
+class MvcItemData : public ObjectData
+{
+public:
+	virtual bool DoActivate(WndManager&, int) = 0;
+};
 
 class DLLIMPEXP_EWC_BASE MvcView : public wxEvtHandler
 {
@@ -57,9 +64,13 @@ public:
 	virtual bool OnWndEvent(IWndParam&,int){return true;}
 	virtual bool OnStdEvent(IStdParam&,int){return true;}
 
+	virtual void UpdateStatus(){}
+
 	static MvcView* ms_pActiveView;
 
 	IFileNameHolder fn;
+
+	bool LinkBookData(const String& sbook, DataModel* pmodel);
 
 	void DoRefresh();
 
@@ -67,10 +78,14 @@ protected:
 	virtual bool DoClose(WndManager&);
 	virtual bool DoActivate(WndManager&,int);
 
+	arr_1t<DataPtrT<MvcItemData> > arr_items;
+
 	LitePtrT<wxWindow> m_pCanvas;
 	BitFlags flags;
 
 	AtomicInt32 m_nRequestFresh;
+
+	virtual bool DoInitialize();
 
 
 

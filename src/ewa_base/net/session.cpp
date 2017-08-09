@@ -11,7 +11,7 @@
 
 EW_ENTER
 
-Session::LKFQueue Session::lkfq_free(2048,Session::LKFQueue::QUEUE_NONBLOCK);
+Session::LKFQueue2 Session::lkfq_free(2048,Session::LKFQueue::QUEUE_NONBLOCK);
 
 
 Session::Session()

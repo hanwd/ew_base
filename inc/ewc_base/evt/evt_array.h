@@ -204,17 +204,17 @@ public:
 	{
 
 	}
+
+	virtual void InitNewRow()
+	{
+		tmp_data=def_data;
+	}
 	
 	virtual bool TestNewRow()
 	{
 		if(flags.get(FLAG_READONLY)) return false;
-
-		//if(def_data==tmp_data)
-		//{
-		//	return false;
-		//}
 		tmp_value.push_back(tmp_data);
-		tmp_data=def_data;
+		InitNewRow();
 		return true;
 	}
 

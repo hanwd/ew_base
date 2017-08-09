@@ -7,6 +7,7 @@ IWnd_button::IWnd_button(wxWindow* p,const WndPropertyEx& h)
 {
 
 }
+
 IWnd_cmdlink_button::IWnd_cmdlink_button(wxWindow* p,const WndPropertyEx& h)
 	:wxCommandLinkButton(p,h.id(),h.label1(),h.desc(),h,h)
 {

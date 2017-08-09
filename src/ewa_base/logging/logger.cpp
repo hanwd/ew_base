@@ -1,3 +1,4 @@
+
 #include "ewa_base/logging/logger.h"
 #include "ewa_base/logging/logtarget.h"
 #include "ewa_base/basic/pointer.h"
@@ -89,6 +90,8 @@ public:
 	int m_nErrCount;
 	int m_nWrnCount;
 
+	int m_nErrLevel;
+
 	BitFlags flags;
 
 	LoggerImpl(int src=0,int id=0)
@@ -96,6 +99,7 @@ public:
 		,m_nSrc(src)
 		,m_nErrCount(0)
 		,m_nWrnCount(0)
+		, m_nErrLevel(LOGLEVEL_ERROR)
 	{
 		SetData(def());
 	}
@@ -107,11 +111,11 @@ public:
 
 	inline void Handle(LogRecord& o)
 	{
-		if(o.m_nLevel==LOGLEVEL_WARNING)
+		if (o.m_nLevel >= LOGLEVEL_WARNING && o.m_nLevel<m_nErrLevel)
 		{
 			m_nWrnCount++;
 		}
-		if(o.m_nLevel>LOGLEVEL_WARNING)
+		if (o.m_nLevel>=m_nErrLevel)
 		{
 			m_nErrCount++;
 		}
@@ -206,6 +210,23 @@ int Logger::Id()
 void Logger::Id(int id)
 {
 	impl->m_nId=id;
+}
+
+void Logger::ErrLevel(int lv)
+{
+	if (lv < 0)
+	{
+		impl->m_nErrLevel = LOGLEVEL_WARNING;
+	}
+	else if (lv == 0)
+	{
+		impl->m_nErrLevel = LOGLEVEL_LITE_ERROR;
+	}
+	else
+	{
+		impl->m_nErrLevel = LOGLEVEL_ERROR;
+	}
+	
 }
 
 bool Logger::Cache()

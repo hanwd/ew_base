@@ -21,6 +21,8 @@ public:
 
 	bool OnCmdEvent(ICmdParam& cmd,int phase);
 
+	bool GetExts(arr_1t<String>& exts);
+
 	IWnd_stc* GetStc();
 };
 

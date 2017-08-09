@@ -9,7 +9,7 @@ class DLLIMPEXP_EWC_BASE Wrapper
 {
 public:
 
-	static int FileDialog(arr_1t<String>& files,int type=IDefs::FD_OPEN,const String& title="",const String& exts="");	
+	static int FileDialog(arr_1t<String>& files,int type=IDefs::FD_OPEN,const String& title="",const String& exts="",int *pindex=NULL);	
 	static int FileDialog(String& file,int type=IDefs::FD_OPEN,const String& title="",const String& exts="");	
 
 	static int MsgsDialog(const String& cont,int type=IDefs::BTN_OK,const String& title="");

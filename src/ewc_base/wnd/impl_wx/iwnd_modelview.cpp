@@ -6,6 +6,7 @@ EW_ENTER
 IWnd_modelview::IWnd_modelview(wxWindow* p, const WndPropertyEx& h)
 //:wxWindow(p, h.id(), h, h, wxFULL_REPAINT_ON_RESIZE | wxWANTS_CHARS | wxBORDER_NONE)
 {
+	m_bPendingRefresh = false;
 
 	if (!Create(p, h.id(), h, h, wxFULL_REPAINT_ON_RESIZE | wxWANTS_CHARS | wxBORDER_NONE))
 	{
@@ -103,8 +104,17 @@ bool IWnd_modelview::CreateWindow(wxWindow *parent,
 	return true;
 }
 
+void IWnd_modelview::PendingRefresh()
+{
+	if (m_bPendingRefresh) return;
+	m_bPendingRefresh = true;
+	this->Refresh();
+}
+
 void IWnd_modelview::OnPaint(wxPaintEvent& evt)
 {
+	m_bPendingRefresh = false;
+
 	wxPaintDC wxdc(this);
 	if (!pmodel)
 	{

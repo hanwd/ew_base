@@ -4,6 +4,7 @@
 #include "ewa_base/config.h"
 #include "ewa_base/basic/exception.h"
 #include "ewa_base/basic/lookuptable.h"
+//#include "ewa_base/basic/system.h"
 
 EW_ENTER
 
@@ -120,10 +121,10 @@ public:
 			T tmp=v*N + w;
 
 			//overflow
-			if(v>tmp)
-			{
-				System::LogTrace("overflow in "__FUNCTION__);
-			}
+			//if(v>tmp)
+			//{
+			//	System::LogTrace("overflow in "__FUNCTION__);
+			//}
 
 			v=tmp;	
 		}

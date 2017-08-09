@@ -43,10 +43,10 @@ bool CmdProc::DoExecId(ICmdParam& cmd)
 			return false;
 		}
 
-		if (cmd.extra1 == "")
-		{
-			return true;
-		}
+		//if (cmd.extra1 == "")
+		//{
+		//	return true;
+		//}
 
 		cmd.param1 = CP_LOAD_FILE;
 		if (!DoExecId(cmd)) return false;
@@ -107,12 +107,6 @@ bool CmdProc::DoExecId(ICmdParam& cmd)
 
 		if (cmd.extra1 != cmd.extra2)
 		{
-			//if (!FSLocal::current().Remove(cmd.extra2))
-			//{
-			//	logger.LogError(_hT("failed_to_save_file %s!"),cmd.extra2);
-			//	return false;
-			//}
-
 			if (!FSObject::current().Rename(cmd.extra1, cmd.extra2, 1))
 			{
 				logger.LogError(_hT("failed_to_save_file %s!"),cmd.extra2);
@@ -138,7 +132,7 @@ bool CmdProc::DoExecId(ICmdParam& cmd)
 			String exts;
 			TestId(CP_FILEEXT,exts);
 
-			if(Wrapper::FileDialog(cmd.extra1,IDefs::FD_SAVE,"",exts)==IDefs::BTN_CANCEL)
+			if (Wrapper::FileDialog(cmd.extra1, IDefs::FD_SAVE | IDefs::FD_OVERWRITE_PROMPT, "", exts) == IDefs::BTN_CANCEL)
 			{
 				cmd.param2 = -2;
 				return false;

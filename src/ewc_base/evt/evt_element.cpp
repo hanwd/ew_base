@@ -20,7 +20,6 @@ bool EvtProxyBase::DoWndExecute(IWndParam& cmd)
 
 		if(!flags.get(FLAG_VALUEBIND)) return true;
 		if(!InternalTransfer2Model()) return false;
-
 		WndExecuteEx(IDefs::ACTION_TRANSFER2WINDOW);
 		return true;
 	}

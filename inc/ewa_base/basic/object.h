@@ -1,9 +1,8 @@
 #ifndef __H_EW_BASIC_OBJECT__
 #define __H_EW_BASIC_OBJECT__
 
-
-#include "ewa_base/basic/object_info.h"
 #include "ewa_base/collection/indexer_map.h"
+#include "ewa_base/basic/object_info.h"
 
 #define DECLARE_OBJECT_INFO(TYPE,INFO)	\
 	public:\
@@ -204,6 +203,9 @@ DEFINE_OBJECT_NAME(uint32_t,"u32");
 DEFINE_OBJECT_NAME(uint64_t,"u64");
 DEFINE_OBJECT_NAME(float32_t,"f32");
 DEFINE_OBJECT_NAME(float64_t,"f64");
+
+DEFINE_OBJECT_NAME(dcomplex, "complex");
+DEFINE_OBJECT_NAME(fcomplex, "complex32");
 
 EW_LEAVE
 

@@ -35,6 +35,42 @@ void WndProperty::reset()
 
 }
 
+void IValueOptionBook::add(wxWindow* p, int val, const String& t)
+{
+	OptionItem item;
+	item.ivalue = val;
+	item.page = p;
+	item.value = t;
+
+	aOption.push_back(item);
+}
+
+int IValueOptionBook::get_value(int v)
+{
+	if (size_t(v) <= aOption.size())
+	{
+		return aOption[v].ivalue;
+	}
+	return -1;
+}
+
+int IValueOptionBook::get_selection(int v)
+{
+	for (size_t i = 0; i < aOption.size(); i++)
+	{
+		if (aOption[i].ivalue == v) return i;
+	}
+	return -1;
+}
+
+void IValueOptionBook::set_selection(size_t i)
+{
+	if (i < aOption.size() && pbook)
+	{
+		pbook->SelPage(aOption[i].page);
+	}
+}
+
 
 WndMaker::WndMaker(IWindowPtr t):pwin(NULL)
 {
@@ -69,9 +105,17 @@ void WndMaker::vd_set(Validator* vd)
 	if(!vd) return;
 
 	vald->append(vd);
-	
+
+	if (!icur.prop.book().empty())
+	{
+		auto& item(bookdata[icur.prop.book()]);
+		if (!item) item.reset(new IValueOptionBook());
+		vd->SetOptionData(item.get());
+	}
+
 	if(icur.p_vg)
 	{
+
 		aValdStack.push_back(vald);
 		vald=icur.p_vg;
 	}
@@ -170,6 +214,18 @@ WndMaker& WndMaker::col(const WndProperty& p)
 	}
 }
 
+void WndMaker::set_evtmgr(EvtManager* p)
+{
+	if(p)
+	{
+		pevtmgr.reset(p);
+	}
+	else
+	{
+		pevtmgr.reset(&EvtManager::current());
+	}
+}
+
 
 void WndMaker::set_model(WndModel* p)
 {
@@ -229,6 +285,7 @@ WndMaker& WndMaker::end()
 	}
 	else if(itmp.hwnd) // window end
 	{
+
 		if(icur.p_sz) // window in sizer
 		{
 			wxSizerFlags flag=MakeSizerFlag(itmp.prop);
@@ -284,6 +341,11 @@ WndMaker& WndMaker::end()
 			{
 				Exception::XError("no book defined");
 			}
+
+			if (icur.p_bk)
+			{
+				icur.p_bk->add(itmp.hwnd, itmp.prop.nvalue(), itmp.prop.page());
+			}
 		}
 		else if(itmp.prop.pane()!="")
 		{
@@ -291,19 +353,17 @@ WndMaker& WndMaker::end()
 
 			if(!pmgr)
 			{
-				Exception::XError("pane");
+				Exception::XError("no aui_manager");
 			}
-			else
+
+			if(pmgr->GetManagedWindow()==NULL)
 			{
-				if(pmgr->GetManagedWindow()==NULL)
-				{
-					pmgr->SetManagedWindow(icur.hwnd);
-				}
-		
-				wxAuiPaneInfo info=MakePaneInfo(itmp.prop);
-				pmgr->AddPane(itmp.hwnd,info);
-		
+				pmgr->SetManagedWindow(icur.hwnd);
 			}
+		
+			wxAuiPaneInfo info=MakePaneInfo(itmp.prop);
+			pmgr->AddPane(itmp.hwnd,info);
+	
 		}
 		else if(awin.empty())
 		{
@@ -357,18 +417,24 @@ EvtBase* WndMaker::find(const String& s)
 {
 	if(s=="") return NULL;
 	return pevtmgr->chained_get(s);
-	//if(pevtmgr)
-	//{
-	//	EvtBase* vp=pevtmgr->get(s);
-	//	if(vp) return vp;
-	//}
-	//return EvtManager::current().get(s);
 }
 
 
 WndMaker& WndMaker::add(const String& t,const WndProperty& p)
 {
 	return win(t,p).end();
+}
+
+WndMaker& WndMaker::load_script(const String& fp)
+{
+	Executor ewsl;
+	ewsl.push(new CallableMaker(*this));
+	bool flag = ewsl.execute_file(fp, 1);
+	if (!flag)
+	{
+		System::LogError("%s execute failed", fp);
+	}
+	return *this;
 }
 
 WndMaker& WndMaker::win(const String& t,const WndProperty& p)
@@ -442,6 +508,23 @@ WndMaker& WndMaker::win(IWindowPtr t,const WndProperty& p)
 
 	awin.push_back(icur);
 	icur=WndProxyState(p,t);
+
+	if (icur.prop.book().empty())
+	{
+		//icur.p_bk = awin.back().p_bk;
+	}
+	else
+	{
+		auto& item(bookdata[icur.prop.book()]);
+		if (!item) item.reset(new IValueOptionBook());
+
+		if (IWnd_bookbase* p = dynamic_cast<IWnd_bookbase*>(t))
+		{
+			item->pbook = p;
+			icur.p_bk = item;
+		}
+
+	}
 
 	if(!t) return *this;
 
@@ -659,6 +742,9 @@ VariantTable& get_callable_maker_table()
 		WNDMAKER_FUNCTION_S1(help);
 		WNDMAKER_FUNCTION_S1(tooltip);
 		WNDMAKER_FUNCTION_S1(add_extra);
+		WNDMAKER_FUNCTION_S1(book);
+		WNDMAKER_FUNCTION_S1(load_script);
+
 
 		WNDMAKER_FUNCTION_I2(position);
 		WNDMAKER_FUNCTION_I2(size);
@@ -718,6 +804,11 @@ int CallableMaker::__fun_call(Executor& ewsl,int pm)
 		{
 			pmodel=p_callable_modelptr->pmodel.get();
 		}
+		else if (dynamic_cast<CallableMaker*>(ewsl.ci0.nbx[1].kptr()))
+		{
+			return 1;
+		}
+
 		if(!pmodel)
 		{
 			ewsl.kerror("invalid param");

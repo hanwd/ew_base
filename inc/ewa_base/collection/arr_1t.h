@@ -6,6 +6,7 @@
 #include "ewa_base/collection/detail/arr_container.h"
 #include "ewa_base/memory/allocator.h"
 
+
 EW_ENTER
 
 
@@ -41,6 +42,17 @@ public:
 
 
 	inline arr_1t& operator=(const arr_1t& o){impl=o.impl;return *this;}
+
+	template<typename T1>
+	inline arr_1t<value_type>& operator=(const arr_1t<T1>& o)
+	{
+		this->resize(o.size());
+		for (size_t i = 0; i < o.size(); ++i)
+		{
+			(*this)[i] = o[i];
+		}
+		return *this;
+	}
 
 #if defined(EW_C11)
 	inline arr_1t(arr_1t&& p){swap(p);}
@@ -185,6 +197,8 @@ public:
 		return hash_array<T>::hash(o.data(),o.size());
 	}
 };
+
+
 
 EW_LEAVE
 #endif

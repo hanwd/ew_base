@@ -2,6 +2,7 @@
 #include "ewa_base/scripting/callable_class.h"
 #include "ewa_base/scripting/callable_iterator.h"
 #include "ewa_base/scripting/executor.h"
+#include "ewa_base/serialization/serializer.h"
 
 EW_ENTER
 
@@ -153,6 +154,12 @@ int CallableTableOperators::__do_getarray_index_range(Executor& ewsl,VariantTabl
 	return 2;	
 }
 
+void CallableTableProxy::Serialize(SerializerHelper sh)
+{
+	Serializer& ar(sh.ref(0));
+	ar & value;
+}
+
 int CallableTableProxy::__getindex(Executor& ewsl,const String& si)
 {
 	if(flags.get(FLAG_SET_THIS)) ewsl.ci1.nbp[StackState1::SBASE_THIS].kptr(this);
@@ -223,7 +230,7 @@ int CallableTableRo::__getarray(Executor& ewsl,int pm)
 }
 
 IMPLEMENT_OBJECT_INFO(CallableWrapT<VariantTable>,ObjectInfo);
-IMPLEMENT_OBJECT_INFO(CallableTableEx,ObjectInfo);
+//IMPLEMENT_OBJECT_INFO(CallableTableEx,ObjectInfo);
 IMPLEMENT_OBJECT_INFO(CallableTableRo,ObjectInfo);
 
 EW_LEAVE

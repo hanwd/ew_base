@@ -6,6 +6,28 @@
 
 EW_ENTER
 
+class DObject;
+class DataNode;
+
+class DataNodeSymbol;
+class NCreatorRegister;
+
+
+
+#define IMPLEMENT_DATANODE_SYMBOL(T) \
+	template<> DataNodeSymbol* NCreatorRegister_do_create_node<T>(DataNode* n, DObject* p){return NCreatorRegister::nd_create<T>(n, p);}\
+	template<> void NCreatorRegister_do_init<T>(NCreatorRegister& o){o.reg0(T::sm_info, &NCreatorRegister_do_create_node<T>);}
+
+#define IMPLEMENT_DATANODE_SYMBOL_2(T,N) \
+	template<> void NCreatorRegister_do_init<T>(NCreatorRegister& o){o.reg0(T::sm_info, &NCreatorRegister_do_create_node<N>);}
+
+template<typename T>
+void NCreatorRegister_do_init(NCreatorRegister&);
+
+template<typename T>
+DataNodeSymbol* NCreatorRegister_do_create_node(DataNode* n, DObject* p);
+
+
 class DLLIMPEXP_EWC_BASE DataModel;
 
 class DLLIMPEXP_EWC_BASE DataChangedParam
@@ -59,8 +81,9 @@ public:
 	virtual int OnBtnCancel(GLTool&);
 
 	virtual int OnWheel(GLTool&);
-};
 
+	virtual int OnMoving(GLTool&);
+};
 
 
 class DLLIMPEXP_EWC_BASE GLTool : public Object
@@ -78,6 +101,7 @@ public:
 
 	LitePtrT<IWnd_modelview> pview;
 	DataPtrT<GLToolData> pdata;
+	LitePtrT<DataNode> pnode;
 
 	BitFlags flags;
 
@@ -87,21 +111,29 @@ public:
 
 	DataNode* HitTest(int x, int y);
 
-	void ContextMenu(const String&){}
 
 	void OnMouseEvent(wxMouseEvent& evt);
 
 	void Cancel();
 
 	GLTool();
+	~GLTool();
+
+	Functor<void(DataNode*,int)> functor;
 
 protected:
 
-	bool UpdateToolData();
+	void DoSetNode(DataNode* node);
+
+	void HandleSelection(int k, int f);
+
+	bool UpdateToolData(int k);
 
 	void HandleValue(int ret);
 
 };
+
+;
 
 class DLLIMPEXP_EWC_BASE DataNode : public Object
 {
@@ -112,7 +144,11 @@ public:
 		FLAG_TOUCHED	=1<<0,
 		FLAG_ATTRIBUTED	=1<<1,
 		FLAG_IS_GROUP	=1<<2,
-		FLAG_MAX		=1<<3,
+		FLAG_SELECTED	=1<<3,
+		FLAG_EXPANDED	=1<<4,
+		FLAG_TMP_NODE	=1<<5,
+		FLAG_ND_OPENED	=1<<6,
+		FLAG_MAX		=1<<8,
 	};
 
 	DataNode(DataNode* p = NULL, const String& n = "");
@@ -129,13 +165,32 @@ public:
 
 	virtual void DoUpdateAttribute(GLDC& dc);
 
-	DataModel* GetModel();
-	DataNode* GetRoot();
+	virtual void OnItemMenu(wxWindow*);
 
-	virtual DObject* GetItem(){ return NULL; }
+	virtual void OnGroupMenu(wxWindow*);
 
+	virtual bool OnActivate();
+
+	virtual void OnSelected(bool);
+
+	virtual void OnToggle(bool);
+
+	virtual DObject* GetItem();
+
+	virtual DObject* GetRealItem();
+
+	virtual bool AllowMultiSelection();
 
 	virtual DataPtrT<GLToolData> GetToolData();
+
+	DataModel* GetModel();
+
+	DataNode* GetRoot();
+
+	DataNode* GetParent();
+	DataNode* GetRealParent();
+
+	int GetDepth();
 
 	DataNode* parent;
 	String name;
@@ -143,6 +198,8 @@ public:
 	DataNodeArray subnodes;
 	BitFlags flags;
 	int depth;
+
+	LitePtrT<GLTool> ptool;
 
 	DECLARE_OBJECT_INFO(DataNode, ObjectInfo);
 
@@ -165,11 +222,9 @@ public:
 
 	void TouchNode(DataChangedParam&,unsigned);
 
+	void OnItemMenu(wxWindow* w);
 
-	virtual DObject* GetItem()
-	{
-		return value.get();
-	}
+	virtual DObject* GetItem();
 
 };
 
@@ -192,35 +247,52 @@ public:
 template<typename T>
 class DLLIMPEXP_EWC_BASE DataNodeSymbolT;
 
-class DLLIMPEXP_EWC_BASE DataNodeCreator : public NonCopyableAndNonNewable
+
+class DLLIMPEXP_EWC_BASE NCreatorRegister : public NonCopyableAndNonNewable
 {
 public:
 
-	static DataNodeCreator& current();
+	template<typename T>
+	static void init(NCreatorRegister& o)
+	{
+		NCreatorRegister_do_init<T>(o);
+	}
+
+	template<typename T>
+	static void init()
+	{
+		NCreatorRegister_do_init<T>(current());
+	}
+
+
+	static NCreatorRegister& current();
 
 	static DataNodeSymbol* Create(DataNode* n, DObject* p);
 
 	static DataNodeVariant* Create(DataNode* p, const std::pair<String, Variant>& v);
 
 	template<typename T>
-	static void Register()
+	static DataNodeSymbol* nd_create(DataNode* n, DObject* p){ return new DataNodeSymbolT<T>(n, p); }
+
+	template<typename T>
+	static void reg1()
 	{
-		current().hmap[&T::sm_info] = &_DoCreateDataNode<T>;
+		reg0(T::sm_info, &NCreatorRegister::nd_create<T>);
 	}
 
 	template<typename T1,typename T2>
-	static void Register2()
+	static void reg2()
 	{
-		current().hmap[&T1::sm_info] = &_DoCreateDataNode<T2>;
+		reg0(T1::sm_info, &NCreatorRegister::nd_create<T2>);
+	}
+
+	template<typename F>
+	static void reg0(ObjectInfo& info, const F& func)
+	{
+		current().hmap[&info] = func;
 	}
 
 private:
-
-	template<typename T>
-	static DataNodeSymbol* _DoCreateDataNode(DataNode* n, DObject* p)
-	{
-		return new DataNodeSymbolT<T>(n, p);
-	}
 
 	typedef DataNodeSymbol* (*data_node_ctor)(DataNode*, DObject*);
 	indexer_map<ObjectInfo*, data_node_ctor> hmap;

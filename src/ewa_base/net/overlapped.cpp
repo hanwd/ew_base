@@ -135,6 +135,8 @@ bool MyOverLappedRb::init_recv()
 	return true;
 }
 
+
+
 MyOverLappedEx::MyOverLappedEx()
 {
 	buffer=(char*)MemPoolPaging::current().allocate(IPacket::MAX_PACKET_SIZE);

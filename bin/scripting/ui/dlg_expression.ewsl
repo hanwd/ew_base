@@ -14,6 +14,26 @@ km.win("dialog"		,km.label(_hT("expr")).flags(km.IWND_NO_RESIZABLE|km.IWND_NO_CL
 			km.add("textctrl"	,km.ld(1).name("expr.result").flags(km.IWND_READONLY).hint(_hT("result")));
 		km.end();
 		km.win("row");
+
+			km.add("combo",km.book("book1").flags(km.IWND_READONLY));
+				
+			km.win("bookbase",km.book("book1"));
+				km.win("container",km.page("page1").nvalue(1).value("this is page1"));
+
+					km.win("row");
+						km.add("combo",km.book("book2").flags(km.IWND_READONLY));							
+						km.win("bookbase",km.book("book2"));
+							km.add("textctrl",km.page("page1.1").nvalue(0).value("this is page 1.1"));		
+							km.add("textctrl",km.page("page1.2").nvalue(1).value("this is page 1.2"));		
+						km.end();						
+					km.end();
+				
+				km.end();
+				km.add("textctrl",km.page("page2").nvalue(0).value("this is page 2"));		
+			km.end();
+			
+		km.end();		
+		km.win("row");
 			km.add("button"		,km.ld(2).name(_kT("Btn.Ok")));
 			km.add("button"		,km.ld(2).name(_kT("Btn.Cancel")));
 		km.end();

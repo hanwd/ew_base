@@ -220,8 +220,11 @@ bool LinearBufferEx<T>::_grow(size_type _newsize)
 		return false;
 	}
 
-	size_type _size=sz_helper::n2p(_newsize+(_newsize>>2));
-	if(_size<=_newsize) _size=_newsize<<1;
+	size_type _size=sz_helper::n2p(_newsize+(_newsize>>2))-1;
+	if (_size <= _newsize)
+	{
+		_size =(_newsize << 1)+1;
+	}
 
 	aBuff.resize(_size);
 	pBuffer=aBuff.data();

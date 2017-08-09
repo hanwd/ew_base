@@ -91,36 +91,6 @@ public:
 };
 
 
-template<typename X,typename Y,template<typename,typename> class B,template<typename> class H,int N=-1>
-struct opx_helper_promote;
-
-template<typename X,typename Y,template<typename,typename> class B,template<typename> class H>
-struct opx_helper_promote<X,Y,B,H,0> : public tl::value_type<false>{};
-
-template<typename X,typename Y,template<typename,typename> class B,template<typename> class H>
-struct opx_helper_promote<X,Y,B,H,1> : public tl::value_type<true>
-{
-	typedef typename B<X,Y>::type scalar;
-	typedef typename H<scalar>::promoted promoted;
-	typedef scalar type;
-};
-
-template<typename X,typename Y,template<typename,typename> class B,template<typename> class H>
-struct opx_helper_promote<X,Y,B,H,2> : public tl::value_type<true>
-{
-	typedef typename B<typename H<X>::type,typename H<Y>::type>::type scalar;
-	typedef typename H<scalar>::promoted promoted;
-	typedef promoted type;
-};
-template<typename X,typename Y,template<typename,typename> class B,template<typename> class H>
-struct opx_helper_promote<X,Y,B,H,-1> : 
-	public opx_helper_promote<X,Y,B,H,B<typename H<X>::type,typename H<Y>::type>::value?(H<X>::value||H<Y>::value?2:1):0>
-{
-
-};
-
-
-
 EW_LEAVE
 
 #endif

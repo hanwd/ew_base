@@ -1,12 +1,112 @@
 #include "ewa_base/serialization/serializer.h"
 #include "ewa_base/basic/stringbuffer.h"
 #include "ewa_base/basic/codecvt.h"
+#include "ewa_base/scripting/variant.h"
+#include "ewa_base/scripting/callable_table.h"
 
 EW_ENTER
 
 
+void SerializerReader::load(Variant& val_)
+{
+	arr_1t<Variant> val;
+	load(val);
 
-SerializerReader& SerializerReader::handle_head()
+	if (!val.empty())
+	{
+		val_ = val[0];
+	}
+	else
+	{
+		val_.clear();
+	}
+}
+
+void SerializerReader::load(arr_1t<Variant>& val)
+{
+
+	handle_head();
+
+	if (filetype == "ew_array")
+	{
+		(*this) & val;
+	}
+	else if (filetype == "ew_table")
+	{
+		val.resize(1);
+		(*this) & val[0].ref<VariantTable>();
+	}
+	else if (filetype == "ew_var")
+	{
+		val.resize(1);
+		(*this) & val[0];
+	}
+	else
+	{
+		errstr("invalid filetype");
+	}
+
+	handle_tail();
+}
+
+void SerializerReader::load(VariantTable& val)
+{
+	handle_head();
+
+	if (filetype == "ew_array")
+	{
+		arr_1t<Variant> var;
+		(*this) & var;
+		handle_tail();
+
+		val.clear();
+
+		if (var.size() == 1 && var[0].kptr() && var[0].kptr()->ToTable())
+		{
+			val = var[0].kptr()->ToTable()->value;
+		}
+		else
+		{
+			for (size_t i = 0; i < var.size(); i++)
+			{
+				val[String::Format("value_%d", i)] = var[i];
+			}
+		}
+
+
+	}
+	else if (filetype == "ew_table")
+	{
+		(*this) & val;
+		handle_tail();
+	}
+	else if (filetype == "ew_var")
+	{
+		Variant var;
+		(*this) & var;
+		handle_tail();
+
+		if (var.kptr() && var.kptr()->ToTable())
+		{
+			val = var.kptr()->ToTable()->value;
+		}
+		else
+		{
+			val.clear();
+			val["value_0"] = var;
+		}
+
+	}
+	else
+	{
+		errstr("invalid filetype");
+	}
+
+
+}
+
+
+SerializerReader& SerializerReader::handle_head(const char* p)
 {
 	serial_header header;
 	recv_checked((char*)&header,sizeof(header));
@@ -14,6 +114,18 @@ SerializerReader& SerializerReader::handle_head()
 	{
 		errstr("invalid header");
 	}
+
+	if (p)
+	{
+		int n = ::strlen(p);
+		if (n > 8) n = 8;
+		if (::memcmp(header.tags, p, n) != 0)
+		{
+			errstr("invalid filetype");
+		}
+	}
+
+	filetype.assign(header.tags, 8);
 
 	flags.clr(header.flags);
 	global_version(header.gver);
@@ -38,8 +150,10 @@ SerializerReader& SerializerReader::handle_head()
 SerializerReader& SerializerReader::handle_tail()
 {
 	cached_objects().handle_pending(*this);
+	cached_objects().clear();
 	return *this;
 }
+
 
 
 

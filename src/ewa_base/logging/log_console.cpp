@@ -38,6 +38,7 @@ LogConsole::LogConsole()
 		aColors[i]=Console::COLOR_D;
 	}
 	aColors[LOGLEVEL_ERROR]=Console::COLOR_S|Console::COLOR_R;
+	aColors[LOGLEVEL_LITE_ERROR]=Console::COLOR_S|Console::COLOR_R;
 	aColors[LOGLEVEL_WARNING]=Console::COLOR_S|Console::COLOR_G;
 }
 

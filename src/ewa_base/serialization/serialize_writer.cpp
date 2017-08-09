@@ -5,10 +5,44 @@
 EW_ENTER
 
 
+void SerializerWriter::save(const Variant& val)
+{
+	handle_head("ew_var");
+	(*this) & val;
+	handle_tail();
+}
 
-SerializerWriter& SerializerWriter::handle_head()
+void SerializerWriter::save(const arr_1t<Variant>& val)
+{
+	handle_head("ew_array");
+	(*this) & val;
+	handle_tail();
+}
+
+void SerializerWriter::save(const VariantTable& val)
+{
+	handle_head("ew_table");
+	(*this) & val;
+	handle_tail();
+}
+
+
+SerializerWriter& SerializerWriter::handle_head(const char* p)
 {
 	serial_header header;
+	if (p)
+	{
+		int n = ::strlen(p);
+		if (n > 8) n = 8;
+		::memcpy(header.tags, p, n);
+	}
+	else
+	{
+		::memcpy(header.tags, "ew_files", 8);
+	}
+
+	filetype.assign(header.tags, 8);
+
 	header.flags=flags.val()&~((1<<9)-1);
 	header.gver=global_version();
 	header.update();
@@ -22,6 +56,7 @@ SerializerWriter& SerializerWriter::handle_tail()
 
 	if(!flags.get(FLAG_OFFSET_TABLE))
 	{
+		cached_objects().clear();
 		return *this;
 	}
 
@@ -32,6 +67,7 @@ SerializerWriter& SerializerWriter::handle_tail()
 	header.offset=tellp();
 	if(header.offset<0)
 	{
+		cached_objects().clear();
 		return *this;
 	}
 
@@ -44,6 +80,7 @@ SerializerWriter& SerializerWriter::handle_tail()
 		send_checked((char*)&header,sizeof(header));
 	}
 
+	cached_objects().clear();
 	return *this;
 }
 

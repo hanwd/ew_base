@@ -3,6 +3,8 @@
 
 #include "ewc_base/app/cmdproc.h"
 #include "ewc_base/app/data_defs.h"
+#include "ewa_base/domdata/dobject.h"
+#include "ewc_base/app/cmdproc_stk.h"
 
 EW_ENTER
 
@@ -73,11 +75,24 @@ public:
 
 	virtual void ActivateModel();
 
-	IFileNameHolder fn;
+	DataPtrT<DObject> pd;
 
 protected:
-	bst_set<MvcView*> m_aSetViews;
+	bst_set<MvcView*> m_aViews;
 };
+
+
+
+class MvcModelStk : public MvcModel
+{
+public:
+
+	MvcModelStk();
+
+	DataPtrT<CmdProcStk> m_refData;
+};
+
+
 
 template<typename V,typename B=MvcModel>
 class DLLIMPEXP_EWC_BASE MvcModelT : public B

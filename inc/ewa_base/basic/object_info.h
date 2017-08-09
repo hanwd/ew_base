@@ -7,8 +7,9 @@
 #include "ewa_base/basic/dlink.h"
 #include "ewa_base/basic/bitflags.h"
 #include "ewa_base/collection/indexer_set.h"
+#include "ewa_base/collection/indexer_map.h"
 #include "ewa_base/collection/arr_1t.h"
-
+#include "ewa_base/math/tiny_cpx.h"
 
 #define INVOKETARGET_DEFINE(X)\
 class InvokeTarget_##X : public ew::ObjectInfo\

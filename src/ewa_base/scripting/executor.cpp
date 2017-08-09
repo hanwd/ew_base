@@ -129,6 +129,22 @@ void Executor::kthrow(int n)
 	ci0.nip=&ci2.xop;
 }
 
+Executor::Executor(VariantTable& t, size_t stack_size)
+	:tb0(CG_GGVar::current())
+	, tb1(t)
+{
+	co_main.reset(new CallableCoroutine(stack_size));
+	co_this = co_main;
+	co_main->nState = CallableCoroutine::STATE_RUNNING;
+
+	ci0 = co_main->ci0;
+	ci1 = co_main->ci1;
+
+	ci0.nip = NULL;
+
+	pg_limit = 0;
+
+}
 Executor::Executor(size_t stack_size)
 	:tb0(CG_GGVar::current())
 	,tb1(tb1_internal)

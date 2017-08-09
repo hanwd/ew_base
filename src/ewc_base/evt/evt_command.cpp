@@ -140,23 +140,38 @@ void EvtCommand::CreateCtrlItem(ICtl_object* pctrl)
 void EvtCommand::DoUpdateCtrl(IUpdParam& upd)
 {
 
-	if (flags.get(FLAG_HIDE_UI))
-	{
-		bst_set<ICtl_itemdata*> ctrls(m_setAttachedControls);
-		for (auto it = ctrls.begin(); it != ctrls.end(); it++)
-		{
-			(*it)->UpdateCtrl();
-		}
-	}
-	else
-	{
-		bst_set<ICtl_itemdata*>& ctrls(m_setAttachedControls);
-		for (auto it = ctrls.begin(); it != ctrls.end(); it++)
-		{
-			(*it)->UpdateCtrl();
-		}
-	}
+	//if (flags.get(FLAG_HIDE_UI))
+	//{
+	//	bst_set<ICtl_itemdata*> ctrls;
+	//	ctrls.swap(m_setAttachedControls);
 
+	//	for (auto it = ctrls.begin(); it != ctrls.end(); it++)
+	//	{
+	//		(*it)->UpdateCtrl();
+	//	}
+	//}
+	//else
+	//{
+	//	bst_set<ICtl_itemdata*>& ctrls(m_setAttachedControls);
+	//	for (auto it = ctrls.begin(); it != ctrls.end(); it++)
+	//	{
+	//		(*it)->UpdateCtrl();
+	//	}
+	//}
+
+	bst_set<ICtl_itemdata*>& ctrls(m_setAttachedControls);
+	for (auto it = ctrls.begin(); it != ctrls.end(); )
+	{
+		int ret=(*it)->UpdateCtrl();
+		if (ret == -1)
+		{
+			it = ctrls.erase(it);
+		}
+		else
+		{
+			it++;
+		}
+	}
 	
 	EvtBase::DoUpdateCtrl(upd);
 }
@@ -273,6 +288,10 @@ void EvtCommandCtrl::CreateCtrlItem(ICtl_object* pctrl)
 {
 	if(m_pWindow)
 	{
+		if (pctrl->GetMenu())
+		{
+			pctrl->AddCtrlItem(this);
+		}
 		return;
 	}
 

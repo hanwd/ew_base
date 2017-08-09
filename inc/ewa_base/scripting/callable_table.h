@@ -32,30 +32,6 @@ public:
 	static int __do_getarray_index_range(Executor& ewsl,VariantTable& tb,int pm);
 };
 
-class DLLIMPEXP_EWA_BASE CallableTableProxy : public CallableObject
-{
-public:
-
-	static const int FLAG_READONLY=1<<0;
-	static const int FLAG_SET_THIS=1<<1;
-
-	VariantTable& value;
-	DataPtrT<ObjectData> parent;
-
-	BitFlags flags;
-
-	CallableTableProxy(VariantTable& v,ObjectData* p=NULL):value(v),parent(p){}
-
-	int __getindex(Executor& ewsl,const String& si);
-	int __setindex(Executor& ewsl,const String& si);
-	int __getarray(Executor& ewsl,int pm);
-	int __setarray(Executor& ewsl,int pm);
-
-	int __getarray_index_range(Executor& ewsl,int pm){return CallableTableOperators::__do_getarray_index_range(ewsl,value,pm);}
-	bool __test_dims(arr_xt_dims& dm,int op){return CallableTableOperators::__do_test_dims(value,dm,op);}
-	void __get_iterator(Executor& ewsl,int nd){CallableTableOperators::__do_get_iterator(ewsl,value,nd);}
-
-};
 
 template<>
 class DLLIMPEXP_EWA_BASE CallableWrapT<VariantTable> : public CallableDataBaseT<VariantTable>
@@ -84,23 +60,57 @@ public:
 
 	bool ToValue(String& v,int) const;
 
+
 	DECLARE_OBJECT_INFO(CallableWrapT,ObjectInfo);
 
 };
 
 
-class DLLIMPEXP_EWA_BASE CallableTableEx : public CallableWrapT<VariantTable>
+typedef CallableWrapT<VariantTable> CallableTableEx;
+
+//class DLLIMPEXP_EWA_BASE CallableTableEx : public CallableWrapT<VariantTable>
+//{
+//public:
+//	
+//	virtual CallableData* DoClone(ObjectCloneState& cs)
+//	{
+//		if(cs.type==0) return this;
+//		return new CallableTableEx(*this);
+//	}
+//
+//	DECLARE_OBJECT_INFO(CallableTableEx,ObjectInfo);
+//	
+//};
+
+
+class DLLIMPEXP_EWA_BASE CallableTableProxy : public CallableObject
 {
 public:
-	
-	virtual CallableData* DoClone(ObjectCloneState& cs)
-	{
-		if(cs.type==0) return this;
-		return new CallableTableEx(*this);
-	}
 
-	DECLARE_OBJECT_INFO(CallableTableEx,ObjectInfo);
-	
+	static const int FLAG_READONLY = 1 << 0;
+	static const int FLAG_SET_THIS = 1 << 1;
+
+	VariantTable& value;
+	DataPtrT<ObjectData> parent;
+
+	BitFlags flags;
+
+	CallableTableProxy(VariantTable& v, ObjectData* p = NULL) :value(v), parent(p){}
+
+	int __getindex(Executor& ewsl, const String& si);
+	int __setindex(Executor& ewsl, const String& si);
+	int __getarray(Executor& ewsl, int pm);
+	int __setarray(Executor& ewsl, int pm);
+
+	int __getarray_index_range(Executor& ewsl, int pm){ return CallableTableOperators::__do_getarray_index_range(ewsl, value, pm); }
+	bool __test_dims(arr_xt_dims& dm, int op){ return CallableTableOperators::__do_test_dims(value, dm, op); }
+	void __get_iterator(Executor& ewsl, int nd){ CallableTableOperators::__do_get_iterator(ewsl, value, nd); }
+
+	void Serialize(SerializerHelper sh);
+
+	virtual infobase& GetObjectInfo() const{ return CallableWrapT<VariantTable>::sm_info; }
+	virtual const String& GetObjectName() const { return CallableWrapT<VariantTable>::sm_info.GetName(); }
+
 };
 
 class DLLIMPEXP_EWA_BASE CallableTableRo : public CallableTableEx

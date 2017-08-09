@@ -142,12 +142,12 @@ public:
 
 		if(cmd.action==IDefs::ACTION_VALUE_CHANGING)
 		{
-			return proxy->WndExecute(cmd);			
+			return proxy->WndExecute(cmd);
 		}
 		else if(cmd.action==IDefs::ACTION_VALUE_CHANGED)
 		{
 			if(!DoGetValue(proxy->tmp_value)) return false;
-			return proxy->WndExecute(cmd);				
+			return proxy->WndExecute(cmd);
 		}
 		else if(cmd.action==IDefs::ACTION_TRANSFER2WINDOW)
 		{
@@ -155,6 +155,7 @@ public:
 		}
 		else if(cmd.action==IDefs::ACTION_TRANSFER2MODEL)
 		{
+			if(!DoGetValue(proxy->tmp_value)) return false;
 			return proxy->WndExecute(cmd);
 		}
 		else

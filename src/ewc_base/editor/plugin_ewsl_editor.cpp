@@ -22,23 +22,81 @@ class ICmdProcTextCtrlEwsl : public ICmdProcTextEntryStc
 public:
 	typedef ICmdProcTextEntryStc basetype;
 
-	IWnd_stc& Target;
+	EwslCaret& Target;
 	MvcView& IView;
 
-	ICmdProcTextCtrlEwsl(IWnd_stc& t,MvcView& v):basetype(t),Target(t),IView(v){}
+	ICmdProcTextCtrlEwsl(EwslCaret& t, MvcView& v) :basetype(t), Target(t), IView(v)
+	{
+		fn = v.fn;
+	}
 
 	bool DoTestId(ICmdParam& cmd)
 	{
 		switch(cmd.param1)
 		{
-		case CP_SAVEAS:
-			return false;
+		//case CP_SAVEAS:
+		//	return true;
 		case CP_DIRTY:
 			return false;
 		default:
 			return basetype::DoTestId(cmd);
 		}
 	}
+
+	bool DoLoad(const String& fp)
+	{
+		if (fp == "")
+		{
+			return true;
+		}
+
+		SerializerStream ar;
+		if (!ar.openfile(fp))
+		{
+			return false;
+		}
+
+		try
+		{
+			VariantTable table;
+			ar.reader().load(table);
+			Target.Handler.Update(table);
+		}
+		catch (...)
+		{
+			return false;
+		}
+
+		return true;
+	}
+
+	bool DoSave(const String& fp)
+	{
+		if (fp == "")
+		{
+			return false;
+		}
+
+		SerializerStream ar;
+		if (!ar.openfile(fp,FLAG_FILE_WC|FLAG_FILE_TRUNCATE))
+		{
+			return false;
+		}
+
+		try
+		{
+			ar.writer().save(Target.Handler.ewsl.tb1);
+		}
+		catch (std::exception& e)
+		{
+			this_logger().LogError(e.what());
+			return false;
+		}
+		
+		return true;
+
+	}
+
 
 };
 
@@ -50,14 +108,13 @@ public:
 
 	EwslIface iface;
 
-	AutoPtrT<wxWindow> m_pMyView;
 
 	MvcViewEwsl(MvcModel& tar):basetype(tar),iface(tar)
 	{
 
 	}
 
-	void OnStcChanged()
+	void UpdateStatus()
 	{
 		WndManager& wm(WndManager::current());
 
@@ -66,7 +123,7 @@ public:
 		int lpos=m_pCanvas->GetCurrentPos();
 		int lcol=m_pCanvas->GetColumn(lpos);
 
-		wm.evtmgr["StatusBar"].StdExecuteEx(String::Format("Ln %-5d",line+1),1);		
+		wm.evtmgr["StatusBar"].StdExecuteEx(String::Format("Ln %-5d",line+1),1);
 		wm.evtmgr["StatusBar"].StdExecuteEx(String::Format("Ch %-5d",lcol+1),2);
 		//wm.evtmgr["StatusBar"].StdExecuteEx(String::Format("Ps %-5d",lpos+1),3);
 	}
@@ -76,17 +133,18 @@ public:
 		return true;
 	}
 
-	LitePtrT<IWnd_bookbase> m_pBook;
-	LitePtrT<IWnd_stc> m_pCanvas;
+	//LitePtrT<IWnd_bookbase> m_pBook;
+	LitePtrT<EwslCaret> m_pCanvas;
 
 	bool DoActivate(WndManager& wm,int v)
 	{
-		if(!basetype::DoActivate(wm,v)) return false;
+
+		if (!basetype::DoActivate(wm, v))
+		{
+			return false;
+		}
+
 		if(v==0) return true;
-
-
-		wm.evtmgr["Wnd.Variable"].CmdExecuteEx(v>0?2:-2);
-		if(m_pBook) m_pBook->SelPage(v>0?m_pMyView.get():NULL);
 
 
 		wm.wup.mu_set("MenuBar.default");
@@ -99,11 +157,7 @@ public:
 
 	bool OnCreated()
 	{
-		m_pBook=dynamic_cast<IWnd_bookbase*>(WndManager::current().evtmgr["Wnd.Variable"].GetWindow());
-		if(m_pBook)
-		{
-			m_pMyView.reset(iface.model->CreateDataView(m_pBook));
-		}
+		LinkBookData("Wnd.Variable", iface.model);
 		return true;
 	}
 
@@ -114,12 +168,16 @@ public:
 
 	wxWindow* CreateCanvas(wxWindow* w)
 	{
+		fn.SetExts(_hT("EWD Files") + "(*.ewd) | *.ewd");
+
 		WndProperty wp;
 		m_pCanvas=new EwslCaret(w,wp,iface);
-		m_pCanvas->func.bind(&MvcViewEwsl::OnStcChanged,this);
+		m_pCanvas->func.bind(&MvcViewEwsl::UpdateStatus, this);
 
 		m_pCanvas->UpdateStyle(".ewsl");
 		m_pCmdProc.reset(new ICmdProcTextCtrlEwsl(*m_pCanvas,*this));
+		m_pCmdProc->fn = fn;
+
 		return m_pCanvas;
 	}
 };
@@ -128,7 +186,7 @@ public:
 
 DataPtrT<MvcModel> PluginEwslEditor::CreateSampleModel()
 {
-	return new MvcModelT<MvcViewEwsl>;
+	return new MvcModelT<MvcViewEwsl>();
 }
 
 
@@ -161,8 +219,6 @@ bool PluginEwslEditor::OnCmdEvent(ICmdParam& cmd,int phase)
 			plab=dynamic_cast<MvcViewEwsl*>(wm.book.GetActiveView());
 			if(!plab) return true;
 		}
-
-
 
 		wm.evtmgr["Ewsl.Script"].WndExecuteEx(IDefs::ACTION_TRANSFER2MODEL);
 		String val;
@@ -257,9 +313,16 @@ bool PluginEwslEditor::OnCfgEvent(int lv)
 	return true;
 }
 
+bool PluginEwslEditor::GetExts(arr_1t<String>& exts)
+{
+	exts.push_back("EW Result Files(*.ewd;*.table)|*.ewd;*.table");
+	return true;
+}
+
 PluginEwslEditor::PluginEwslEditor(WndManager& w):basetype(w,"Plugin.Ewsl")
 {
-
+	m_aExtension.insert(".ewd");
+	m_aExtension.insert(".table");
 }
 
 IMPLEMENT_IPLUGIN(PluginEwslEditor)

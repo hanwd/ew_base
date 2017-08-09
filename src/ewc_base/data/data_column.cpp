@@ -9,8 +9,8 @@ DataColumn::DataColumn(const String& n,int t,int w)
 	width=w;
 }
 
-DataColumnType::DataColumnType() 
-:DataColumn(_hT("type"))
+DataColumnType::DataColumnType(int wd) 
+	:DataColumn(_hT("type"), COLUMNTYPE_STRING,wd)
 {
 
 }
@@ -21,8 +21,8 @@ void DataColumnType::GetValue(wxVariant &variant, DataNode* node) const
 }
 
 
-DataColumnName::DataColumnName() 
-:DataColumn(_hT("name"))
+DataColumnName::DataColumnName(int wd) 
+	:DataColumn(_hT("name"), COLUMNTYPE_STRING, wd)
 {
 
 }

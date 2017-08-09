@@ -6,7 +6,7 @@
 #include "ewa_base/basic/platform.h"
 #include "ewa_base/basic/bitflags.h"
 #include "ewa_base/basic/pointer.h"
-
+#include "ewa_base/basic/misc.h"
 
 EW_ENTER
 
@@ -16,6 +16,7 @@ public:
 
 	virtual int send(const char* p,size_t n);
 	virtual int recv(char* p,size_t n);
+	virtual int peek(char* p, size_t n);
 
 	virtual int64_t seekg(int64_t p,int t);
 	virtual int64_t tellg();
@@ -33,8 +34,6 @@ public:
 	bool recv_all(char* p,size_t n);
 
 	BitFlags flags;
-
-	static IStreamData* invalid_stream_data;
 
 };
 
@@ -55,6 +54,41 @@ public:
 	virtual int64_t sizep(){return size();}
 };
 
+
+
+class DLLIMPEXP_EWA_BASE IStreamMemory : public IStreamData
+{
+public:
+
+	IStreamMemory(){}
+
+	MemoryBuffer<char> mb;
+
+	int send(const char* data, size_t size)
+	{
+		return mb.send(data, size);
+	}
+	int recv(char* data, size_t size)
+	{
+		return mb.recv(data, size);
+	}
+	int peek(char* data, size_t size)
+	{
+		return mb.peek(data, size);
+	}
+
+	int64_t sizeg()
+	{
+		return mb.sizeg();
+	}
+
+	void close()
+	{
+		mb.clear();
+		mb.shrink();
+	}
+
+};
 
 class DLLIMPEXP_EWA_BASE File;
 class DLLIMPEXP_EWA_BASE Socket;
@@ -82,6 +116,8 @@ public:
 	int64_t seekg(int64_t p,int t){return hReader->seekg(p,t);}
 	int64_t tellg(){return hReader->tellg();}
 	int64_t sizeg(){return hReader->sizeg();}
+
+	int peek(char* buf, size_t len){return hReader->peek(buf, len);}
 
 	int64_t seekp(int64_t p,int t){return hWriter->seekp(p,t);}
 	int64_t tellp(){return hWriter->tellp();}

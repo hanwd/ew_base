@@ -194,6 +194,27 @@ public:
 		return n;
 	}
 
+	T* gend()
+	{
+		return pBuffer + wr_pos;
+	}
+
+	T* gend(size_t n)
+	{
+		size_t sz = n + wr_pos;
+		if (sz>sz_buf)
+		{
+			if (pBuffer != aBuff.data())
+			{
+				Exception::XError();
+			}
+			aBuff.resize(sz);
+			pBuffer = aBuff.data();
+			sz_buf = aBuff.size();
+		}
+		return pBuffer + rd_pos;   // get position begin
+	}
+
 	void alloc(size_type size_)
 	{
 		aBuff.resize(size_);

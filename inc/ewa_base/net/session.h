@@ -45,16 +45,35 @@ public:
 
 	virtual bool TestTimeout(TimePoint& tp,TempOlapPtr& q);
 
+
+	typedef LockFreeQueue<TempOlapPtr> LKFQueue;
+
+
+	class LKFQueue2 : public LKFQueue
+	{
+	public:
+		LKFQueue2(int sz, int f) :LKFQueue(sz, f){}
+		TempOlapPtr getq()
+		{
+			TempOlapPtr q = LKFQueue::getq();
+			if (!q)
+			{
+				q.reset(new MyOverLappedEx);
+			}
+			return q;
+		}
+	};
+
+	static LKFQueue2 lkfq_free;
+
 protected:
 
 	bool HasPending();
 
 
-	typedef LockFreeQueue<TempOlapPtr> LKFQueue;
+
 	LKFQueue lkfq_send;
 	LKFQueue lkfq_recv;
-
-	static LKFQueue lkfq_free;
 
 	AtomicInt32 m_nPendingSend;
 	AtomicInt32 m_nPendingRecv;
@@ -89,7 +108,7 @@ public:
 
 	virtual bool AsyncSend(const char* data,size_t size,int flag=1);
 
-	bool AsyncSend(TempOlapPtr& q);
+	virtual bool AsyncSend(TempOlapPtr& q);
 
 	bool AsyncSend(IPacketEx& packet){return AsyncSend((char*)&packet,packet.size);}
 

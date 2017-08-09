@@ -51,6 +51,8 @@ bool CmdProcStk::DoExecId(ICmdParam& cmd)
 	case CP_UNDO:
 		{
 			if(nIndex==0) return false;
+
+			DataPtrT<ObjectData> locker(CreateLockerObject());
 			if(!aCommands[nIndex-1]->Undo())
 			{
 				return false;
@@ -61,6 +63,8 @@ bool CmdProcStk::DoExecId(ICmdParam& cmd)
 	case CP_REDO:
 		{
 			if(nIndex==aCommands.size()) return false;
+
+			DataPtrT<ObjectData> locker(CreateLockerObject());
 			if(!aCommands[nIndex]->Redo())
 			{
 				return false;
@@ -133,17 +137,15 @@ bool CmdProcStk::DoTestId(ICmdParam& cmd)
 	case CP_LOAD:
 		return true;
 	default:
-		return false;
+		return basetype::DoTestId(cmd);
 	};
 }
 
 
-bool CmdProcStk::add_cmd(CmdBase* c)
+bool CmdProcStk::add_cmd(DataPtrT<CmdBase> c)
 {
 	if(!c->Redo())
 	{
-		c->IncRef();
-		c->DecRef();
 		return false;
 	}
 

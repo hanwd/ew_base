@@ -1,5 +1,6 @@
 #include "ewa_base/threading/thread.h"
 #include "ewa_base/logging/logger.h"
+#include "ewa_base/basic/system.h"
 #include "ewa_base/threading/coroutine.h"
 #include "thread_impl_detail.h"
 

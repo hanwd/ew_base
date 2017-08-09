@@ -92,7 +92,17 @@ public:
 		base-=dims.lo[5]*dims.sz[5];
 	}
 
+	tmp_xt() :base(NULL)
+	{
+
+	}
+
 	tmp_xt(arr_xt<T>& a)
+	{
+		reset(a);
+	}
+
+	void reset(arr_xt<T>& a)
 	{
 		data.pt=a.data();
 		for(size_t i=0;i<6;i++)

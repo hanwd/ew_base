@@ -42,7 +42,7 @@ protected:
 		ICtl_wxctrl_itemdata(EvtCommand* pevt_, IToolItemPtr item_) :ICtl_itemdata(pevt_), item(item_){}
 		IToolItemPtr item;
 
-		void UpdateCtrl();
+		int UpdateCtrl();
 		void UpdateBmps();
 	};
 
@@ -75,7 +75,7 @@ protected:
 		ICtl_wxctrl_itemdata(EvtCommand* pevt_, IAuiToolItemPtr item_) :ICtl_itemdata(pevt_), item(item_){}
 		IAuiToolItemPtr item;
 		ICtl_aui_toolbar* tbar;
-		void UpdateCtrl();
+		int UpdateCtrl();
 		void UpdateBmps();
 	};
 
@@ -201,15 +201,15 @@ bool ICtl_toolbar::AddCtrlItem(EvtGroup* pevt)
 }
 
 
-void ICtl_toolbar::ICtl_wxctrl_itemdata::UpdateCtrl()
+int ICtl_toolbar::ICtl_wxctrl_itemdata::UpdateCtrl()
 {
 	if (pevt->m_nId<0)
 	{
-		return;
+		return 0;
 	}
 
 	ICtl_toolbar* tb = (ICtl_toolbar*)item->GetToolBar();
-	if (!tb) return;
+	if (!tb) return 0;
 
 	item->SetShortHelp(str2wx(pevt->MakeLabel()));
 	item->SetLabel(str2wx(pevt->MakeLabel(EvtBase::LABEL_TOOL)));
@@ -221,6 +221,8 @@ void ICtl_toolbar::ICtl_wxctrl_itemdata::UpdateCtrl()
 		tb->ToggleTool(pevt->m_nId, pevt->flags.get(EvtBase::FLAG_CHECKED));
 	}
 	tb->EnableTool(pevt->m_nId, !pevt->flags.get(EvtBase::FLAG_DISABLE | EvtBase::FLAG_HIDE_UI));
+
+	return 0;
 }
 
 
@@ -330,11 +332,11 @@ bool ICtl_aui_toolbar::AddCtrlItem(EvtGroup* pevt)
 }
 
 
-void ICtl_aui_toolbar::ICtl_wxctrl_itemdata::UpdateCtrl()
+int ICtl_aui_toolbar::ICtl_wxctrl_itemdata::UpdateCtrl()
 {
 	if (pevt->m_nId<0)
 	{
-		return;
+		return 0;
 	}
 
 	item->SetShortHelp(str2wx(pevt->MakeLabel()));
@@ -348,6 +350,8 @@ void ICtl_aui_toolbar::ICtl_wxctrl_itemdata::UpdateCtrl()
 
 	tbar->EnableTool(pevt->m_nId, !pevt->flags.get(EvtBase::FLAG_DISABLE | EvtBase::FLAG_HIDE_UI));
 	tbar->RefreshRect(tbar->GetToolRect(pevt->m_nId));
+
+	return 0;
 	
 }
 

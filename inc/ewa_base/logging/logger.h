@@ -2,8 +2,8 @@
 #ifndef __H_EW_LOG_LOGGING__
 #define __H_EW_LOG_LOGGING__
 
-#include "ewa_base/logging/logrecord.h"
 #include "ewa_base/collection/indexer_set.h"
+#include "ewa_base/logging/logrecord.h"
 #include "ewa_base/basic/object.h"
 
 EW_ENTER
@@ -50,6 +50,8 @@ public:
 	int Id();
 	void Id(int id);
 
+	void ErrLevel(int lv);
+
 	// cache mode, LogRecords will not be send to logtarget immediately.
 	bool Cache();
 	void Cache(bool cache);
@@ -89,6 +91,7 @@ public:
 	STRING_FORMATER_FORMAT_FUNCS_SB(void LogCommand,DoLog(LOGLEVEL_COMMAND,fb);)
 	STRING_FORMATER_FORMAT_FUNCS_SB(void LogWarning,DoLog(LOGLEVEL_WARNING,fb);)
 	STRING_FORMATER_FORMAT_FUNCS_SB(void LogError,DoLog(LOGLEVEL_ERROR,fb);)
+	STRING_FORMATER_FORMAT_FUNCS_SB(void LogLiteError, DoLog(LOGLEVEL_LITE_ERROR, fb);)
 	STRING_FORMATER_FORMAT_FUNCS_SB(void LogFatal,DoLog(LOGLEVEL_FATAL,fb);)
 
 

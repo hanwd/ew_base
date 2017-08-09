@@ -2,6 +2,7 @@
 #include "ewa_base/logging/logrecord.h"
 #include "ewa_base/basic/lockguard.h"
 #include "ewa_base/basic/system.h"
+#include "ewa_base/serialization/serializer.h"
 
 #include <cstdlib>
 #include <cstdio>
@@ -57,6 +58,9 @@ String LogTarget::Format(const LogRecord& o) const
 		break;
 	case LOGLEVEL_WARNING:
 		_nLevel='W';
+		break;
+	case LOGLEVEL_LITE_ERROR:
+		_nLevel='E';
 		break;
 	case LOGLEVEL_ERROR:
 		_nLevel='E';
@@ -121,7 +125,7 @@ void LogPtr::Handle(const LogRecord& o)
 
 void LogCache::Serialize(SerializerHelper sh)
 {
-	//ar & aRecords;
+
 }
 
 void LogCache::Handle(const LogRecord& o)

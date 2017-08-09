@@ -3,9 +3,10 @@
 #define __H_EW_DOMDATA_DOBJECT__
 
 
-#include "ewa_base/basic.h"
-#include "ewa_base/scripting.h"
+#include "ewa_base/basic/object.h"
 #include "ewa_base/math/math_def.h"
+#include "ewa_base/scripting/variant.h"
+#include "ewa_base/scripting/callable_data.h"
 
 EW_ENTER
 
@@ -134,11 +135,21 @@ DEFINE_OBJECT_NAME(DExprItem,"expritem");
 
 
 
+/* 2017/06/28 Dai.Weifeng
+ * DWhen 设置计算体系的起止时间步和间隔时间步
+ * 默认构造参数：t_begin = 0, t_end = 0, t_step = 1
+ * 文档对象设定时，事实上由各个对象自身给出DWhen参数的“用户建议设置”
+ * t_begin == -1, t_end == -1, t_step == -1均认为是“默认设置”
+ * 默认设置如何转换为前后处理对象和引擎级别对象的真实DWhen参数，则由记录器的前后处理对象的函数autowhen来修正
+ * bool test(int) const函数用于测试某时间步是否处于需要处理，true为需要处理，false为不需要
+ * 由于计算提前终止导致真实的截至时间步和用户设定的截至时间步不同时由引擎级别对象或前后处理对象进行处理
+ */
 class DLLIMPEXP_EWA_BASE DWhen
 {
 public:
 
 	int t_begin,t_end,t_step;
+	bool test(int t_cur) const;
 
 	DWhen();
 };
@@ -230,9 +241,7 @@ public:
 class DLLIMPEXP_EWA_BASE DObjectInfo : public ObjectInfo
 {
 public:
-
 	DObjectInfo(const String& s = "");
-
 };
 
 
@@ -258,7 +267,9 @@ public:
 
 	virtual bool DoUpdateValue(DState&){return true;}
 	virtual bool DoCheckParam(DState&){return true;}
-	virtual bool DoTransferData(TableSerializer&){ return true; }
+
+	virtual bool DoTransferData(TableSerializer& ar);
+
 	virtual void DoRender(DContext&){}
 	virtual bool DoGetChildren(DChildrenState&){ return false; }
 
@@ -380,6 +391,8 @@ public:
 		clear();
 		m_internal.append(p);
 	}
+
+	DataPtrT<DObject> pdoc;
 
 private:
 	grp_type* m_parray;

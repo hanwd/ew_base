@@ -3,7 +3,7 @@
 
 
 #include "ewa_base/scripting/scanner.h"
-
+#include "ewa_base/scripting/parser_nodes.h"
 
 EW_ENTER
 

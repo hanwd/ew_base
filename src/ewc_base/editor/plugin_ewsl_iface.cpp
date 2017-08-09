@@ -88,6 +88,13 @@ void EwslIface::OnExecuteDone(int param1)
 
 }
 
+void EwslIface::Update(const VariantTable& table)
+{
+	ewsl.tb1 = table;
+	model->Update(ewsl.tb1);
+	iface->CmdPrepare(EwslCaret::CARET_NEWLINE);
+}
+
 void EwslIface::DoExecuteCmds()
 {
 

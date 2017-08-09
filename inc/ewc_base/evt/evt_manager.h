@@ -28,6 +28,9 @@ public:
 
 	static EvtManager& current();
 
+	void link_dobject_table(VariantTable& table);
+	void link_dobject_table(VariantTable& table, bst_set<String>& unkown_types);
+
 	int id_new();
 
 	void gp_beg(const String& s,const String& d);

@@ -156,7 +156,7 @@ protected:
 			:ICtl_itemdata(pevt_), item(item_), tbar(tbar_){}
 		wxRibbonGalleryItem* item;
 		wxRibbonGallery* tbar;
-		void UpdateCtrl(){}
+		int UpdateCtrl(){ return ICtl_itemdata::UpdateCtrl(); }
 	};
 
 protected:
@@ -249,7 +249,7 @@ protected:
 			:ICtl_itemdata(pevt_), item(item_), tbar(tbar_){}
 		wxRibbonToolBarToolBase* item;
 		wxRibbonToolBar* tbar;
-		void UpdateCtrl();
+		int UpdateCtrl();
 	};
 
 protected:
@@ -303,14 +303,14 @@ bool ICtl_ribbon_toolbar::AddCtrlItem(EvtGroup* pevt)
 	return true;
 }
 
-void ICtl_ribbon_toolbar::ICtl_wxctrl_itemdata::UpdateCtrl()
+int ICtl_ribbon_toolbar::ICtl_wxctrl_itemdata::UpdateCtrl()
 {
 	if (pevt->m_nId<0)
 	{
-		return;
+		return 0;
 	}
 
-	if (!tbar) return;
+	if (!tbar) return 0;
 	tbar->SetToolHelpString(pevt->m_nId, str2wx(pevt->MakeLabel(EvtBase::LABEL_TOOL)));
 
 	if (pevt->flags.get(EvtBase::FLAG_CHECK))
@@ -319,6 +319,8 @@ void ICtl_ribbon_toolbar::ICtl_wxctrl_itemdata::UpdateCtrl()
 	}
 
 	tbar->EnableTool(pevt->m_nId, !pevt->flags.get(EvtBase::FLAG_DISABLE | EvtBase::FLAG_HIDE_UI));
+
+	return 0;
 }
 
 
@@ -410,7 +412,7 @@ protected:
 			:ICtl_itemdata(pevt_), item(item_), tbar(tbar_){}
 		wxRibbonButtonBarButtonBase* item;
 		wxRibbonButtonBar* tbar;
-		void UpdateCtrl();
+		int UpdateCtrl();
 	};
 
 protected:
@@ -464,14 +466,14 @@ bool ICtl_ribbon_buttonbar::AddCtrlItem(EvtGroup* pevt)
 	return true;
 }
 
-void ICtl_ribbon_buttonbar::ICtl_wxctrl_itemdata::UpdateCtrl()
+int ICtl_ribbon_buttonbar::ICtl_wxctrl_itemdata::UpdateCtrl()
 {
 	if (pevt->m_nId<0)
 	{
-		return;
+		return 0;
 	}
 
-	if (!tbar) return;
+	if (!tbar) return 0;
 
 	if (pevt->flags.get(EvtBase::FLAG_CHECK))
 	{
@@ -479,6 +481,7 @@ void ICtl_ribbon_buttonbar::ICtl_wxctrl_itemdata::UpdateCtrl()
 	}
 
 	tbar->EnableButton(pevt->m_nId, !pevt->flags.get(EvtBase::FLAG_DISABLE | EvtBase::FLAG_HIDE_UI));
+	return 0;
 }
 
 

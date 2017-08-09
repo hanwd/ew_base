@@ -2,6 +2,8 @@
 #include "ewa_base/domdata/symm.h"
 #include "ewa_base/domdata/dstate.h"
 #include "ewa_base/domdata/table_serializer.h"
+#include "ewa_base/scripting/executor.h"
+
 EW_ENTER
 
 

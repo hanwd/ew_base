@@ -1,7 +1,9 @@
 #ifndef __H_EW_UTIL_REGEX__
 #define __H_EW_UTIL_REGEX__
 
-#include "ewa_base/basic.h"
+#include "ewa_base/basic/object.h"
+#include "ewa_base/basic/pointer.h"
+#include "ewa_base/collection/bst_map.h"
 
 EW_ENTER
 

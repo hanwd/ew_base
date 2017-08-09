@@ -185,8 +185,7 @@ void IOCPPool::ccc_handle_sock()
 {
 	accounter.tTimeStamp=Clock::now();
 
-	TempOlapPtr q(Session::lkfq_free.getq());
-	if(!q) q.reset(new MyOverLappedEx);
+	TempOlapPtr q(NULL);// Session::lkfq_free.getq());
 
 	for(int i=1; i<m_nSessionMax; i++)
 	{
@@ -292,7 +291,15 @@ void IOCPPool::DisconnectAll()
 
 void IOCPPool::wait_for_all_session_exit()
 {
-	m_nCanClose.wait();
+	while (!m_nCanClose.wait_for(100))
+	{
+		if (test_canceled())
+		{
+			wait();
+			return;
+		}
+	}
+
 	cancel();
 	wait();
 }
@@ -424,6 +431,9 @@ inline void IOCPPool::ccc_handle_iocp(Session* pkey,MyOverLapped* pdat)
 	break;
 	case MyOverLapped::ACTION_WAIT_SEND:
 	{
+		TempPtrT<MyOverLappedEx> q(static_cast<MyOverLappedEx*>(&idat));
+		Session::lkfq_free.putq(q);
+
 		if(idat.size<0)
 		{
 			ikey.Disconnect();
@@ -495,7 +505,16 @@ void IOCPPool::svc_worker()
 		else
 		{
 			pdat->size=BytesTransferred;
-			ccc_handle_iocp(pkey,pdat);
+			try
+			{
+				ccc_handle_iocp(pkey,pdat);
+			}
+			catch (std::exception& e)
+			{
+				System::LogMessage("UnhandledException in svc_worker: %s",e.what());
+				pkey->Disconnect();
+			}
+
 		}
 
 	}

@@ -2,6 +2,10 @@
 #include "ewc_base/mvc/mvc_model.h"
 #include "ewc_base/evt/evt_manager.h"
 #include "ewc_base/wnd/wnd_manager.h"
+#include "ewc_base/wnd/wnd_manager.h"
+
+#include "ewc_base/wnd/impl_wx/iwnd_bookbase.h"
+#include "ewc_base/data/data_model.h"
 
 EW_ENTER
 
@@ -147,16 +151,14 @@ bool MvcView::OnActivate(WndManager& wm,int v)
 		return false;
 	}
 
-	if ( v>0 && !flags.get(FLAG_INITED))
-	{
-		flags.add(FLAG_INITED);
-		Target.ExecId(CmdProc::CP_INIT);
-	}
-
 	if(v<0)
 	{
 		flags.set(FLAG_ACTIVE,false);
 		wm.cmdptr.SetData(NULL);
+	}
+	else if (v > 0)
+	{
+		UpdateStatus();
 	}
 
 	return true;
@@ -167,8 +169,39 @@ bool MvcView::DoClose(WndManager&)
 	return true;
 }
 
-bool MvcView::DoActivate(WndManager&,int)
+bool MvcView::DoActivate(WndManager& wm,int v)
 {
+	if (v>0 && !flags.get(FLAG_INITED))
+	{
+		if (!DoInitialize())
+		{
+			return false;
+		}
+
+		flags.add(FLAG_INITED);
+		Target.ExecId(CmdProc::CP_INIT);
+	}
+
+	for (size_t i = 0; i < arr_items.size(); i++)
+	{
+		if (arr_items[i]->DoActivate(wm, v)) continue;
+
+		if (v != 0)
+		{
+			System::LogError("invalid DoActivate State");
+			return true;
+		}
+
+		while (i > 0)
+		{
+			arr_items[--i]->DoActivate(wm, -v);
+		}
+
+		return false;
+
+
+	}
+
 	return true;
 }
 
@@ -192,6 +225,11 @@ String MvcView::GetTitle()
 		return string_split(fs, "/").back();
 	}
 	return _hT("unnamed");
+}
+
+bool MvcView::DoInitialize()
+{
+	return true;
 }
 
 void MvcView::Refresh()
@@ -234,6 +272,39 @@ bool MvcViewEx::DoActivate(WndManager& wm,int v)
 	if(v>0) Target.SetData(m_pCmdProc.get());
 	if(v<0) Target.SetData(NULL);
 	return MvcView::DoActivate(wm,v);
+}
+
+class MvcItemBookData : public MvcItemData
+{
+public:
+
+	String sbook;
+	IWnd_bookbase* pbook;
+	AutoPtrT<wxWindow> pview;
+
+	bool DoActivate(WndManager& wm, int v)
+	{
+		if (pbook)
+		{
+			pbook->SelPage(v > 0 ? pview.get() : NULL);
+			wm.evtmgr[sbook].CmdExecuteEx(v>0 ? 2 : -2);
+		}
+		return true;
+	}
+};
+
+bool MvcView::LinkBookData(const String& sbook, DataModel* pmodel)
+{
+	DataPtrT<MvcItemBookData> pdata(new MvcItemBookData);
+
+	pdata->pbook = dynamic_cast<IWnd_bookbase*>(WndManager::current().evtmgr[sbook].GetWindow());
+	if (!pdata->pbook) return false;
+
+	pdata->sbook = sbook;
+	pdata->pview.reset(pmodel->CreateDataView(pdata->pbook));
+
+	arr_items.push_back(pdata);
+	return true;
 }
 
 

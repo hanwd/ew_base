@@ -1,6 +1,7 @@
 #include "ewc_base/data/data_node.h"
 #include "ewc_base/data/data_model.h"
 #include "ewc_base/wnd/wnd_glcontext.h"
+#include "ewc_base/mvc/mvc_view.h"
 #include "ewc_base/wnd/impl_wx/iwnd_modelview.h"
 
 EW_ENTER
@@ -8,7 +9,19 @@ EW_ENTER
 
 DataNode::DataNode(DataNode* p,const String& n):parent(p),name(n)
 {
-	depth=p?p->depth+1:0;
+	if (!parent)
+	{
+		depth = 0;
+	}
+	else if (parent->flags.get(FLAG_TMP_NODE))
+	{
+		depth = parent->depth;
+	}
+	else
+	{
+		depth = parent->depth + 1;
+	}
+
 	if (depth == 1)
 	{
 		parent = NULL;
@@ -18,6 +31,11 @@ DataNode::DataNode(DataNode* p,const String& n):parent(p),name(n)
 DataNode::~DataNode()
 {
 	subnodes.clear_and_destroy();
+	if (ptool)
+	{
+		EW_ASSERT(ptool->pnode == this);
+		ptool->pnode.reset(NULL);
+	}
 }
 
 DataNode* DataNode::GetRoot()
@@ -47,6 +65,67 @@ void DataNode::DoUpdateAttribute(GLDC& dc)
 
 }
 
+void DataNode::OnItemMenu(wxWindow*)
+{
+
+}
+
+
+void DataNode::OnGroupMenu(wxWindow*)
+{
+
+}
+
+bool DataNode::OnActivate()
+{
+	return true;
+}
+
+void DataNode::OnToggle(bool flag)
+{
+	flags.set(FLAG_EXPANDED, !flag);
+}
+
+void DataNode::OnSelected(bool flag)
+{
+	flags.set(FLAG_SELECTED, flag);
+}
+
+DObject* DataNode::GetItem()
+{ 
+	return NULL; 
+}
+
+DObject* DataNode::GetRealItem()
+{
+	return GetItem();
+}
+
+bool DataNode::AllowMultiSelection()
+{
+	return true; 
+}
+
+
+DataNode* DataNode::GetParent()
+{
+	return parent;
+}
+
+DataNode* DataNode::GetRealParent()
+{
+	for (DataNode* p = parent; p; p = p->parent)
+	{
+		if (!p->flags.get(FLAG_TMP_NODE)) return p;
+	}
+	return NULL;
+}
+
+
+int DataNode::GetDepth()
+{
+	return depth;
+}
 
 
 DataPtrT<GLToolData> DataNode::GetToolData()
@@ -94,7 +173,7 @@ void DataNodeVariant::TouchNode(DataChangedParam&, unsigned)
 		subnodes.clear_and_destroy();
 		for (size_t i = 0; i < table.size(); i++)
 		{
-			DataNodeVariant* pv = DataNodeCreator::Create(this, table.get(i));
+			DataNodeVariant* pv = NCreatorRegister::Create(this, table.get(i));
 			subnodes.push_back(pv);
 		}
 	}
@@ -162,7 +241,7 @@ void DataNodeVariant::OnChanged(DataChangedParam& dpm)
 
 	DataNode* parent = (this == dpm.model.GetRootNode()) ? NULL : this;
 
-	if (!items_del.empty())
+	if (!items_del.empty() && this->flags.get(FLAG_ND_OPENED))
 	{
 		if (!dpm.model.ItemsDeleted(wxDataViewItem(parent), items_del))
 		{
@@ -172,7 +251,7 @@ void DataNodeVariant::OnChanged(DataChangedParam& dpm)
 
 	oldnodes.swap(newnodes);
 
-	if (!items_add.empty())
+	if (!items_add.empty() && this->flags.get(FLAG_ND_OPENED))
 	{
 		if (!dpm.model.ItemsAdded(wxDataViewItem(parent), items_add))
 		{
@@ -180,10 +259,18 @@ void DataNodeVariant::OnChanged(DataChangedParam& dpm)
 		}
 	}
 
+	if (!items_del.empty())
+	{
+		dpm.model.GetSelector().clear();
+		dpm.model.GetSelector().UpdateSelection();
+	}
+
 	for (auto it = items_del.begin(); it != items_del.end(); ++it)
 	{
 		delete (DataNode*)(*it).GetID();
 	}
+
+
 }
 
 
@@ -195,6 +282,21 @@ DataNodeSymbol::DataNodeSymbol(DataNode* n, DObject* p) :DataNode(n, p->m_sId), 
 const String& DataNodeSymbol::GetObjectName() const
 {
 	return value->GetObjectName();
+}
+
+void DataNodeSymbol::OnItemMenu(wxWindow* w)
+{
+	String menu_name = "property.menu." + GetObjectName();
+	EvtBase* pevt=WndManager::current().evtmgr.get(menu_name);
+	if (pevt)
+	{
+		pevt->PopupMenu(w);
+	}
+}
+
+DObject* DataNodeSymbol::GetItem()
+{
+	return value.get();
 }
 
 bool DataNodeSymbol::UpdateLabel()
@@ -227,22 +329,20 @@ void DataNodeSymbol::TouchNode(DataChangedParam& dpm,unsigned depth)
 
 	EW_ASSERT(subnodes.empty());
 
-	if (value->DoGetChildren(dpm.state))
-	{
-		flags.add(DataNode::FLAG_IS_GROUP);
-
-		for (size_t i = 0; i<dpm.state.size(); i++)
-		{
-			DataNode* pv = DataNodeCreator::Create(this, dpm.state[i].get());
-			if (!pv) continue;
-			subnodes.push_back(pv);
-		}
-	}
-	else
+	if (!value->DoGetChildren(dpm.state))
 	{
 		flags.del(DataNode::FLAG_IS_GROUP);
+		return;
 	}
 
+	flags.add(DataNode::FLAG_IS_GROUP);
+
+	for (size_t i = 0; i<dpm.state.size(); i++)
+	{
+		DataNode* pv = NCreatorRegister::Create(this, dpm.state[i].get());
+		if (!pv) continue;
+		subnodes.push_back(pv);
+	}
 	
 	if (depth==0)
 	{
@@ -279,17 +379,33 @@ void DataNodeSymbol::OnChanged(DataChangedParam& dpm)
 	size_t n_new = dpm.state.size();
 	size_t n_old = subnodes.size();
 
+	bool changed = n_new != n_old;
+
 	if (n_new == n_old)
 	{
+
 		for (size_t i = n_new;;)
 		{
 			if (i-- == 0)
 			{
-				return;
+				break;
 			}
 
-			if (subnodes[i]->GetItem() != dpm.state[i].get()) break;
+			if (subnodes[i]->GetItem() != dpm.state[i].get())
+			{
+				changed = true;
+				break;
+			}
 		}
+	}
+
+	if (!changed)
+	{
+		for (size_t i = 0; i < n_old; i++)
+		{
+			subnodes[i]->OnChanged(dpm);
+		}
+		return;
 	}
 
 	class nodeinfo
@@ -352,7 +468,7 @@ void DataNodeSymbol::OnChanged(DataChangedParam& dpm)
 
 		if (!ni.node)
 		{
-			if (ni.node = DataNodeCreator::Create(this, ni.item))
+			if (ni.node = NCreatorRegister::Create(this, ni.item))
 			{
 				items_add.push_back(wxDataViewItem(ni.node));
 			}
@@ -363,43 +479,60 @@ void DataNodeSymbol::OnChanged(DataChangedParam& dpm)
 			{
 				dpm.model.ItemChanged(wxDataViewItem(ni.node));
 			}
-
-			//if (ni.node->flags.get(FLAG_IS_GROUP) && ni.node->flags.get(DataNode::FLAG_TOUCHED))
-			//{
-			//	ni.node->OnChanged(dpm);
-			//}
 		}
 	}
 
 
+	DataNode* real_parent = flags.get(DataNode::FLAG_TMP_NODE)?GetRealParent():this;
 
-	dpm.model.ItemsDeleted(wxDataViewItem(parent), items_del);
+	if (real_parent->flags.get(FLAG_ND_OPENED))
+	{
+		dpm.model.ItemsDeleted(wxDataViewItem(real_parent), items_del);
+	}
+
 	subnodes.resize(n_new);
 	for (size_t i = 0; i<n_new; i++)
 	{
 		subnodes[i] = nodeinfos[i].node;
 	}
-	dpm.model.ItemsAdded(wxDataViewItem(parent), items_add);
+
+	if (real_parent->flags.get(FLAG_ND_OPENED))
+	{
+		dpm.model.ItemsAdded(wxDataViewItem(real_parent), items_add);
+	}
+
+	if (!items_del.empty())
+	{
+		dpm.model.GetSelector().clear();
+		dpm.model.GetSelector().UpdateSelection();
+	}
 
 	for (auto it = items_del.begin(); it != items_del.end(); ++it)
 	{
-		delete (DataNode*)(*it).GetID();
+		DataNode* pn = (DataNode*)(*it).GetID();
+		delete pn;
 	}
+
+	for (size_t i = 0; i < subnodes.size(); i++)
+	{
+		subnodes[i]->OnChanged(dpm);
+	}
+
 }
 
 
 
-DataNodeCreator& DataNodeCreator::current()
+NCreatorRegister& NCreatorRegister::current()
 {
-	static DataNodeCreator gInstance;
+	static NCreatorRegister gInstance;
 	return gInstance;
 }
 
-DataNodeSymbol* DataNodeCreator::Create(DataNode* n, DObject* p)
+DataNodeSymbol* NCreatorRegister::Create(DataNode* n, DObject* p)
 {
 	if (!p) return NULL;
-	indexer_map<ObjectInfo*, data_node_ctor>& hmap(current().hmap);
-	indexer_map<ObjectInfo*, data_node_ctor>::iterator it = hmap.find(&p->GetObjectInfo());
+	auto& hmap(current().hmap);
+	auto it = hmap.find(&p->GetObjectInfo());
 	if (it == hmap.end() || !(*it).second)
 	{
 		return new DataNodeSymbol(n,p);
@@ -407,11 +540,17 @@ DataNodeSymbol* DataNodeCreator::Create(DataNode* n, DObject* p)
 	return (*it).second(n, p);
 }
 
-DataNodeVariant* DataNodeCreator::Create(DataNode* p, const std::pair<String, Variant>& v)
+DataNodeVariant* NCreatorRegister::Create(DataNode* p, const std::pair<String, Variant>& v)
 {
 	return new DataNodeVariant(p, v);
 }
 
+
+
+int GLToolData::OnMoving(GLTool&)
+{
+	return 0;
+}
 
 int GLToolData::OnDraging(GLTool& gt)
 {
@@ -453,6 +592,11 @@ GLTool::GLTool()
 	type = 0;
 }
 
+GLTool::~GLTool()
+{
+	DoSetNode(NULL);
+}
+
 void GLTool::Cancel()
 {
 	HandleValue(pdata->OnBtnCancel(*this));
@@ -484,10 +628,36 @@ void GLTool::HandleValue(int ret)
 
 	if (ret & GLParam::FLAG_REFRESH)
 	{
-		pview->Refresh();
+		pview->PendingRefresh();
+	}
+
+}
+
+void GLTool::HandleSelection(int k, int f)
+{
+	if (!pview) return;
+	auto& selctor(pview->pmodel->GetSelector());
+
+	if (f & 1)
+	{
+		if (pnode)
+		{
+			selctor.AddSelection(pnode.get());
+			selctor.UpdateSelection();
+		}
+	}
+	else
+	{
+		selctor.SetSelection(pnode.get());
+		selctor.UpdateSelection();
 
 	}
 
+	if (k == 3)
+	{
+		DataModel::ms_pActive = pview->pmodel;
+		selctor.OnItemMenu(pview);
+	}
 
 }
 
@@ -511,28 +681,31 @@ void GLTool::OnMouseEvent(wxMouseEvent& evt)
 
 		flags.del(GLParam::IMAGE_CACHED|GLParam::BTN_IS_MOVED);
 
-		if (!UpdateToolData())
+		UpdateToolData(evt.GetButton());
+		
+
+		if (pdata)
 		{
-			return;
+			v2pos2=v2pos1 = v2pos0;		
+			HandleValue(pdata->OnBtnDown(*this));
+		}
+		else
+		{
+			HandleSelection(evt.GetButton(), evt.ControlDown()?1:0);
 		}
 
-		btn_id = evt.GetButton();
-		v2pos2=v2pos1 = v2pos0;
-		
-		HandleValue(pdata->OnBtnDown(*this));
-		
 		return;
 
 	}
 	else if (evt.ButtonDClick())
 	{
-		if (!UpdateToolData())
-		{
-			return;
-		}
+		UpdateToolData(evt.GetButton());
+		HandleSelection(evt.GetButton(), 2);
 
-		btn_id = evt.GetButton();
-		HandleValue(pdata->OnBtnDClick(*this));
+		if (pdata)
+		{
+			HandleValue(pdata->OnBtnDClick(*this));
+		}		
 
 		return;
 	}
@@ -545,6 +718,10 @@ void GLTool::OnMouseEvent(wxMouseEvent& evt)
 
 	if (evt.ButtonUp())
 	{
+		if (!flags.get(GLParam::BTN_IS_MOVED))
+		{
+			HandleSelection(evt.GetButton(), evt.ControlDown() ? 1 : 0);
+		}
 		HandleValue(pdata->OnBtnUp(*this));
 	}
 	else if (evt.Dragging())
@@ -559,6 +736,10 @@ void GLTool::OnMouseEvent(wxMouseEvent& evt)
 	{
 		wheel = double(wr) / double(evt.GetWheelDelta());
 		HandleValue(pdata->OnWheel(*this));
+	}
+	else if (evt.Moving())
+	{
+		HandleValue(pdata->OnMoving(*this));
 	}
 
 }
@@ -594,6 +775,15 @@ DataNode* GLTool::HitTest(int x, int y)
 	dc.RenderSelect(pview->pmodel);
 
 	DataNode* p = dc.HitTest(x, pview->GetClientSize().y - y);
+	while (p && p->flags.get(DataNode::FLAG_TMP_NODE))
+	{
+		p = p->parent;
+	}
+
+	if (functor)
+	{
+		functor(p,btn_id);
+	}
 
 	if (p)
 	{
@@ -603,10 +793,24 @@ DataNode* GLTool::HitTest(int x, int y)
 	return p;
 }
 
-bool GLTool::UpdateToolData()
+
+void GLTool::DoSetNode(DataNode* node)
 {
+	if (pnode == node) return;
+	if (pnode) pnode->ptool = NULL;
+	pnode = node;
+	if (pnode) pnode->ptool = this;
+}
+
+
+bool GLTool::UpdateToolData(int k)
+{
+	btn_id = k;
 	pdata.reset(NULL);
-	for (DataNode* p = HitTest(v2pos0[0], v2pos0[1]); !pdata && p; p = p->parent)
+
+	DoSetNode(HitTest(v2pos0[0], v2pos0[1]));
+
+	for (DataNode* p = pnode; !pdata && p; p = p->parent)
 	{
 		pdata = p->GetToolData();
 	}

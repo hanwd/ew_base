@@ -1,9 +1,40 @@
 #include "ewa_base/scripting.h"
 #include "ewa_base/scripting/pl_dispatch.h"
 #include "ewa_base/math/math_op.h"
+#include "ewa_base/math/fft_cfg.h"
 
 EW_ENTER
 
+
+class CallableFunctionFft : public CallableFunction
+{
+public:
+	CallableFunctionFft() :CallableFunction("math.fft"){}
+
+	virtual int __fun_call(Executor& ks, int pm)
+	{
+		if (pm != 1) ks.kerror("invalid pm count");
+		arr_xt<double> aa = variant_cast<arr_xt<double> >(ks.ci0.nbx[1]);
+
+		if (aa.empty())
+		{
+			ks.kerror("math.fft: empty data");
+			return 0;
+		}
+
+		arr_xt<dcomplex> bb;
+		bb.resize(aa.size());
+
+		fft(bb.data(), aa.data(), aa.size());
+
+		ks.ci0.nbx[1].ref<arr_xt<dcomplex> >().swap(bb);
+		return 1;
+
+	}
+	DECLARE_OBJECT_CACHED_INFO(CallableFunctionFft, ObjectInfo);
+
+};
+IMPLEMENT_OBJECT_INFO(CallableFunctionFft, ObjectInfo);
 
 int down_cast_variant_type(Variant& v)
 {
@@ -229,6 +260,8 @@ void init_module_math()
 			pl2_call<pl_ne>::lk::cmap[n]=&value_direct<true>;
 		}
 	}
+
+	gi.add_inner<CallableFunctionFft>();
 
 }
 

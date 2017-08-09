@@ -191,7 +191,7 @@ public:
 		arr_type& val(ewsl.ci0.nbx[1].ref_unique<arr_type>());
 		
 		val.resize(_array_dims);
-		if(nValue!=T())
+		//if(nValue!=T())
 		{
 			for(size_t i=0;i<val.size();i++) val(i)=nValue;
 		}
@@ -665,7 +665,7 @@ public:
 		if(pm==1)
 		{
 			size_t n=variant_cast<size_t>(ewsl.ci0.nbx[1]);
-			(*p).pop_back_and_reshaepe_to_row_vector(n);
+			(*p).pop_back_and_reshape_to_row_vector(n);
 			return 0;
 		}
 		else
@@ -674,7 +674,7 @@ public:
 			{
 				ewsl.ci0.nbx[1].reset(*(*p).rbegin());
 			}
-			(*p).pop_back_and_reshaepe_to_row_vector(1);
+			(*p).pop_back_and_reshape_to_row_vector(1);
 			return 1;		
 		}
 

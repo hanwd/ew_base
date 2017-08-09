@@ -4,7 +4,10 @@
 #include "ewc_base/config.h"
 #include "ewc_base/evt/evt_listener.h"
 
+
 EW_ENTER
+
+class IValueOptionData;
 
 class DLLIMPEXP_EWC_BASE Validator : public EvtListener
 {
@@ -37,6 +40,8 @@ public:
 	bool OnWndUpdate(IWndParam&,EvtBase*);
 
 	virtual wxWindow* GetWindow(){ return NULL; }
+
+	virtual void SetOptionData(IValueOptionData*){}
 };
 
 

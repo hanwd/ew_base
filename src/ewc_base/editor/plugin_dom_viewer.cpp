@@ -40,6 +40,7 @@ public:
 	}
 };
 
+IMPLEMENT_DATANODE_SYMBOL(DFigure);
 
 template<>
 class DataNodeSymbolT<DObjectBox> : public DataNodeSymbol
@@ -47,6 +48,7 @@ class DataNodeSymbolT<DObjectBox> : public DataNodeSymbol
 public:
 public:
 	typedef DataNodeSymbol basetype;
+
 	DataNodeSymbolT(DataNode* n, DObject* p) :basetype(n, p)
 	{
 		line_main.color.set(200,200,200);
@@ -87,6 +89,8 @@ public:
 
 };
 
+
+IMPLEMENT_DATANODE_SYMBOL(DObjectBox);
 
 template<>
 class DataNodeSymbolT<DText> : public DataNodeSymbolT<DObjectBox>
@@ -147,6 +151,7 @@ public:
 	}
 
 };
+IMPLEMENT_DATANODE_SYMBOL(DText);
 
 template<>
 class DataNodeSymbolT<DCoord> : public DataNodeSymbolT<DObjectBox>
@@ -163,6 +168,7 @@ public:
 	box3d b3axis0,b3axis1;
 };
 
+IMPLEMENT_DATANODE_SYMBOL(DCoord);
 
 template<>
 class DataNodeSymbolT<DTable> : public DataNodeSymbol
@@ -200,6 +206,7 @@ public:
 
 	}
 };
+IMPLEMENT_DATANODE_SYMBOL(DTable);
 
 template<>
 class DataNodeSymbolT<DTableRow> : public DataNodeSymbol
@@ -242,6 +249,8 @@ public:
 	}
 };
 
+IMPLEMENT_DATANODE_SYMBOL(DTableRow);
+
 template<>
 class DataNodeSymbolT<DTableCell> : public DataNodeSymbol
 {
@@ -253,7 +262,7 @@ public:
 
 	}
 };
-
+IMPLEMENT_DATANODE_SYMBOL(DTableCell);
 
 template<>
 class DataNodeSymbolT<DCoord2D> : public DataNodeSymbolT<DCoord>
@@ -359,6 +368,7 @@ public:
 	}
 };
 
+IMPLEMENT_DATANODE_SYMBOL(DCoord2D);
 
 class DLLIMPEXP_EWC_BASE GLToolDataCoord2d : public GLToolData
 {
@@ -505,6 +515,7 @@ public:
 	}
 };
 
+IMPLEMENT_DATANODE_SYMBOL(DFigDataManager);
 
 template<>
 class DataNodeSymbolT<DFigDataModel> : public DataNodeSymbol
@@ -513,6 +524,11 @@ public:
 	typedef DataNodeSymbol basetype;
 	DataNodeSymbolT(DataNode* n, DObject* p) :basetype(n, p)
 	{
+	}
+
+	DObject* GetRealItem()
+	{
+		return static_cast<DFigDataModel*>(value.get())->m_pRealObject.get();
 	}
 
 	void DoRender(GLDC& dc)
@@ -524,7 +540,7 @@ public:
 		DataNodeSymbol::DoRender(dc);
 	}
 };
-
+IMPLEMENT_DATANODE_SYMBOL(DFigDataModel);
 
 class DLLIMPEXP_EWC_BASE GLToolDataCoord3d : public GLToolData
 {
@@ -661,6 +677,10 @@ public:
 
 	typedef DataNodeSymbolT<DCoord> basetype;
 
+	AutoPtrT<DataNode> node_axis;
+
+	DataPtrT<DCoord3D> value;
+
 	DataNodeSymbolT(DataNode* n, DObject* p) :basetype(n, p)
 	{
 		b3axis0.set_x(-100.0, +100.0);
@@ -675,6 +695,13 @@ public:
 		light0.v4specular.set4(0.1f, 0.1f, 0.1f, 1.0f);
 
 		nscale = 1.0;
+		value.cast_and_set(p);
+
+		if (value->mode != 0)
+		{
+			node_axis.reset(NCreatorRegister::Create(this, value->m_pAxis.get()));
+			node_axis->flags.add(DataNode::FLAG_TMP_NODE);
+		}
 
 	}
 
@@ -702,6 +729,23 @@ public:
 		dc.attrupdator.Update("line.bbox", line_bbox);
 	}
 
+	void DoRenderSubNodes(GLDC& dc)
+	{
+		if (value->mode != 0)
+		{
+			dc.EnterGroup();
+			dc.RenderNode(node_axis.get());
+			{
+				GLClipLocker lock1(dc, dc.ci);
+				basetype::DoRender(dc);
+			}
+			dc.LeaveGroup();
+		}
+		else
+		{
+			basetype::DoRender(dc);
+		}
+	}
 
 	void DoRender(GLDC& dc)
 	{
@@ -764,7 +808,7 @@ public:
 			dc.Light(light0, true);
 			::glTranslated(-c3[0], -c3[1], 0.0);
 
-			basetype::DoRender(dc);
+			DoRenderSubNodes(dc);
 
 			dc.Light(light0, false);
 		}
@@ -808,15 +852,14 @@ public:
 				::glEnd();
 			}
 
-			basetype::DoRender(dc);
-
+			DoRenderSubNodes(dc);
 		}
 
 	}
 };
 
 
-
+IMPLEMENT_DATANODE_SYMBOL(DCoord3D);
 
 
 template<>
@@ -1200,6 +1243,8 @@ public:
 	}
 };
 
+IMPLEMENT_DATANODE_SYMBOL(DAxisUnitD);
+
 template<>
 class DataNodeSymbolT<DAxis> : public DataNodeSymbol
 {
@@ -1296,6 +1341,8 @@ public:
 	}
 };
 
+IMPLEMENT_DATANODE_SYMBOL(DAxis);
+
 template<>
 class DataNodeSymbolT<FigData> : public DataNodeSymbol
 {
@@ -1306,7 +1353,7 @@ public:
 	}
 };
 
-
+IMPLEMENT_DATANODE_SYMBOL(FigData);
 
 template<>
 class DataNodeSymbolT<DFigData2D> : public DataNodeSymbolT<FigData>
@@ -1420,6 +1467,9 @@ public:
 	}
 
 };
+
+
+IMPLEMENT_DATANODE_SYMBOL(DFigData2D);
 
 
 template<>
@@ -1539,6 +1589,53 @@ public:
 
 };
 
+IMPLEMENT_DATANODE_SYMBOL(DFigData3D);
+
+
+template<>
+class DataNodeSymbolT<DFigData3DImage> : public DataNodeSymbolT<FigData>
+{
+public:
+
+	typedef DataNodeSymbolT<FigData> basetype;
+
+
+	DataPtrT<DFigData3DImage> value;
+	mat4d m4data;
+
+	DataNodeSymbolT(DataNode* n, DObject* p) :basetype(n, p)
+	{
+		if (!value.cast_and_set(p)) return;
+	}
+
+	//mat4d m4;
+
+
+	void DoRender(GLDC& dc)
+	{
+		if (!value) return;
+
+		if (dc.Mode() == GLDC::RENDER_SET_REALSIZE)
+		{
+			return;
+		}
+
+		GLMatrixLocker lock2(dc, dc.bi.m4data);
+
+		if (dc.Mode() == GLDC::RENDER_SOLID||dc.Mode() == GLDC::RENDER_SELECT)
+		{
+			auto& xvalue(value->m_aXvalues);
+			auto& yvalue(value->m_aYvalues);
+			auto& zvalue(value->m_aZvalues);
+
+			dc.RenderImage(xvalue, yvalue, zvalue);
+		}
+
+
+	}
+
+};
+IMPLEMENT_DATANODE_SYMBOL(DFigData3DImage);
 
 
 class MvcViewFigure : public MvcViewEx
@@ -1554,136 +1651,26 @@ public:
 		pmodel->DecRef();
 	}
 
-	IWnd_bookbase* m_pBook;
-	AutoPtrT<wxWindow> m_pMyView;
 
 	bool OnCreated()
 	{
-		m_pBook = dynamic_cast<IWnd_bookbase*>(WndManager::current().evtmgr["Wnd.Variable"].GetWindow());
-		if (m_pBook)
-		{
-			m_pMyView.reset(pmodel->CreateDataView(m_pBook));
-		}
+		LinkBookData("Wnd.Variable", pmodel);
 		return true;
 	}
 
-	static DObject* CreateFigure1()
-	{
-
-		DCoord* c = new DCoord2D;
-		c->m_sId = "coord2d";
-
-		DFigData2D* d = new DFigData2D;
-		d->m_sId = "data1";
-		c->m_pDataManager->m_aItems.append(d);
-
-		d = new DFigData2D;
-		d->m_sId = "data2";
-
-		c->m_pDataManager->m_aItems.append(d);
-
-		DText* t = new DText;
-		t->m_sText = "title";
-		t->m_sId = "title";
-		t->m_v3Pos[1] = 1.0;
-		t->m_v3Shf[1] = 1.0;
-		t->m_v3Pxl[1] = 8.0;
-		c->m_aItems.append(t);
-
-		t = new DText;
-		t->m_sText = "xlabel";
-		t->m_sId = "xlabel";
-		t->m_v3Pos[1] = -1.0;
-		t->m_v3Shf[1] = -1.0;
-		t->m_v3Pxl[1] = -23.0;
-		c->m_aItems.append(t);
-
-
-		t = new DText;
-		t->m_sText = "ylabel";
-		t->m_sId = "ylabel";
-		t->m_v3Pos[0] = -1.0;
-		t->m_v3Shf[0] = -1.0;
-		t->m_v3Pxl[0] = -23.0;
-
-		t->m_pAttribute.reset(new DAttribute);
-		t->m_pAttribute->SetValue("font_flags.text", (int)DFontStyle::STYLE_VERTICAL);
-
-		c->m_aItems.append(t);
-
-		return c;
-	}
-
-	static DObject* CreateFigure2()
-	{
-
-		DCoord* c = new DCoord3D;
-		c->m_sId = "coord3d";
-
-		FigData* d = new DFigData3D;
-		d->m_sId = "data1";
-
-		c->m_pDataManager->m_aItems.append(d);		
-
-		return c;
-
-	}
-
-	static DataModel* CreateDataModel2()
-	{
-
-		DataModel* model = new DataModel();
-		model->AddColumn(new DataColumnName);
-		model->AddColumn(new DataColumnType);
-
-		DObject* p=CreateFigure2();
-		model->Update(p);
-
-		return model;
-	}
-
-
-	static DataModel* CreateDataModel1()
-	{
-
-		DataModel* model = new DataModel();
-
-		model->AddColumn(new DataColumnName);
-		model->AddColumn(new DataColumnType);
-
-
-		DObject* p1 = CreateFigure1();
-		DObject* p2 = CreateFigure2();
-
-		DTableRow* p3=new DTableRow("row");
-		DTableCell* c1=new DTableCell("cell");
-		DTableCell* c2=new DTableCell("cell");
-
-		c1->m_aItems.append(p1);
-		c2->m_aItems.append(p2);
-
-		p3->m_aItems.append(c1);
-		p3->m_aItems.append(c2);
-
-		model->Update(p3);
-
-		model->m_pAttributeManager.reset(new DAttributeManager);
-
-		return model;
-	}
 
 	MvcViewFigure(MvcModel& tar) :basetype(tar)
 	{
-		static int g_n_figure = 0;
-		pmodel = ++g_n_figure % 2 ? CreateDataModel1() : CreateDataModel2();
-
-		first = true;
-
+		pmodel = new DataModel();
+		pmodel->AddColumn(new DataColumnName);
+		pmodel->AddColumn(new DataColumnType);
+		pmodel->Update(tar.pd.get());
+		pmodel->m_pAttributeManager.reset(new DAttributeManager);
 	}
+
 
 	DataModel* pmodel;
 	AtomicSpin spin;
-
 
 
 	virtual bool OnWndEvent(IWndParam&,int)
@@ -1696,8 +1683,6 @@ public:
 		if(!basetype::DoActivate(wm,v)) return false;
 		if(v==0) return true;
 
-		wm.evtmgr["Wnd.Variable"].CmdExecuteEx(v>0 ? 2 : -2);
-		if (m_pBook) m_pBook->SelPage(v>0 ? m_pMyView.get() : NULL);
 
 		wm.evtmgr["Figure"].flags.set(EvtBase::FLAG_HIDE_UI,v<0);
 
@@ -1732,9 +1717,126 @@ public:
 };
 
 
+
+static DObject* CreateFigure1()
+{
+
+	DCoord* c = new DCoord2D;
+	c->m_sId = "coord2d";
+
+	DFigData2D* d = new DFigData2D;
+	d->m_sId = "data1";
+	c->m_pDataManager->m_aItems.append(d);
+
+	d = new DFigData2D;
+	d->m_sId = "data2";
+
+	c->m_pDataManager->m_aItems.append(d);
+
+	DText* t = new DText;
+	t->m_sText = "title";
+	t->m_sId = "title";
+	t->m_v3Pos[1] = 1.0;
+	t->m_v3Shf[1] = 1.0;
+	t->m_v3Pxl[1] = 8.0;
+	c->m_aItems.append(t);
+
+	t = new DText;
+	t->m_sText = "xlabel";
+	t->m_sId = "xlabel";
+	t->m_v3Pos[1] = -1.0;
+	t->m_v3Shf[1] = -1.0;
+	t->m_v3Pxl[1] = -23.0;
+	c->m_aItems.append(t);
+
+
+	t = new DText;
+	t->m_sText = "ylabel";
+	t->m_sId = "ylabel";
+	t->m_v3Pos[0] = -1.0;
+	t->m_v3Shf[0] = -1.0;
+	t->m_v3Pxl[0] = -23.0;
+
+	t->m_pAttribute.reset(new DAttribute);
+	t->m_pAttribute->SetValue("font_flags.text", (int)DFontStyle::STYLE_VERTICAL);
+
+	c->m_aItems.append(t);
+
+	return c;
+}
+
+static DObject* CreateFigure2()
+{
+
+	DCoord* c = new DCoord3D;
+	c->m_sId = "coord3d";
+	c->flags.add(DCoord3D::FLAG_SHOW_BOX);
+
+	DFigData3DImage* d = new DFigData3DImage;
+
+	d->m_aXvalues.resize(101);
+	for (int i = 0; i <= 100; i++)
+	{
+		d->m_aXvalues[i]=2.0*double(i-50);
+	}
+	d->m_aYvalues = d->m_aXvalues;
+	d->m_aZvalues.resize(101, 101);
+
+	for (int i = 0; i <= 100; i++)
+	{
+		for (int j = 0; j <= 100; j++)
+		{
+			d->m_aZvalues(i, j) = sin(0.1*(i)) + cos(0.1*(j));
+		}
+	}
+
+
+	d->m_sId = "data1";
+
+	c->m_pDataManager->m_aItems.append(d);
+
+
+
+	return c;
+
+}
+
+static DObject* CreateFigure3()
+{
+
+	DObject* p1 = CreateFigure1();
+	DObject* p2 = CreateFigure2();
+
+	DTableRow* p3 = new DTableRow("row");
+	DTableCell* c1 = new DTableCell("cell");
+	DTableCell* c2 = new DTableCell("cell");
+
+	c1->m_aItems.append(p1);
+	c2->m_aItems.append(p2);
+
+	p3->m_aItems.append(c1);
+	p3->m_aItems.append(c2);
+
+	return p3;
+}
+
 DataPtrT<MvcModel> PluginDomViewer::CreateSampleModel()
 {
-	return new MvcModelT<MvcViewFigure>;
+	DataPtrT<MvcModel> p= new MvcModelT<MvcViewFigure>();
+
+	static int i = 0;
+	switch(i++ % 3)
+	{
+	case 0:
+		p->pd.reset(CreateFigure1()); break;
+	case 1:
+		p->pd.reset(CreateFigure2()); break;
+	case 2:
+		p->pd.reset(CreateFigure3()); break;
+	}
+
+
+	return p;
 }
 
 
@@ -1742,22 +1844,20 @@ DataPtrT<MvcModel> PluginDomViewer::CreateSampleModel()
 bool PluginDomViewer::OnAttach()
 {
 
-	DataNodeCreator::Register<DFigure>();
-	DataNodeCreator::Register<DCoord2D>();
-	DataNodeCreator::Register<DFigData2D>();
-	DataNodeCreator::Register<DCoord3D>();
-	DataNodeCreator::Register<DFigData3D>();
-	DataNodeCreator::Register<DFigDataManager>();
-	DataNodeCreator::Register<DFigDataModel>();
-
-	DataNodeCreator::Register<DAxis>();
-
-	DataNodeCreator::Register<DAxisUnitD>();
-	DataNodeCreator::Register<DText>();
-
-	DataNodeCreator::Register<DTable>();
-	DataNodeCreator::Register<DTableRow>();
-	DataNodeCreator::Register<DTableCell>();
+	NCreatorRegister::init<DFigure>();
+	NCreatorRegister::init<DCoord2D>();
+	NCreatorRegister::init<DFigData2D>();
+	NCreatorRegister::init<DCoord3D>();
+	NCreatorRegister::init<DFigData3D>();
+	NCreatorRegister::init<DFigData3DImage>();
+	NCreatorRegister::init<DFigDataManager>();
+	NCreatorRegister::init<DFigDataModel>();
+	NCreatorRegister::init<DAxis>();
+	NCreatorRegister::init<DAxisUnitD>();
+	NCreatorRegister::init<DText>();
+	NCreatorRegister::init<DTable>();
+	NCreatorRegister::init<DTableRow>();
+	NCreatorRegister::init<DTableCell>();
 
 	EvtManager& ec(wm.evtmgr);
 
@@ -1800,8 +1900,8 @@ bool PluginDomViewer::OnCfgEvent(int lv)
 PluginDomViewer::PluginDomViewer(WndManager& w):basetype(w,"Plugin.FigViewer")
 {
 	m_aExtension.insert(".ewd");
-
 }
+
 
 IMPLEMENT_IPLUGIN(PluginDomViewer)
 

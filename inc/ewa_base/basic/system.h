@@ -4,16 +4,18 @@
 #include "ewa_base/config.h"
 #include "ewa_base/basic/string_detail.h"
 #include "ewa_base/basic/string.h"
-#include "ewa_base/basic/stringbuffer.h"
 #include "ewa_base/basic/platform.h"
 #include "ewa_base/basic/bitflags.h"
-#include "ewa_base/basic/stream.h"
-#include "ewa_base/basic/file.h"
 #include "ewa_base/basic/exception.h"
 
 #define EW_FUNCTION_TRACER(lv) FunctionTracer __function_tracer(__FUNCTION__,lv);
 
 EW_ENTER
+
+class Stream;
+
+template<typename T>
+class DLLIMPEXP_EWA_BASE StringBuffer;
 
 class DLLIMPEXP_EWA_BASE System
 {
@@ -22,7 +24,7 @@ public:
 	static bool Execute(const String& s);
 	static bool Execute(const String& s,StringBuffer<char>& result);
 
-	static Stream ExecuteRedirect(const String& s,bool* status=NULL);
+	static bool ExecuteRedirect(const String& s,Stream& stream);
 
 	static const String& GetModulePath();
 
@@ -129,7 +131,7 @@ public:
 };
 
 
-class DLLIMPEXP_EWA_BASE DllModule : public Object
+class DLLIMPEXP_EWA_BASE DllModule
 {
 public:
 	typedef KO_Handle<KO_Policy_module> impl_type;

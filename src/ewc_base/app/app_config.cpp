@@ -15,7 +15,7 @@ bool AppConfig::Load(const String& s)
 
 	try
 	{
-		ar.reader() & Serializer::head & values & Serializer::tail;
+		ar.reader().load(values);
 		return true;
 	}
 	catch(...)
@@ -36,7 +36,7 @@ bool AppConfig::Save(const String& s)
 
 	try
 	{
-		ar.writer() & Serializer::head & values & Serializer::tail ;
+		ar.writer().save(values);
 		return true;
 	}
 	catch(...)

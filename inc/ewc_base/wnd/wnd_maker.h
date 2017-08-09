@@ -5,9 +5,40 @@
 #include "ewc_base/wnd/wnd_property.h"
 #include "ewc_base/evt/validator_group.h"
 
+
 EW_ENTER
 
 class DLLIMPEXP_EWC_BASE WndPropertyEx;
+
+
+
+class IWnd_bookbase;
+class DLLIMPEXP_EWC_BASE IValueOptionBook : public IValueOptionData
+{
+public:
+
+	LitePtrT<IWnd_bookbase> pbook;
+
+	class OptionItem
+	{
+	public:
+		OptionItem(const String& v = "") :value(v){}
+		String value;
+		int ivalue;
+		LitePtrT<wxWindow> page;
+	};
+
+	void add(wxWindow* p, int val, const String& t);
+
+	virtual void set_selection(size_t i);
+	virtual int get_selection(int v);
+	virtual int get_value(int v);
+
+	virtual size_t size() const { return aOption.size(); }
+	virtual const String item(size_t i) const { return aOption[i].value; }
+
+	arr_1t<OptionItem> aOption;
+};
 
 class DLLIMPEXP_EWC_BASE WndProxyState
 {
@@ -20,8 +51,9 @@ public:
 	IWindowPtr hwnd;
 	ISizerPtr p_sz;
 	DataPtrT<ValidatorGroup> p_vg;
-
+	DataPtrT<IValueOptionBook> p_bk;
 };
+
 
 
 class DLLIMPEXP_EWC_BASE WndMaker : public IDefs
@@ -67,6 +99,8 @@ public:
 	IWINPROPERTY_PROPERTY_I2(size);
 	IWINPROPERTY_PROPERTY_S2(sprops);
 
+	IWINPROPERTY_PROPERTY_S1(book);
+
 	operator WndProperty&(){return _tempp;}
 	operator WndPropertyEx&(){return *(WndPropertyEx*)&_tempp;}
 
@@ -76,6 +110,8 @@ public:
 
 	WndMaker& win(const String& t,const WndProperty& p);
 	WndMaker& add(const String& t,const WndProperty& p);
+
+	WndMaker& load_script(const String& fp);
 
 	WndMaker& row(const WndProperty& p);
 	WndMaker& col(const WndProperty& p);
@@ -102,8 +138,11 @@ public:
 	DataPtrT<WndModel> pmodel;
 
 	void set_model(WndModel* p);
+	void set_evtmgr(EvtManager* p);
 	
 protected:
+
+	bst_map<String, DataPtrT<IValueOptionBook> > bookdata;
 
 	arr_1t<EvtBase*> aEvtArray;
 	arr_1t<DataPtrT<ValidatorGroup> > aValdStack;

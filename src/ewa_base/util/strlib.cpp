@@ -1,5 +1,7 @@
 #include "ewa_base/util/strlib.h"
 #include "ewa_base/basic/lookuptable.h"
+#include "ewa_base/basic/codecvt.h"
+#include "ewa_base/basic/system.h"
 
 #ifdef EW_MSVC
 #pragma warning(disable:4309)

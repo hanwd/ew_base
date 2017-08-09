@@ -3,6 +3,7 @@
 
 #include "ewa_base/collection/arr_1t.h"
 #include "ewa_base/collection/arr_xt.h"
+#include "ewa_base/collection/arr_op.h"
 #include "ewa_base/collection/lockfree_queue.h"
 #include "ewa_base/collection/ring_buffer.h"
 

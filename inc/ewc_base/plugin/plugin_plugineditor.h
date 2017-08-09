@@ -21,6 +21,8 @@ public:
 	virtual int MatchIndex(const String&);
 	virtual bool Open(const String&);
 
+	virtual bool GetExts(arr_1t<String>&){ return false; }
+
 
 	virtual DataPtrT<MvcModel> CreateModel(const String& fn)=0;
 
@@ -62,8 +64,8 @@ public:
 	virtual DataPtrT<MvcModel> CreateSampleModel();
 
 protected:
-	DataPtrT<MvcModel> m_pSampleModel;
 	bst_set<String> m_aExtension;
+
 };
 
 

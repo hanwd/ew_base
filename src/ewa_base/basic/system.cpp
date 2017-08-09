@@ -1,9 +1,16 @@
 #include "ewa_base/basic/system.h"
+#include "ewa_base/basic/stream.h"
 #include "ewa_base/basic/string.h"
 #include "ewa_base/basic/lockguard.h"
 #include "ewa_base/basic/atomic.h"
 #include "ewa_base/basic/stringbuffer.h"
 #include "ewa_base/util/strlib.h"
+#include "ewa_base/basic/stringbuffer.h"
+#include "ewa_base/basic/codecvt.h"
+#include "ewa_base/basic/console.h"
+#include "ewa_base/basic/file.h"
+#include "ewa_base/collection/linear_buffer.h"
+
 #include "../threading/thread_impl.h"
 
 #include "system_data.h"
@@ -139,6 +146,7 @@ void System::DebugBreak()
 void System::Exit(int v)
 {
 	System::LogTrace("System::Exit(%d)",v);
+	ThreadManager::current().close();
 	::exit(v);
 }
 
@@ -267,38 +275,35 @@ public:
 	}
 };
 
-Stream System::ExecuteRedirect(const String& s,bool* status)
+bool System::ExecuteRedirect(const String& s, Stream& stream)
 {
 
 	System::LogTrace("System::Exectue:%s", s);
 
 	DataPtrT<SerializerReaderProcess> proc(new SerializerReaderProcess);
 
-	Stream stream;
 	if(proc->Execute(s))
-	{
-		if(status) *status=true;
+	{		
 		stream.assign_reader(proc);
-
-		return stream;
+		return true;
 	}
 	else
 	{
-		if(status) *status=false;
-		return Stream();
+		return false;
 	}
 }
 
 bool System::Execute(const String& s, StringBuffer<char>& result)
 {
-	bool flag(false);
-	Stream stream=ExecuteRedirect(s,&flag);
 
-	if(!flag) return false;
+	Stream stream;
+	if (!ExecuteRedirect(s, stream))
+	{
+		return false;
+	}
 
 	stream.write_to_buffer(result);
 	return true;
-
 }
 
 

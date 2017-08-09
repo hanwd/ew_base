@@ -3,7 +3,7 @@
 #include "ewa_base/scripting/callable_array.h"
 #include "ewa_base/util/strlib.h"
 #include "ewa_base/basic/lookuptable.h"
-
+#include "ewa_base/basic/codecvt.h"
 EW_ENTER
 
 

@@ -4,6 +4,7 @@
 #include "ewa_base/collection/arr_xt.h"
 #include "ewa_base/serialization.h"
 #include "ewa_base/scripting.h"
+#include "ewa_base/math/math_def.h"
 
 using namespace ew;
 
@@ -39,8 +40,11 @@ public:
 	int32_t ivals[10];
 	arr_xt<float64_t> arr;
 
+	box3i bbox;
+
 	void Serialize(Serializer& ar)
 	{
+		ar & bbox;
 		ar & aInts;
 		ar & aMaps;
 		ar & s1 & ivals & arr;
@@ -56,7 +60,7 @@ TEST_DEFINE(TEST_Serializer)
 	SerializerStream stream;
 
 	sample_data dat[2];
-
+	dat[0].bbox.set_x(1, 3);
 	dat[0].aInts.push_back(1);
 	dat[0].aInts.push_back(5);
 	dat[0].aMaps["hello"]=1.033;
@@ -79,7 +83,9 @@ TEST_DEFINE(TEST_Serializer)
 	stream.openfile("test_serializer.dat",FLAG_FILE_WC|FLAG_FILE_TRUNCATE);
 	try
 	{
-		stream.writer() & Serializer::head & dat[0] & Serializer::tail;
+		stream.writer().handle_head();
+		stream.writer() & dat[0];
+		stream.writer().handle_tail();
 	}
 	catch(...)
 	{
@@ -90,14 +96,16 @@ TEST_DEFINE(TEST_Serializer)
 	stream.openfile("test_serializer.dat");
 	try
 	{
-		stream.reader() & Serializer::head & dat[1] & Serializer::tail;
+		stream.reader().handle_head();
+		stream.reader() & dat[1];
+		stream.reader().handle_tail();
 	}
 	catch(...)
 	{
 		TEST_ASSERT_MSG(false,"serializer read file failed!");
 	}
 	stream.close();
-
+	TEST_ASSERT(dat[1].bbox==dat[0].bbox);
 	TEST_ASSERT(dat[1].aInts==dat[0].aInts);
 	TEST_ASSERT(dat[1].aMaps==dat[0].aMaps);
 	TEST_ASSERT(dat[1].s1==dat[0].s1);
@@ -132,8 +140,15 @@ TEST_DEFINE(TEST_Serializer)
 
 	try
 	{
-		sbuf.writer() & Serializer::head & v1 &Serializer::tail; // write data to buffer
-		sbuf.reader() & Serializer::head & v2 &Serializer::tail; // read data from buffer
+		// write data to buffer
+		sbuf.writer().handle_head();
+		sbuf.writer() & v1;
+		sbuf.writer().handle_tail();
+
+		// read data from buffer
+		sbuf.reader().handle_head();
+		sbuf.reader() & v2;
+		sbuf.reader().handle_tail();
 	}
 	catch(...)
 	{
@@ -167,7 +182,9 @@ TEST_DEFINE(TEST_SerializerSeek)
 		p2->val=2.0;
 
 		writer.flags.add(Serializer::FLAG_OFFSET_TABLE);
-		writer & Serializer::head & p1 & p2 & p3 & Serializer::tail;
+		writer.handle_head();
+		writer & p1 & p2 & p3;
+		writer.handle_tail();
 
 	}
 	sf.close();
@@ -181,7 +198,7 @@ TEST_DEFINE(TEST_SerializerSeek)
 
 		SerializerReader &reader(sf.reader());
 
-		reader & Serializer::head;
+		reader.handle_head();
 
 		p3.reset(dynamic_cast<CallableTableEx*>(reader.read_object(3)));
 		p1.reset(dynamic_cast<float_string*>(reader.read_object(1)));

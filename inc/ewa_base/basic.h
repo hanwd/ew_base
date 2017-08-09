@@ -1,10 +1,11 @@
 #ifndef __H_EW_BASIC__
 #define __H_EW_BASIC__
 
-#include "ewa_base/basic/functor.h"
-#include "ewa_base/basic/platform.h"
 #include "ewa_base/basic/object.h"
 #include "ewa_base/basic/object_ex.h"
+#include "ewa_base/basic/platform.h"
+#include "ewa_base/basic/functor.h"
+#include "ewa_base/basic/stream.h"
 #include "ewa_base/basic/pointer.h"
 #include "ewa_base/basic/cmdline.h"
 #include "ewa_base/basic/string.h"

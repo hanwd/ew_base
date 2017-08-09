@@ -1,6 +1,7 @@
 
 #include "ewa_base/domdata/symm.h"
 #include "ewa_base/domdata/dstate.h"
+#include "ewa_base/scripting/executor.h"
 
 EW_ENTER
 
@@ -61,6 +62,11 @@ bool DState::link(const box2s& s, box2d& v)
 bool DState::link(const box2s& s, box2i& v)
 {
 	return link(s.lo, v.lo) && link(s.hi, v.hi);
+}
+
+bool DState::link(const String& s, arr_1t<double>& v)
+{
+	return lexer.eval(s, v);
 }
 
 bool DState::link(const String& s, arr_xt<double>& v)

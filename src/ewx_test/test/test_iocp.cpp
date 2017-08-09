@@ -18,9 +18,6 @@ public:
 
 	virtual void OnRecvCompleted(TempOlapPtr& q)
 	{
-		//AsyncSend(q);
-		//AsyncRecv();
-
 		if(!q2packet.update(q))
 		{
 			Disconnect();
